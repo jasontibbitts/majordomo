@@ -388,12 +388,6 @@ sub dispatch {
   # Sanitize the mode
   $request->{'mode'}     ||= '';
   $request->{'mode'}       = lc $request->{'mode'};
-  if ($request->{'mode'} =~ /([a-z-]+)/) {
-    $request->{'mode'} = $1;
-  }
-  else {
-    $request->{'mode'}       = '';
-  }
   $request->{'password'} ||= '';
   $request->{'sublist'}  ||= '';
   $request->{'user'}     ||= 'unknown@anonymous';
@@ -429,13 +423,28 @@ sub dispatch {
   $request->{'sublist'} = $sl if (length $sl);
   $request->{'time'} ||= $::log->elapsed;
 
+  if ($request->{'mode'} =~ /[^a-z=-]/) {
+    @modes = sort keys %{function_prop($request->{'command'}, 'modes')};
+    return [0, $self->format_error('invalid_mode', $request->{'list'},
+               'MODE' => $request->{'mode'},
+               'MODES' => \@modes)];
+  }
+  elsif ($request->{'mode'} =~ /([a-z=-]+)/) {
+    # Untaint
+    $request->{'mode'} = $1;
+  }
+  else {
+    $request->{'mode'}       = '';
+  }
+
   if ($request->{'mode'} and !$continued) {
     @tmp = split /[=-]/, $request->{'mode'};
     @modes = keys %{function_prop($request->{'command'}, 'modes')};
     for $l (@tmp) {
       unless (grep { $l =~ /^$_/ } @modes) {
-        $mess = join "\n", sort @modes;
-        return [0, qq(Invalid command mode: "$l"\nValid modes include:\n$mess\n)];
+        return [0, $self->format_error('invalid_mode', $request->{'list'},
+                   'MODE' => $request->{'mode'},
+                   'MODES' => \@modes)];
       }
     }
   }
@@ -3812,8 +3821,8 @@ sub _createlist {
   $list ||= '';
   my $log = new Log::In 35, "$mode, $list";
   my (%args, %data, @lists, @owners, @sublists, @tmp, $aliases, $bdir, $desc, 
-      $dir, $dom, $debug, $ent, $file, $i, $mess, $mta, $mtaopts, $pw, 
-      $rmess, $sender, $subs, $sublists, $who);
+      $dir, $dom, $debug, $ent, $file, $i, $j, $mess, $mta, $mtaopts, $pw, 
+      $rmess, $sender, $setting, $subs, $sublists, $who);
 
   unless ($mode =~ /regen|destroy/) {
     @tmp = split "\002\002", $owner;
@@ -3839,12 +3848,26 @@ sub _createlist {
   $who   =~ s/@.*$// if $who; # Just want local part
   $mtaopts = $self->_site_config_get('mta_options');
 
+  $aliases = $self->_list_config_get('DEFAULT', 'aliases');
+  unless (ref $aliases eq 'HASH') {
+    $aliases = $self->_list_config_get('DEFAULT', 'aliases', 1);
+    # Convert aliases and flags from old to new format
+    @tmp = ();
+    for ($j = 0 ; $k < length $aliases ; $k++) {
+      $setting = substr $aliases, $j, 1;
+      push @tmp, $Mj::List::alias{$setting};
+    }
+    $self->_list_config_set('DEFAULT', 'aliases', @tmp);
+    $self->_list_config_unlock('DEFAULT');
+    $aliases = $self->_list_config_get('DEFAULT', 'aliases');
+  }
+
   %args = ('bindir' => $bdir,
 	   'topdir' => $self->{topdir},
 	   'domain' => $dom,
 	   'whoami' => $who,
 	   'options'=> $mtaopts,
-	   'aliases'=> $self->_list_config_get('DEFAULT', 'aliases'),
+	   'aliases'=> {%$aliases},
 	   'queue_mode' => $self->_site_config_get('queue_mode'),
 	  );
 
@@ -3899,8 +3922,22 @@ sub _createlist {
     for my $i (keys %{$self->{'lists'}}) {
       $debug = $self->_list_config_get($i, 'debug');
       $aliases = $self->_list_config_get($i, 'aliases');
+
+      unless (ref $aliases eq 'HASH') {
+        # Convert aliases from old to new format
+        $aliases = $self->_list_config_get($i, 'aliases', 1);
+        @tmp = ();
+        for ($j = 0 ; $j < length $aliases ; $j++) {
+          $setting = substr $aliases, $j, 1;
+          push @tmp, $Mj::List::alias{$setting};
+        }
+        $self->_list_config_set($i, 'aliases', @tmp);
+        $self->_list_config_unlock($i);
+        $aliases = $self->_list_config_get($i, 'aliases');
+      }
+
       @sublists = ();
-      if ($aliases =~ /A/) {
+      if (defined $aliases->{'auxiliary'}) {
         if ($self->_make_list($i)) {
           @tmp = $self->_list_config_get($i, 'sublists');
           for my $j (@tmp) {

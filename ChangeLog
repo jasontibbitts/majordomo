@@ -1,3 +1,48 @@
+2000-12-07  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (dispatch)  Alter mode checking to
+	give an error instead of silently ignoring invalid punctuation.
+	(_createlist)  Convert the aliases setting from flags to
+	enumerated format if necessary.
+
+	* lib/Mj/Access.pm:  (list_access_check)  The data used to 
+	check time constraints on access rules are now a list
+	of lists rather than a scalar value.   Treat the master_password
+	variable as an integer instead of a boolean value.  This
+	allows administrative passwords to be differentiated by type.
+
+	* lib/Mj/BounceHandler.pm:  (handle_bounce_message, 
+	handle_bounce_token)  Use the first owner's address as the 
+	envelope sender to avoid loops if the majordomo-owner address
+	malfunctions.
+
+	* lib/Mj/Config.pm:  (get)  Return a scalar value if a
+	supposed listref is not a reference.
+	(parse_flags)  Remove unused routine.
+	(_compile_rule)  Revise time constraints to use a 2d listref.
+
+	* lib/Mj/List.pm:  (set)  Revise handling of flags to
+	convert configuration settings automatically from the old, 
+	abbreviated format to the new, enumerated format.  The
+	allowed_flags setting now treats each flag individually,
+	instead of grouping ack and hide flags.
+	(get_flags)  Convert an enumerated list of flags into a
+	a string of abbreviations.  Replaces the default_flags routine.
+
+	* lib/Mj/MTAConfig.pm:  (add_alias)  Use the new, enumerated
+	format of the aliases setting.
+
+	* lib/Mj/MailOut.pm:  (owner_done)  Use the first owner's
+	address as the envelope sender when forwarding mail to
+	the majordomo-owner address.
+
+	* lib/Mj/Resend.pm:  (_post)  Use the Date header for the 
+	date in the DATE substitution.
+
+	* lib/Mj/Util.pm:  (process_rule)  Treat the "current" time
+	spec checks as a list of lists.  Revise the "args" hash to
+	allow reasons and delays to be passed back to the calling routine.
+
 2000-12-07  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/BounceHandler.pm (handle_bounce_user): Remove rule
