@@ -1,3 +1,69 @@
+2000-09-24  Michael Yount <csf@moscow.com>
+
+	* files/en/ack_delay, delay, delay_noweb, repl_delay, 
+	repl_fulfill:  New reply files for "delay" tokens.
+	(Idea suggested by Marc Fournier.)
+
+	* bin/mj_email, mj_queuerun:  Determine author's address.
+	This allows the global 'access' checks to restrict posted
+	messages and messages to list owners.
+
+	* bin/mj_shell:  Add support for the default command
+	in interactive mode (delay, password, and user only).
+
+	* bin/mj_wwwadm:  Obtain token reasons from the reasons
+	variable instead of arg2.
+
+	* lib/Majordomo.pm:  Simplify calls to *_access_check.
+	(trigger) Add "delay" trigger to fulfill delayed requests.
+
+	* lib/Mj/Access.pm:  (_gen_pw) Accept an argument specifying
+	the minimum password length.
+	(list_access_check)  Use a hash instead of a long argument list.
+	If the master password is used, and a delay was requested,
+	delay the command.  Simplify calls to action routines (_a_*).
+        Remove _a_denymess and _d_password.  Add _a_delay routine to
+	handle the new "delay" action.
+
+	* lib/Mj/Archive.pm (find):  New routine.  Find a list of
+	archive files matching a pattern.  (Suggested by SRE)
+
+	* lib/Mj/Config.pm:  (_load_dfl) Do not allow the GLOBAL list
+	to use the DEFAULT settings.
+	(compile_pattern)  Allow a leading "!" to indicate inversion.
+
+	* lib/Mj/Format.pm (archive):  Synchronize multiple archives
+	with one command using one-archive chunks.
+
+	* lib/Mj/List.pm:  (archive_find) New wrapper for Mj::Archive::find.
+	(_str_to_time) Allow a whole number to indicate a number of seconds.
+
+	* lib/Mj/MIMEParser.pm (replace_headers):  Parse a file containing
+	a message and add, replace, or delete some of the message headers.
+
+	* lib/Mj/MailOut.pm (handle_bounce_token):  Do not delete a
+	delay token (type 'D') when a message bounces.
+
+	* lib/Mj/Parser.pm (parse_part):  Add support for the 
+	"default delay" command.
+
+	* lib/Mj/Resend.pm (post):  Return the error message for
+	a stalled or denied post, which will appear in 'inform'
+	messages mailed to the owners.
+
+	* lib/Mj/Token.pm:  (delay)  New routine.  Create delay tokens,
+	for requests which are completed when the token expires.
+	(t_accept)  Always requeue posted messages with an "Approved" header
+	added, to speed the reply to the accepter.
+	(t_fulfill)  New routine.  Expire delay tokens and complete
+	their requests.
+
+	* lib/Mj/TokenDB.pm:  Add "reasons" field.  Store reasons
+	there instead of in the arg2 fields.
+
+	* lib/Mj/Digest/Build.pm (idx_numbered):  Add new "numbered"
+	digest index format.
+
 2000-09-11  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Archive.pm (remove, sync, _sync_msgs): New routines.

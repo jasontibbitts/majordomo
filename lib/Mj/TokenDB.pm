@@ -36,7 +36,8 @@ use Mj::SimpleDB;
 
 my @fields = qw(type list command user victim mode cmdline approvals
 		chain1 chain2 chain3 chain4 arg1 arg2 arg3 time
-		changetime sessionid reminded permanent expire remind);
+		changetime sessionid reminded permanent expire remind
+                reasons);
 
 =head2 new(path)
 
