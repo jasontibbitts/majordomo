@@ -8,10 +8,14 @@ pattern, if specified, is a matching string (see "help patterns")
 
 Return the contents of the named sublist of a given list.
 
-There is currently no help file for sublist usage.
-
+Sublists, or auxiliary lists, are used to group e-mail
+addresses into categories.  These categories may be used
+in majordomo's access rules in a variety of ways.
+ 
 See Also:
-   help who (for syntax)
+   help auxadd                 (for discussion of auxiliary lists)
+   help configset access_rules 
+   help who                    (for syntax)
 
 For a list of all help topics send this one-line message
    help topics
