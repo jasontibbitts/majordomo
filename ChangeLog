@@ -1,3 +1,16 @@
+2003-08-13  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:  (_r_strip_body)  Bugfix:  allow
+	single-part HTML messages to be cleaned.
+	(clean_text)  Distinguish empty elements from elements
+	with content.
+	Process the decoded, not encoded, text.
+
+	* lib/Mj/Util.pm:  (plain_to_hyper)  Change the escape()
+	calling conventions
+	(clean_html)  Distinguish empty elements from elements
+        with content.
+	
 2003-08-12  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Resend.pm:  (_r_strip_body)  Bugfix:  preserve

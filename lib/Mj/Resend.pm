@@ -1699,7 +1699,7 @@ sub _r_strip_body {
   }
   elsif ($level == 1) {
     # single-part messages cannot have parts discarded, but the 
-    # message can be formatted.
+    # message can be formatted or cleaned.
     $_ = $mt = $ent->effective_type;
     $char = $ent->head->mime_attr('content-type.charset') 
               || 'iso-8859-1';
@@ -1716,6 +1716,17 @@ sub _r_strip_body {
         $i = $ent->head;
         $i->replace('Content-Type', "text/plain; charset=$char");
         push @changes, [$mt, 'format'];
+      }
+    }
+    elsif ($verdict eq 'clean') {
+      $log->message(50, 'info', "Cleaning MIME type $mt");
+      $txtfile = $self->clean_text($ent);
+
+      if ($txtfile) {
+        # Create a new body from the text file.
+        $i = new MIME::Body::File "$txtfile";
+        $ent->bodyhandle($i);
+        push @changes, [$mt, 'clean'];
       }
     }
   }
@@ -1832,7 +1843,7 @@ sub clean_text {
   my $self = shift;
   my $entity = shift;
   my $log = new Log::In 50;
-  my (@attr, @elem, $body, $outfh, $tmpdir, $txtfile, $type);
+  my (@attr, @elem, @tags, $body, $outfh, $tmpdir, $txtfile, $type);
 
   unless (defined $entity) {
     $log->message(50, 'info', "Entity is undefined.");
@@ -1860,8 +1871,9 @@ sub clean_text {
     $log->message(50, 'info', "Unable to open $txtfile: $!");
     return;
   }
-      
-  $entity->print_body($outfh);
+  
+  # Save the decoded text    
+  $entity->bodyhandle->print($outfh);
   close ($outfh)
     or $::log->abort("Unable to close file $txtfile: $!");
 
@@ -1870,10 +1882,12 @@ sub clean_text {
              onmousemove onmouseout onmouseover onmouseup onreset 
              onselect onunload);
 
-  @elem = qw(applet base embed form frame iframe ilayer img input 
-             layer link meta object option script select textarea);
+  @elem = qw(applet embed form frame iframe ilayer 
+             layer object option script select textarea);
 
-  return unless &clean_html($txtfile, \@attr, \@elem);
+  @tags = qw(base img input link meta);
+
+  return unless &clean_html($txtfile, \@attr, \@elem, \@tags);
   return $txtfile;
 }
 
