@@ -1,3 +1,13 @@
+Mon Dec 21 23:08:56 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_taboo_body): Start $max off at -1; the
+ 	first round through the loop sets it to 0 if it's unset.  This
+ 	avoids the problem of an empty check causing a run through the
+ 	entire body, allowing a nice optimization for the default case.
+
+	* lib/Mj/Resend.pm (_r_ck_body): Fix bug skipping body check when
+ 	$max (max line to check) is 0.
+
 Wed Dec 16 19:12:07 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Config.pm (parse_taboo_body): Start with $max = -1; this

@@ -613,7 +613,6 @@ sub _check_body {
   for $i ('GLOBAL', $list) {
     for $j ('admin_body', 'taboo_body') {
       $data = $self->_list_config_get($i, $j);
-      use Data::Dumper; warn Dumper $data;
       push @inv, @{$data->{'inv'}};
       $tcode->{$i}{$j} = $data->{'code'};
 
@@ -690,8 +689,8 @@ sub _r_ck_body {
 
   # Iterate over the lines
   while (defined($text = $body->getline)) {
-warn "$line, $max";
-    # Call the taboo matcher on the line if we're not past the max line
+    # Call the taboo matcher on the line if we're not past the max line;
+    # pay attention to $max == 0 case
     if (!$max || $line <= $max) {
       _ck_tbody_line($list, $reasons, $avars, $safe, $tcode, $inv, $line,
 		     $text);
@@ -836,8 +835,6 @@ sub _ck_tbody_line {
   my $log = new Log::In 250, "$list, $line, $text";
   my (@matches, $class, $i, $invert, $j, $k, $l, $match, $rule, $sev);
 
-  use Data::Dumper; warn Dumper $code;
-
   # Share some variables with the compartment
   $safe->share(qw($text $line));
   
@@ -845,8 +842,6 @@ sub _ck_tbody_line {
     for $j ('admin_body', 'taboo_body') {
       # Eval the code
       @matches = $safe->reval($code->{$i}{$j});
-warn "$i, $j, $code->{$i}{$j}";
-warn Dumper \@matches;
       warn $@ if $@;
       
       # Run over the matches that resulted
