@@ -1,3 +1,22 @@
+2003-02-25  Mathieu Arnold <m@absolight.net>
+
+	* setup/setup_func.pl, lib/Mj/SimpleDB.pm, lib/Mj/SimpleDB/SQL.pm,
+	Pg.pm, MySql.pm: Use the real config values for databases backends
+	connections.
+
+2003-02-21  Mathieu Arnold <m@absolight.net>
+
+	* lib/Mj/SimpleDB/SQL.pm, Pg.pm, MySql.pm: All the Tables needed are
+	now created on demand.
+
+	* setup/ask_basic.pl, setup_func.pl: Add back the possible use of the
+	experimentals SQL backends.
+	
+2003-02-18  Mathieu Arnold <m@absolight.net>
+
+	* lib/Mj/SimpleDB/SQL.pm, Pg.pm, MySql.pm: Add the PostgreSQL and
+	MySQL Database backends.
+
 2003-02-12  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (subscribe)  Prevent a variety of reserved
