@@ -1205,7 +1205,6 @@ sub aux_rekey {
 
         return (0, 0, 0);
       };
-    $changed = scalar(keys(%unreg)) + scalar(keys(%regent));
   }
 
   else { 
@@ -1242,6 +1241,9 @@ sub aux_rekey {
 
   $self->_make_aux($name);
   $self->{'sublists'}{$name}->mogrify($sub);
+  if (ref $reg and $name eq 'MAIN') {
+    $changed = scalar(keys(%unreg)) + scalar(keys(%regent));
+  }
   return ($count, \%regent, \%unreg, $changed);
 }
 
@@ -1890,6 +1892,67 @@ sub _make_archive {
 					$self->config_get('archive_split'),
 					$self->config_get('archive_size'),
 				       );
+  1;
+}
+
+=head2 rename_archive
+
+When a list changes names, the archive files are renamed
+by this routine.
+
+=cut
+use Symbol;
+sub rename_archive {
+  my $self = shift;
+  my $oldname = shift;
+  my $dir = $self->config_get('archive_dir');
+  my $log = new Log::In 120, $oldname;
+  my ($dirh, $file, $newfile);
+  return unless ($oldname);
+
+  # Default to /public/archive
+  unless ($dir) {
+    ($dir) = $self->fs_get('public/archive', 1, 1);
+  }
+
+  # Stop if the archive directory does not exist.
+  unless ($dir && -d $dir && -w $dir) {
+    $log->message(120, 'info', "The directory $dir is inaccessible.");
+    return;
+  }
+  unless (-d "$dir/.index" && -w "$dir/.index") {
+    $log->message(120, 'info', "The directory $dir/.index is inaccessible.");
+    return;
+  }
+
+  $dirh = gensym();
+
+  opendir ($dirh, $dir) 
+    or $::log->abort("Error opening directory $dir: $!");
+
+  while (defined($file = readdir $dirh)) {
+    if ($file =~ /^($oldname\..+)/ && -f "$dir/$file") {
+      $newfile = $file = $1;
+      $newfile =~ s/^$oldname/$self->{'name'}/;
+      rename ("$dir/$file", "$dir/$newfile");
+    }
+  }
+
+  close ($dirh); 
+ 
+  opendir ($dirh, "$dir/.index") 
+    or $::log->abort("Error opening directory $dir/.index: $!");
+
+  while (defined($file = readdir $dirh)) {
+    if ($file =~ /^([CI]$oldname\..+)/ && -f "$dir/.index/$file") {
+      $newfile = $file = $1;
+      $newfile =~ s/$oldname/$self->{'name'}/;
+      rename ("$dir/.index/$file", "$dir/.index/$newfile");
+    }
+  }
+
+  close ($dirh); 
+
   1;
 }
 
