@@ -521,6 +521,26 @@ sub make_setting {
   return (1, $flags, $class, $carg1, $carg2);
 }
 
+=head2 _digest_classes
+
+This returns a list of all full digest classes
+
+=cut
+sub _digest_classes {
+  my $self = shift;
+  my ($digests, $i, $j, @out);
+
+  $digests = $self->config_get('digests');
+  return unless (ref $digests eq 'HASH');
+
+  for $i (keys %$digests) {
+    for $j (keys %digest_types) {
+      push @out, "digest-$i-$j";
+    }
+  }
+  @out;
+}
+
 =head2 _str_to_time(string)
 
 This converts a string to a time.
