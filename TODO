@@ -211,32 +211,6 @@ Permissions: 700, owned by majordomo or 750, owned by root, in majordomo
   group.
 
 
-Mj::Util module
----------------
-Collect utility functions into a single module.  For instance, this part of
-Mj::Access is bad:
-
-	    $args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
-
-_str_to_time should be named str_to_time and moved to Util.pm.  The sane
-for _parse_table, (perhaps) parse_keyed, compile_pattern, (perhaps) _compile_rule,
-_str_to_offset, _str_to_clock from Config.pm, etc.
-
-A full list:
-
-List::_str_to_time
-List::_str_to_time_dm
-List::_time_to_str
-Config::compile_pattern
-Config::_str_to_offset
-Config::_str_to_clock
-common rule-running code from BounceHandler::handle_bounce_user and
-  Access::access_check (already started)
-
-These must be functions, not methods.  Methods should of course go in their
-class.
-
-
 mj_queuerun lifetime limiting
 -----------------------------
 In addition to an idle timeout, mj_queuerun needs a limit on how many

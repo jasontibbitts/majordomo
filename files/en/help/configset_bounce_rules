@@ -20,9 +20,16 @@ ENDTAG
 
 $INCLUDE-config/bounce_rules
 
+When a bounce message is received, Majordomo first takes it apart and
+extracts the address of the user who is bouncing messages.  Statistics are
+then generated, and then the bounce_rules are consulted to see what action
+should be taken.
+
 Currently there are three basic actions; inform is the default:
+
   ignore - do nothing; do not send a bounce notice to the owners and
-           perform no action on the list of subscribers.
+           perform no action on the list of subscribers.  (Statistics are
+           still genrated as appropriate.)
   inform - send a bounce notice to the owners, but leave the bouncing user
            on the list.
   remove - send a bounce notice to the owners, and remove the user from the
@@ -117,17 +124,39 @@ bouncedpct:
 diagnostic:
   The bounce diagnostic.  Majordomo tries to extract from each bounce a
   maningful error message.  You can match against it here if you want to do
-  perform special handling.  For example:
+  perform special handling.  This will contain the string "unknown" if no
+  diagnostic could be extracted.
 
-  # Be more lenient towards "mailbox full" errors:
-  remove
-  $diagnostic =~ /mailbox full/i &&
-  $consecutive > 100 &&
-  $consecutive_days > 7
+Here's an in-depth example
 
   # When AOL says a user doesn't exist, drop it immediately
   remove-noprobe
   $host = "aol.com" && $diagnostic =~ /mailbox not found/i
+
+  # Remove all users bouncing enough messages over three days, but not for
+  # "mailbox full" errors, because we want to be more lenient with them
+  remove
+  $consecutive > 20 &&
+  $consecutive_days > 3 &&
+  $diagnostic !~ /mailbox full/i
+
+  # Now deal with long consecutive runs that the above rule didn't match
+  remove
+  $consecutive > 100 &&
+  $consecutive_days > 7
+
+  # Deal with users bouncing lots of messages but not ever building up a
+  # big consecutive run.  Consult the owner once the probe fails.
+  remove-consult
+  $month > 200
+
+  # Inform the owner when we start seeing more than just a few bounces
+  inform
+  $day > 5
+
+  # Don't bother the owner otherwise
+  ignore
+  ALL
 
 It is possible to use comments before, between, and after the individual
 rules, but not within rules.  Comments are lines that begin with a '#'.
