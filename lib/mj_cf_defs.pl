@@ -182,7 +182,7 @@ $Mj::Config::default_string = q(
  'set_policy'           => "open+confirm",
  'signature_separator'  => '/^[-_]/',
  'site_name'            => $subs->{'site_name'},
- 'subject_re_pattern'   => '/(?:(?:re|sv|aw|antwort|re\^\d+|re\[\d+\]):\s*)+/i',
+ 'subject_re_pattern'   => '/(?: (?: re | sv |aw | antwort | re\^\d+ | re\[\d+\] ):\s*)+/ix',
  'subject_re_strip'     => 1,
  'subject_prefix'       => '[$LIST]',
  'sublists'             => [],
@@ -192,15 +192,15 @@ $Mj::Config::default_string = q(
  'tmpdir'               => $subs->{'tmpdir'},
  'token_lifetime'       => 7,
  'token_remind'         => 4,
- 'triggers'             => ($list eq 'GLOBAL') ? 
-                           [ 
-                             'checksum | daily', 
-                             'delay    | hourly', 
+ 'triggers'             => ($list eq 'GLOBAL') ?
+                           [
+                             'checksum | daily',
+                             'delay    | hourly',
                              'log      | daily',
-                             'session  | daily', 
-                             'token    | daily' 
-                           ] : 
-                           [ 
+                             'session  | daily',
+                             'token    | daily'
+                           ] :
+                           [
                              'bounce   | daily',
                              'checksum | daily',
                              'delay    | hourly',

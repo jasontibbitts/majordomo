@@ -1,0 +1,29 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname subject_re_pattern = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 
+       /(?: (?: re | sv |aw |antwort | re\^\d+ | re\[\d+\] ):\s*)+/ix
+Data Type     : pattern
+Category      : moderate
+Password Notes: Visible only with password.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+ 
+EXAMPLE:
+configset listname subject_re_pattern = \
+    /(?: (?: re | sv |aw |antwort | re\^\d+ | re\[\d+\] ):\s*)+/ix
+
+A pattern used to match Re: and other text that user mail programs
+place in the subject header to indicate replies.
+
+Majordomo uses this for two things:
+
+1) To place the subject_prefix after the reply indicator.
+
+2) In conjunction with subject_re_strip, to remove a number of
+   accumulated reply indicators.
+
+   Some mailers will use strings other than "Re:" in replies, such as
+   "SV:", "AW:", "Re^2:", etc. as reply indicators.  When several
+   mailers each insist on prepending their own reply indicators,
+   messages can accumulate an annoying stack of them.  This should
+   match any combination of reply indicators.

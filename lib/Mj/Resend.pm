@@ -1847,8 +1847,8 @@ removed.
 =cut
 sub _munge_subject {
   my ($self, $ent1, $list, $seqno) = @_;
-  my ($ent2, $gprefix, $head1, $head2, $prefix, $re_regexp, $re_strip,
-      $rest, $subject1, $subject2, $subs);
+  my ($ent2, $gprefix, $head1, $head2, $prefix, $re_mods, $re_regexp,
+      $re_strip, $rest, $subject1, $subject2, $subs);
 
   $ent2  = $ent1->dup;
   $head1 = $ent1->head;
@@ -1859,8 +1859,10 @@ sub _munge_subject {
   $re_regexp= $self->_list_config_get($list, 'subject_re_pattern');
   $re_strip = $self->_list_config_get($list, 'subject_re_strip');
 
-  # re_regexp will have delimiters, but we don't want them
-  $re_regexp =~ s!^/(.*)/i?$!$1!;
+  # re_regexp will have delimiters, but we don't want them.  We do want to
+  # save any modifiers.
+  $re_regexp =~ s!^/(.*)/([ix]*)$!$1!;
+  $re_mods = $2 || '';
 
   $subs = {
 	   $self->standard_subs($list),
@@ -1869,9 +1871,13 @@ sub _munge_subject {
 
   # Strip any existing Re:-like stuff and replace with a single "Re: "
   if ($re_strip && $subject1) {
-    ($re_part, $rest) = re_match("/^($re_regexp)\\s*(.*)\$/i", $subject1, 1);
-    $subject1 = "Re: $rest" if $re_part;
-    $re_regexp = 'Re: ';
+    ($re_part, $rest) =
+      re_match("/^($re_regexp)\\s*(.*)\$/$re_mods", $subject1, 1);
+    if (defined($re_part)) {
+      $subject1  = "Re:";
+      $subject1 .= " $rest" if defined($rest);
+      $re_regexp = 'Re: '; $re_mods = '';
+    }
   }
 
   $subject2 = $subject1;
@@ -1900,10 +1906,11 @@ sub _munge_subject {
 
       # otherswise tack it onto one copy and leave the other alone
       else {
-	($re_part, $rest) = re_match("/^($re_regexp)\\s*(.*)\$/i", $subject1, 1);
-	$re_part ||='';
-	$re_part =~ s/\s*$//;
-	$subject1 = "$re_part $prefix $rest";
+	($re_part, $rest) =
+	  re_match("/^($re_regexp)\\s*(.*)\$/$re_mods", $subject1, 1);
+	$re_part ||='';	$re_part =~ s/\s*$//;
+	$subject1  = "$re_part $prefix";
+	$subject1 .= " $rest" if defined($rest) && length($rest);
       }
     }
 

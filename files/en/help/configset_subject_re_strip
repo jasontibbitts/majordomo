@@ -1,0 +1,21 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname subject_re_strip = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : yes
+Data Type     : bool, choose from : 0 n no, 1 y yes
+Category      : moderate
+Password Notes: Visible only with password.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+ 
+EXAMPLE:
+configset listname subject_re_strip = yes
+
+In conjunction with subject_re_pattern, to remove a number of accumulated
+reply indicators.
+
+Some mailers will use strings other than "Re:" in replies, such as "SV:",
+"AW:", "Re^2:", etc. as reply indicators.  When several mailers each insist
+on prepending their own reply indicators, messages can accumulate an
+annoying stack of them.  When subject_re_strip is set, any reply indicators
+at the beginning of the sbject header which are matched by
+subject_re_pattern will be deleted and replaced with the string "Re:".
