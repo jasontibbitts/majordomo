@@ -1,7 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-which-regex searchstring
+which[-pattern][-regex] searchstring
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
--regex, if specified, makes searchstring a pattern (see "help patterns")
+-pattern, if specified, makes searchstring a pattern (see "help patterns")
+-regex,   if specified, makes searchstring a pattern (see "help patterns")
 searchstring, required, is an email address fragment you wish to find
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,32 +14,35 @@ may be in comment fields, just the simple email addresses).
 Each list owner may decide who is authorized to use this command,
 and you will receive an error message if you have been refused access.
 
-If the "-regex" option is used, "searchstring" is interpreted as a
+If the "pattern" command mode is used, "searchstring" is interpreted as a
 Majordomo matching pattern. Review the "help patterns" file carefully.
 Patterns can be very simple or full-blown Perl regular expressions.
 
-Without the "-regex" option, "searchstring" is matched literally
+Without the "pattern" mode, "searchstring" is matched literally
 with no interpretation of special characters. Matching is case sensitive.
 
-Which can return a huge amount of data, so be as specific as possible
+The "pattern" and "regex" command modes are identical.
+
+This command can return a huge amount of data, so be as specific as possible
 when choosing the string to search for. Matches may be case sensitive,
 so if "Joe" does not match, try "joe" instead.
 
-Anyone who uses this command without the site password will be
-limited to one match per mailing list, unless the list owner(s)
-and/or the site administrator have configured "access_rules" to
-allow more than the default of a single match.
+Anyone who uses this command without the site password will be limited
+to one match per mailing list, unless the list owner(s) and/or the site
+administrator have configured "access_rules" to allow more than the
+default of a single match.
 
-Since "which" is a global command, attempting to use it with a 
-password that is specific to one mailing list will result in an
-"Invalid password" error.
+Since "which" is a global command, attempting to use it with a password
+that is specific to one mailing list will result in an "Invalid
+password" error.
 
 See Also:
    help access_variables 
+   help admin_subscribers
    help configset_access_rules (to restrict use of which)
    help configset_which_access (to restrict use of which)
    help patterns (for simple and complex regular expressions)
-   help show     (for information about a given subscriber)
-   help who      (for all subscribers to a given list)
+   help show     (for information about a particular subscriber)
+   help who      (for all subscribers to a particular list)
 
 $INCLUDE-help/foot
