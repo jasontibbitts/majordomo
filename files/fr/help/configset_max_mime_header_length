@@ -12,11 +12,11 @@ configset liste max_mime_header_length = 128
 
 $INCLUDE-config/max_mime_header_length
 
-Certains logiciels de courrier sont sujet a des plantages et a des
+Certains logiciels de courrier sont sujet à des plantages et à des
 trous de sécurité lorsqu'il leur est passé des en-têtes MIME qui
 excèdent une certaine taille. Bien que ces logiciels soient
-définitivement a mettre a la poubelle et que leurs utilisateurs
-devraient contacter les éditeurs pour avoir des mises a jour, cette
+définitivement à mettre à la poubelle et que leurs utilisateurs
+devraient contacter les éditeurs pour avoir des mises à jour, cette
 variable est la pour filtrer ces types de messages.
 
 Notez que ce paramètre n'implémente aucun filtrage pour les trous de

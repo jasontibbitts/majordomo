@@ -8,7 +8,7 @@ liste, requis, la liste en question (ou global)
 
 La commande "newinfo" remplacera le contenu du fichier "/info" qui est
 affiché par la commande "info". Par défaut, ce fichier est aussi
-envoyé aux nouveaux abonnés lorsqu'ils s'abonnent a une liste (référez
+envoyé aux nouveaux abonnés lorsqu'ils s'abonnent à une liste (référez
 vous à "help configset_welcome_files" pour plus de détails).
 
 Le nouveau contenu du fichier info doit être inclu dans un document

@@ -20,7 +20,7 @@ Juin 2001 de la liste poire pourra avoir le nom suivant :
   poire.200106
 
 Si la taille  de l'archive est limitée, le nom de fichier sera suivi
-d'un tiret et de 2 chiffres. Par exemple, si la liste poire a une
+d'un tiret et de 2 chiffres. Par exemple, si la liste poire à une
 limite de 50 messages, les messages d'Août 2001 seront découpés dans
 trois archives :
   poire.200108-00

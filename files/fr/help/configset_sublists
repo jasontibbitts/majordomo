@@ -21,7 +21,7 @@ ENDTAG
 
 $INCLUDE-config/sublists
 
-Les sous-listes sont aussi appelées listes auxiliaires. Référez vous a
+Les sous-listes sont aussi appelées listes auxiliaires. Référez vous à
 "help auxiliary_list" pour une introduction.
 
 Si l'alias "auxiliary" est listé dans le paramètre de configuration

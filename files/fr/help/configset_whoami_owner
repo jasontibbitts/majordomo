@@ -21,7 +21,7 @@ comme adresse "pomme@exemple.fr", il faut écrire à
 "whoami_owner" est public, alors que l'adresse "sender" est uniquement
 utilisée en interne. Cette adresse apparaît fréquemment dans les
 en-tête "From:" des emails de notifications qui sont envoyés par le
-serveur Majordomo en réponse a des commandes ou des messages postés.
+serveur Majordomo en réponse à des commandes ou des messages postés.
 
 Si il n'y a pas de domaine donné pour l'adresse, par exemple :
   configset maliste whoami_owner = webmaster

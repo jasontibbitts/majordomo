@@ -27,7 +27,7 @@ Majordomo l'utilise pour trois choses :
    comme "SV:", "AW:", "Re^2:", etc. comme indicateurs de réponse.
    Lorsque plusieurs logiciels de courrier insistent sur le fait que
    leur indicateur de réponse est le meilleur, un sujet peut en
-   accumuler un bon nombre. Ils devraient correspondre a une
+   accumuler un bon nombre. Ils devraient correspondre à une
    combinaison d'indicateurs de réponse.
 
 3) pour trier les messages par sujet ou discussion dans la commande
