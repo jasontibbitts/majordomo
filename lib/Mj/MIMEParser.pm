@@ -107,7 +107,7 @@ sub collect_data {
   $tmp ||= $head->get('date');
   chomp $tmp;
   $tmp = &str2time($tmp);
-  $tmp = time unless ($tmp > 0 and $tmp < time);
+  $tmp = time unless (defined ($tmp) and $tmp > 0 and $tmp < time);
   $data->{'date'} = $tmp;
   
   chomp($data->{'from'} = $head->get('from') ||
