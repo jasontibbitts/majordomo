@@ -28,8 +28,6 @@ Untainting sometimes happens in the wrong place; in a C/S model, we won't
 
 Requests from SRE
 -----------------
-register-update - if stripped address is the same, update the comment.
-subscribe-update - same
 Add an 'address' argument to the inform variable; address to send
  information to.
 
@@ -105,14 +103,11 @@ Add option to set umask of generated alias files.
 Don't show the user variables that they can't change.  (Make their values
 visible to the interface but don't have configshow display them).
 
-confirm_consult needs to generate "now the owner must approve" message.
-
 Move all aliases into one file, and all vut entries into one file, to make
   sendmail configuration easier.
 Move t_accept messages into external files.
 Return additional information from _post so that t_accept can provide
   additional data.
-Finish work on allowed_flags and allowed_classes.
 Update FILES.
 Delay allocation of Dest/Sorter objects until something actually goes into
   them.
@@ -186,11 +181,6 @@ F'ter stuff:
 
 
 ! Auto-maintain aliases:
-  Add 'del_one' in Mj::MTAConfig::Sendmail; opens a filerepl and copies the
-  alias file until the opening comment is hit, then it skips until after the
-  closing comment, then prints the rest of the file.  Use this for a
-  'createlist-delete' routine.
-
   Call out to commands to rebuild aliases and VUT files.
 
 ! Archiver:
@@ -256,12 +246,6 @@ F'ter stuff:
     Log result.
     Call bottom half if necessary.
 
-! One more majordomo routines to work over for the rewrite:
-  rekey - this needs to be a generic database-lint routine.  The keys
-   should be regenerated from the stripped addresses and the list of lists
-   in the reg database should be updated from the actual membership lists.
-   This makes this a global function and an extremely time consuming one.
-
 ! Dispatch should log password failures for overriding logging.
 
 - Make 'default' work in interactive shell.
@@ -280,9 +264,6 @@ F'ter stuff:
   Write autoconversion function.
 
   Write backends: BerkeleyDB, MySQL.
-
-- Need a deletelist command.  Should update the master address database,
-  removing all of the entries.
 
 ! Finish archive interface.
 
@@ -321,8 +302,6 @@ F'ter stuff:
 
 - Implement rejection (and perhaps acceptance) messages for tokens, and add
   a box to type them in to the web interface.
-
-- Rewrite the web interface to use proper design techniques.
 
 ? Move spool files out of filespace like sessions?  Use filespace only for
   things needing remote access (not spooled files) or things needing i18n
@@ -586,21 +565,6 @@ We already support translated long documents.
    address and a timestamp and ignore/purge old requests?
   How to store this data?  Probably not in the config file.
 
-reregister/resubscribe
-- Need a way to change a user's address.  At mimimum, need to change to
-  something that is equivalent (i.e. add or change comments).
-
-  Problems: cannot break link between registration and subscriber
-  databases, since we are keyed on address and not some unique ID and we
-  look up whatever database is most convenient, not always the registration
-  database first.
-
-Changing the subscription address could create a new registration or move
-from one registration to the other.  Changing the registration address
-could update all subscriptions.
-
-  
-
 Categorized ideas:
 -----------------
 
@@ -611,13 +575,13 @@ Email Interface
 - prescan for bad situations: unmatched tokens, too many subscribes in one
   message, etc.
 - prescan for access restriction override.
-- context-sensitive help: TextOutput routines return list of help topics
+- context-sensitive help: Format routines return list of help topics
   with error; email interface looks up topics and mails back appropriate
   help.
 - make sure that no internal routine gets called with an undefined list:
   "subscribe" sent with no deflist set.
 
-TextOutput
+Format
 - info ALL for hyper-long lists output
 - auxshow list ALL
 
@@ -727,9 +691,7 @@ If processing a command yields an invalid address error and following line
  does not hold a legal command, join the two lines and try again.
 Export information from the registration database to .htaccess files, so
  owners can restrict access to web archives or whatever.
-Provide some way for users to see what digests are available.
 Add an X-Header indicating whether or not the posting user is subscribed.
-Make _post call inform itself to get useful information in the log.
  digest-headers variable?
 Keep a count of addresses delivered to and return this out of the delivery
  module.
