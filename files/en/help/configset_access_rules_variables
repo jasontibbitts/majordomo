@@ -217,8 +217,8 @@ Second, the variables available for each request (see bottom for explanations):
   admin
   any
   bad_approval
+  body_length
   body_length_exceeded
-  bytes
   days_since_subscribe
   dup
   dup_checksum
@@ -233,6 +233,8 @@ Second, the variables available for each request (see bottom for explanations):
   mime
   mime_consult
   mime_deny
+  mime_header_length
+  mime_header_length_exceeded
   mismatch
   percent_quoted
   posing
@@ -377,11 +379,12 @@ Third, an explanation of each variable:
                 bad_approval - is set if someone tried to do use a classic
                                approval method and gave a bad password
 
-        body_length_exceeded - is set if 'bytes' exceeds the value in
-                               'configset LISTNAME maxlength'
+                 body_length - contains the number of characters actually
+                               in the message body, see
+                               'body_length_exceeded' for test
 
-                       bytes - contains the actual byte count of the
-                               message, see 'body_length_exceeded' for test
+        body_length_exceeded - is set if 'body_length' exceeds the value in
+                               'configset LISTNAME maxlength'
 
         days_since_subscribe - contains the number of days since the user
                                signed up (used for a cooling off period
@@ -417,8 +420,8 @@ Third, an explanation of each variable:
                                listname on a subscribe request (e.g.
                                someone is trying to make a mail loop)
 
-           max_header_length - contains the length of the longest header in
-                               the message, see
+           max_header_length - contains the number of characters actually
+                               in the longest header, see
                                'max_header_length_exceeded' for test
 
   max_header_length_exceeded - is set if 'max_header_length' exceeds the
@@ -434,8 +437,8 @@ Third, an explanation of each variable:
                    mime_deny - is set if attachment_rules flagged a MIME
                                part as 'deny'
 
-          mime_header_length - contains the length of the longest MIME
-                               header in the message, see
+          mime_header_length - contains the number of characters actually
+                               in the longest MIME header, see
                                'mime_header_length_exceeded' for test
 
  mime_header_length_exceeded - is set if 'mime_header_length' exceeds the
