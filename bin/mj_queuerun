@@ -401,8 +401,6 @@ sub resend {
   # it.  The regexp doesn't harm the body $sess contains only the headers.
   $sess =~ s/^From .*?\r?\n//;
 
-  # If the message is destined for an auxiliary list, separate
-  # it from the name of the main list.
   $sublist ||= '';
   $request = {
     'command'   => 'post',
