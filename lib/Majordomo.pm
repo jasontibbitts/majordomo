@@ -3595,7 +3595,7 @@ sub lists {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'mode'}";
   my (@lines, @out, @sublists, $cat, $compact, $count, $data, $desc, 
-      $flags, $limit, $list, $mess, $ok, $sublist);
+      $digests, $flags, $i, $limit, $list, $mess, $ok, $sublist);
 
   # Stuff the registration information to save lots of database lookups
   $self->_reg_lookup($request->{'user'});
@@ -3655,11 +3655,20 @@ sub lists {
     }
     # "aux" mode: return information about auxiliary lists
     # and other administrative details
+    # XXX Use config_get_vars with user and password to allow
+    # restrictions on the data.
     if ($request->{'mode'} =~ /aux/) {
       $data->{'owner'}    = $self->_list_config_get($list, 'whoami_owner');
       $data->{'address'}  = $self->_list_config_get($list, 'whoami');
       $data->{'subs'}     = $self->{'lists'}{$list}->count_subs;
       $data->{'archive'}  = $self->_list_config_get($list, 'archive_url');
+      $data->{'digests'}  = {};
+      $digests = $self->_list_config_get($list, 'digests');
+      for $i (keys %$digests) {
+        next if ($i eq 'default_digest');
+        $data->{'digests'}->{$i} = 
+          $self->{'lists'}{$list}->describe_class('digest', $i, '');
+      }
     }
     push @out, $data;
  
@@ -4110,7 +4119,7 @@ use Mj::Archive qw(_secs_start _secs_end);
 sub _report {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $action, $d, $date) = @_;
   my $log = new Log::In 35, "$list, $action";
-  my (@actions, @legal, $begin, $count, $end, $file, $span);
+  my (@actions, @legal, $begin, $end, $file, $span);
 
   if (defined $action) {
     @actions = split /\s*,\s*/, $action;
@@ -4134,14 +4143,11 @@ sub _report {
       return (0, "Unable to parse date $date.\n")
         unless ($begin <= $end);
     }
-    # 5m for last five months, 2h for last two hours
-    elsif ($date =~ /^(\d+)([hdwmy])$/) {
-      $count = $1 * 3600; $span = $2;
-      if    ($span eq 'h') { $begin = $end - $count; }
-      elsif ($span eq 'd') { $begin = $end - ($count*24); }
-      elsif ($span eq 'w') { $begin = $end - ($count*24*7); }
-      elsif ($span eq 'm') { $begin = $end - ($count*24*30); }
-      elsif ($span eq 'y') { $begin = $end - ($count*24*365); }
+    # 5m for last five months, 1d2h for last 26 hours
+    elsif ($span = Mj::List::_str_to_time($date)) {
+      # _str_to_time returns current time + the difference.
+      # Convert to current time - the difference.
+      $begin = 2 * $end - $span;
     }
     else {
       return (0, "Unable to parse date $date.\n");
@@ -4683,48 +4689,50 @@ use Mj::Lock;
 sub trigger {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'mode'}";
-  my($list);
+  my ($list, $mode);
+  $mode = $request->{'mode'};
 
   # Right now the interfaces can't call this function (it's not in the
   # parser tables) so we don't check access on it.
 
-  # Mode: daily - clean out tokens and sessions and other databases
-  if ($request->{'mode'} =~ /^d/) {
+  # Mode: daily or token - expire tokens and passwords, and send reminders
+  if ($mode =~ /^(da|t)/) {
     $self->t_expire;
     $self->t_remind;
+  }
+  # Mode: daily or session - expire session data
+  if ($mode =~ /^(da|s)/) {
     $self->s_expire;
+  }
+  # Mode: daily or log - expire log entries
+  if ($mode =~ /^(da|l)/) {
     $self->l_expire;
-    # Loop over lists
-    $self->_fill_lists;
-    for $list (keys %{$self->{'lists'}}) {
+  }
+  # Loop over lists
+  $self->_fill_lists;
+  for $list (keys %{$self->{'lists'}}) {
+    # GLOBAL and DEFAULT never have duplicate databases or members
+    next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
+    next unless $self->_make_list($list);
 
-      # GLOBAL and DEFAULT never have duplicate databases or members
-      next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
-      next unless $self->_make_list($list);
-
-      # Expire checksum and message-id databases
+    # Mode: daily or checksum - expire checksum and message-id databases
+    if ($mode =~ /^(da|c)/) {
       $self->{'lists'}{$list}->expire_dup;
+    }
 
-      # Expire vacation settings
+    # Mode: daily or bounce or vacation - expire vacation settings and bounces
+    if ($mode =~ /^(da|b|v)/) {
       $self->{'lists'}{$list}->expire_subscriber_data;
     }
-  }
 
-  # Mode: hourly
-  if ($request->{'mode'} =~ /^h/) {
-    # Loop over lists
-    $self->_fill_lists;
-    for $list (keys %{$self->{'lists'}}) {
-      # Nothing to do to GLOBAL
-      next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
-      next unless $self->_make_list($list);
-
+    # Mode: hourly or digest - issue digests 
+    if ($mode =~ /^(h|di)/) {
       # Call digest-check; this will do whatever is necessary to tickle the
       # digests.
-      $self->_digest($list, $request->{'user'}, $request->{'user'}, 'check', '', 'ALL');
+      $self->_digest($list, $request->{'user'}, 
+                     $request->{'user'}, 'check', '', 'ALL');
     }
-  }      
-
+  }
   (1, '');
 }
 
