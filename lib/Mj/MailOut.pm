@@ -1,6 +1,6 @@
 =head1 NAME
 
-Mj::MailOut.pm - simple mailing functions for Majorodmo
+Mj::MailOut.pm - simple mailing functions for Majordomo
 
 =head1 SYNOPSIS
 
@@ -9,7 +9,7 @@ Mj::MailOut.pm - simple mailing functions for Majorodmo
 
  # Send a file to all members of $lists's digest class except for
  # "addressa"
- $mj->deliver($list, $sender, $file, $seqno, "digest", "addressa");
+ $mj->deliver($list, $sublist, $sender, $file, $seqno, "digest", "addressa");
 
 =head1 DESCRIPTION
 
@@ -109,7 +109,7 @@ sub mail_entity {
   }
 }
 
-=head2 deliver(list, sender, sequence_number, class_hashref)
+=head2 deliver(list, sublist, sender, sequence_number, class_hashref)
 
 This calls the delivery routine to deliver a message to all subscribers to
 a list who are in a certain class, except for some users.
@@ -125,21 +125,29 @@ use Mj::MTAConfig;
 sub deliver {
   my $self    = shift;
   my $list    = shift;
+  my $sublist = shift || '';
   my $sender  = shift;
   my $seqno   = shift;
   my $classes = shift;
 
   my $log = new Log::In 30;
-  my(%args, $bucket, $buckets, $mta);
+  my(%args, $bucket, $buckets, $mta, $subdb);
 
   # Figure out some data related to bounce probing
   $mta     = $self->_site_config_get('mta');
   $buckets = $self->_list_config_get($list, 'bounce_probe_frequency');
-  $bucket  = $seqno % $buckets if $buckets;
+  #
+  if (defined $seqno) {
+    $bucket  = $seqno % $buckets if $buckets;
+  }
+  else {
+    $bucket = int(rand $buckets) if $buckets;
+  }
   $regexp  = $self->_list_config_get($list, 'bounce_probe_pattern');
 
   %args =
     (list    => $self->{'lists'}{$list},
+     sublist => $sublist,
      sender  => $sender,
      classes => $classes,
      rules   => $self->_list_config_get($list,'delivery_rules'),
@@ -202,7 +210,13 @@ sub owner_done {
     # Nothing from the bounce parser
     # Just mail out the file as if we never saw it
     $sender  = $self->_list_config_get('GLOBAL', 'sender');
-    @owners  = @{$self->_list_config_get($request->{'list'}, 'owners')};
+    if ($request->{'mode'} eq 'm') {
+      # Forward to moderators instead of owners.
+      @owners = $self->{'lists'}{$request->{'list'}}->moderators;
+    }
+    else {
+      @owners  = @{$self->_list_config_get($request->{'list'}, 'owners')};
+    }
     $self->mail_message($sender, $self->{'owner_file'}, @owners);
   }
 
