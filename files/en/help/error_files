@@ -14,6 +14,13 @@ into the appropriate format file for the command that generated the error
 
 The variable substitutions supported by each file are listed in parentheses.
 
+already_subscribed
+------------------
+This message is displayed if an attempt is made to subscribe an address
+that is already a subscriber.
+
+(standard plus FULLADDR, VICTIM)
+
 digest_mode
 -----------
 This message is displayed if the digest command is issued without one
