@@ -541,7 +541,7 @@ sub parse_part {
         $outfh->close()
           or $::log->abort("Unable to close file $name: $!");
 
-        $sender = $mj->_list_config_get('sender', $request->{'list'});
+        $sender = $mj->_list_config_get($request->{'list'}, 'sender');
 
         if ($result->[0] and ref($result->[1]) eq 'HASH' and
             exists ($result->[1]->{'description'})) {
@@ -567,7 +567,7 @@ sub parse_part {
            Subject  => $mess,
            'MIME-Version' => "1.0",
           );
-        $mj->mail_entity($sender, $ent, $user) if ($ent and $sender);
+        $mj->mail_entity($sender, $ent, $user) if $ent;
         $ent->purge if $ent;
         unlink $name;
         print $outhandle 
