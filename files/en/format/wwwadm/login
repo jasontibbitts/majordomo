@@ -1,6 +1,8 @@
 <pre>?ERROR</pre>
 <form method="POST" action="$CGIURL">
   <input type="hidden" name="func" value="$COMMAND">
+  <input type="hidden" name="chunksize" value="?CHUNKSIZE">
+  <input type="hidden" name="extra" value="?EXTRA">
 
 <table cellspacing="15" width="100%">
 <tr>
