@@ -1,19 +1,19 @@
 sub ask_domain {
-  my ($config, $i) = @_;
+  my ($config, $dom) = @_;
   my ($cfg, $def, $msg, $tmp);
 
-  $config->{'domain'}{$i} ||= {};
-  $cfg = $config->{'domain'}{$i};
+  $config->{'domain'}{$dom} ||= {};
+  $cfg = $config->{'domain'}{$dom};
 
   #---- Ask for global configuration information:
 
   #---- Actual Internet domain
-  $msg = retr_msg('internet_domain', $lang, 'DOMAIN' => $i);
-  $def = $cfg->{'whereami'} || $i;
+  $msg = retr_msg('internet_domain', $lang, 'DOMAIN' => $dom);
+  $def = $cfg->{'whereami'} || $dom;
   $cfg->{'whereami'} = get_str($msg, $def);
   
   #---- The Majordomo server address
-  $msg = retr_msg('server_address', $lang, 'DOMAIN' => $i,
+  $msg = retr_msg('server_address', $lang, 'DOMAIN' => $dom,
                   'WHEREAMI' => $cfg->{'whereami'});
   $def = $cfg->{'whoami'} || 'majordomo';
   $cfg->{'whoami'} = get_addr($msg, $def, $cfg->{'whereami'});
@@ -22,14 +22,14 @@ sub ask_domain {
   $tmp = $cfg->{'whoami'};
   $tmp =~ s/\@[\w+.-]+$//;
 
-  $msg = retr_msg('domain_owner', $lang, 'DOMAIN' => $i,
+  $msg = retr_msg('domain_owner', $lang, 'DOMAIN' => $dom,
                   'WHEREAMI' => $cfg->{'whereami'}, 
                   'WHOAMI' => $tmp);
   $def = $cfg->{'owner'};
   $cfg->{'owner'} = get_addr($msg, $def, $cfg->{'whereami'});
   
   #---- A brief title for the domain
-  $msg = retr_msg('site_name', $lang, 'DOMAIN' => $i);
+  $msg = retr_msg('site_name', $lang, 'DOMAIN' => $dom);
   $def = $cfg->{'site_name'};
   $cfg->{'site_name'} = get_str($msg, $def);
   
@@ -62,7 +62,7 @@ sub ask_domain {
 
   #---- Ask for qmail information
   if ($config->{'mta'} eq 'qmail') {
-    ask_qmail_domain($config, $i);
+    ask_qmail_domain($config, $dom);
   }
 }
 

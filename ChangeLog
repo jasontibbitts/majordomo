@@ -1,3 +1,7 @@
+2002-06-26  Michael Yount <csf@moscow.com>
+
+	* setup/ask_domain.pl:  Fix typos.  Thanks to Brock Rozen.
+
 2002-06-24  Michael Yount <csf@moscow.com>
 
 	* Makefile.PL:  Move configuration questions into message

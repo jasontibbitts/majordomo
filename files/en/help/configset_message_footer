@@ -53,7 +53,7 @@ See Also:
    help admin_delivery
    help commands
    help configset_attachment_filters (to remove or alter parts of a message)
-   help configset_message_footer_frequency (for how often the foonter is sent)
+   help configset_message_footer_frequency (for how often the footer is sent)
    help configset_message_fronter (to add a fronter to the message)
    help configset_message_fronter_frequency (for how often the fronter is sent)
    help set
