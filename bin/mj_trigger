@@ -13,7 +13,8 @@ BEGIN {
 
   # Redirect STDERR as soon as possible to catch errors and warnings
   if (! -t STDOUT) {
-    open (STDOUT, ">>$::TMPDIR/mj_trigger.debug");
+    open (STDOUT, ">>$::TMPDIR/mj_trigger.debug") or
+      die "Can't redirect debug output to $::TMPDIR/mj_trigger.debug: $!";
   }
 }
 

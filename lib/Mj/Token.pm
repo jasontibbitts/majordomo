@@ -178,15 +178,6 @@ sub confirm {
 			@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
 			$expire, $remind);
 
-#   # Spool away the message if doing a post request
-#   if ($args{'request'} eq 'post') {
-#     $self->_list_file_put('GLOBAL', "spool/$token", $args{'args'}[0],
-# 			  'overwrite',
-# 			  "Spooled awaiting acceptance of $token",
-# 			  'message/rfc822', 'ISO-8859-1', '8bit',
-# 			  'en', 'w');
-#   }
-
   $sender   = $self->_list_config_get($list, 'sender');
   $mj_addr  = $self->_global_config_get('whoami');
   $mj_owner = $self->_global_config_get('sender');
@@ -338,14 +329,6 @@ sub consult {
   # We do give a useful content-type, though.  This is going to be a
   # sticking point; it should be configurable ('old_style_consult').
   if ($args{'request'} eq 'post') {
-    # Drop the message into storage unless we're chained (in which case the
-    # message is already in storage, but under the wrong name)
-#     $self->_list_file_put('GLOBAL', "spool/$token", $args{'args'}[0],
-# 			  'overwrite', "Spooled awaiting acceptance of $token",
-# 			  'message/rfc822', 'ISO-8859-1', '8bit',
-# 			  'en', 'w')
-#       unless $args{'chained'};
-
     # Build a mesage
     $subject = "$token : CONSULT $list";
     if ($args{'args'}[1]) {

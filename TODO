@@ -35,8 +35,6 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
-Test redirects of debug files. Fix || -> or.  
-
 Token::t_add take hashes instead of big, overly complicated lists.
 
 Convert the following to take hashes:

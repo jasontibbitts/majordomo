@@ -13,7 +13,8 @@ BEGIN {
 
   # Redirect standard error output.
   if (! -t STDERR) {
-    open (STDERR, ">>$::TMPDIR/mj_queuerun.debug");
+    open (STDERR, ">>$::TMPDIR/mj_queuerun.debug") or
+      die "Can't redirect debug output to $::TMPDIR/mj_email.debug: $!";
   }
 
   # Croak if install was botched
@@ -647,7 +648,8 @@ sub debug_to {
 
   if (! -t STDERR) {
     close STDERR;
-    open STDERR, ">>$::TMPDIR/mj_$name.debug";
+    open STDERR, ">>$::TMPDIR/mj_$name.debug" or
+      die "Can't redirect debug output to $::TMPDIR/mj_$name.debug: $!";
   }
 }
 

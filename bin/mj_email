@@ -11,7 +11,8 @@ BEGIN {
 
   # Redirect standard error output.
   if (! -t STDERR) {
-    open (STDERR, ">>$::TMPDIR/mj_email.debug");
+    open (STDERR, ">>$::TMPDIR/mj_email.debug") or
+    die "Can't redirect debug output to $::TMPDIR/mj_email.debug: $!";
   }
 
   # Croak if install was botched

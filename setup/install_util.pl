@@ -83,7 +83,11 @@ sub rcopy {
   }
 }
 
-# Make a directory and immediately change its owner and mode
+# Make a directory and immediately change its owner and mode.  Note that
+# the owner and mode are changed even if the directory already exists.
+# Don't call this for directories that aren't intended to be owned solely
+# by Majordomo.  (Which would be foolish anyway, because we wouldn't be
+# able to make any reasonable guess at what the permissions should be.)
 sub safe_mkdir {
   my $dir  = shift;
   my $mode = shift;
@@ -91,7 +95,11 @@ sub safe_mkdir {
   my $gid  = shift;
   unless (-d $dir) {
     mkdir $dir, $mode or die "Can't make $dir, $!";
+  }
+  if (defined($uid) && defined($gid)) {
     chown ($uid, $gid, $dir) or die "Can't chown $dir, $!";
+  }
+  if (defined($mode)) {
     chmod ($mode, $dir) or die "Can't chmod $dir, $!";
   }
 }
