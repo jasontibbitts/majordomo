@@ -1144,10 +1144,11 @@ sub get_member {
 sub count_subs {
   my $self    = shift;
   my $sublist = shift || 'MAIN';
-  my (@count);
-  my ($total) = 0;
- 
-  return unless $self->get_start($sublist);
+  my (@count, $mess, $ok, $total);
+  $total = 0;
+  
+  ($ok, $mess) = $self->get_start($sublist);
+  return unless $ok;
   while (@count = $self->{'sublists'}{$sublist}->get_quick(1000)) {
     $total += scalar @count;
   }
@@ -1370,14 +1371,15 @@ In decreasing precedence, the sources are:
 sub moderators {
   my $self = shift;
   my $group = shift;
-  my (@addr, @out, $i);
+  my (@addr, @out, $i, $mess, $ok);
 
   $self->_fill_aux;
   unless (defined $group and exists $self->{'sublists'}{$group}) {
     $group = 'moderators';
   }
   if (exists $self->{'sublists'}{$group}) {
-    return unless $self->get_start($group);
+    ($ok, $mess) = $self->get_start($group);
+    return unless $ok;
     while (@addr = $self->get_chunk($group, 4)) {
       for $i (@addr) {
         push @out, $i->{'stripaddr'} if ($i->{'class'} ne 'nomail');

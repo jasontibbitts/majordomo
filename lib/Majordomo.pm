@@ -4419,8 +4419,8 @@ sub _createlist {
     ($list, undef, $mess) = $self->valid_list($desc);
     return (0, $mess) unless ($list);
 
-    return (0, "Unable to open subscriber list for $list.\n")
-      unless $self->{'lists'}{$list}->get_start('MAIN');
+    ($ok, $mess) = $self->{'lists'}{$list}->get_start('MAIN');
+    return (0, "$mess\n") unless $ok;
 
     if ($self->{'lists'}{$list}->get_chunk('MAIN', 1)) {
       $self->{'lists'}{$list}->get_done('MAIN');
@@ -5966,7 +5966,8 @@ sub set {
 sub _set {
   my ($self, $list, $user, $vict, $mode, $cmd, $setting, $d, $sublist, $force) = @_;
   my (@addrs, @lists, @out, @tmp, $addr, $check, $chunksize, $count, 
-      $data, $db, $file, $format, $k, $l, $ok, $owner, $res, $sd, $v);
+      $data, $db, $file, $format, $k, $l, $mess, $ok, $owner, $res, 
+      $sd, $v);
 
   $check = 0;
   if ($mode =~ /check/ or ! $setting) {
@@ -5987,8 +5988,10 @@ sub _set {
       return (0, "Unknown auxiliary list name \"$sublist\".")
         unless ($ok = $self->{'lists'}{$list}->valid_aux($sublist));
       $sublist = $ok;
-      return (0, "Unable to access subscriber list \"$sublist\".")
-        unless ($self->{'lists'}{$list}->get_start($sublist));
+
+      ($ok, $mess) = $self->{'lists'}{$list}->get_start($sublist);
+      return (0, "$mess\n") unless ($ok);
+
       $db = $self->{'lists'}{$list}->{'sublists'}{$sublist};
     }
 
@@ -7276,7 +7279,7 @@ sub who_start {
 sub _who {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $regexp, $sublist, $list2) = @_;
   my $log = new Log::In 35, $list;
-  my (@deletions, @tmp, $addr, $error, $i, $j, $listing, 
+  my (@deletions, @tmp, $addr, $error, $i, $j, $listing, $mess,
       $ok, $ok2, $out, $owners, $settings, $strip);
   $listing = [];
   $sublist ||= 'MAIN';
@@ -7317,8 +7320,9 @@ sub _who {
     return (0, "Unknown auxiliary list name \"$sublist\".")
       unless ($ok = $self->{'lists'}{$list}->valid_aux($sublist));
     $sublist = $ok;
-    return (0, qq(Unable to initialize the "$list" subscriber list.\n)) 
-      unless $self->{'lists'}{$list}->get_start($sublist);
+
+    ($ok, $mess) = $self->{'lists'}{$list}->get_start($sublist);
+    return (0, $mess) unless ($ok);
   }
 
   $settings = $self->{'lists'}{$list}->get_setting_data;
