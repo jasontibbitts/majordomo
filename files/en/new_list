@@ -62,10 +62,6 @@ For example,
 
 would have the same effect as the two commands in the previous paragraph.
 
-Never use a password with the help system.  If you want to mix
-administrative commands and help commands, put the help commands
-before the "default password" command.
-
 
                              Configuration settings
 
