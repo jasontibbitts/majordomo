@@ -35,8 +35,8 @@ use IO::File;
 use Getopt::Long;
 
 use vars qw(%opts $log_entries $log_level $program_name);
-my (@in, $dom, $editor, $fh, $go, $i, $id, $infile, $lang, $list, $mess,
-    $ok, $result, $tlist, $tmpg, $tmpu, $top);
+my (@cmdfiles, @in, $dom, $editor, $fh, $go, $i, $id, $infile, 
+    $lang, $list, $mess, $ok, $passw, $result, $tlist, $tmpg, $tmpu, $top);
 
 $| = 1;
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
@@ -47,7 +47,7 @@ umask oct($::UMASK);
 # Options:
 #  -D : enable debugging to STDOUT
 #  -d : specify domain to operate on
-#  -F : parse commands from given file
+#  -F : parse commands from given file (multiple files may be used)
 #  -f : give attachment file
 #  -l : choose language
 #  -p : specify password
@@ -63,8 +63,9 @@ umask oct($::UMASK);
 Getopt::Long::config('no_ignore_case', 'bundling');
 
 %opts = (ornaments => 1, aliascomplete => 0);
-GetOptions(\%::opts, 'D', 'd=s', 'F=s', 'f=s@', 'l=s@', 'p=s', 'R', 't=s',
-	   'u=s', 'Z', 'id', 'lockdir=s', 'ornaments!', 'aliascomplete!');
+GetOptions(\%::opts, 'D', 'd=s', 'F=s' => \@cmdfiles, 'f=s@', 'l=s@', 
+           'p=s', 'R', 't=s', 'u=s', 'Z', 'id', 
+           'lockdir=s', 'ornaments!', 'aliascomplete!');
 
 #print Dumper \%opts;
 
@@ -140,6 +141,15 @@ $dom = $1;
 $lang = '';
 $lang = join(',',@{$opts{l}}) if $opts{l};
 
+$passw = $opts{p};
+if (defined $passw) {
+  $passw =~ /(.*)/; $passw = $1;
+}
+else {
+  $passw = '';
+}
+
+
 # Deal with the file argument
 if ($opts{f}) {
   for (my $i = 0; $i < @{$opts{f}}; $i++) {
@@ -179,18 +189,20 @@ unless ($id) {
 
 # If we're going to parse from a file instead of from arguments, do the
 # parsing now.
-if ($opts{F}) {
-  my $infh = IO::File->new("$opts{F}") || die "Can't open $opts{F}: $!";
-  $result = parse_file($infh, $opts{F}, \@in, $user, $opts{p});
+if (@cmdfiles) {
+  for $i (@cmdfiles) {
+    my $infh = IO::File->new($i) || die "Can't open $i $!";
+    $result = parse_file($infh, $i, \@in, $user, $passw);
+  }
 }
 # If we don't have any arguments left and we weren't given a command file,
 # we're to run interactively
 elsif (@ARGV == 0) {
-  parse_interactive(\@in, $opts{p});
+  parse_interactive(\@in, $passw);
 }
 # Else we're to interpret the command line
 else {
-  ($go, $result) = parse_command(shift @ARGV, (join(' ', @ARGV)), $opts{p},
+  ($go, $result) = parse_command(shift @ARGV, (join(' ', @ARGV)), $passw,
                                  { 'user' => $user });
 }
 
@@ -479,6 +491,7 @@ sub parse_file {
   my $att  = shift;
   my $user = shift;
   my $pass = shift;
+
   my $result = 
     Mj::Parser::parse_part($::mj,
 			   infh        => $infh,
