@@ -4,37 +4,9 @@ when the folks who asked for the feature/fix have agreed that the feature
 is in/problem is fixed, or that the feature is not needed/problem really
 isn't a problem.
 
-
-List Templates
---------------
-
-Paul Hancock: [...] I specifically wanted something that would allow groups
-of lists to be managed with a given DEFAULT file... not necessarily
-domain-wide, which is now possible just by changing DEFAULT.
-
-One proposal is to have multiple DEFAULT lists, named DEFAULT-template.
-Another is to allow multiple configuration files per list.
-
-Some of the code necessary for multiple configuration files per list is
-already in CVS.  It is not certain that it will remain there, or whether
-the end result will satisfy the request.  The "multiple DEFAULT list"
-concept may be orthogonal to it.
-
-
-Duplicate Elimination
----------------------
-
-Some code is in place to globally eliminate duplicates; when a message is
-posted to multiple lists, users who are on more than one of them only get
-one message if their class is set to "unique".  If the class is not unique
-on all lists, the behavior is variable depending on which list gets the
-message first.  If the user is in digest mode on one list and unique on the
-other, they will get a separate copy and a copy in the digest.  This is not
-technically difficult to change.
-
-The requesters of this feature have not commented on whether it satisfies
-their requirements.
-
+==================================
+Implemented, awaiting verification
+==================================
 
 Better Queue Handling
 ---------------------
@@ -51,6 +23,49 @@ noticed.  Thus the idea procedure would be to process a queue file normally
 twice (or thrice) and then on the next try, to turn up debugging and log to
 a special file.  The next try, delete the queue file.  The owner also needs
 to be informed somehow.
+
+To manitain the generation count (and perhaps additional data we might want
+to keep) mj_queuerun will maintain a status file named by prepending the
+message filename with a '.'.  In it is stored a single line with a single
+number: the attempt count.  No locking of the status file is necessary.
+
+This is implemented as requested.
+
+
+Duplicate Elimination
+---------------------
+
+Some code is in place to globally eliminate duplicates; when a message is
+posted to multiple lists, users who are on more than one of them only get
+one message if their class is set to "unique".  If the class is not unique
+on all lists, the behavior is variable depending on which list gets the
+message first.  If the user is in digest mode on one list and unique on the
+other, they will get a separate copy and a copy in the digest.  This is not
+technically difficult to change.
+
+This is implemented.  The requesters of this feature have not commented on
+whether it satisfies their requirements.
+
+
+===========================
+Not yet (fully) implemented
+===========================
+
+
+List Templates
+--------------
+
+Paul Hancock: [...] I specifically wanted something that would allow groups
+of lists to be managed with a given DEFAULT file... not necessarily
+domain-wide, which is now possible just by changing DEFAULT.
+
+One proposal is to have multiple DEFAULT lists, named DEFAULT-template.
+Another is to allow multiple configuration files per list.
+
+Some of the code necessary for multiple configuration files per list is
+already in CVS.  It is not certain that it will remain there, or whether
+the end result will satisfy the request.  The "multiple DEFAULT list"
+concept may be orthogonal to it.
 
 
 Configuration Rewrite

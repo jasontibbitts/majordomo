@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl-latest -wT
+#!/usr/bin/perl -wT
 BEGIN {
   $::LIBDIR = "/home/tibbs/mj/2.0/blib/lib";
   $::LISTDIR= "/home/tibbs/mj/2.0-lists";
@@ -140,9 +140,10 @@ exit;
 
 sub run_queue {
   my $log = new Log::In 25, 'Running queue';
-  my(@domains, @functions, @msgs, @pri1, @pri2, $arg, $debug1, $debug2,
-     $dom, $file, $func, $list, $mj, $msg, $ok, $pri1, $pri2, $start,
-     $end, @fhstatus, @status);
+
+  my(@domains, @fhstatus, @functions, @msgs, @pri1, @pri2, @status, $arg,
+     $debug1, $debug2, $dom, $emerg_log, $end, $file, $func, $list, $mj,
+     $msg, $ok, $pri1, $pri2, $start, $statfile, $trycount);
 
   # Grab the domain priorities from the queue, high priorities first
   opendir(PRI1, "$::LISTDIR/QUEUE") ||
@@ -174,7 +175,7 @@ sub run_queue {
 
       # Grab list priorities from the queue, high priorities first
       opendir(PRI2, "$::LISTDIR/QUEUE/$pri1/$dom") ||
-    $::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1/$dom: $!");
+	$::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1/$dom: $!");
       @pri2 = sort {$b <=> $a} grep { $_ !~ /^\./ } readdir PRI2;
       closedir PRI2;
 
@@ -214,7 +215,9 @@ sub run_queue {
             # Untaint $msg; this is safe because only we are able to write
             # stuff in that directory
             $msg =~ /(.*)/; $msg = $1;
-            $file = "$::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func/$msg";
+            $file     = "$::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func/$msg";
+	    $statfile = "$::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func/.$msg";
+	    $emerg_log = '';
             unless (open(MSG, "+< $file")) {
               # Some other runner may have deleted the file while we were
               # iterating through the directory.  That's OK; note it and go
@@ -239,6 +242,41 @@ sub run_queue {
               next MSG;
             }
 
+	    # OK, we own the file.  Now manipulate the status file.
+	    # Increase the try count therein or create the file with a try
+	    # count of one.
+	    if (-f $statfile) {
+	      open(STAT, "<$statfile");
+	      $trycount = <STAT>; chomp $trycount;
+	      close STAT;
+	    }
+	    else {
+	      $trycount = 0;
+	    }
+	    $trycount++;
+	    open(STAT, ">$statfile");
+	    print STAT "$trycount\n";
+	    close STAT;
+
+	    # Now do special things depending on the try count.  On the
+	    # first and second tries, process normally.  On the third try,
+	    # crank up the debugging level and log to a special "emergency
+	    # log".  After the third try, delete the queue file and pretend
+	    # we never saw it.
+	    if ($trycount > 3) {
+	      unlink $statfile; unlink $file;
+	      close MSG;
+	      next MSG;
+	    }
+	    if ($trycount == 3) {
+	      $emerg_log = "emergency-$msg";
+	      debug_to($emerg_log);
+	      # XXX If logging levels are ever refined, make sure this logs _everything_.
+	      $::log->set_level(9999);
+	      $::log->message(0, 'info', "Emergency log created at ".localtime().".");
+	      $::log->message(0, 'info', "Tried $trycount times to process $file.");
+	    }
+
             # OK, have something to process.  Lazily create a Majordomo object
             # for the domain we're processing.
             unless (defined $mj) {
@@ -248,17 +286,17 @@ sub run_queue {
               }
               $debug1 = $mj->global_config_get(undef, undef, 'debug');
               if ($opts{'v'} > $debug1) {$debug1 = $opts{'v'}};
-              $::log->set_level($debug1);
+              $::log->set_level($debug1) unless $emerg_log;
             }
 
             # If we're at the Majordom address, just parse commands
             if ($func eq 'majordomo') {
               $log->message(50, 'info', 'Processing commands');
-              debug_to('majord');
+              debug_to($emerg_log || 'majord');
               unless (parse_commands($mj, '')) {
                 $log->message(50, 'info', 'Parsing failed; forwarding');
               }
-              unlink $file;
+              unlink $statfile; unlink $file;
               debug_to('queuerun');
               close MSG;
               next MSG;
@@ -268,10 +306,10 @@ sub run_queue {
             # the end
             if ($func eq 'owner' && $msg =~ /^\w\w\w-\d+$/) {
               $log->message(50, 'info', 'Forwarding to majordomo-owner');
-              debug_to('owner');
+              debug_to($emerg_log || 'owner');
               forward_to_owner($mj, 'GLOBAL');
               debug_to('queuerun');
-              unlink $file;
+              unlink $statfile; unlink $file;
               close MSG;
               next MSG;
             }
@@ -284,14 +322,15 @@ sub run_queue {
 
             # Now set the logging level to that of the list.
             ($debug2) = $mj->list_config_get(undef, undef, $list, 'MAIN', 'debug');
+	    $debug2 ||= 0;
             if ($debug1 > $debug2) {$debug2 = $debug1};
-            $::log->set_level($debug2);
+            $::log->set_level($debug2) unless $emerg_log;
 
             # Perform the appropriate function
             # If at list address, resend.
             if ($func eq 'list' || $func eq 'resend') {
               $log->message(50, 'info', 'Posting message');
-              debug_to('resend');
+              debug_to($emerg_log || 'resend');
               resend($mj, $list, $file, $arg);
               debug_to('queuerun');
             }
@@ -302,19 +341,19 @@ sub run_queue {
               $request_ans = $mj->global_config_get(undef, undef, 'request_answer');
               if ($request_ans eq 'majordomo') {
                 $log->message(50, 'info', 'Processing commands');
-                debug_to('majord');
+                debug_to($emerg_log || 'majord');
                 parse_commands($mj, $list, $arg);
                 debug_to('queuerun');
               }
               elsif ($request_ans eq 'owner') {
                 $log->message(50, 'info', 'Forwarding to owner');
-                debug_to('owner');
+                debug_to($emerg_log || 'owner');
                 forward_to_owner($mj, $list);
                 debug_to('queuerun');
               }
               else {
                 $log->message(50, 'info', 'Responding with file');
-                debug_to('request');
+                debug_to($emerg_log || 'request');
                 respond_with_file($mj, $list);
                 debug_to('queuerun');
               }
@@ -326,7 +365,7 @@ sub run_queue {
               # forward to owner; if -l is present, forward to that list else assume
               # we're majordomo-owner.
               $log->message(50, 'info', 'Forwarding to owner');
-              debug_to('owner');
+              debug_to($emerg_log || 'owner');
               forward_to_owner($mj, $list || 'GLOBAL', $arg);
               debug_to('queuerun');
             }
@@ -335,7 +374,7 @@ sub run_queue {
             # been moved to some other location (if it was spooled, for
             # instance).
             if (-s $file) {
-              unlink $file;
+              unlink $statfile; unlink $file;
             }
             close MSG;
             $::log->set_level($debug1);
@@ -693,10 +732,13 @@ sub parse_commands {
 sub debug_to {
   my $name = shift;
 
+  $::log->message(0, 'info', "Switching logging to $name at ".localtime().'.');
+
   if (! -t STDERR) {
     close STDERR;
     open STDERR, ">>$::TMPDIR/mj_$name.debug" or
       die "Can't redirect debug output to $::TMPDIR/mj_$name.debug: $!";
+    $::log->message(0, 'info', 'Switched logging at '.localtime().'.');
   }
 }
 

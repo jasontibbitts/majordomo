@@ -1,4 +1,16 @@
+2000-10-27  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queuerun (run_queue): Make sure $debug2 is actually an
+	integer; the config variable might be the empty string.
+	(debug_to): Add some useful into to the logs to show when we
+	switch to a different log.
+
 2000-10-26  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queuerun (run_queue): Maintain a count of how many times
+	a queue file has been processed.  When this gets too large, assume
+	that something is hosed, crank up the debug level, and store a
+	separate debug log.
 
 	* lib/Majordomo.pm (which): List::search now takes the sublist (or
 	MAIN) as the first arg.
