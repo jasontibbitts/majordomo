@@ -1,8 +1,8 @@
-<!-- Majordomo index_dir format file -->
+<!-- Majordomo index_binary format file -->
 <tr>
   <td valign="top">$FILE
   </td>
-  <td valign="top">$SIZE
+  <td valign="top" align="right">$SIZE
   </td>
   <td valign="top">$CONTENT_TYPE
   </td>

@@ -14,8 +14,11 @@ Send this file in an e-mail message to:
   <input type="submit" value="Send">
 </form>
 
-<a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=$PATH">
-Index of Files</a>
+(<a href="$CGIURL?$CGIDATA&amp;func=$COMMAND-edit&amp;list=$LIST&amp;extra=$PATH$FILE">Edit 
+this File</a>)
+
+(<a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=$PATH">Index 
+of Files</a>)
 
 </p>
 

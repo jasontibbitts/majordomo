@@ -1,4 +1,26 @@
 <!-- Majordomo put format file -->
 <p>
-The $COMMAND command succeeded.
+The $COMMAND command succeeded.  The file "$FILE" was updated.
 </p>
+
+<p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="get-edit">
+  <input type="hidden" name="extra" value="$PATH$FILE">
+Send this file in an e-mail message to: 
+  <input name="victims" size="36">
+  <input type="submit" value="Send">
+</form>
+
+(<a href="$CGIURL?$CGIDATA&amp;func=get-edit&amp;list=$LIST&amp;extra=$PATH$FILE">Edit 
+this File</a>)
+
+(<a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=$PATH">Index 
+of Files</a>)
+
+</p>
+

@@ -1,10 +1,10 @@
-<!-- Majordomo index_dir format file -->
+<!-- Majordomo index_text format file -->
 <tr>
   <td valign="top">
   <a href="$CGIURL?$CGIDATA&amp;func=get-immediate&amp;list=$LIST&amp;extra=$PATH$FILE">
   $FILE</a>
   </td>
-  <td valign="top">$SIZE
+  <td valign="top" align="right">$SIZE
   </td>
   <td valign="top">$CONTENT_TYPE
   </td>

@@ -6,104 +6,106 @@
   <td valign="top">Sign In
   </td>
   <td>
-
+<p>
 If you finish administering the $LIST list and wish to change
 to another list, click the <b>Sign In</b> link at the top
 or bottom of this page.
-
+</p>
   </td>
 </tr>
 <tr>
   <td valign="top">Sign Out
   </td>
   <td>
-
+<p>
 If you finish administering the $LIST list and wish to end
 this session, click the <b>Sign Out</b> link.
-
+</p>
   </td>
 </tr>
 <tr>
   <td valign="top">Moderation
   </td>
   <td>
-
+<p>
 Occasionally, posted messages, subscriptions, and other requests will
 need your approval before they are completed.  Click the
 <b>Moderation</b> link to see all of the requests that are being held
 for approval.
 [<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=welcome&amp;doc=showtokens">more</a>]
-
+</p>
   </td>
 </tr>
 <tr>
   <td valign="top">Subscribers
   </td>
   <td>
-
+<p>
 Click the <b>Subscribers</b> link to view or search the 
 list of subscribers, add subscribers, remove subscribers, or
 change the personal settings of some subscribers.
-
+</p>
   </td>
 </tr>
 <tr>
   <td valign="top">Configuration
   </td>
   <td>
-
+<p>
 Majordomo has over 100 configuration settings which you can
 use to fine-tune the performance of your mailing list.  To manage them 
 more easily, they have been divided into several categories.
 Click the <b>Configuration</b> link to see a list of these categories.
-
+</p>
   </td>
 </tr>
 <tr>
   <td valign="top">List Info
   </td>
   <td>
-
+<p>
 Click the <b>List Info</b> link to see what information about your list
 is presented when people visit the 
 <a href="$WWWUSR_URL">web interface for subscribers</a>.
+</p>
 <p>
 You can also edit the welcome message, FAQ, and other documents; see
 statistics for recent posted messages; browse the message archives; or
 check the status of message digests on the <b>List Info</b> page.
-<p>
+</p>
   </td>
 </tr>
 <tr>
   <td valign="top">Command Form
   </td>
   <td>
-
+<p>
 Although the other features of this WWW service will allow you
 to perform many common tasks, not every task is supported yet.
 However, the <b>Command Form</b> offers a primitive way of 
 issuing commands that may be easier for experienced administrators.
-<p>
-In particular, the $HELP:GET, $HELP:INDEX, and $HELP:PUT
-commands are supported only by the command form.
-
+</p>
   </td>
 </tr>
 <tr>
   <td valign="top">Help
   </td>
   <td>
+<p>
 Click the <b>Help</b> link to return to this page.
+</p>
   </td>
 </tr>
 <tr>
   <td valign="top">Issue Commands by E-mail
   </td>
   <td>
+<p>
 Majordomo has over 100 cross-referenced help documents.
 They describe how to email commands to Majordomo at
 <a href="mailto:$MJ">$MJ</a>.  
 The help pages may be displayed in a new window in your web browser.
+</p>
 
 <p>
 To see the help document for a particular topic, type its
