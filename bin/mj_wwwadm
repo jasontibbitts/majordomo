@@ -493,10 +493,11 @@ sub login {
    if ($subs->{'COMMAND'} eq "login");
 
   if ($message) {
+    $str = $message . "  Request: $subs->{'COMMAND'}  List: $subs->{'LIST'}";
     $::log->message(50, "info", $message);
     $mj->inform('GLOBAL', 'connect', $subs->{'USER'}, 
                 $subs->{'USER'}, "(wwwadm request from $ENV{'REMOTE_ADDR'})",
-                'wwwadm', 0, 0, 0, $message, $::log->elapsed);
+                'wwwadm', 0, 0, 0, $str, $::log->elapsed);
   }
 
   $tmp = $mj->format_get_string('wwwadm', 'login');
