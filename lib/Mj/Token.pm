@@ -167,7 +167,7 @@ sub confirm {
   my $log  = new Log::In 50;
   my (%file, $repl, $token, $data, $ent, $sender, $url, $file, $mj_addr,
       $mj_owner, $expire, $expire_days, $desc, $remind, $remind_days,
-      $reminded, $permanent, $reasons);
+      $reminded, $permanent, $reasons, $i);
   my $list = $args{'list'};
 
   $self->_make_tokendb;
@@ -203,9 +203,8 @@ sub confirm {
         			      );
 
   ($reasons = $args{'args'}[1]) =~ s/\002/\n  /g;
-  $repl = {'OWNER'      => $sender,
-           'MJ'         => $mj_addr,
-           'MJOWNER'    => $mj_owner,
+  $repl = {
+           $self->standard_subs($list),
            'TOKEN'      => $token,
            'URL'        => $url,
            'EXPIRE'     => $expire_days,
@@ -216,8 +215,7 @@ sub confirm {
            'NOTIFY'     => $args{'notify'},
            'APPROVALS'  => $args{'approvals'},
            'CMDLINE'    => $args{'cmdline'},
-           'REQUEST'    => $args{'command'},
-           'LIST'       => $list,
+           'COMMAND'    => $args{'command'},
            'SESSIONID'  => $self->{'sessionid'},
            'ARG1'       => $args{'arg1'},
            'ARG2'       => $args{'arg2'},
@@ -240,11 +238,16 @@ sub confirm {
                     # Note explicit stringification
      -To         => "$args{'notify'}", 
      -From       => $sender,
-     '-Reply-To' => $mj_addr,
      -Subject    => $desc,
-     '-X-Loop'   => $mj_addr,
      'Content-Language:' => $file{'language'},
     );
+
+  return unless $ent;
+
+  for $i ($self->_global_config_get('message_headers')) {
+    $i = $self->substitute_vars_string($i, $repl);
+    $ent->head->add(undef, $i);
+  }
 
   $self->mail_entity({addr => $mj_owner,
 		      type => 'T',
@@ -366,9 +369,8 @@ sub consult {
 
   # Not doing a post, so we send a form letter.
   # First, build our big hash of substitutions.
-  $repl = {'OWNER'      => $sender,
-           'MJ'         => $mj_addr,
-           'MJOWNER'    => $mj_owner,
+  $repl = {
+           $self->standard_subs($list),
            'TOKEN'      => $token,
            'URL'        => $url,
            'EXPIRE'     => $expire_days,
@@ -378,8 +380,7 @@ sub consult {
            'VICTIM'     => $args{'victim'},
            'APPROVALS'  => $args{'approvals'},
            'CMDLINE'    => $args{'cmdline'},
-           'REQUEST'    => $args{'command'},
-           'LIST'       => $list,
+           'COMMAND'    => $args{'command'},
            'SESSIONID'  => $self->{'sessionid'},
            'ARG1'       => $args{'args'}[0],
            'ARG2'       => $args{'args'}[1],
@@ -401,11 +402,16 @@ sub consult {
      Filename    => undef,
      -To         => $sender,
      -From       => $sender,
-     '-Reply-To' => $mj_addr,
      -Subject    => $desc,
-     '-X-Loop'   => $mj_addr,
      'Content-Language:' => $file{'language'},
     );
+
+  return unless $ent;
+
+  for $i ($self->_global_config_get('message_headers')) {
+    $i = $self->substitute_vars_string($i, $repl);
+    $ent->head->add(undef, $i);
+  }
 
   if ($args{'command'} eq 'post') {
     $ent->make_multipart;
@@ -518,13 +524,13 @@ sub t_accept {
 
     # and build the return message string from the replyfile
     $repl = {
-             'REQUESTER'  => $data->{'user'},
-             'VICTIM'     => $data->{'victim'},
-             'NOTIFY'     => $data->{'user'},
+             $self->standard_subs($data->{'list'}),
              'CMDLINE'    => $data->{'cmdline'},
-             'REQUEST'    => $data->{'command'},
-             'LIST'       => $data->{'list'},
+             'NOTIFY'     => $data->{'user'},
+             'COMMAND'    => $data->{'command'},
+             'REQUESTER'  => $data->{'user'},
              'SESSIONID'  => $data->{'sessionid'},
+             'VICTIM'     => $data->{'victim'},
             };
 
     my ($file) = $self->_list_file_get($data->{'list'}, $data->{'chain4'});
@@ -741,9 +747,8 @@ sub t_remind {
 
       ($reasons = $data->{'arg2'}) =~ s/\002/\n  /g;
       # Generate replacement hash
-      $repl = {OWNER      => $sender,
-               MJ         => $mj_addr,
-               MJOWNER    => $mj_owner,
+      $repl = {
+               $self->standard_subs($data->{'list'}),
                TOKEN      => $token,
                URL        => $url,
                EXPIRE     => $expire,
@@ -752,8 +757,7 @@ sub t_remind {
                VICTIM     => $data->{'victim'},
                APPROVALS  => $data->{'approvals'},
                CMDLINE    => $data->{'cmdline'},
-               REQUEST    => $data->{'command'},
-               LIST       => $data->{'list'},
+               COMMAND    => $data->{'command'},
                SESSIONID  => $data->{'sessionid'},
                ARG1       => $data->{'arg1'},
                ARG2       => $data->{'arg2'},
@@ -774,11 +778,16 @@ sub t_remind {
          Encoding    => $file{'c-t-encoding'},
          Filename    => undef,
          -From       => $sender,
-         '-Reply-To' => $mj_addr,
          -Subject    => $desc,
-         '-X-Loop'   => $mj_addr,
          'Content-Language:' => $file{'language'},
         );
+
+      next unless $ent;
+
+      for $i ($self->_global_config_get('message_headers')) {
+        $i = $self->substitute_vars_string($i, $repl);
+        $ent->head->add(undef, $i);
+      }
       
       # Mail it out; the victim gets confirm notices, otherwise the owner
       # gets them
