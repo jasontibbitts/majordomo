@@ -773,18 +773,18 @@ sub set {
   my (@addresses, @stuff, $addr, $i, $ok, $rok, $setting);
 
   # Deal with action-(arg with spaces) address
-  if ($args =~ /(\S+?\-\(.*?\))\s*(.*)/) {
+  if ($args =~ /^(\S+?\-\(.*?\))\s*(.*)$/) {
     $setting = $1;
     $addr = $2;
   }
   # action-arg address
-  elsif ($args =~ /(\S+?-\S+)\s*(.*)/) {
+  elsif ($args =~ /^(\S+?-\S+)\s*(.*)$/) {
     $setting = $1;
     $addr = $2;
   }
   # action address
   else {
-    $args =~ /(\S+)\s*(.*)/;
+    $args =~ /^(\S+)\s*(.*)$/;
     $setting = $1;
     $addr = $2;
   }

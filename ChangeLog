@@ -1,3 +1,10 @@
+1999-02-03  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (substitute_vars): Remove debugging printout.
+
+	* lib/Mj/TextOutput.pm (set): Anchor matches so prevent screwups
+        on addresses with dashes in them.
+
 Tue Feb  2 22:10:27 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Digest/Build.pm (idx_subject_author): Renamed from
