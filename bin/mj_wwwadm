@@ -269,14 +269,14 @@ if ($passw eq '' and $func !~ /help|lists|accept|reject|tokeninfo/) {
 }
 elsif ($passw ne '') {
   # Check the password against the requester
-  for $res (@lists) {
-  $ok = $mj->validate_passwd($user, $passw, undef,
-                               "mjadm", $lists[0], $func);
-  }
-  if ($ok <= 0) {
-    print "<h3>The password you provided is invalid</h3>\n";
-    $::log->message(50, "info",  "Invalid password in form data.");
-    exit 0;
+  for $i (@lists) {
+    $ok = $mj->validate_passwd($user, $passw, undef,
+                               "mjadm", $i, $func);
+    if ($ok <= 0) {
+      print "<h3>The password you provided is invalid for the $i list</h3>\n";
+      $::log->message(50, "info",  "Invalid password in form data.");
+      exit 0;
+    }
   }
 }
 
@@ -362,7 +362,7 @@ EOM
 $fh->print("<hr>For assistance, contact <a href=\"mailto:$serveradmin\">$serveradmin</a>\n");
 $fh->close();
 
-&format_print($file);
+&format_print($file, $lists[0]);
 unlink $file;
 
 $::log->out;
@@ -370,7 +370,7 @@ exit 0;
 
 #---------------- Subroutines -----------------#
 sub format_print {
-  my $file = shift;
+  my ($file, $list) = shift;
   my ($line, $token, $summarize, $hdrs, $remove);
   $summarize = $hdrs = 0;
   $remove = $list eq 'GLOBAL' ? "unregister" : "unsubscribe";
@@ -437,7 +437,9 @@ sub Mj::Format::showtokens {
 sub Mj::Format::tokeninfo {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$request->{'token'}";
-  my ($body, $chunk, $chunksize, $cgiurl, @reasons, $showspool, $time, $tmp, $user);
+  my ($body, $chunk, $chunksize, $cgiurl, $expire);
+  my (@reasons, $showspool, $time, $tmp, $user);
+  # XXX Allow multiple domains
   $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
   my ($ok, $data, $sess) = @$result;
   select $out;
@@ -447,8 +449,9 @@ sub Mj::Format::tokeninfo {
     return $ok;
   }
   
-  $time = localtime($data->{'time'});
-  $user = Mj::Format::escape($data->{'user'});
+  $time   = localtime($data->{'time'});
+  $expire = localtime($data->{'expire'});
+  $user   = Mj::Format::escape($data->{'user'});
 
   print <<EOM;
 <table>
@@ -457,6 +460,7 @@ sub Mj::Format::tokeninfo {
 <tr><td>By     <td>$user
 <tr><td>Type   <td>$data->{'type'}
 <tr><td>Command<td>$data->{'cmdline'}
+<tr><td>Expires<td>$expire
 EOM
 
   if ($data->{'arg2'}) {
