@@ -1,0 +1,2 @@
+# [$PART $CONTENT_TYPE ($SIZE kilobytes)]
+archive-part-replace $LIST $MSGNO $PART <<AEBFCG

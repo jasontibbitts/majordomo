@@ -1,0 +1,19 @@
+<!-- Majordomo archive_image format file -->
+<p>
+[Part $PART $CONTENT_TYPE ($SIZE kilobytes)]<br>
+
+  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PARTh&func=archive-get-part" target="_part">
+  (View Headers in a separate window)
+  </a>
+
+  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PARTh&func=archive-part-edit">
+  (Edit Headers)
+  </a>
+
+?SUBPART <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PART&func=archive-part-delete">
+?SUBPART (Delete This Part)
+?SUBPART </a>
+<br>
+
+<img src="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PART&func=archive-get-part">
+</p>

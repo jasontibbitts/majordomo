@@ -1,0 +1,5 @@
+<!-- Majordomo archive_part_delete format file -->
+<pre>
+Part $PART of the contents of message $MSGNO has been deleted
+from the archives of the $LIST mailing list.
+</pre>

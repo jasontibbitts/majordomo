@@ -27,6 +27,52 @@ copy of the file that is stored within a file space that is specific
 to one list in one domain.  See "help admin_domain" for a details about
 how domains are managed by Majordomo.
 
+
+archive_attachment
+------------------
+(text, wwwadm, wwwusr)  This file displays summary information
+about any message body part which is not plain text, a container type
+(such as multipart/mixed) or an image.
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE, 
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV, 
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED, 
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART, 
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+
+
+archive_container
+-----------------
+(text, wwwadm, wwwusr)  This file displays summary information 
+about a message body part which is a container type (such as
+multipart/related).
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE, 
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV, 
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED, 
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART, 
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+
+
+archive_edit_foot
+-----------------
+(text, wwwadm, wwwusr)  This file displays the closing tags to
+allow a message body part or its headers to be edited and replaced.
+
+(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, 
+ MSGNO, PART, SIZE, USER)
+
+
+archive_edit_head
+-----------------
+(text, wwwadm, wwwusr)  This file displays a command line or HTML
+form that allows a message body part or its headers to be edited and
+replaced.
+
+(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, 
+ MSGNO, PART, SIZE, USER)
+
+
 archive_error
 -------------
 (text, wwwadm, wwwusr)  This file is displayed when the archive 
@@ -67,6 +113,31 @@ of the archive-index command.
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
 
 
+archive_header
+--------------
+(text, wwwadm, wwwusr)  This file displays basic message headers,
+such as From, Subject, and Date.
+ 
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE, 
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV, 
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED, 
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART, 
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER, and others)
+
+
+archive_image
+-------------
+(text, wwwadm, wwwusr)  This file displays summary information about
+an image attachment to a posted message.  In the WWW interfaces, the 
+image is displayed inline.
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE, 
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV, 
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED, 
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART, 
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+
+
 archive_index
 -------------
 (text, wwwadm, wwwusr)  This file is displayed for each message in the
@@ -82,9 +153,9 @@ archive_msg_foot
 (text, wwwadm, wwwusr)  This file is displayed at the end of a group
 of messages when the archive-get-immediate command is used.
 
-(standard plus ARCNO, ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES,
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES,
  BYTE, BYTES, CGIDATA, CGIURL, CMDPASS, DATE_NEXT, DATE_PREV, 
- FROM, LINE, LINES, NUMERIC_NEXT, NUMERIC_PREV, QUOTED, REFS, SIZE,
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, QUOTED, REFS, SIZE,
  SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, THREAD_NEXT, THREAD_PREV,
  TOTAL_POSTS, USER)
 
@@ -94,9 +165,9 @@ archive_msg_head
 (text, wwwadm, wwwusr)  This file is displayed at the end of a group
 of messages when the archive-get-immediate command is used.
 
-(standard plus ARCNO, ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES,
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES,
  BYTE, BYTES, CGIDATA, CGIURL, CMDPASS, DATE_NEXT, DATE_PREV, 
- FROM, LINE, LINES, NUMERIC_NEXT, NUMERIC_PREV, QUOTED, REFS, SIZE,
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, QUOTED, REFS, SIZE,
  SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, THREAD_NEXT, THREAD_PREV,
  TOTAL_POSTS, USER)
 
@@ -107,6 +178,22 @@ archive_none
 in the archive.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+
+
+archive_part_delete
+-------------------
+(text, wwwadm, wwwusr)  This file indicates that a message body
+part has been removed.
+
+(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, MSGNO, PART, USER)
+
+
+archive_part_replace
+--------------------
+(text, wwwadm, wwwusr)  This file indicates that a message body
+part has been replaced.
+
+(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, MSGNO, PART, USER)
 
 
 archive_stats
@@ -141,6 +228,30 @@ archive_summary_head
 output when the archive-summary command is used.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+
+
+archive_text_foot
+-----------------
+(text, wwwadm, wwwusr)  This file is displayed at the end of a 
+plain text message part.
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE, 
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV, 
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED, 
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART, 
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+
+
+archive_text_head
+-----------------
+(text, wwwadm, wwwusr)  This file is displayed at the beginning
+of a plain text message part.
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE, 
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV, 
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED, 
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART, 
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
 
 
 command
@@ -701,6 +812,24 @@ tokeninfo_replace
 -----------------
 (text, wwwadm, wwwconfirm)  This file indicates that the contents of
 part of a posted message have been changed.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+tokeninfo_text_foot
+-------------------
+(text, wwwadm, wwwconfirm)  This file is displayed at the end of a 
+plain text message part.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+tokeninfo_text_head
+-------------------
+(text, wwwadm, wwwconfirm)  This file is displayed at the beginning
+of a plain text message part.
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
  DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)

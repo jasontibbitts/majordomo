@@ -23,13 +23,13 @@ Previous message, by...
 </td>
 
 <td>
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get&extra=?AUTHOR_PREV">Author</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?AUTHOR_PREV">Author</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get&extra=?DATE_PREV">Date</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?DATE_PREV">Date</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get&extra=?SUBJECT_PREV">Subject</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?SUBJECT_PREV">Subject</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get&extra=?THREAD_PREV">Thread</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?THREAD_PREV">Thread</a>)
 </td>
 </tr>
 
@@ -39,14 +39,21 @@ Next message, by...
 </td>
 
 <td>
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get&extra=?AUTHOR_NEXT">Author</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?AUTHOR_NEXT">Author</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get&extra=?DATE_NEXT">Date</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?DATE_NEXT">Date</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get&extra=?SUBJECT_NEXT">Subject</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?SUBJECT_NEXT">Subject</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get&extra=?THREAD_NEXT">Thread</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?THREAD_NEXT">Thread</a>)
 </td>
 </tr>
 </table>
-<pre>
+
+<p>
+(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get&extra=$MSGNO&brief=on" target="_part">View
+the Complete Message in a separate window</a>)<br>
+
+(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-delete&extra=$MSGNO">Delete
+This Message</a>)
+</p>
