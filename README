@@ -299,8 +299,8 @@ mj_shell -p password -f old-list-file subscribe=quiet=noinform list-name
 (This subscribes all addresses from a file, without welcoming them and
 without sending an informational notification to the list owner).
 
-If you copy the old configuration file into the directory for the new list,
-it will be automatically created.
+The convertlist.pl program will assist in converting lists.  See the
+documentation in README.CONVERSION for more information.
 
 
 List configuration:
