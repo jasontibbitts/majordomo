@@ -691,7 +691,7 @@ sub configset {
            'ERROR'    => &escape($mess, $type),
            'SETTING'  => &escape($request->{'setting'}, $type),
            'USER'     => &escape("$request->{'user'}", $type),
-           'VALUE'    => &escape($val, $type),
+           'VALUE'    => &escape(&sescape($val), $type),
           };
 
   if ($ok > 0) {
@@ -864,11 +864,11 @@ sub configshow {
         $auto . "configset$mode $list $var <<$tag\n";
 
       for $i (@$val) {
-        $subs->{'SETCOMMAND'} .= "$i\n";
+        $subs->{'SETCOMMAND'} .= &sescape("$i\n");
       }
 
       $subs->{'SETCOMMAND'} .= "$auto$tag\n";
-      $subs->{'VALUE'} = join "\n", @$val; 
+      $subs->{'VALUE'} = &sescape(join("\n", @$val)); 
 
       if ($vardata->{'type'} eq 'enum_array') {
         $tmp = $earray;
@@ -901,6 +901,7 @@ sub configshow {
         $auto . "configset$mode2 $list $var = ";
 
       $val = "" unless defined $val;
+      $val = &sescape($val);
       $val = &escape($val) if ($type =~ /^www/);
 
       if ($type eq 'text' and length $val > 40) {
@@ -3458,6 +3459,20 @@ sub escape {
   s/([<>\"&])/\&$esc{$1};/mg; 
   s/([\x80-\xFF])/'&#'.unpack('C',$1).';'/eg;
   $_;
+}
+
+=head2 sescape(string)
+
+The sescape function places a backslash before '$' characters
+to prevent variable substitution from taking place.
+
+=cut
+sub sescape {
+  my $str = shift;
+
+  return '' unless (defined $str and length $str);
+  $str =~ s/\$/\\\$/g;
+  return $str;
 }
 
 =head2 qescape(string, type)

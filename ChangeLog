@@ -1,9 +1,15 @@
+2003-09-12  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Format.pm:  (configset, configshow, sescape)
+	Escape dollar signs to avoid unwanted substitutions.
+	Thanks to SRE.
+
 2003-08-30  Michael Yount <csf@moscow.com>
 
-	* lib/Majordomo.pm  (_get_msg_data)  Improve MIME
+	* lib/Majordomo.pm:  (_get_msg_data)  Improve MIME
 	entity validation.
 
-	* lib/Mj/Resend.pm  (_r_ck_body, _add_fters) Improve 
+	* lib/Mj/Resend.pm:  (_r_ck_body, _add_fters) Improve 
 	validation of MIME body parts.
 
 2003-08-13  Michael Yount <csf@moscow.com>
