@@ -554,6 +554,12 @@ sub list_access_check {
      ACTION:
       for $i (@{$actions}) {
 	($func, $arg) = split(/[=-]/,$i,2);
+        # Remove enclosing parentheses
+        if ($arg) {
+            $arg =~ s/^\((.*)\)$/$1/;
+            $i = "$func=$arg";
+        }
+
 	if ($func eq 'set') {
 	  # Set a variable.
 	  if ($arg and rules_var($request, $arg)) {
@@ -778,6 +784,7 @@ sub _a_confirm2 {
   my ($chain, $tmp, $reply, $notify);
   $reply = "repl_confirm";
   $notify = $victim;
+
   # Confirm file, consult file, consult group, consult approvals
   my ($file1, $file2, $group, $approvals) = split(/\s*,\s*/,$arg);
   if ($args{'mismatch'}) {
