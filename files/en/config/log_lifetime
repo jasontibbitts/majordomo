@@ -1,10 +1,6 @@
-The number of days that Majordomo log entries will be kept.  
-Majordomo logs at least one entry for each request that
-it receives.  If a request affects more than one address
-(for example, if several addresses are subscribed to a mailing
-list with one command), one entry is logged for each address.
-
-The information in the log is made available through the 
-report command.  The log can occupy significant space on an 
-active server, and slow down the report command, so entries
-older than this many days are purged by the daily trigger.
+The log_lifetime setting contains the number of days that Majordomo log
+entries will be kept.  Majordomo records at least one line in the log
+for each command, posted message, or other request that it receives.  If
+a request affects more than one address (for example, if several
+addresses are subscribed to a mailing list with one command), one line
+is recorded for each address.
