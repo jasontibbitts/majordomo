@@ -11,17 +11,20 @@ action, optional, is the name of a request, such as post or subscribe.
 -probe, if used, causes "probe" tokens to be shown.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-A token is an identification number (for example, "0B18-996F-76ED")
-that refers to a request that has not yet been completed.
+The showtokens command displays a list of token identifiers (or
+"tokens") for Majordomo commands and posted messages that are awaiting
+someone's approval.  A token is a 12-digit number (for example,
+"0B18-996F-76ED") that uniquely identifies one command or posted
+message.
 
 There are six kinds of token:  confirm, consult, delay, async, probe, 
 and alias.
 
-Confirm tokens need to be approved by the person whom the request
-affects before they can take place.
+Confirm tokens are awaiting approval by the person whom the request
+affects.
 
-Consult tokens need to be approved by one or more of a mailing list's
-owners or moderators before they can take place.
+Consult tokens are awaiting approval by one or more of a mailing list's
+owners or moderators.
 
 Delay tokens are automatically approved after a certain amount
 of time.  Delay tokens are only displayed if the "delay" command mode
@@ -68,7 +71,7 @@ or more requests, thereby clearing the backlog.
 
 All tokens have a "lifetime," typically one week, after which they
 expire.  Confirm, consult, and async tokens vanish when they expire.
-Delay tokens' requests are fulfilled when they expire.  When alias
+Delay tokens' requests are completed when they expire.  When alias
 tokens expire, the result varies according to the token to which the
 alias token refers.
 
@@ -87,8 +90,9 @@ would display every uncompleted subscription request for a domain.
 
 
 See Also:
-   help accept     (approving  action)
+   help accept     (approving action)
    help access_variables
+   help admin_moderate
    help configset_bounce_rules
    help configset_token_lifetime (site-wide or per-list expiration period)
    help configset_token_remind (site-wide or per-list reminder before expiration)
