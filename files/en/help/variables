@@ -247,6 +247,9 @@ See "help reply_files" for a description of each of the reply files.
   or not the password was changed or merely reported.  Its value is " "
   if the password was changed, and '' otherwise.
 
+\$CHARSET
+  The character set of a message or part of a message.
+
 \$CHUNKSIZE
   The number of addresses displayed at one time by the who command
   in the wwwadm interface.
@@ -264,6 +267,9 @@ See "help reply_files" for a description of each of the reply files.
 \$CONSULT
   " " if the type of a stalled command is "consult"; '' otherwise.
   "consult" means that the moderators must confirm the command.
+
+\$CONTENT_TYPE
+  The content type of a message or part of a message.
 
 \$COUNT
   The number of settings in a particular configuration category.
@@ -371,6 +377,9 @@ See "help reply_files" for a description of each of the reply files.
 \$OLDLIST
   The original name of a mailing list that has been renamed with
   the createlist command.
+
+\$PART
+  The part number of one part of a posted message.
 
 \$PASSWORD
   The personal password corresponding to a particular e-mail address,
