@@ -929,11 +929,14 @@ sub standard_subs {
       $fronters, $i, $list, $random_footer, $random_fronter, $sublist,
       $whereami, $whoami);
 
-  ($list, $sublist) = $self->valid_list($olist, 1, 1);
-  unless ($list) {
+  ($olist, $sublist) = $self->valid_list($olist, 1, 1);
+  if (! (defined $olist and length $olist)) {
     $list = 'GLOBAL';
     $olist = '';
     $sublist = '';
+  }
+  else {
+    $list = $olist;
   }
 
   $whereami  = $self->_global_config_get('whereami');
@@ -956,7 +959,7 @@ sub standard_subs {
                        $curl, {'TOKEN' => ''}),
     'DATE'        => scalar localtime,
     'DOMAIN'      => $self->{'domain'},
-    'LIST'        => $olist,
+    'LIST'        => length $sublist ? "$olist:$sublist" : $olist,
     'MAJORDOMO'   => $self->_global_config_get('whoami'),
     'MJ'          => $self->_global_config_get('whoami'),
     'MJOWNER'     => $self->_global_config_get('whoami_owner'),
@@ -968,7 +971,7 @@ sub standard_subs {
                      "$list-request\@$whereami",
     'SITE'        => $self->_global_config_get('site_name'),
     'SUBLIST'     => $sublist,
-    'UCLIST'      => uc $olist,
+    'UCLIST'      => length $sublist ? uc("$olist:$sublist") : uc($olist),
     'VERSION'     => $Majordomo::VERSION,
     'WHEREAMI'    => $whereami,
     'WHOAMI'      => $whoami,
@@ -2333,12 +2336,17 @@ sub format_get_string {
   my $type = shift;
   my $file = shift;
   my $list = shift;
-  my $out;
+  my ($out, $truelist);
   unless (defined $list and length $list) {
     $list = 'GLOBAL';
   }
+  # Accounts for any relocated lists
+  ($truelist) = $self->valid_list($list, 1, 1);
+  unless (defined $truelist and length $truelist) {
+    $truelist = 'GLOBAL';
+  }
 
-  $out = $self->_list_file_get_string(list => $list,
+  $out = $self->_list_file_get_string(list => $truelist,
 				      file => "format/$type/$file",
 				     );
 
