@@ -1,5 +1,20 @@
          Notes on upgrading from previous versions of Majordomo 2
 
+2001.03.01 (CVS):
+
+The report command uses different semantics.  Instead of
+  report LISTNAME ACTIONS DATES
+it is now
+  report LISTNAME DATES ACTIONS
+or
+  report LISTNAME DATES <<TAG
+ACTIONS
+TAG
+
+The actions use a form similar to that of the inform setting. See
+"help report" for full details.
+
+
 2001.02.16 (CVS):
 
 All new administrative passwords are converted to SHA-1 message digests
