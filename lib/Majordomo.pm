@@ -3029,9 +3029,9 @@ sub _list_file_get {
   # instructed we pull out the file of last resort.
   if ($nofail) {
     @out = $self->_get_stock('en/file_not_found');
-    if (@out and $subs) {
-      $out[0] = $self->substitute_vars($out[0], $subs, $list);
-    }
+    $subs ||= {};
+    $subs->{'UNKNOWNFILE'} = $file;
+    $out[0] = $self->substitute_vars($out[0], $subs, $list);
     $log->complain("Requested file $file not found"); #XLANG
     return @out;
   }
