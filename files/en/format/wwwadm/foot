@@ -26,9 +26,9 @@
      <font color="#f0f0f0">
      Configuration</font></a>
   <td align=center bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=lists-long-full&extra=$LIST">
+    <a href="$CGIURL?$CGIDATA&func=lists-full-long&extra=$LIST">
      <font color="#f0f0f0">
-     Lists</font></a>
+     List Info</font></a>
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=command">
      <font color="#f0f0f0">

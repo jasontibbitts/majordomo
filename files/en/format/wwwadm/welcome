@@ -62,10 +62,10 @@ Press <b>Configuration</b> to see a list of these categories.
 You can then view and change the current settings.
 
 <tr>
-  <td valign=top>Lists
+  <td valign=top>List Info
   <td>
 
-If your mailing list is public, pressing <b>Lists</b> will show
+If your mailing list is public, pressing <b>List Info</b> will show
 you how it will appear when people visit the 
 <a href="$WWWUSR_URL">web page for subscribers</a>.
 
