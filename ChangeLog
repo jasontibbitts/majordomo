@@ -1,5 +1,7 @@
 2001-07-15  Jason Tibbitts  <tibbs@math.uh.edu>
 
+	* bin/mj_email (parse_commands): Fix typo.
+
 	* bin/mj_queuerun (parse_commands): Unpack additional key=value
 	items from the queue filename and pass them as part of the request
 	structure.  Allow the command part of the queue filename to

@@ -75,6 +75,7 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 #getopts('c:d:l:mMoqQ:rSt:T:v:x:', \%opts);
 
+Getopt::Long::Configure("bundling");
 GetOptions(\%opts, 'c=s', 'd=s', 'l=s', 'm', 'M', 'o', 'q', 'Q=s', 'r',
 	   'S', 't=s', 'T=s', 'v=i', 'x=s', 'req=s%');
 
@@ -427,7 +428,7 @@ sub parse_commands {
   }
   $sub_start = 'Majordomo results';
 
-  ($comand, $mode) = split('-', $command, 2) if defined($command);
+  ($command, $mode) = split('-', $command, 2) if defined($command);
   $mode = '' unless defined $mode;
 
   $command = command_legal($command);
