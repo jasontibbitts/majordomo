@@ -37,8 +37,6 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
-Build complete maintenance scripts so that the installer only needs to add
-  two crontab entries period instead of two per domain.
 Move all aliases into one file, and all vut entries into one file, to make
   sendmail configuration easier.
 Move t_accept messages into external files.
@@ -57,7 +55,6 @@ Make Deliver take a list of delivery hashes, so you can pass in a whole
   database scan.
 Do more substitutions in mailfile actions.  Allow a hashref of
   substitutions to be passed in.
-digest-headers variable?
 
 Can filespace system entirely.  To see if a file exists, just stat it.
 Store additional info in a dotfile.  Only difficult rewrite is index.
@@ -69,10 +66,15 @@ digest-force  to force a specific digest
 digest-check  to possibly run a specific digest
 report-digest command to show status of digest spools.
 
-  Configurables:
-    index header
-    index footer
-    digest footer - after all messages
+Use files; search in order:
+  digest-$name-$flavor-(preindex, postindex, footer)
+  digest-$name-(preindex, postindex, footer)
+  digest-$flavor-(preindex, postindex, footer)
+
+  (The last will always be found in the GLOBAL space, but conceptually also
+  look for:
+   digest-(preindex, postindex, footer)
+  )
 
 Way to force the users to use the digest version:
   allowed_subscribtion_classes - array of names of subscription classes that
@@ -811,3 +813,4 @@ Export information from the registration database to .htaccess files, so
 Provide some way for users to see what digests are available.
 Add an X-Header indicating whether or not the posting user is subscribed.
 Make _post call inform itself to get useful information in the log.
+digest-headers variable?

@@ -1,0 +1,2 @@
+A regular expression used to match quoted text in message bodies.
+This is used to generate the counts and percentages of quoted text.

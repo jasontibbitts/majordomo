@@ -2,12 +2,13 @@
 BEGIN {
   $::LIBDIR = "/nowhere";
   $::LISTDIR= "/nowhere";
-  $::DEFDOM = "nowhere";
   $::TMPDIR = "/nowhere";
   $::LOCKDIR= "blah";
   $::UID    = "baduid";
   $::GID    = "badgid";
   $::UMASK  = "007";
+  @::DOMAINS= (qw(none));
+
   $SIG{__WARN__} = sub {print STDOUT "--== $_[0]"};
 
   # Redirect STDERR as soon as possible to catch errors and warnings
@@ -45,8 +46,8 @@ use Mj::Lock;
 use Getopt::Std;
 use vars qw($program_name);
 
-my(%opts, @mess, $approved, $dom, $fh, $fname, $head, $in_body, $inmsg,
-   $list, $mess, $mj, $ok, $sender, $sess, $tlist, $top);
+my(%opts, @mess, $approved, $dom, $fh, $fname, $head, $in_body,
+   $inmsg, $list, $mess, $mj, $ok, $sender, $sess, $tlist, $top);
 
 die("Not running as UID $::UID") unless $> == $::UID;
 die("Not running as GID $::GID") unless $) == $::GID;
@@ -62,9 +63,11 @@ $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 getopts('d:t:v:', \%opts);
 
 # Untaint the domain
-$dom  =  $opts{d} || $::DEFDOM;
-$dom  =~ /(.*)/;
-$dom  =  $1;
+if ($opts{d}) {
+  $dom  =  $opts{d};
+  $dom  =~ /(.*)/;
+  $dom  =  $1;
+}
 $opts{v} ||= 0;
 
 # Open a log
@@ -83,16 +86,25 @@ $::log->add
 $::log->in(20, undef, "info", "Majordomo periodic trigger - ".scalar(localtime));
 $::log->startup_time();
 
-$::mj = new Majordomo $::LISTDIR, $dom;
-$mj = $::mj;  # for config default access to globals
+if ($opts{d}) {
+  @::DOMAINS=($dom);
+}
 
-$mj->connect('trigger', 'no info available');
-$mj->dispatch('trigger', '', '', '', 'trigger', 'trigger', $opts{t},
-	      'GLOBAL', '');
+for my $i (@::DOMAINS) {
+  $::log->in(21, undef, "info", "Triggering domain $i");
 
-$::log->message(50, "info", "-----Calling destructors-----");
-undef $mj;
-undef $::mj;
+  $::mj = new Majordomo $::LISTDIR, $i;
+  $mj = $::mj;  # for config default access to globals
+
+  $mj->connect('trigger', 'no info available');
+  $mj->dispatch('trigger', '', '', '', 'trigger', 'trigger', $opts{t},
+		'GLOBAL', '');
+
+  $::log->message(50, "info", "-----Calling destructors-----");
+  undef $mj;
+  undef $::mj;
+}
+
 $::log->message(50, "info", "-----Expiring locks-----");
 # We have to do this while we aren't holding any locks at all.  That means
 # we can't even call it through a Majordomo object.  This is a layering

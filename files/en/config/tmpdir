@@ -1,0 +1,2 @@
+A directory in which to store temporary files.  For security reasons,
+this should not be a directory that normal users have write access to.

@@ -1,0 +1,14 @@
+A word describing how the archive files should be split.  Here are the
+possibilities, along with sample names of the archive files:
+
+  yearly  - 1999.00
+  monthly - 199903.00
+  weekly  - 20021031.00
+  daily   - 21121002.00
+
+Note that archives will be further split by size; see the archive_size
+variable.  This gives rise to the two trailing digits, which may not be
+present depending on the archive_size setting.
+
+Also note that changing this variable will only change the settings for new
+messages; old archives will not be renamed or altered in any way.

@@ -1,0 +1,3 @@
+List messages requiring consultation will be sent to
+'moderator_group' (or all) of these addresses.  Any of them may
+approve or reject the message.

@@ -1,0 +1,4 @@
+If a reply-to header exists in the message and the list is configured
+to add one of its own, should the existing one be deleted and replaced
+with the list's?  If set to no, the list will not add its reply-to
+header if one is already present.

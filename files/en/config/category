@@ -1,0 +1,3 @@
+A string used to categorize the list.  Any string can be chosen; the
+value is used only in the output of the lists command to group and
+sort lists.

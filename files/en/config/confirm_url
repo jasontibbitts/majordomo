@@ -1,0 +1,4 @@
+The URL that is used to return confirmation tokens.  The only purpose
+of this variable is to supply a value to be used in the confirmation
+messages that are sent out.  The embedded variable $TOKEN will be
+expanded to the token being confirmed.

@@ -1,0 +1,2 @@
+Sets the maximum length of the headers in an unapproved message.  Set to
+zero to disable the total length check.

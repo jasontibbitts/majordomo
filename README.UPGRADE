@@ -1,5 +1,24 @@
 Notes on upgrading from alpha1 or before:
 
+1999.02.27 (CVS):
+
+mj_trigger no longer needs to be called once per domain.  Thus the crontab
+reduces to calling
+
+/path/to/mj_trigger -t daily
+
+daily and 
+
+/path/to/mj_trigger -t hourly
+
+once per hour.  Old crontab entries will still work (as the -d option is
+now optional), but it's probably best to update them.
+
+The variable 'quote_regexp' has been renamed to 'quote_pattern' since it
+takes a generalized pattern, not just a regular expression.  If you had set
+a non-default falue there, please extract the value before upgrading it and
+set the new variable properly after upgrading.
+
 1998.12.10(CVS):
 
 Note that reply_to and subject_prefix are now included in the message

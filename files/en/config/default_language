@@ -1,0 +1,4 @@
+This sets the default language for the list (or the installation).
+This is overridable by the user in several ways.  Note that at this
+time this is barely implemented.  (Only English messages are supported
+at the moment.)

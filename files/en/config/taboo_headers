@@ -1,0 +1,2 @@
+If any of the headers matches one of these regexps, then the message
+will be bounced for review. XXX Ugh.

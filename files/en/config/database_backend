@@ -1,0 +1,2 @@
+This controls the database format used to store various sets of data
+like subscriber lists.  Currently only a flat text database is supported.

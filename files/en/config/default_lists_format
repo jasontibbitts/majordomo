@@ -1,0 +1,5 @@
+This defines the default output format for the lists command.
+compact shows one list per line with short descriptions.
+long shows long descriptions
+enhanced shows long descriptions and extra information (whether or not
+  the user is subscribed to the list, etc.)

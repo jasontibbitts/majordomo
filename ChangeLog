@@ -1,4 +1,27 @@
+Sun Feb 28 00:04:02 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/mj_cf_data.pl: Remove all comment entries.
+
+	* files/INDEX.pl: Added all of the variable descriptions.
+
 Sat Feb 27 14:44:15 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (config_get_comment): Extract the file from the
+ 	filespace instead of of getting it from the big variable data
+ 	structure.  Variable descriptions are now translatable.
+
+	* lib/mj_cf_data.pl: Rename 'quote_regexp' to 'quote_pattern'.
+
+	* lib/Mj/Resend.pm (_check_body): Use quote_pattern.
+
+	* setup/setup_func.pl (suggest_crontab): Doesn't need a domain any
+ 	longer.
+
+	* installbin: Expand @::DOMAINS in mj_trigger to list of all
+ 	configured domains.
+
+	* bin/mj_trigger: If not passed -d, loop over all configured
+ 	domains instead.
 
 	* lib/Mj/Resend.pm (post, _post): Fix typos; site -> site_name.
 

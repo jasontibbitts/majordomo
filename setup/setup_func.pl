@@ -303,12 +303,11 @@ sub set_script_perms {
 
 # Give a suggested crontab
 sub suggest_crontab {
-  my $dom = shift;
   return <<"EOM";
 
-# Daily and hourly triggers for $dom
-0 0 * * * $config->{'install_dir'}/bin/mj_trigger -d $dom -t daily
-0 * * * * $config->{'install_dir'}/bin/mj_trigger -d $dom -t hourly
+# Daily and hourly triggers
+0 0 * * * $config->{'install_dir'}/bin/mj_trigger -t daily
+0 * * * * $config->{'install_dir'}/bin/mj_trigger -t hourly
 EOM
 }
 

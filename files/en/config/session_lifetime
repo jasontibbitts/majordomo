@@ -1,0 +1,5 @@
+The number of days that information on all Majordomo sessions will be
+kept.  Majordomo saves the complete headers of all emailed requests,
+and all pertinent information for other types of requests.  These
+files can occupy significant space on an active server, so they are
+purged after this many days.

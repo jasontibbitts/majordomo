@@ -1,0 +1,6 @@
+The number of days that entries in the duplicate databases will be
+kept.  Majordomo saves information about Message-ID:s and various
+checksums of messages that pass through the list in order to filter
+out duplicates.  To limit database size and to cut down on the
+possibility of false positives, these entries are periodically
+trimmed after this number of days.

@@ -6,6 +6,7 @@ die "Invalid .mj_config" unless $config;
 
 my $uid = getpwnam($config->{'uid'});
 my $gid = getgrnam($config->{'gid'});
+my $domains = join(" ",@{$config->{'domains'}});
 
 $start = "#!$config->{'startperl'}";
 while (($src,$dst) = splice(@ARGV,0,2)) {
@@ -29,6 +30,7 @@ while (($src,$dst) = splice(@ARGV,0,2)) {
       $line =~ s!(^  \$::LOCKDIR\s*= ).*!$1\"$config->{'lockdir'}\";!;
       $line =~ s!(^  \$::WTMPDIR\s*= ).*!$1\"$config->{'wtmpdir'}\";!;
       $line =~ s!(^  \$::DEFDOM\s*= ).*!$1\"$ {$config->{'domains'}}[0]\";!;
+      $line =~ s!(^  \@::DOMAINS\s*= ).*!$1(qw($domains));!;
       $line =~ s!(^  \$::UID\s*= ).*!$1\"$uid\";!;
       $line =~ s!(^  \$::GID\s*= ).*!$1\"$gid\";!;
       print DST $line;

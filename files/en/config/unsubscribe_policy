@@ -1,0 +1,4 @@
+One of three values: open, closed, auto.  Open allows people to
+unsubscribe themselves from the list.  Auto allows anybody to
+unsubscribe anybody to the list without maintainer approval.  Closed
+requires maintainer approval for all unsubscribe requests to the list.

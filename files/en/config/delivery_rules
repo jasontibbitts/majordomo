@@ -1,0 +1,114 @@
+A table containing delivery rules, which describe how Majordomo will
+deliver mail.  In the simplest form, you can specify a host to use for
+delivery and a batch size.  (This duplicates much of the functionality
+of bulk_mailer, for those familiar with it.)
+
+More complicated forms allow you specify a list of hosts to be used
+for parallel delivery, and to specify more powerful batching
+parameters.
+
+The most general form allows various addresses to be directed to
+different sets of hosts for delivery.
+
+Each delivery destination should begin with a line containing either a
+regular expression, or the word ALL.  Addreses are compared against
+these in order; the first matching destination is chosen.  This
+enables you to choose which addresses go to which sets of hosts.
+
+The remaining lines (up until the next blank) should consist of
+various parameters which affect delivery.  The possible parameters
+are:
+
+numbatches=N
+  Split the address list up into exactly N batches.
+
+maxaddrs=N
+  Split the list into batches of N addresses apiece.
+
+maxdomains=N
+  Split the address list into batches of N domains apiece.  This
+  differs from maxaddrs in that a batch can contain more than N
+  addresses if several of them are in the same domain.  This requires
+  a sorted address list to function completely.
+
+minseparate=N
+  If a domain appears more than N times in various addresses, they
+  will all be given a separate batch.  This can improve the average
+  delivery time quite a bit if you have many addresses at large
+  providers, since they will be delivered immediately without waiting
+  for other addresses.
+
+  Domains that do not appear more than N times are batched according
+  to maxdomains, which should also be specified in order to set the
+  batch size for the infrequently occurring hosts.  If maxdomains is
+  not also specified, maxdomains=20 is used.
+
+If neither of the above are specified, the default is numbatches=1,
+which duplicates the Majordomo 1.x behavior.
+
+hosts=(hosta, hostb, hostc)
+  A list of hostnames that Majordomo will connect to to deliver
+  batches.  If no hosts are given, Majordomo connects to localhost.
+
+  Batches are delivered to each host in turn in a round-robin fashion.
+  (Future enhancements will deliver batches to each host
+  simulataneously to compensate for possible delays from individual
+  hosts due to load or network traffic.)
+
+  The hosts in this list are randomly reordered, so even if you use a
+  single batch the load will be spread out over several messages.
+
+backup=(hostd, hoste, hostf)
+  A list of backup hosts to use in case one or more of the regular
+  delivery hosts are down.  These will normally be ignored, but if
+  there is a problem contacting one of the normal delivery hosts,
+  these hosts will be used in addition to the other working hosts.  In
+  the event that no host is contactable, Majordomo will attempt to
+  contact localhost.  If that fails, Majorodmo will sleep for ten
+  minutes and try the whole process again.
+
+sort
+  Sort the address list.  Many of the batching options depend on
+  getting the addresses in sorted order and will not work as expected
+  if the address are unsorted.  Including the sort option causes the
+  list to be sorted, but beware that this takes time and memory.  This
+  is not necessary (and will have no effect) when using a sorted
+  database backend.  A reasonable balance can be struck by sorting the
+  list periodically (using the sortlist command) and not sorting here.
+
+Hosts in either the hosts or backup lists can also be specified with
+additional information, as follows:
+
+hosts=(hosta=(parameter1, param2=5), hostb=(param3), hostc)
+
+The host parameters are as follows:
+
+esmtp      - speak ESMTP with the hosts if it is able.
+onex       - send ESMTP ONEX to the host if it supports it.
+pipelining - send the ESMTP PIPELINING command to the host.
+timeout    - the number of seconds to wait when opening a connection
+             to the host
+port       - the port number to connect to, if different from the
+             usual SMTP port.
+
+If, instead of a host name, the string "@qmail" is used, Majordomo
+will open a direct connection to the qmail-queue program and directly
+inject the message into the qmail delivery system.  This assumes, of
+course, that you are running qmail.
+
+Examples (these are all separate):
+
+Duplicate bulk_mailer:
+ALL
+sort, maxdomains=20
+
+Use a remote exploder for Scandinavia:
+/(.fi|.no|.se)$/
+hosts=(nordland.no=(esmtp, onex), reallycold.se)
+backup=(my.host.com)
+numbatches=2
+
+ALL
+numbatches=1
+hosts=(my.host.com)
+

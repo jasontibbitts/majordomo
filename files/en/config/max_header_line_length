@@ -1,0 +1,4 @@
+Sets the maximum length of a single header in an unapproved message.
+This can be used to prevent excessive CC'ing or to cur down on some
+types of spam.  Set to zero to disable length checks on single
+headers.

@@ -1116,8 +1116,13 @@ These return various information about a config variable:
   A list of (visible level, modifiable level)
   The variables type
 
-They just jump through the global list''s method since all lists have the
-same variables.  This avoids needlessly vivifying a list''s config.
+They (except for config_get_comment)just jump through the global list''s
+method since all lists have the same variables.  This avoids needlessly
+vivifying a list''s config.
+
+config_get_comment grabs the file out of the filespace.  This allows for
+local overrides and translations (since the search list and LANG are
+honored.
 
 =cut
 sub config_get_allowed {
@@ -1129,7 +1134,9 @@ sub config_get_allowed {
 sub config_get_comment {
   my $self = shift;
   my $var  = shift;
-  $self->{'lists'}{'GLOBAL'}->config_get_comment($var);
+#  $self->{'lists'}{'GLOBAL'}->config_get_comment($var);
+  # No substitutions, so no tempfile here
+  $self->_list_file_get_string('GLOBAL', "config/$var");
 }
 
 sub config_get_groups {

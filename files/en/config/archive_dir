@@ -1,0 +1,6 @@
+The directory where the mailing list archive is kept.
+
+If this is not set, Majordomo will look for a directory named "archive" in
+the public directory of the filespace.  If it exists, archives will be
+placed there.  If not, archives will not be generated and digests will not
+function.

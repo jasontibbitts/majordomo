@@ -1,0 +1,2 @@
+Look for administrative requests (e.g. subscribe/unsubscribe) and
+forward them to the list maintainer instead of the list.

@@ -1,0 +1,9 @@
+If this is on, users that are subscribed to a list will always be
+shown that list, regardless of any advertise restriction; the list's
+advertise restrictions will not even be consulted.  This can result in
+a performance increase.
+
+If this is off, the list's advertise restrictions will be consulted
+normally.  This will still result in the same behavior unless an
+access_rules entry is used to override the normal processing of
+advertise/noadvertise, but list owners will then have the choice.

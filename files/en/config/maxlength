@@ -1,0 +1,2 @@
+The maximum size of an unapproved message in characters.  Set to zero to
+disable the message length check.

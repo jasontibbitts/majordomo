@@ -1,0 +1,7 @@
+This variable controls what happens to messages sent to the
+'listname-request' address.  The possible valies, and their effects:
+
+majordomo - the message will be processed for commands
+owner     - the message will be sent to the list owner
+response  - the contents of the file 'request_reply' will be returned
+            to the sender of the message.

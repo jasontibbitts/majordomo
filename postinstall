@@ -113,11 +113,9 @@ print OUT <<EOM;
 EOM
   
 my $ct;
-for my $i (@{$config->{'domains'}}) {
-  $ct = suggest_crontab($i);
-  print $ct if -t STDIN && (!$skip && !$quiet);
-  print OUT $ct;
-}
+$ct = suggest_crontab();
+print $ct if -t STDIN && (!$skip && !$quiet);
+print OUT $ct;
 
 close OUT;
 chown (scalar getpwnam($config->{'uid'}),

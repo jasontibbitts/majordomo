@@ -714,7 +714,7 @@ sub _check_body {
 
   $i      = $self->_list_config_get($list, 'attachment_rules');
   $mcode  = $i->{check_code};
-  $qreg   = $self->_list_config_get($list, 'quote_regexp');
+  $qreg   = $self->_list_config_get($list, 'quote_pattern');
   $maxlen = $self->_list_config_get($list, 'max_mime_header_length');
 
   # Create a Safe comaprtment

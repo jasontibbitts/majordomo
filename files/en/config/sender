@@ -1,0 +1,4 @@
+The envelope and sender address for the resent mail.  This string has
+"@" and the value of resend_host appended to it to make a complete
+address.  For majordomo, it provides the sender address for the
+welcome mail message generated as part of the subscribe command.

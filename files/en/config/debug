@@ -1,0 +1,13 @@
+When MTA configuration is suggested, this value will be used as the
+debug parameter.  It is used to generate debugging information for
+this list.  Higher values cause more debugging information to be
+generated.  Values of 500 are generally sufficient for bug reporting;
+at 1000 a complete SMTP trace is generated which is useful for
+debugging MTA problems.
+
+Note that this only effects the generation of the MTA configuration
+information (i.e. suggested aliases) so that configuration information
+will have to be updated for this value to have any effect.
+
+If the MTA configuration is being automatically maintained by
+Majordomo, it should be regenerated (using createlist-regen).

@@ -1,0 +1,3 @@
+This controls the size of various internal structures.  Lowering this
+value saves memory and decreases performance.  Setting it to 0
+disables internal chunking, and can use very large amounts of memory.

@@ -1,0 +1,12 @@
+A string decribing the maximum size of a single archive file.  When a
+message arrives that would cause an archive file to exceed the size set
+here, a new archive file is created with the final number incremented by
+one.
+
+Possible values are an integer followed by one of k, or m for
+kilobytes or messages.  The value 'unlimited' is also permitted, in
+which case the archives will not have the following period and two
+digits appended.
+
+Note that changing this variable will only change the settings for new
+messages; old archives will not be renamed or altered in any way.

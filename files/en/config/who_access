@@ -1,0 +1,3 @@
+One of three values: open, list, closed.  Open allows anyone access to this
+command.  List allows only list members access, while closed completely
+disables the command for everyone.

@@ -1,0 +1,6 @@
+A string containing the flags which apply to users who are not list members
+when they send messages to the list.  Only a very few flags make sense in
+this case.  They are:
+
+  A - ackall
+  a - ackimportant

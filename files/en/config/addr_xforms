@@ -1,0 +1,8 @@
+A list of transformations to be applied to addresses before comparing
+them for equivalency.  This can be used to remove the '+mailbox' part
+of an address, or to remove the machine name from addresses in a
+domain.  Transforms should listed one per line, and should be in the
+form /pattern/replacement/.  For example, /(.*?)\+.*(\@.*)/$1$2/
+removes the '+mailbox' specifier from an address.  NOTE: these
+transforms must give the same result when applied multiple times in
+succession.

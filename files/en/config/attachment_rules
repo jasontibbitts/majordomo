@@ -1,0 +1,43 @@
+
+A table containing attachment rules, which describe how various MIME
+types are to be treated when they appear in messages sent to the list.
+
+A rule consists of a MIME type (or regular expression matching a MIME
+type) and a list of actions to perform when a message with this type
+or containing a part of this type passes through the list.  It looks
+something like this:
+
+mime/type | action=argument
+
+Some MIME types are:
+
+text/plain, text/html, image/jpeg, video/mpeg
+
+Possible actions are:
+
+  allow     - let the part pass
+  deny      - reject the entire message
+  discard   - remove the part from the message and pass the rest
+  consult   - send the entire message to the list owner for approval
+  (more are planned)
+
+allow and consult take an argument; if present, it should be a
+content-transfer-encoding.  Majordomo will change the encoding of the
+part to match before it is sent.  Some valid encodings are "8bit",
+"base64", "quoted-printable", "x-uuencode" and "x-gzip64".  If an
+argument is not provided, the encoding will be left as is.  Due to the
+nature of MIME, be aware that the encoding can be changed at any
+machine that the message passes through, so the encoding you choose
+will not necessarily be the encoding that list members will see (and
+some may see different encodings than the others).
+
+Note that the first matching rule is the one that is used and types
+are by default allowed if no rule matches.  Deny and consult rules are
+applied first, and discard rules always apply, even for approved
+messages.
+
+Note also that deny and consult just set variables that can be checked
+in access_rules.  The default rule for posting normally takes care of
+these, but if you add any additional rules is is possible to override
+the checks made here.
+

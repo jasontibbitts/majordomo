@@ -1,0 +1,2 @@
+If a token exists longer than this many days, a reminder message will
+be sent.  If this is unset or zero, no reminders will be sent.

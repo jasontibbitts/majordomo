@@ -1,0 +1,2 @@
+The maximum size of a message part to hold in memory; parts larger
+than this will be held in temporary files.
