@@ -26,7 +26,7 @@ use AutoLoader 'AUTOLOAD';
 
 $VERSION = "0.0";
 use strict;
-use vars(qw(%args %memberof %notify_var %rt2ht %yes %no $current $safe $skip));
+use vars(qw(%args %memberof %notify_var %rt2ht %yes %no @notify_fields $current $safe $skip));
 $Mj::Util::safe = '';
 
 %Mj::Util::notify_var =
@@ -34,12 +34,18 @@ $Mj::Util::safe = '';
    'approvals'  => 'integer',
    'attach'     => 'bool',
    'bounce'     => 'integer',
-   'file'       => 'string',
+   'chainfile'  => 'filename',
+   'expire'     => 'string',
+   'file'       => 'filename',
    'fulfill'    => 'bool',
    'group'      => 'string',
    'pool'       => 'integer',
    'remind'     => 'timespan',
   );
+
+@Mj::Util::notify_fields = 
+  qw(approvals attach bounce file fulfill group pool remind 
+     chainfile expire);
 
 %Mj::Util::rt2ht =
   (
@@ -211,7 +217,6 @@ sub process_rule {
 	    $args{$arg} = $value;
 	  }
 	  else {
-            
             # obtain boolean value with double-negation.
 	    $args{$arg} = !!$value;
 	  }
@@ -336,6 +341,8 @@ sub n_defaults {
                 'approvals'     => 1,
                 'attach'        => 0,
                 'bounce'        => 1,
+                'chainfile'     => 'repl_confirm',
+                'expire'        => -1,
                 'file'          => 'confirm',
                 'fulfill'       => 0,
                 'group'         => 'victim',
@@ -344,13 +351,15 @@ sub n_defaults {
               };
 
   if ($type eq 'consult') {
-    $defaults->{'attach'} = 1 if $command && $command eq 'post';
+    $defaults->{'attach'} = 1 if ($command && $command eq 'post');
     $defaults->{'bounce'} = 0;
+    $defaults->{'chainfile'} = 'repl_chain';
     $defaults->{'file'}   = 'consult';
     $defaults->{'group'}  = 'moderators';
   }
   elsif ($type eq 'delay') {
     $defaults->{'bounce'}  = 0;
+    $defaults->{'chainfile'} = 'repl_delay';
     $defaults->{'file'}    = 'delay';
     $defaults->{'fulfill'} = 1;
   }
@@ -371,7 +380,7 @@ Returns a hashref containing the values
 
 =cut
 sub n_validate {
-  my ($str) = shift;
+  my $str = shift || '';
   my (@grp, @tmp, $i, $mess, $ok, $struct, $tmp, $var, $val);
   my $log = new Log::In 350, $str;
 
