@@ -138,8 +138,6 @@ sub new {
      list        => $args{'name'},
      dir         => $args{'dir'},
      callbacks   => $args{'callbacks'},
-     defaultdata => $args{'defaultdata'},
-     installdata => $args{'installdata'},
     );
 
   $self->{'config'} = $self->{'templates'}{'MAIN'};
@@ -1688,8 +1686,6 @@ sub _make_config {
        name        => $name,
        dir         => $self->{'ldir'},
        callbacks   => $self->{'config'}->{'callbacks'},
-       defaultdata => { 'raw' => {} },
-       installdata => $self->{'config'}->{'source'}{'installation'},
       );
   }
   1;
@@ -1926,6 +1922,17 @@ sub config_get {
   my $self = shift;
 
   $self->{'config'}->get(@_);
+}
+
+=head2 config_search
+
+Retrieves a variable's location and value from a list of templates.
+
+=cut
+sub config_search {
+  my $self = shift;
+
+  $self->{'config'}->search(@_);
 }
 
 =head2 config_set
