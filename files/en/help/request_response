@@ -4,12 +4,37 @@ request_response listname <<TAG
 listname, required, is an email list at this site
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "request_response" command is not intended to be used by end users;
-it's how messages to listanme-request get routed into the system.
+The "request_response" action is used in the access_rules configuration
+setting to determine who has access to an autoresponder.
+
+Every mailing list has a "-request" e-mail address.  Normally, messages
+sent to this address will be processed as if they were sent to the 
+server at $MJ.
+
+It is possible to configure the "-request" address to send an automated
+reply message instead.  This is accomplished with the following command:
+
+  configset GLOBAL request_answer = response
+
+This change affects all of the mailing lists at a domain; there is no
+way to change this on a list-by-list basis.
+
+The domain administrator may wish to restrict access to the automated
+replies, using the GLOBAL access_rules setting.  For example, the following
+command:
+
+configset GLOBAL access_rules <<LLL
+request_response
+deny
+/example.edu/
+LLL
+
+would deny access to everyone outside of the example.edu domain.
+
 
 See Also:
-   help configset access_rules_variables (set/test for this command)
+   help access_variables 
+   help configset_access_rules
+   help configset_request_answer
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
