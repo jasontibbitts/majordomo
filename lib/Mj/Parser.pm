@@ -542,13 +542,14 @@ sub parse_line {
   my $log         = new Log::In 60;
   my (@arglist, $used, $line, $command, $tag, $attachhandle, $out);
 
-  # Merge lines ending in backslashes
+  # Merge lines ending in backslashes, ignoring trailing white space, UNLESS they are escaped as a double-backslash
   chomp;
-  while (/\\\s*$/) {
+  while ( (/\\\s*$/) && !(/\\\\\s*$/) ) {
     s/\\\s*$/ /;
     $_ .= $inhandle->getline;
     chomp;
   }
+  s/\\$// if(/\\\\$/); # reduce escaped backslash to a simple backslash
 
   # Trim leading and trailing whitespace and remove tabs
   s/^\s*(.*?)\s*$/$1/;
@@ -611,12 +612,13 @@ sub parse_line {
 
       $log->message(90, "info", "grabbed line $line");
 
-      # Process backslashes
-      while ($line =~ /\\\s*$/) {
+      # Merge lines ending in backslashes, ignoring trailing white space, UNLESS they are escaped as a double-backslash
+      while ( ($line =~ /\\\s*$/) && ($line !~ /\\\\\s*$/) ) {
         $line =~ s/\\\s*$/ /;
         $line .= $inhandle->getline;
         chomp $line;
       }
+      $line =~ s/\\$// if($line =~ /\\\\$/); # reduce escaped backslash to a simple backslash
 
       # Did we find the tag?
       if ($line eq $tag) {
@@ -624,7 +626,7 @@ sub parse_line {
         last;
       }
 
-      # process leading dashes in here documents
+      # NO LONGER process leading dashes in here documents (now done only for message_footer and message_fronter)
       # dash space         --> remove dash
       # doubled up         --> remove one dash
       # single dash        --> empty line

@@ -69,7 +69,9 @@ long, but they will show that parts of the line were interpreted as
 separate (and incomplete) commands. To fix this, you can "escape" the
 line breaks: Anywhere a space is allowed, you can insert a backslash
 and a hard return to make the server interpret several lines as just
-one command. For example:
+one command. (White space after the backslash will be ignored.)
+
+For example:
   subscribe my-very-long-list-name MyFirstNameHere MyLastNameHere <my_email@my_domain>
 is too long for many mail tools. To keep the command from being
 broken up, you can type this in your message to $MJ 
@@ -77,13 +79,15 @@ broken up, you can type this in your message to $MJ
   subscribe my-very-long-list-name \ 
   MyFirstNameHere MyLastNameHere <my_email@my_domain>
 The server will then re-assemble the two lines into one command.
+
 Other options include getting a better mail tool and turning off
 automatic line wrapping, but don't expect the list owner to do
 everything for you when there IS a way to do it yourself.
 
 List owners using "put" to store files must keep in mind that the
 backslash described above ALWAYS joins two lines as one, even if
-it's part of a file being put and not a one-line command.
+it's part of a file being put and not a one-line command, unless it
+is "escaped" by another backslash. See the "here file" notes below.
 
 All of the Majordomo2 commands and options can be entered with only
 LOWER CASE LETTERS with underscore also possible. Commands are NOT case
@@ -133,13 +137,29 @@ This is sometimes called a "here file" because all argument lines
 after "<<TAG" and before the matching "TAG" (shown above as "DATA1"
 and "DATA2" are stored in the command as if they had been read from
 a file. The "#" character is NOT a comment character between the tags!
-A blank line is allowed only as the last line in the here document.
+A blank line is allowed only as the last line in the here document. (??)
 You can use your own string for "TAG", with a few restrictions:
   - the string must be letters only, no numbers or punctuation or spaces
   - the string must be upper case only, no lower case letters
   - the end "TAG" must be on a line by itself (no indents or comments)
 It is wise to use different tags for different commands, so they don't
 accidentally mismatch due to typing errors.
+
+NOTE: When using "here files" for commands like "put", keep in mind that
+you can use backslashes to join lines, or you can escape them to keep
+from joining lines. For example, this will produce a one-line file:
+   put GLOBAL welcome <<ENDWEL
+   first line \
+   second line
+   ENDWEL
+If you were trying to create a two-line file that actually CONTAINED
+the backslash, you would have to issue this command instead:
+   put GLOBAL welcome <<ENDWEL
+   first line \\
+   second line
+   ENDWEL
+A backslash anywhere OTHER than the end of the line is treated as
+simply another character.
 
 In addition to the '<<' syntax for supplying arguments to a command, there
 is the '<@' syntax.  When followed by a number, this references the

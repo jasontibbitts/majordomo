@@ -15,7 +15,8 @@ MIMEdata, if specified with the -data option, must contain MIME info
 NOTE: A leading slash on the filename is NOT the same as the root
       directory of your computer's file system! Watch out for how
       trailing backslashes are treated, since "put" files are also
-      processed as "here documents" as described in "help commands".
+      processed as "here documents" as described in "help commands"
+      and you need to escape backslashes at the end of the line.
 
 This command stores a file under the list, which can then be retrieved
 with "get" by those who are authorized to do so. If you are not
