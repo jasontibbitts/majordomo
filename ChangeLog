@@ -1,3 +1,31 @@
+2002-01-18  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  Add support for the archive command.
+
+	* lib/Majordomo.pm:  (_lists)  Determine if access to the
+	archive command is allowed, and store the result in the
+	can_read variable.
+
+	* lib/mj_cf_defs.pl:  Add "signoff" to the default administrivia
+	patterns.
+
+	* lib/Mj/CommandProps.pm:  Allow the summary and reverse
+	modes of the archive command to work together.
+
+	* lib/Mj/Format.pm:  (archive)  Add format file support
+	for the archive-summary command.
+	(lists)  Add support for the CAN_READ substitution, a boolean
+	variable that indicates if the archive command is accessible.
+
+	* lib/Mj/Inform.pm:  (_inform_owner)  Use the whoami_owner
+	setting for the owner's address, not the sender setting.
+	Thanks to Duncan Hill.
+
+	* lib/Mj/MailOut.pm:  (mail_message)  Skip empty or undefined
+	addresses.  Thanks to Stephen Frost.
+
+	* setup/ask_domain.pl:  Fix warning.  Thanks to Brock Rozen.
+ 
 2002-01-15  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/List.pm:  (digest_sync)  Bugfix:  supply the
