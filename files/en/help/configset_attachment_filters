@@ -12,6 +12,7 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname attachment_filters << ENDTAG
 text/plain | allow
+text/html  | clean
 /.+/       | discard
 ENDTAG
 
@@ -65,6 +66,23 @@ and "Image/JPEG" are considered identical.
 The allow action
 ----------------
 The allow action causes a body part to be passed untouched.
+
+
+The clean action
+----------------
+The clean action will remove unwanted elements ("tags") and their
+attributes from text/html body parts, to reduce the likelihood that
+malicious code appears in the message.  At present, the following
+elements and attributes will be removed by this action:
+
+attributes:  background onblur onchange onclick ondblclick onfocus 
+  onkeydown onkeypress onkeyup onload onmousedown onmousemove 
+  onmouseout onmouseover onmouseup onreset onselect onunload
+
+elements:  applet base embed form frame iframe ilayer img input 
+  layer link meta object option script select textarea
+
+These attributes and elements are not configurable.
 
 
 The discard action
