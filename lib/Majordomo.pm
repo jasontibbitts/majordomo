@@ -4315,7 +4315,7 @@ sub set {
 
 sub _set {
   my ($self, $list, $user, $addr, $mode, $cmd, $setting, $d, $sublist, $force) = @_;
-  my (@lists, @out, $check, $data, $l, $ok, $res);
+  my (@lists, @out, $check, $data, $file, $l, $ok, $owner, $res);
 
   $check = 0;
   if ($mode =~ /check/ or ! $setting) {
@@ -4352,8 +4352,31 @@ sub _set {
       $res->{'victim'}   = $addr;
       $res->{'list'}     = $l;
       $res->{'auxlist'}  = $sublist;
-      $res->{'flagdesc'} = [$self->{'lists'}{$l}->describe_flags($res->{'flags'})];
-      $res->{'classdesc'} = $self->{'lists'}{$l}->describe_class(@{$res->{'class'}});
+      $res->{'flagdesc'} = 
+        [$self->{'lists'}{$l}->describe_flags($res->{'flags'})];
+      $res->{'classdesc'} = 
+        $self->{'lists'}{$l}->describe_class(@{$res->{'class'}});
+
+      # Issue a partial digest if changing from digest mode
+      # to nomail or single mode.
+      if (exists $res->{'digest'} and ref $res->{'digest'}) {
+        ($file) = $self->{'lists'}{$l}->digest_build
+          (messages      => $res->{'digest'}->{'messages'},
+           type          => $res->{'digest'}->{'type'},
+           subject       => "Partial digest for the $l list",
+           to            => "$addr",
+           tmpdir        => $tmpdir,
+           index_line    => $self->_list_config_get($l, 'digest_index_format'),
+           index_header  => "Custom-Generated Digest",
+           index_footer  => "\n",
+          );
+        # Mail the partial digest 
+        if ($file) {
+          $owner = $self->_list_config_get($l, 'sender');
+          $self->mail_message($owner, $file, $addr);
+          unlink $file;
+        }
+      } 
     }
     push @out, $ok, $res;
   }
@@ -4453,13 +4476,14 @@ sub _show {
 	{
 	 fulladdr   => $data->{fulladdr},
          class      => $data->{'class'},
+         flags      => $data->{'flags'},
 	 classdesc  => $self->{'lists'}{$i}->describe_class($data->{'class'},
 							    $data->{'classarg'},
 							    $data->{'classarg2'},
 							   ),
 	 subtime    => $data->{subtime},
 	 changetime => $data->{changetime},
-	 flags      => [$self->{'lists'}{$i}->describe_flags($data->{'flags'})],
+	 flagdesc   => [$self->{'lists'}{$i}->describe_flags($data->{'flags'})],
 	};
       $bouncedata = $self->{lists}{$i}->bounce_get($addr);
       if ($bouncedata) {
