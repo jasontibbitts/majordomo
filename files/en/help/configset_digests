@@ -81,13 +81,14 @@ The following criteria are used to determine if a digest should be sent:
   If the "times" and "separate" criteria are met:
       
   * A digest is sent if there is a waiting message older than "maxage", 
-  even if this means violating "minsize" and "minage" field limits.
+  even if this means violating "minmsg", "minsize" and "minage" field
+  limits.
 
   * Otherwise, a digest is sent only if: 
     + the combined size of the messages meets or exceeds the limit in the 
       "minsize" field, and
 
-    + the number of messages meets or exceeds the limit in the "minsize" 
+    + the number of messages meets or exceeds the limit in the "minmsg" 
       field, and
 
     + the newest message awaiting delivery is older than the "minage"
