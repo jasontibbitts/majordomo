@@ -565,7 +565,7 @@ sub list_access_check {
       if ($arg) {
         my $reason = $arg;
         $reason =~ s/^\"(.*)\"$/$1/;
-        $reasons .= "$reason\n";
+        $arg2 .= "\002$reason";
       }
 	  next ACTION;
 	}
