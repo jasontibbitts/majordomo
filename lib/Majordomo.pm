@@ -495,9 +495,10 @@ sub dispatch {
           }
         }
       }
+      $request->{'modes'}{$canon[0]} = 1;
     }
   }
-        
+
   # Turn some strings into addresses and check their validity; never with a
   # continued function (they never need it) and only if the function needs
   # validated addresses.
