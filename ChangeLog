@@ -1,3 +1,10 @@
+2004-06-14  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/SimpleDB/Text.pm:  (get_matching_quick_regexp)  Bugfix:
+	Remove anchors from the pattern more thoroughly.
+	(The rekey-verify command was returning spurious results for
+         text databases.)  Thanks to SRE.
+
 2004-05-24  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_showtokens)  Show tokens for the

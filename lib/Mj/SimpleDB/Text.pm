@@ -501,7 +501,8 @@ sub get_matching_quick_regexp {
 
   # Remove anchors from the pattern before searching
   $pattern = $value;
-  $pattern =~ s/([^\\]|^)[\^\$]/$1/g;
+  $pattern =~ s/([^\\]|^)([\^\$])/$1(?:$2|\\001)/g;
+  $pattern =~ s/([^\\]|^)\\([AZ])/$1(?:\\$2|\\001)/g;
 
   for ($i=0; $i<$count; $i++) {
     $key = $self->{'get_handle'}->search("$pattern");
