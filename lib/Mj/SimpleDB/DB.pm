@@ -622,6 +622,7 @@ sub lookup_quick {
   my $key  = shift;
   unless ($key) {
     $::log->complain("SimpleDB::lookup_quick called with null key.");
+    return;
   }
   my $lock = new Mj::Lock($self->{lockfile}, 'Shared');
   my $value = 0;

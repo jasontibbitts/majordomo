@@ -21,7 +21,6 @@ use Mj::SimpleDB::Base;
 use DBI;
 use Mj::Lock;
 use Mj::Log;
-use Safe;
 use strict;
 use vars qw(@ISA $VERSION $safe);
 
@@ -53,11 +52,6 @@ sub new {
 
   my $log  = new Log::In 200, "$self->{filename}, $self->{lockfile}";
 
-  unless (defined($safe)) {
-    $safe = new Safe;
-    $safe->permit_only(qw(const leaveeval not null pushmark return rv2sv stub));
-  }
-
   # Now allocate the database bits.
   if ($self->{compare}) {
     $self->{dbtype} = new DB_File::BTREEINFO;
@@ -76,8 +70,8 @@ sub _make_db {
 
   # Now grab the DB object.  We don't care about the hash we're tying to,
   # because we're going to save the speed hit and use the API directly.
-  $db = tie %db, 'DB_File', $self->{filename},
-                         O_RDWR|O_CREAT, 0666, $self->{dbtype};
+  # $db = tie %db, 'DB_File', $self->{filename},
+  #                        O_RDWR|O_CREAT, 0666, $self->{dbtype};
   warn "Problem allocating database" unless $db;
   $db;
 }
@@ -126,7 +120,7 @@ sub add {
   $db = $self->_make_db;
   return 0 unless $db;
 
-  $flags = 0; $flags = R_NOOVERWRITE unless $mode =~ /force/;
+  $flags = 0; # $flags = R_NOOVERWRITE unless $mode =~ /force/;
   $status = $db->put($key, $self->_stringify($argref), $flags);
 
   # If success...

@@ -587,7 +587,8 @@ sub lookup_quick {
   $fh->untaint;
 
   unless ($key) {
-    $::log->abort("SimpleDB::lookup_quick called with null key.");
+    $::log->complain("SimpleDB::lookup_quick called with null key.");
+    return;
   }
   
   my $out = $fh->search("/^\Q$key\E\001/");
