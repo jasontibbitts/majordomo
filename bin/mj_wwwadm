@@ -47,10 +47,10 @@ use Mj::CommandProps qw(:command :function);
 use Mj::Log;
 use Mj::Addr;
 
-my ($cgi, $domain, $i, $mj, $ok, $mess, $serveradmin, $sess, $token, $listbox);
+my ($cgi, $cgiurl, $domain, $i, $mj, $ok, $mess, $serveradmin, $sess, $token);
 my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, @lists, $vict, $extra);
-my ($line, $st, $file, $fh, $cgiurl, $cmdform, $localpart, $request, $req, @extra);
-my (%seen, @mlists);
+my ($line, $st, $file, $fh, $cmdform, $localpart, $request, $req, @extra);
+my (%seen, @mlists, $listbox);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -77,8 +77,8 @@ $::log->startup_time();
 # Start up the page and parse the URL
 $cgi = new CGI;
 print $cgi->header;
-# XXX adapt to allow per-domain customization
-$domain = $::DEFDOM;
+$domain = $cgi->param('domain') || $::DEFDOM;
+$domain =~ /(\S+)/; $domain = $1;
 
 # Make the Majordomo object
 $mj = new Majordomo $::LISTDIR, $domain;
@@ -95,9 +95,6 @@ unless (ref $mj) {
 EOM
   exit 0;
 }
-
-# XXX adapt to allow per-domain customization
-$cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
 
 # Generate the session information
 for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
@@ -131,7 +128,11 @@ if (exists $ENV{'PATH_INFO'}) {
   $pathinfo = $1;
 }
 
-# GET poses a security risk due to passwords being visible
+# $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
+# Use the URL with which we were called
+$cgiurl = sprintf "http://%s:%s%s%s", $ENV{'SERVER_NAME'},
+          $ENV{'SERVER_PORT'}, $ENV{'SCRIPT_NAME'}, $ENV{'PATH_INFO'};
+
 # Set HTML form variables
 $ofunc   = $cgi->param('func') || "help";
 $localpart = $ENV{'REMOTE_ADDR'} || "mj_wwwadm";
@@ -177,7 +178,8 @@ else {
 }
 
 $cmdform = <<EOM;
-<form method=POST action=$cgiurl>
+<form method=POST action="$cgiurl">
+<input type=hidden name=domain value="$domain">
 <table><tr><td>
 Command:&nbsp;&nbsp;
 <select name=func>
@@ -331,14 +333,15 @@ if ($passw and ($st eq 'checked' or $func eq 'showtokens') and @lists) {
     if ($func eq 'showtokens');
 
   print $fh <<EOM;
-<form method=POST action=$cgiurl>
+<form method=POST action="$cgiurl">
 <input type=submit name=func value="tokeninfo-full">
 <input type=submit name=func value="tokeninfo">
 <input type=submit name=func value="accept">
 <input type=submit name=func value="accept-archive">
 <input type=submit name=func value="reject">
-<input type=hidden name=st value=$request->{'st'}>
+<input type=hidden name=domain value="$domain">
 <input type=hidden name=passw value=$request->{'password'}>
+<input type=hidden name=st value=$request->{'st'}>
 <br>
 Choose one or more requests from the following list,
 then press one of the buttons.
@@ -393,7 +396,7 @@ sub format_print {
 sub Mj::Format::help { 
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, $request->{'topic'};
-  my ($cgiurl, $chunk, $chunksize, $topic);
+  my ($chunk, $chunksize, $topic);
   my ($ok, $mess) = @$result;
 
   select $out;
@@ -402,20 +405,19 @@ sub Mj::Format::help {
     return $ok;
   }
 
-  # XXX Adjust for multiple domains 
-  $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
   $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
                                       "chunksize");
   return unless $chunksize;
 
   $request->{'command'} = "get_chunk";
 
+
   while (1) {
     ($ok, $chunk) = @{$mj->dispatch($request, $chunksize)};
     last unless defined $chunk;
     $chunk = Mj::Format::escape($chunk);
     $chunk =~ s/(\s{3}|&quot;)(help\s)(configset|admin|mj) (?=\w)/$1$2$3_/g;
-    $chunk =~ s/(\s{3}|&quot;)(help\s)(\w+)/$1$2<a href="$cgiurl?func=help&extra=$3">$3<\/a>/g;
+    $chunk =~ s/(\s{3}|&quot;)(help\s)(\w+)/$1$2<a href="$cgiurl?domain=$domain&func=help&extra=$3">$3<\/a>/g;
     print $chunk;
   }
 
@@ -475,10 +477,8 @@ sub Mj::Format::showtokens {
 sub Mj::Format::tokeninfo {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, $request->{'token'};
-  my ($body, $chunk, $chunksize, $cgiurl, $cmd, $expire);
+  my ($body, $chunk, $chunksize, $cmd, $expire);
   my (@reasons, $showspool, $time, $tmp, $user);
-  # XXX Allow multiple domains
-  $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
   my ($ok, $data, $sess) = @$result;
   select $out;
 
@@ -512,11 +512,12 @@ EOM
   print "</table>\n";
 
   print <<EOM;
-<form action=$cgiurl method=POST>
+<form method=POST action="$cgiurl">
 <input type=submit name=func value=accept>
 <input type=submit name=func value=accept-archive>
 <input type=submit name=func value=reject>
-<input type=hidden name=extra value='$extra'>
+<input type=hidden name=domain value="$domain">
+<input type=hidden name=extra value="$extra">
 <input type=hidden name=list value=$request->{'list'}>
 <input type=hidden name=passw value=$request->{'password'}>
 <input type=hidden name=st value=$request->{'st'}>
@@ -573,9 +574,8 @@ EOM
 sub Mj::Format::who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, $request->{'list'};
-  my ($cgiurl, $chunksize, $count, $fullclass, $i, $lastchange);
+  my ($chunksize, $count, $fullclass, $i, $lastchange);
   my (@lines, $numbered, $remove, @time, $user);
-  $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
   $remove = $request->{'list'} eq 'GLOBAL' ? "unregister" : "unsubscribe";
   select $out;
 
@@ -585,8 +585,9 @@ sub Mj::Format::who {
     return $ok;
   }
   print <<EOM;
-<form action=$cgiurl method=POST>
+<form method=POST action="$cgiurl">
 <input type=submit name=func value=$remove>
+<input type=hidden name=domain value="$domain">
 <input type=hidden name=list value=$request->{'list'}>
 <input type=hidden name=passw value=$request->{'password'}>
 <input type=hidden name=st value=$st>
@@ -704,15 +705,16 @@ header line was too long, for example.
 <p>
 If there are requests, you will see a form
 like this:
-<form method=POST action="/cgi-bin/test-cgi">
+<form method=POST action="$cgiurl">
 <input type=submit name=func value="tokeninfo-full">
 <input type=submit name=func value="tokeninfo">
 <input type=submit name=func value="accept">
 <input type=submit name=func value="accept-archive">
 <input type=submit name=func value="reject">
-<input type=hidden name=st value=>
-<input type=hidden name=list value=$list>
+<input type=hidden name=domain value="$domain">
+<input type=hidden name=list value="$list">
 <input type=hidden name=passw value=yourpassword>
+<input type=hidden name=st value=>
 <br>
 Choose one or more requests from the following list,
 then press one of the buttons.
