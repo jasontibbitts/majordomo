@@ -336,6 +336,7 @@ sub createlist {
   $ok;
 }
 
+use Mj::List qw(_time_to_str);
 sub digest {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my ($comm, $digest, $i, $msgdata);
@@ -360,14 +361,18 @@ sub digest {
       $comm .= sprintf "Next delivery on or after  %s\n", 
                  scalar localtime($digest->{'lastrun'} + $digest->{'separate'}) 
                  if ($digest->{'lastrun'} and $digest->{'separate'});
-      $comm .= sprintf "Age of oldest message      %d seconds\n", 
-                 time - $digest->{'oldest'} if ($digest->{'oldest'});
-      $comm .= sprintf "Oldest age allowed         %d seconds\n", 
-                 $digest->{'maxage'} if ($digest->{'maxage'});
-      $comm .= sprintf "Age of newest message      %d seconds\n", 
-                 time - $digest->{'newest'} if ($digest->{'newest'});
-      $comm .= sprintf "Minimum age required       %d seconds\n", 
-                 $digest->{'minage'} if ($digest->{'minage'});
+      $comm .= sprintf "Age of oldest message      %s\n", 
+                 Mj::List::_time_to_str(time - $digest->{'oldest'}, 1) 
+                 if ($digest->{'oldest'});
+      $comm .= sprintf "Oldest age allowed         %s\n", 
+                 Mj::List::_time_to_str($digest->{'maxage'}, 1)
+                 if ($digest->{'maxage'});
+      $comm .= sprintf "Age of newest message      %s\n", 
+                 Mj::List::_time_to_str(time - $digest->{'newest'}, 1)
+                 if ($digest->{'newest'});
+      $comm .= sprintf "Minimum age required       %s\n", 
+                 Mj::List::_time_to_str($digest->{'minage'}, 1) 
+                 if ($digest->{'minage'});
       $comm .= sprintf "Messages awaiting delivery %d\n", 
                  scalar @{$digest->{'messages'}} if ($digest->{'messages'});
       $comm .= sprintf "Minimum message count      %d\n", 
@@ -517,6 +522,8 @@ sub lists {
         if ($request->{'mode'} =~ /aux/) {
           eprintf($out, $type, "%sSubscribers: %4d\n", ' ' x 27, 
                                $data->{'subs'})  if (exists $data->{'subs'});
+          eprintf($out, $type, "%sPosts: %10d in the past 30 days\n", ' ' x 27, 
+                               $data->{'posts'})  if (exists $data->{'posts'});
           eprintf($out, $type, "%sArchive URL: %s\n", ' ' x 27, 
                                $data->{'archive'} || "(none)") 
                                if (exists $data->{'archive'});
