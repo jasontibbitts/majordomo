@@ -786,6 +786,9 @@ sub report {
       }
       @tmp = localtime($data->[9]);
       $end = strftime("%d %b %H:%M", @tmp);
+      if (defined $data->[10]) {
+        $end .= ", $data->[10]s";
+      }
 
       if ($request->{'mode'} !~ /summary/) {
         if ($request->{'list'} eq 'ALL') { 
@@ -793,7 +796,7 @@ sub report {
                   $data->[0], $victim, $outcomes{$data->[6]}, $end;
         }
         else {
-          $mess = sprintf "%-11s %-46s %-7s %s\n", $data->[1],
+          $mess = sprintf "%-11s %-38s %-7s %s\n", $data->[1],
                   $victim, $outcomes{$data->[6]}, $end;
         }
      
