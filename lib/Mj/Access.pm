@@ -957,8 +957,8 @@ sub _a_forward {
     $whoami = $self->_global_config_get('whoami');
     if (lc $whoami eq lc $arg) {
       # Mail Loop!  Send to owners instead.
-      $arg = $self->_list_config_get($td->{'list'}, 'whoami_owner');
       $cmdline .= "\nUnable to forward to $arg due to apparent mail loop.";
+      $arg = $self->_list_config_get($td->{'list'}, 'whoami_owner');
     }
 
     $ent = build MIME::Entity
