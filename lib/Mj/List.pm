@@ -325,7 +325,7 @@ sub set {
 
   unless ($data) {
     $log->out("failed, nonmember");
-    return (0, "$addr is not a subscriber.\n"); # XLANG
+    return (0, "$addr is not subscribed to the $self->{'name'} list.\n"); # XLANG
   }
 
   # Call make_setting to get a new flag list and class setting
