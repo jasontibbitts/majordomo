@@ -223,15 +223,13 @@ EOF
   if ($action eq "accept") {
     print '<pre>';
     $request->{'command'} = "accept";
-    ($ok) = @{
-      Mj::Format::accept($mj, \*STDOUT, \*STDOUT, 'html', $request,
-			 $mj->dispatch($request))};
+    Mj::Format::accept($mj, \*STDOUT, \*STDOUT, 'html', $request,
+			 $mj->dispatch($request));
   }
   elsif ($action eq "reject") {
     print '<pre>';
     $request->{'command'} = "reject";
-    ($ok) =
-      Mj::Format::reject($mj, \*STDOUT, \*STDOUT, 'html', $request,
+    Mj::Format::reject($mj, \*STDOUT, \*STDOUT, 'html', $request,
 			 $mj->dispatch($request));
   }
   elsif ($action eq "info") {
