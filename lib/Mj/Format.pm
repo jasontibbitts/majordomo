@@ -489,7 +489,7 @@ sub configshow {
       if ($vardata->{'type'} =~ /^(integer|word|pw|bool)$/) {
         $tmp = $short;
       }
-      elsif ($vardata->{'type'} =~ /^(enum)$/) {
+      elsif ($vardata->{'type'} eq 'enum') {
         $tmp = $enum;
         @possible = sort @{$vardata->{'values'}};
         if ($type =~ /^www/) {
@@ -497,7 +497,7 @@ sub configshow {
           $subs->{'SELECTED'} = [];
           $subs->{'CHECKED'}  = [];
           for $str (@possible) {
-            if ($val =~ /$str/) {
+            if ($val eq $str) {
               push @{$subs->{'SELECTED'}}, "selected";
               push @{$subs->{'CHECKED'}}, "checked";
             }
@@ -727,6 +727,7 @@ sub lists {
       $str, $subs, $tmp);
   my $log = new Log::In 29, $type;
   $count = 0;
+  $legend = 0;
 
   ($site) = $mj->global_config_get($request->{'user'}, $request->{'pass'}, 
                                    "site_name");
