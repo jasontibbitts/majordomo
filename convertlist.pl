@@ -374,7 +374,7 @@ sub load_old {
       while (defined($_ = <CF>)) {
 	chomp;
 	next unless $_;
-	s/^-//;
+	# s/^-//;
 	last if $_ eq $val;
 	push @{$hash->{$key}}, $_;
       }
