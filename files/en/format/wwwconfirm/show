@@ -1,0 +1,10 @@
+ 
+      $LIST:
+        Subscribed as   $FULLADDR
+        Subscribed on   $SUBTIME
+        Last changed on $CHANGETIME
+        Receiving       $CLASSDESC
+        Bounced messages: ?NUMBERED_BOUNCES
+        ?UNNUMBERED_BOUNCES messages bounced without identifying numbers.
+        Subscriber flags:
+          $FLAGDESC

@@ -1,18 +1,17 @@
 <!-- Majordomo tokeninfo_head format file -->
 <p>
-To get instructions, click the <b>Introduction</b> link at the top
-or bottom of this document.<br>
-To confirm a different request, click the <b>Sign In</b> link at
-the top or bottom.<br>
-To return to this document at any time, click the <b>Show Details</b>
-link at the top or bottom.
-<p>
+On $DATE, $REQUESTER made the following request 
+at $SITE:
+<blockquote>
+$CMDLINE
+</blockquote>
+
 <form method=POST action="$CGIURL">
-?WILLACK If you wish to explain your reasons for $HELP:ACCEPTing
-?WILLACK or $HELP:REJECTing the request, type them here:
-?WILLACK <br>
-?WILLACK <textarea rows=4 cols=70 name=xplanation>
-?WILLACK </textarea>
+?CONSULT?WILLACK If you wish to explain your reasons for $HELP:ACCEPTing
+?CONSULT?WILLACK or $HELP:REJECTing the request, type them here:
+?CONSULT?WILLACK <br>
+?CONSULT?WILLACK <textarea rows=4 cols=70 name=xplanation>
+?CONSULT?WILLACK </textarea>
 
 <table>
   <tr>
@@ -38,28 +37,26 @@ link at the top or bottom.
       <input type=submit name="a" value="reject">
     <td>
       Press the <b>reject</b> button to disapprove the request.
-?WILLACK An explanation will be sent to $VICTIM.
-?WILLACK  <tr>
-?WILLACK    <td>
-?WILLACK      <input type=submit name="a" value="reject-quiet">
-?WILLACK    <td>
-?WILLACK      Press the <b>reject-quiet</b> button to disapprove the request.
-?WILLACK      No explanation will be sent to $VICTIM.
+?CONSULT?WILLACK An explanation will be sent to $VICTIM.
+?CONSULT?WILLACK  <tr>
+?CONSULT?WILLACK    <td>
+?CONSULT?WILLACK      <input type=submit name="a" value="reject-quiet">
+?CONSULT?WILLACK    <td>
+?CONSULT?WILLACK      Press the <b>reject-quiet</b> button to disapprove the request.
+?CONSULT?WILLACK      No explanation will be sent to $VICTIM.
 </table>
   
-
 <input type=hidden name="t" value="$TOKEN">
 <input type=hidden name="d" value="$DOMAIN">
 </form>
 
-<table>
-  <tr><td>Token  <td>$TOKEN
-  <tr><td>Created<td>$DATE
-  <tr><td>By     <td>$REQUESTER
-  <tr><td>Type   <td>$TYPE
-  <tr><td>Command<td>$CMDLINE
-  <tr><td>Expires<td>$EXPIRE
-  <tr><td>Reason <td>$REASONS
-</table>
+<p>
+To get instructions, click the <b>Introduction</b> link at the top
+or bottom of this document.<br>
+To confirm a different request, click the <b>Sign In</b> link at
+the top or bottom.<br>
+To return to this document at any time, click the <b>Show Details</b>
+link at the top or bottom.
+<p>
+More information about the request appears below:
 <pre>
-

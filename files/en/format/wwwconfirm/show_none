@@ -1,0 +1,9 @@
+  Address: $VICTIM
+    Address is valid.
+      Mailbox: $STRIP
+      Comment: $COMMENT
+    Address transforms to:   ?XFORM
+    Address aliased to:      ?ALIAS
+    Aliased to this address: ?ALIASES
+    This address is not registered at $SITE.
+
