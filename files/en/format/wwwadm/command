@@ -12,6 +12,7 @@
       <option> archive-get
       <option> archive-stats
       <option> digest-force
+      <option> digest-incvol
       <option> digest-status
       <option> report
       <option> report-full
