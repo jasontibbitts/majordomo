@@ -53,22 +53,81 @@ The bounce message is sent to the e-mail addresses in the bounce_recipients
 configuration setting, or to the list owners if that setting is empty.  
 
 The variables currently recognized are:
-  days_since_subscribe
-  consecutive - number of consecutive messages bounced
-  day         - number of bounces in the last 24 hours
-  week        - number of bounces in the last 7 days
-  month       - number of bounces in the last 30 days
-  bouncedpct  - percentage of bounced messages calculated from the lowest
-                and highest bounced messages and the count of numbered
-                bounced messages: (highest - lowest +1) / count
 
-Obviously we will want some way to control what bounce notices the list
-owner sees.  I think there are two ways to go; we can keep bounce_rules
-simple and use other variables to control what the owner sees or we can add
-additional actions to bounce_rules and give the owner lots of freedom about
-when to be notified.  I'm not really sure which is the way to go.  I'd like
-to avoid a mixed approach (where you can do things with the rules and with
-the variables).
+failure:
+  This is true if the bounce indicates a failure.
+
+warning:
+  This is true if the bounce indicates a warning.  Warnings do not generate
+  statistics (i.e. they don't count as bounced messages).  You generally
+  want to ignore them (and the default is to do so) but you can inform the
+  owner as well.
+
+addr:
+  The bouncing address, stripped of comments.
+
+fulladdr:
+  The bouncing address, with all comments left in.
+
+host:
+  The host portion of the bouncing address.
+
+days_since_subscribe:
+  The number of days since the user joined the list.  You can use this to
+  perhaps set a lower threeshold for new subscribers, or a higher one for
+  long-time subscribers.
+
+consecutive:
+  The number of consecutive messages bounced.  This records the length of
+  the most recent consecutive run of bounced messages.  So if messages
+  1,2,3,5 and 6 bounce, $consecutive is 2.  Use this to detect when an
+  address is bouncing a long run of messages.
+
+consecutive_days:
+  The length in days of the most recent consecutive run of bounced
+  messages.  In the above example, if message 5 bounced at noon on
+  Wednesday and message 6 bounced at noon on Friday, $consecutive_days
+  would be 2.  Use this in conjunction with $consecutive on high traffic
+  lists to detect when an address is bouncing every message sent to it and
+  it has been doing so for some period of time.  (In high traffic lists, or
+  lists where traffic is bursty, testing $consecutive alone might not give
+  you much useful information.)  For example:
+
+  # Remove users after they have bounced at least 50 consecutive messages
+  # over five days
+  remove
+  $consecutive >= 50 && $consecutive_days >= 5
+
+day:
+  The number of bounces in the last 24 hours.
+
+week:
+  The number of bounces in the last 7 days.
+
+month:
+  The number of bounces in the last 30 days.  You can use $day, $week and
+  $month if you want to set a threshold for the number of bounces in some
+  time period without requiring that they be consecutive.
+
+bouncedpct:
+  The percentage of messages which have bounced.  This is calculated from
+  the lowest and highest sequence numbers of bounced messages and the count
+  of numbered bounced messages: (highest - lowest +1) / count.
+
+diagnostic:
+  The bounce diagnostic.  Majordomo tries to extract from each bounce a
+  maningful error message.  You can match against it here if you want to do
+  perform special handling.  For example:
+
+  # Be more lenient towards "mailbox full" errors:
+  remove
+  $diagnostic =~ /mailbox full/i &&
+  $consecutive > 100 &&
+  $consecutive_days > 7
+
+  # When AOL says a user doesn't exist, drop it immediately
+  remove-noprobe
+  $host = "aol.com" && $diagnostic =~ /mailbox not found/i
 
 It is possible to use comments before, between, and after the individual
 rules, but not within rules.  Comments are lines that begin with a '#'.

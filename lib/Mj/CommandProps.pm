@@ -912,6 +912,9 @@ my %commands =
    {
     'access' => {
 		 'legal'   => {
+			       'addr'                 => 'string',
+			       'fulladdr'             => 'string',
+			       'host'                 => 'string',
 			       'subscribed'           => 'bool',
 			       'days_since_subscribe' => 'integer',
 			       'consecutive'          => 'integer',
