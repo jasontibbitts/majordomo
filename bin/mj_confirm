@@ -69,9 +69,8 @@ print $cgi->header;
 $ptoken = $cgi->param('t');
 $action = $cgi->param('a');
 $domain = $cgi->param('d') || $::DEFDOM;
-if ($domain =~ /^([-\@\w.]+)$/) {
-  $domain = $1;
-}
+$domain =~ /([a-zA-Z0-9\-\.]+)/;
+$domain = $1;
 
 
 # Make the Majordomo object

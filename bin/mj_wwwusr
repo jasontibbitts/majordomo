@@ -77,7 +77,7 @@ $::log->startup_time();
 $cgi = new CGI;
 print $cgi->header;
 $domain = $cgi->param('domain') || $::DEFDOM;
-$domain =~ /(\S+)/; $domain = $1;
+$domain =~ /([a-zA-Z0-9\.\-]+)/; $domain = $1;
 
 # Make the Majordomo object
 $mj = new Majordomo $::LISTDIR, $domain;
@@ -117,7 +117,9 @@ $list    = $cgi->param('list') || 'GLOBAL';
 $extra   = $cgi->param('extra') || '';
 
 # Which commands are supported, and is a password required?
-%commands = (   'changeaddr'    => 1,
+%commands = (   
+                'alias'         => 1,
+                'changeaddr'    => 1,
                 'faq'           => 0,
                 'help'          => 0,
                 'info'          => 0,
@@ -190,7 +192,13 @@ if ($func =~ /subscribe|set/ and $list eq 'GLOBAL') {
   print "<h4 align=center>Please select a mailing list before pressing the $func button.</h4>\n";
   &usage($mj);
 }
-
+if (! $passw and $commands{$func}) {
+  $::log->message(50, "info", "Absent password in form data.");
+  &print_header($user, $passw, $site, $cgiurl);
+  print "<h4 align=center>A password is required to use the $func command.</h4>\n";
+  &usage($mj);
+}
+  
 if ($user and $passw) {
   $passw =~ /(.+)/; $passw = $1;
   $ok = 
@@ -467,16 +475,8 @@ sub Mj::Format::show {
     print "<h2>$request->{'user'} is not registered</h2>\n";
     return 1;
   }
-  if (@{$listdata->{'aliases'}}) {
-    print "<br>Aliases:<ul>\n";
-    for $i (@{$listdata->{'aliases'}}) {
-      next if $i eq $listdata->{'strip'};
-      print "<li>$i\n";
-    }
-    print "</ul>\n";
-  }
   print <<EOM;
-<h4 align=center>Personal Settings</h4>
+<h4 align=center>Personal Settings for $user</h4>
 <form method=POST action="$cgiurl">
 <input type=hidden name=domain value="$domain">
 <input type=hidden name=user value="$user">
@@ -489,9 +489,11 @@ EOM
 <p>$request->{'user'} is not subscribed to any lists.
 <br>
 <input size=48 name=extra>
+<input type=submit name=func value="alias">
 <input type=submit name=func value="changeaddr"><br>
-To change addresses, type your new address into the box
-and press the <b>changeaddr</b> button.  Majordomo may send
+To add an alias (another e-mail address from which
+you send messages), or to change addresses, type your new address into the box
+and press the <b>alias</b> or <b>changeaddr</b> button.  Majordomo may send
 a message to your new address asking for confirmation.
 </form>
 EOM
@@ -499,10 +501,12 @@ EOM
   }
 
   print <<EOM;
-To change addresses, type your new address into this box:<br>
 <input size=48 name=extra>
+<input type=submit name=func value="alias">
 <input type=submit name=func value="changeaddr"><br>
-and press the <b>changeaddr</b> button.  Majordomo may send
+To add an alias (another e-mail address from which
+you send messages), or to change addresses, type your new address into the box
+and press the <b>alias</b> or <b>changeaddr</b> button.  Majordomo may send
 a message to your new address asking for confirmation.
 <p>
 To change settings, press the radio button for a
@@ -548,6 +552,14 @@ EOM
   print "$request->{'user'} was registered on " .
          gmtime($listdata->{'regdata'}->{'regtime'}) .
          " UTC.<br>\n";
+  if (@{$listdata->{'aliases'}}) {
+    print "<br>Aliases:<ul>\n";
+    for $i (@{$listdata->{'aliases'}}) {
+      next if $i eq $listdata->{'strip'};
+      print "<li>$i\n";
+    }
+    print "</ul>\n";
+  }
 
   print <<EOM;
 <h4 align=center>What do the settings mean?</h4>

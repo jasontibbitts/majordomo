@@ -74,7 +74,8 @@ getopts('c:d:l:mMop:P:qQ:rSt:T:v:x:', \%opts);
 # Deal with -Q option
 do_qmail() if $opts{'Q'};
 
-$dom = $opts{'d'} || $::DEFDOM;  $dom =~ /(.*)/; $dom = $1;
+$dom = $opts{'d'} || $::DEFDOM;  
+$dom =~ /([a-zA-Z0-9\-\.]+)/; $dom = $1;
 $opts{'p'} = 10 unless defined $opts{'p'};
 $opts{'P'} = 10 unless defined $opts{'P'};
 $opts{'v'} ||= 0;

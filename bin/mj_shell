@@ -120,7 +120,7 @@ $top = $opts{t} || $::LISTDIR;
 $dom = $opts{d} || $::DEFDOM;
 $top =~ /(.*)/;
 $top = $1;
-$dom =~ /(.*)/;
+$dom =~ /([a-zA-Z0-9\-\.]+)/;
 $dom = $1;
 
 $lang = '';

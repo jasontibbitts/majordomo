@@ -78,11 +78,12 @@ $::log->startup_time();
 $cgi = new CGI;
 print $cgi->header;
 $domain = $cgi->param('domain') || $::DEFDOM;
-$domain =~ /(\S+)/; $domain = $1;
+$domain =~ /([a-zA-Z0-9\-\.]+)/;
+$domain = $1;
 
 # Generate the session information
-for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
-  $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
+for my $i ('REMOTE_ADDR', 'REMOTE_PORT', 'PATH_INFO') {
+  $sess .= "$i = " . substr($ENV{$i}, 0, 70) . "\n" if exists $ENV{$i};
 }
 $sess .= scalar(localtime(time)) . "\n";
 
@@ -102,10 +103,10 @@ $cgiurl = sprintf "http://%s:%s%s", $ENV{'SERVER_NAME'},
 
 $pathinfo = 'GLOBAL';
 if (exists $ENV{'PATH_INFO'}) {
-  $cgiurl  .= $ENV{'PATH_INFO'};
   $pathinfo = $ENV{'PATH_INFO'};
-  $pathinfo =~ m#/([^/\s]+)#;
+  $pathinfo =~ m#/([a-zA-Z0-9_\.\-]+)#;
   $pathinfo = $1;
+  $cgiurl  .= $pathinfo;
 }
 
 # Get HTML form variables

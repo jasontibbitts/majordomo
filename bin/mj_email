@@ -91,11 +91,13 @@ if (! -t STDERR) {
 # generate filenames; it's safe since they were supplied by the site owner.
 
 $opts{t} ||= $::LISTDIR;
-for ('c', 'd', 'l', 't', 'x') {
+for ('c', 'l', 't', 'x') {
   next unless exists $opts{$_};
   $opts{$_} =~ /(.*)/;
   $opts{$_} = $1;
 }
+$opts{d} =~ /([a-zA-Z0-9\-\.]+)/;
+$opts{d} = $1;
 
 $opts{v} ||= 0;
 
@@ -370,10 +372,12 @@ sub parse_commands {
   my ($mj, $deflist, $command) = @_;
   my (@entities, $args, $av, $debug_file, $debug_log,
       $debug_reply, $entity, $fh, $file, $head, $i, $line, $list, $ok,
-      $request, $sender, $sub_addin, $subject, $tag, $tlist, $top, 
+      $owner, $request, $sender, $sub_addin, $subject, $tag, $tlist, $top, 
       $token, $uuser);
 
   ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
+  # 65 is EX_DATAERR (error in input data)
+  exit 65 unless $entity;
   $subject = $head->get('subject') || "";
 
   # Look for a possible token
@@ -398,6 +402,16 @@ sub parse_commands {
   
   # Need to bail if we're talking to ourselves, either here (it's convenient)
   # or when checking access.
+  if (defined($head->get('x-loop'))) {
+    $head->replace('subject', "Majordomo loop detected: " . $head->get($subject));
+    $sender = $mj->global_config_get(undef, undef, 'sender');
+    $owner = $mj->list_config_get(undef, undef, $deflist, 'whoami_owner');
+    if ($sender and $owner) {
+      $mj->mail_entity($sender, $entity, $owner);
+      return;
+    }
+  }
+    
   
   if ($mj->global_config_get(undef, undef, 'return_subject') &&
       defined($head->get('subject')) && $head->get('subject') =~ /\S/)

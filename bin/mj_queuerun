@@ -254,9 +254,8 @@ sub run_queue {
             if ($func eq 'majordomo') {
               $log->message(50, 'info', 'Processing commands');
               debug_to('majord');
-              parse_commands($mj);
+              unlink $file if (parse_commands($mj, 'GLOBAL'));
               debug_to('queuerun');
-              unlink $file;
               close MSG;
               next MSG;
             }
@@ -526,11 +525,21 @@ sub parse_commands {
   my ($mj, $deflist, $command) = @_;
   my (@entities, $args, $av, $debug_file, $debug_log,
       $debug_reply, $entity, $fh, $file, $head, $i, $line, $list, $ok,
-      $request, $sender, $sub_addin, $subject, $tag, $tlist, $top,
+      $owner, $request, $sender, $sub_addin, $subject, $tag, $tlist, $top,
       $token, $user, $uuser);
 
   ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
   return unless $entity;
+  if (defined($head->get('x-loop'))) {
+    $head->replace('subject', "Majordomo loop detected: " . $head->get($subject));
+    $sender = $mj->global_config_get(undef, undef, 'sender');
+    $owner = $mj->list_config_get(undef, undef, $deflist, 'whoami_owner');
+    if ($sender and $owner) {
+      $mj->mail_entity($sender, $entity, $owner);
+      return 1;
+    }
+  }
+
   $subject = $head->get('subject') || "";
 
   # Look for a possible token
@@ -651,6 +660,7 @@ sub parse_commands {
   $entity->purge;
   $top->purge;
   unlink "$::TMPDIR/mje.$$.final";
+  1;
 }
 
 sub debug_to {

@@ -28,14 +28,51 @@ mj_trigger is a program designed to be put into the Majordomo user''s
 crontab and called periodically to inform Majordomo that it is time to
 execute its periodic functions.
 
-Majordomo currently understands hourly, daily and weekly functions.
+Majordomo currently understands hourly and daily functions.
 
 A sample crontab entry looks like:
 
 # Run the daily trigger at midnight
-0 0 * * * /path/to/mj_trigger C<-d> domain C<-t> daily
+0 0 * * * /path/to/mj_trigger C<-t> daily
 # Run the hourly trigger at the top of each hour
-0 * * * * /path/to/mj_trigger C<-d> domain C<-t> hourly
+0 * * * * /path/to/mj_trigger C<-t> hourly
+
+Several functions are performed by the triggers, and each
+has a separate argument to the C<-t> switch:
+
+=item B<bounce> or B<vacation>
+
+Expire subscriber data, such as bounces (controlled by the
+I<bounce_max_age> configuration variable) and vacation settings.
+
+=item B<checksum>
+
+Expire duplicate message checksums and message-ids, as
+indicated by the I<dup_lifetime> configuration setting.
+
+=item B<digest>
+
+Issue digests, as indicated by the I<digests> configuration setting.
+
+=item B<log>
+
+Remove log entries older in days than the I<log_lifetime> configuration
+setting.
+
+=item B<session>
+
+Remove session data older than the I<session_lifetime> setting.
+
+=item B<token>
+
+Send reminders, and expire old requests and temporary passwords
+(as required by the I<token_remind>, I<token_lifetime>, 
+ and I<latchkey_lifetime> settings).
+
+Excepting B<digest>, which has its own setting, 
+these triggers are invoked by the B<daily> trigger, or by the
+B<hourly> trigger at the times indicated by the I<triggers> 
+configuration setting.
 
 =cut
 
@@ -66,8 +103,9 @@ getopts('d:t:v:', \%opts);
 # Untaint the domain
 if ($opts{d}) {
   $dom  =  $opts{d};
-  $dom  =~ /(.*)/;
-  $dom  =  $1;
+  $dom =~ /([a-zA-Z0-9\-\.]+)/;
+  $dom = $1;
+  @::DOMAINS=($dom) if $dom;
 }
 $opts{v} ||= 0;
 
@@ -86,10 +124,6 @@ $::log->add
 
 $::log->in(20, undef, "info", "Majordomo periodic trigger - ".scalar(localtime));
 $::log->startup_time();
-
-if ($opts{d}) {
-  @::DOMAINS=($dom);
-}
 
 $request = {
     'command'   => 'trigger',
