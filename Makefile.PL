@@ -292,11 +292,12 @@ sub configure {
   # Pull in an existing configuration.
   print "Checking for     Net::Config";
   eval {require Net::Config};
-  print ' 'x11 . "ok\n";
+  print ' 'x11 . "done, status not checked\n";
 
   print "Checking for      .mj_config";
   $config = eval { require ".mj_config" };
-  print ' 'x11 . "ok\n";
+  if (defined $config) { print ' 'x11 . "found: default settings read from prior install\n"; }
+  else                 { print ' 'x11 . "missing: using defaults and creating new file\n"; }
 
   get_str("\nReady to configure; press enter");
 
@@ -304,13 +305,14 @@ sub configure {
       defined $config->{version} &&
       $config->{version} >= $config_version)
     {
-      print "\nFound existing configuration:\n";
+      print "\nFound existing configuration in file '.mj_config':\n";
       printhash($config);
-      $msg = "Do you want to modify your configuration?\n";
+      print "End of existing configuration from file '.mj_config'\n";
+      $msg = "\nNOTE: Answer 'no' to use the configuration above without changes.\nDo you want to modify your configuration?\n";
       return $config unless get_bool($msg, 0);
     }
   elsif ($config) {
-    print "\nFound existing configuration, but it is out of date.\n";
+    print "\nFound existing configuration in '.mj_configure',\nbut it must be updated for a new Mj2 version.\n";
   }
   else {
     $config = {};
@@ -320,44 +322,57 @@ sub configure {
 Welcome to the Majordomo automatic configuration system!
 
 This script will guide you through some of the Majordomo configuration
-process.  Of course, it isn\'t finished....
+process.  Of course, it isn\'t finished.... so follow the instructions
+shown at the end of this step. If an existing .mj_config file was found
+and read in, the default answers below will be from that file. If no
+configuration file existed, this is assumed to be a fresh install and
+basic defaults will be provided. Some answers CANNOT be defaulted, even
+if this is a re-install with an existing configuration file, so don't
+just hit ENTER without reading the prompt\!
+
 EOM
   require "setup/ask_basic.pl";
   ask_basic($config);
 
   $config->{version} = $config_version;
   #---- Write out the config
-  print "\n";
+  print "\nSaving your current answers in file '.mj_config' ...";
   open(CONFIG, ">.mj_config") || die("Can't create .mj_config: $!");
   print CONFIG Dumper($config);
   close CONFIG;
   if ($config->{save_passwords}) {
     chmod(0600, '.mj_config');
   }
+  my $jnk = `pwd`;
+  chomp $jnk;
+  print "\n\nNOTE: Save file '$jnk/.mj_config'\n      if you delete and recreate this install tree!\n";
   return $config;
 }
 
 # Recursively print out a hash
+# ASSUMES that longest key is 25 chars or less, can't find max length without recursing twice
 sub printhash {
   my $arg = shift;
   my $indent = shift || 0;
   my($key, $msg, $val);
+  my $len = 25; # line up '=>' with spaces assuming this is longest key
+  my $tab =  8; # indent nested hashes by this many spaces
   for $key (sort keys %$arg) {
     $val = $arg->{$key};
     if (UNIVERSAL::isa($val, 'ARRAY')) {
       $msg = join(', ', @{$val});
     }
     elsif (UNIVERSAL::isa($val, 'HASH')) {
-      print "    "x$indent;
-      printf ("%20s => ...\n", $key);
+      print " "x($tab * $indent);
+      print ' 'x($len - length($key)), $key, " => ...\n";
       printhash($val, $indent+1);
       next;
     }
     else {
       $msg = $val;
     }
-    print "    "x$indent;
-    printf ("%20s => %s\n", $key, $msg);
+    print " "x($tab * $indent);
+    print ' 'x($len - length($key)), $key, " => $msg\n";
   }
 }
 
