@@ -46,7 +46,7 @@ blah
 
 use strict;
 use DirHandle;
-use IO::File;
+use Symbol;
 use File::Copy "cp";
 use Mj::Log;
 
@@ -146,19 +146,39 @@ sub getdata {
 	  };
 
   if ((-f $name || -d _) && -r _) {
-    $fh = new IO::File("<$name");
+    $fh = gensym();
+    return unless (open($fh, "<$name"));
     for $i (qw(description permissions c-type charset c-t-encoding language)) {
-      $line = $fh->getline;
+      $line = <$fh>;
       last unless defined $line;
       chomp($line);
       $data->{$i} = $line if length($line);
     }
+    close $fh;
   }
 
   # Force permissions on directories
   $data->{permissions} = 'd' if -d $path && -r $path;
 
   $data;
+}
+
+=head2 _dotfile(file)
+
+This returns the full path to the dotfile corresponding to the provided
+file (which should be the path relative to the filespace, not the full
+path).
+
+=cut
+sub _dotfile {
+  my $self = shift;
+  my $file = shift;
+
+  $file =~ m!^(.*/)?(.*?)/?$!;
+  if (defined $1) {
+    return "$self->{'dir'}/$1.$2";
+  }
+  return "$self->{'dir'}/.$2";
 }
 
 =head2 put(file, source, overwrite, description, content-type,
@@ -248,11 +268,13 @@ sub putdata {
   my($fh, $i, $name);
 
   $name = $self->_dotfile($file);
-  $fh = new IO::File(">$name");
+  $fh = gensym();
+  return unless (open($fh, ">$name"));
   for $i (qw(description permissions c-type charset c-t-encoding language)) {
     $data->{$i} = '' unless defined $data->{$i};
-    $fh->print("$data->{$i}\n");
+    print $fh "$data->{$i}\n";
   }
+  close $fh;
 }
 
 =head2 put_start, put_chunk, put_done
@@ -307,7 +329,9 @@ sub put_start {
     return (0, "Can't delete existing file!")
       unless $self->delete($file);
   }
-  $self->{'fh'} = new IO::File ">$path";
+  $self->{'fh'} = gensym();
+  return (0, "Unable to open file.")
+    unless (open ($self->{'fh'}, ">$path"));
 
   $data =
     {
@@ -527,24 +551,6 @@ sub _find_legal_files {
     }
   }
   @out;
-}
-
-=head2 _dotfile(file)
-
-This returns the full path to the dotfile corresponding to the provided
-file (which should be the path relative to the filespace, not the full
-path).
-
-=cut
-sub _dotfile {
-  my $self = shift;
-  my $file = shift;
-
-  $file =~ m!^(.*/)?(.*?)/?$!;
-  if (defined $1) {
-    return "$self->{'dir'}/$1.$2";
-  }
-  return "$self->{'dir'}/.$2";
 }
 
 
