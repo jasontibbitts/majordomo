@@ -28,9 +28,9 @@
   <input type=radio name=func value="who" checked>
   Search the $LIST subscriber list 
     (using the $HELP:WHO command)<br>
-  <input type=radio name=func value="who-bounces">
+  <input type=radio name=func value="who-bounce">
   Search the $LIST subscriber list for addresses with bounces 
-    (using the $HELP:WHO-bounces command)<br>
+    (using the $HELP:WHO-bounce command)<br>
   <input type=radio name=func value="which">
   Search all of the mailing lists
     (using the $HELP:WHICH command)<br>
