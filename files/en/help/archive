@@ -1,6 +1,6 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 archive-delete[-hidden][-force]    listname filespec
-archive-get[-immediate][-hidden]   listname filespec
+archive-get[-immediate]            listname filespec
 archive-get-digest[-mime][-hidden] listname filespec
 archive-index[-hidden]             listname filespec
 archive-stats[-hidden]             listname filespec
@@ -10,7 +10,24 @@ archive-sync                       listname pattern
 listname, required, is the name of a regular list at this site
 filespec, required, is a single value or range of values (see below)
 pattern,  required, is a single value or pattern matching archive file names
--hidden, if specified, displays only hidden messages (admins only)
+-delete,  if specified, causes messages to be removed from the archive
+-digest,  if specified, causes messages to be mailed in digests
+-force,   if specified, removes messages which await digest delivery
+-get,     if specified, causes whole messages to be displayed
+-hidden,  if specified, displays only hidden messages (admins only)
+-immediate, if specified, causes messages to be displayed immediately
+-index,   if specified, displays message summaries
+-mime,    if specified, causes digests to be mailed in "mime" format
+-stats,   if specified, displays per-user statistics
+-summary, if specified, lists archive files and their contents
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+The following command modes will sort the results of the 
+  archive-get or archive-index command:
+-author,  if specified, causes messages to be sorted by author
+-date,    if specified, causes messages to be sorted by date
+-reverse, if specified, reverses the order of the messages
+-subject, if specified, causes messages to be sorted by subject
+-thread,  if specified, causes messages to be sorted by thread
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The archive command is used to retrieve posted messages that have been
@@ -105,6 +122,36 @@ messages to be bundled into digests, typically with no more than 1000
 lines in each digest.  Usually, a plain text digest is sent, but "mime"
 mode will cause the messages to be bundled into MIME digests, in which
 each message is a separate attachment.
+
+Both the archive-get and the archive-index command take additional
+command modes that will sort the results.  
+
+The "author" command mode will cause the messages to be sorted by the
+address of the author.  The sorting is done by domain first, similar to
+the results of the who command.  
+
+The "date" command mode will cause the messages to be sorted by the
+date.  The dates that are given to messages in the archive can be
+based upon the time of arrival or the time of delivery; see "help
+configset_archive_date" for more information.
+
+The "subject" command mode will sort the messages alphabetically by
+subject, ignoring any leading "Re: " reply markers.
+
+The "thread" command mode will sort the messages by thread.  When one
+posted message is a reply to another, those two messages will be grouped
+together.  Aside from this grouping, the messages will be presented
+chronologically.  Older archive databases may lack the "msgid" field
+that allows threading to work consistently; these databases can be
+updated by the list administrators with the archive-sync command.
+
+The "reverse" command mode will cause the order of the results to be
+reversed.  For example, the command:
+
+  archive-get-immediate-reverse LISTNAME 200104
+
+will display the messages from April, 2001, with the most recent
+messages appearing first.
 
                               archive-stats
 
