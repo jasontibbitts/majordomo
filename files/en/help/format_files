@@ -380,6 +380,14 @@ at the bottom of every web page.
 (standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
 
 
+foot_global
+-----------
+(wwwadm)  This file displays supplementary information at the bottom 
+of every web page for the ALL, DEFAULT, or GLOBAL list.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
+
+
 get_edit_foot
 -------------
 (text, wwwadm)  This file displays command information, either the
@@ -428,6 +436,14 @@ head
 ----
 (wwwadm, wwwconfirm, wwwusr)  This file displays supplementary information
 at the top of every web page.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
+
+
+head_global
+-----------
+(wwwadm)  This file displays supplementary information at the top of 
+every web page for the ALL, DEFAULT, or GLOBAL list.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
 
@@ -510,6 +526,14 @@ a list name and password are requested.  For the wwwusr interface,
 an e-mail address and password are requested.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, ERROR, USER)
+
+
+newlist
+-------
+(wwwadm)  This file displays a form that allows a mailing list to
+be created, renamed, or destroyed.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
 
 
 password
@@ -839,6 +863,14 @@ welcome
 -------
 (wwwadm, wwwconfirm, wwwusr)  This file displays basic instructions 
 for the use of each WWW interface.
+
+(standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, CMDPASS, USER)
+
+
+welcome_global
+--------------
+(wwwadm)  This file displays basic instructions for the use of the
+wwwadm interface for the ALL, DEFAULT, or GLOBAL list.
 
 (standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, CMDPASS, USER)
 
