@@ -10,6 +10,7 @@ majordomo_aliases:
     local_part_suffix_optional
     pipe_transport = address_pipe
     retry_use_local_part
+    qualify_preserve_domain
     user = $UID
 
 ---------------------------------------------------------------------------

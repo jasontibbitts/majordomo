@@ -7,6 +7,7 @@ majordomo_aliases_$DOMAIN:
     pipe_transport = address_pipe
     suffix = "$SEPARATOR*"
     suffix_optional
+    qualify_preserve_domain
     user = $UID
     domains = $WHEREAMI
     file = $LISTS_DIR/ALIASES/mj-alias-$DOMAIN
