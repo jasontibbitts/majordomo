@@ -1,0 +1,20 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL addr_allow_bang_paths = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: no
+Data Type    : bool
+Variable Type: addr
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset GLOBAL addr_allow_bang_paths = 1
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+If this is true, Majordomo will allow old-style UUCP or "bang" addresses.
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
