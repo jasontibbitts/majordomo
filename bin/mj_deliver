@@ -1,0 +1,119 @@
+#!/usr/local/bin/perl-latest -wT
+BEGIN {
+  $::LIBDIR = 'unset';
+  $::LISTDIR= 'unset';
+  $::TMPDIR = 'unset';
+  $::LOCKDIR= "blah";
+  $::UMASK  = "007";
+  $::UID    = "baduid";
+  $::GID    = "badgid";
+  $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
+
+  # Redirect standard error output.
+  if (! -t STDERR) {
+    open (STDERR, ">>$::TMPDIR/mj_deliver.debug");
+  }
+}
+
+=head1 NAME
+
+mj_deliver - conduct SMTP conversations
+
+=head1 SYNOPSIS
+
+mj_deliver DEBUG DATAFILE
+
+=head1 DESCRIPTION
+
+This is an unfinished but functional prototype of a back-end
+delivery program.  It takes data from a file, a hash of arguments
+that could be used by Mj::Deliver::deliver, and calls that routine.
+
+The message files are expected to be found in the Mj2 temporary directory.
+
+Some modifications to Mj::MailOut and Mj::Resend would be necessary
+to integrate this program with Mj2.
+
+=cut
+use lib "$::LIBDIR";
+use strict;
+use Mj::Log;
+use Mj::Deliver;
+
+my ($args, $debug, $file, $i);
+
+$ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
+  # Croak if install was botched
+  die("Not running as UID $::UID") unless $> == $::UID;
+  die("Not running as GID $::GID") unless $) == $::GID;
+
+umask oct($::UMASK);
+
+$debug = $ARGV[0];
+
+# Set up the log
+$::log = new Mj::Log;
+$::log->add
+  (
+   method      => 'handle',
+   id          => 'deliver',
+   handle      => \*STDERR,
+   level       => $debug,
+   subsystem   => 'mail',
+   log_entries => 1,
+   log_exits   => 1,
+   log_args    => 1,
+  );
+
+$::log->in(20, undef, "info", "Majordomo delivery program - ".scalar(localtime));
+$::log->startup_time();
+
+$file = $ARGV[1];
+
+die qq(The file name "$file" is invalid.)
+  unless (defined $file and $file !~ /[^\w-]/ and -f "$::TMPDIR/$file");
+
+if ($file =~ /^(mj_deliver_\d+\w+)$/) {
+  # Untaint
+  $file = $1;
+}
+else {
+  die qq(The file name "$file" is invalid.);
+}
+
+$args = do "$::TMPDIR/$file";
+
+die qq(No data was supplied in the "$::TMPDIR/$file" file.) 
+  unless (ref $args eq 'HASH');
+
+Mj::Deliver::deliver(%$args);
+
+unlink "$::TMPDIR/$file";
+# Clean up and say goodbye
+for $i (keys %{$args->{'classes'}}) {
+  unlink $args->{'classes'}{$i}{file}
+    if $args->{'classes'}{$i}{file};
+}
+
+
+=head1 COPYRIGHT
+
+Copyright (c) 2001 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#
+### Local Variables: ***
+### cperl-indent-level:2 ***
+### End: ***
+
