@@ -108,6 +108,7 @@ Envelope types currently in use:
 
 =cut
 
+use Bf::Sender;
 sub parse {
   my $ent  = shift;
   my $list = shift;
@@ -195,6 +196,7 @@ sub parse {
     $type = '';
   }
 
+  $user = &Bf::Sender::decode_verp($user) if (defined $user);
   return ($type, $msgno, $user, $ok, $data);
 }
 
