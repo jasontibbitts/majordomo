@@ -60,7 +60,7 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl,
 %commands = (   
                 'alias'         => [1, 1, 0, 0, 'show'],
                 'archive'       => [0, 0, 1, 0, 'list'],
-                'changeaddr'    => [1, 1, 0, 1, 'show'],
+                'changeaddr'    => [1, 1, 0, 0, 'show'],
                 'faq'           => [0, 0, 1, 0, 'list'],
                 'help'          => [0, 0, 0, 1, 'help'],
                 'info'          => [0, 0, 1, 0, 'list'],
@@ -203,6 +203,10 @@ if ($func eq 'logout') {
   $mj->del_latchkey($passw);
   $subs->{'CMDPASS'} = '';
   $subs->{'COMMAND'} = 'welcome';
+  $subs->{'CGIDATA'} =
+    Mj::Format::cgidata($mj, { 'password' => '',
+                               'user'     => $user });
+
   &usage($mj, $subs, 'You have successfully signed out.');
 }
 elsif ($func eq 'login') {

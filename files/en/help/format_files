@@ -319,6 +319,21 @@ of a plain text message part.
  THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
 
 
+changeaddr
+----------
+(ALL)  This file is displayed when the changeaddr command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, QSADDR, STRIPADDR, USER, VICTIM)
+
+
+changeaddr_error
+----------------
+(ALL)  This file is displayed when the alias command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, QSADDR, STRIPADDR, 
+ USER, VICTIM)
+
+
 command
 -------
 (wwwadm)  This file displays a command form, a simple way to issue commands

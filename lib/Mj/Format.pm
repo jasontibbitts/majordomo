@@ -590,24 +590,31 @@ sub _archive_part {
 
 sub changeaddr {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$type, $request->{'user'}";
-  my ($ok, $mess) = @$result;
+  my ($mess, $ok, $str, $subs, $tmp);
+  ($ok, $mess) = @$result;
+
+  $subs = { $mj->standard_subs('GLOBAL'),
+           'CGIDATA'  => $request->{'cgidata'},
+           'CGIURL'   => $request->{'cgiurl'},
+           'CMDPASS'  => $request->{'password'},
+           'QSADDR'   => &qescape($request->{'user'}->strip, $type),
+           'STRIPADDR' => &escape($request->{'user'}->strip, $type),
+           'USER'     => &escape("$request->{'user'}", $type),
+           'VICTIM'   => &escape("$request->{'victim'}", $type),
+          };
 
   if ($ok > 0) { 
-    eprint($out, $type, "Address changed from $request->{'victim'} to $request->{'user'}.\n");
-  }
-  elsif ($ok < 0) {
-    eprint($out, $type, &indicate($type, 
-      "Change from $request->{'victim'} to $request->{'user'} stalled, awaiting approval.\n",
-      $ok));
-    eprint($out, $type, &indicate($type, $mess, $ok)) if ($mess);
+    $tmp = $mj->format_get_string($type, 'changeaddr');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok, 1);
   }
   else {
-    eprint($out, $type, &indicate($type, 
-      "$request->{'victim'} was not changed to $request->{'user'}.\n",
-      $ok));
-    eprint($out, $type, &indicate($type, $mess, $ok)) if ($mess);
+    $subs->{'ERROR'} = &escape($mess, $type);
+    $tmp = $mj->format_get_string($type, 'changeaddr_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok, 1);
   }
+
   $ok;
 }
 
