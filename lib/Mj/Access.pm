@@ -29,7 +29,8 @@ use Mj::Config qw(parse_table);
 use Mj::CommandProps qw(:rules);
 use Mj::MIMEParser;
 use strict;
-use vars qw($skip $victim $passwd @permitted_ops %args %memberof %requests);
+use vars qw($current $skip $victim $passwd @permitted_ops 
+            %args %memberof %requests);
 
 use AutoLoader 'AUTOLOAD';
 1;
@@ -462,6 +463,7 @@ sub global_access_check {
 
 use Data::Dumper;
 use Mj::CommandProps qw(:function action_terminal);
+use Mj::Digest qw(in_clock);
 sub list_access_check {
   # We must share some of these variables with the compartment, so they
   # can't be lexicals.
@@ -595,8 +597,9 @@ sub list_access_check {
 
   if ($access->{$request}) {
     # Populate the memberships hash
+    # check_main is supported for backward compatibility only.
     if ($access->{$request}{'check_main'}) {
-      $memberof{'MAIN'} = $self->{'lists'}{$list}->is_subscriber($victim);
+      $memberof{'MAIN'} = $self->{'lists'}{$tmpl}->is_subscriber($victim, 'MAIN');
     }
     if ($access->{$request}{'check_aux'}) {
       for $i (keys %{$access->{$request}{'check_aux'}}) {
@@ -612,6 +615,10 @@ sub list_access_check {
 	$memberof{$i} = $self->{'lists'}{$tmpl}->is_subscriber($victim, $tmpa);
       }
     }
+    $current = 0;
+    if ($access->{$request}{'check_time'}) {
+      $current = Mj::Digest::in_clock($access->{$request}{'check_time'});
+    }
 
     # Add some chunks of the address to the set of matchable variables
     $victim->strip =~ /.*\@(.*)$/;
@@ -624,7 +631,7 @@ sub list_access_check {
     $skip = 0;
     $cpt = new Safe;
     $cpt->permit_only(@permitted_ops);
-    $cpt->share(qw(%args %memberof $skip));
+    $cpt->share(qw(%args %memberof $current $skip));
 
     # Loop until we get a terminal action
    RULE:
@@ -931,10 +938,12 @@ sub _a_delay {
     $delay = Mj::List::_str_to_time($arg) - time;
     if ($delay > 0) {
       $td->{'delay'} = $delay;
+      # For the result message
+      $args->{'delay'} = $delay;
     }
   }
   elsif ($args->{'delay'}) {
-    $td->{'delay'} = $delay;
+    $td->{'delay'} = $args->{'delay'};
   }
     
   $self->delay(%$td,
