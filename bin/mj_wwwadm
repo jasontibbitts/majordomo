@@ -147,6 +147,11 @@ $extra[0] ||= '';
 $extra   = $extra[0];
 @lists   = grep (!$seen{$_}++, @lists, @mlists);
 
+# Generate temporary password for increased security.
+if (defined $passw and $passw !~ /^[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}$/) {
+  $passw   = $mj->gen_latchkey($passw) if (length $passw);
+}
+
 # Extract "mode" from command name
 if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
   $func = $1;
@@ -197,6 +202,7 @@ Command:&nbsp;&nbsp;
 <option> subscribe
 <option> subscribe-nowelcome
 <option> tokeninfo
+<option> tokeninfo-full
 <option> unsubscribe
 <option> unregister
 <option> which
@@ -271,9 +277,9 @@ if ($passw eq '' and $func !~ /help|lists|accept|reject|tokeninfo/) {
 elsif ($passw ne '') {
   # Check the password against the requester
   for $i (@lists) {
-    $ok = $mj->validate_passwd($user, $passw, $i, $func);
+    $ok = $mj->validate_latchkey($user, $passw, $i, $func);
     if ($ok <= 0) {
-      print "<h3>The password you provided is invalid for the $i list</h3>\n";
+      print "<h3>The password you provided is invalid for the $i list, or has expired.</h3>\n";
       $::log->message(50, "info",  "Invalid password in form data.");
       exit 0;
     }
@@ -355,7 +361,7 @@ EOM
 <input type=submit name=func value="reject">
 EOM
   }
-  print "</form>\n";
+  print $fh "</form>\n";
 }
 
 $fh->print("<hr>For assistance, contact <a href=\"mailto:$serveradmin\">$serveradmin</a>\n");
@@ -651,8 +657,9 @@ EOM
   select STDOUT;
 }
 
+# XXX Move into external file
 sub usage {
-  my ($mj, $list) = shift;
+  my ($mj, $list) = @_;
   my $site  = $mj->global_config_get(undef, undef, 'site_name');
   my $serveraddr = $mj->global_config_get(undef, undef, 'whoami');
   my $serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
@@ -710,6 +717,7 @@ like this:
 Choose one or more requests from the following list,
 then press one of the buttons.
 <table>
+<tr><td colspan=5>Requests for $list
 <tr>
 <td><input type=checkbox name=extra value=13D7-C445-6A37>13D7-C445-6A37
 <td>O
@@ -723,11 +731,6 @@ then press one of the buttons.
 <td>05-13 10:27:46 
 <td>Someone New &lt;unknown\@example.org&gt;
 </table>
-<input type=submit name=func value="tokeninfo-full">
-<input type=submit name=func value="tokeninfo">
-<input type=submit name=func value="accept">
-<input type=submit name=func value="accept-archive">
-<input type=submit name=func value="reject">
 </form>
 
 <ul>
@@ -741,7 +744,9 @@ should be handled by the list owners.  This is indicated
 in the second column by an <b>O</b> (the owners must approve) 
 or an <b>S</b> (the subscriber must approve). 
 
-<li>The third column shows the type of request.
+<li>The third column shows the type of request.  If the
+request is a <b>post</b>ed message, the size of the message is
+also shown.
 
 <li>The remaining columns contain the date of
 the request and the e-mail address of the person who made it.

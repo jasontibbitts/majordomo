@@ -103,7 +103,6 @@ if (exists $ENV{'PATH_INFO'}) {
 $site        = $mj->global_config_get(undef, undef, 'site_name');
 $serveraddr  = $mj->global_config_get(undef, undef, 'whoami');
 $falseuser   = "x$ENV{'REMOTE_ADDR'}\@example.com";
-# GET poses a security risk due to passwords being visible
 # Set HTML form variables
 $ofunc   = $cgi->param('func') || "lists";
 $user    = $cgi->param('user') || $pathinfo || $falseuser;
@@ -112,6 +111,11 @@ $isreg   = $mj->{'reg'}->lookup($user->canon) if $user;
 $passw   = $cgi->param('passw') || '';
 $list    = $cgi->param('list') || 'GLOBAL';
 $extra   = $cgi->param('extra') || '';
+
+# Generate temporary password for increased security.
+if (defined $passw and $passw !~ /^[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}$/) {
+  $passw   = $mj->gen_latchkey($passw) if (length $passw);
+}
 
 ($ok, $mess) = $mj->connect('mj_wwwusr', $sess, $user);
 unless ($ok) {
@@ -174,7 +178,12 @@ if ($list) {
 if ($user and $passw) {
   $passw =~ /(.+)/; $passw = $1;
   $goodpass = 
-    $mj->validate_passwd($user, $passw, '', 'mj_wwwusr', 'GLOBAL', 'show'); 
+    $mj->validate_latchkey($user, $passw, 'GLOBAL', 'show'); 
+  if ($goodpass <= 0) {
+    print "<h3>The password you provided is invalid for the $i list, or has expired.</h3>\n";
+    $::log->message(50, "info",  "Invalid password in form data.");
+    &surrender("Invalid password\n");
+  }
 }
 ##
 ## Construct the request
@@ -546,7 +555,7 @@ at $site.
 EOM
 
 print "<h4 align=center>Type your address into the first box</h4>\n"
-  if ($user =~ /example.com/);
+  if ($user =~ /example\.com$/i);
 
   print <<EOM;
 <form method=POST action=$cgiurl>
