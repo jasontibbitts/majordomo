@@ -290,6 +290,10 @@ sub connect {
       $req, $sfile, $tmp, $user);
 
   $user = new Mj::Addr($addr);
+  # Untaint
+  $int =~ /([\w-]+)/;
+  $self->{'interface'} = $1;
+  $self->{'sessionid'} = '';
 
   unless ($int eq 'resend' or $int eq 'owner' or $int eq 'shell') {
     if (! defined $user) {
@@ -313,11 +317,6 @@ sub connect {
   }
 
   $self->{sessionuser} = $user;
-
-  # Untaint
-  $int =~ /([\w-]+)/;
-  $self->{interface} = $1;
-
 
   # If a temporary password was supplied, check to see if it represents
   # a session that is still valid, and append the session information
