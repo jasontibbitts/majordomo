@@ -1,6 +1,6 @@
 =head1 NAME
 
-Mj::DakeLog - Fake Majordomo's logging system without doing anything.
+Mj::FakeLog - Fake Majordomo's logging system without doing anything.
 
 =head1 SYNOPSIS
 
@@ -20,6 +20,7 @@ sub add {1;}
 sub set_level {1;}
 sub delete {1;}
 sub message {1;}
+sub elapsed {1;}
 sub startup_time {1;}
 sub in {1;}
 sub out {1;}
