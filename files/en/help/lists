@@ -1,12 +1,17 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-lists-enhanced-long-compact-short-tiny
+lists-aux-compact-enhanced-long-short-tiny
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-aux,      if specified, shows all auxiliary lists also
+-compact,  if specified, shows all lists without site information
 -enhanced, if specified, shows all lists with maximal information
 -long,     if specified, shows all lists with paragraph descriptions
--compact,  if specified, shows all lists without site information
 -short,    if specified, shows all lists with one-line descriptions
 -tiny,     if specified, shows all lists with minimal information
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+NOTE: Normally you would only specify one option, as in "lists-long",
+but it is possible to combine them as in "lists-short-enhanced".
+Proof is left to the user that any of these combinations are useful.
 
 This command shows all the lists hosted at $MJ
 unless the owner of a list has configured it to be invisible to you.
@@ -33,10 +38,17 @@ With the "-enhanced" option, you also get information about which
 lists you are subscribed to. If only this option is used, you get
 all the information from "-long".
 
+The "-aux" option causes all sublists to be displayed.  Sublists,
+also known as auxiliary lists, are used to categorize subscribers,
+to allow different groups of subscribers to have different 
+privileges.
+
 To find out where you are subscribed without descriptive paragraphs:
   lists-enhanced-short
 
 See Also:
+   help auxwho    (to see the addresses on an auxiliary list)
+   help configset access_rules (to make use of auxiliary lists)
    help info      (to find out more about a list)
    help subscribe (to add your name to a list)
 
