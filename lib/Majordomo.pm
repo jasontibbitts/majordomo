@@ -414,8 +414,7 @@ sub dispatch {
   $request->{'sublist'} = $sl if (length $sl);
   $request->{'time'} ||= $::log->elapsed;
 
-  # Test the command mode against the list of acceptable modes
-  # from Mj::CommandProps.
+  # The command mode can only have letters, hyphens, and equals signs.
   if ($request->{'mode'} =~ /[^a-z=-]/) {
     @modes = sort keys %{function_prop($request->{'command'}, 'modes')};
     return [0, $self->format_error('invalid_mode', $request->{'list'},
@@ -430,6 +429,8 @@ sub dispatch {
     $request->{'mode'} = '';
   }
 
+  # Test the command mode against the list of acceptable modes
+  # from Mj::CommandProps.
   if ($request->{'mode'} and !$continued) {
     @tmp = split /[=-]/, $request->{'mode'};
     @modes = keys %{function_prop($request->{'command'}, 'modes')};
@@ -5324,7 +5325,7 @@ sub set {
 
 sub _set {
   my ($self, $list, $user, $vict, $mode, $cmd, $setting, $d, $sublist, $force) = @_;
-  my (@lists, @out, $addr, $check, $data, $db, $file, $k, $l, 
+  my (@lists, @out, $addr, $check, $count, $data, $db, $file, $k, $l, 
       $ok, $owner, $res, $v);
 
   $check = 0;
@@ -5349,9 +5350,12 @@ sub _set {
         unless ($self->{'lists'}{$list}->get_start($sublist));
       $db = $self->{'lists'}{$list}->{'sublists'}{$sublist};
     }
+
     $chunksize = 1000;
+    $count = 0;
     while (@tmp = $db->get_matching_regexp($chunksize, 'stripaddr', $vict)) {
       while (($k, $v) = splice @tmp, 0, 2) {
+        $count++;
         if ($list eq 'ALL') {
           $data = $v->{'lists'};
         }
@@ -5363,6 +5367,9 @@ sub _set {
       }
     }
     $db->get_done;
+    unless ($count) {
+      return (0, qq(No addresses were found that match "$vict".\n));
+    }
   }
   else {
     if ($list eq 'ALL') {
