@@ -44,6 +44,8 @@ months, or years.  For example, use:
   7cw for 7 calendar weeks
   8cm for 8 calendar months
   2cy for 2 calendar years
+  5am for the next or previous time the clock time is 5 AM.
+  8pm for the next or previous time the clock time is 8 PM.
 
 If you need more flexibility in specifying time spans, you can combine 
 time periods, as in 2w3d for two weeks and three days.
@@ -56,6 +58,12 @@ The "calendar" time spans end on the boundaries between days, weeks,
 months, or years, but the other time spans are exact.  For example, "1
 calendar day" would be the time between now and midnight, but "1 day" is
 a time span of exactly 24 hours.
+
+The "am" and "pm" time spans depend upon the current time and whether or
+not the requested time is in the future or past.  For example, if the
+current time is 8 AM, the future time span "11am" would refer to 11 AM
+today; if the current time is 3 PM, the future time span "11am" would
+refer to 11 AM tomorrow.
 
 
 Dates and time frames
