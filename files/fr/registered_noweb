@@ -2,12 +2,12 @@ L'adresse
 
   $USER
 
-a été enregistrée a $SITE.
+a été enregistrée à $SITE.
 Votre mot de passe personnel est :
 
   $PASSWORD
 
-Pour interagir avec le serveur Majordomo, envoyez un email a :
+Pour interagir avec le serveur Majordomo, envoyez un email à :
 
   $MJ
 
@@ -20,7 +20,7 @@ abonnement, pour des raisons de sécurité. Vous pouvez passer outre la
 confirmation lorsque vous vous abonnez a une liste ou changer vos
 paramètres d'abonnements. Utilisez la commande "approve" pour donner
 votre mot de passe. Dans l'exemple suivant, substituez le nom de la
-liste a chaque fois que vous voyez LISTE.
+liste à chaque fois que vous voyez LISTE.
 
 Pour voir la liste des listes publiques, utilisez la commande :
   lists
@@ -33,7 +33,7 @@ Pour vous désabonner d'une liste, la commande :
 
 Si vous désirez modifier votre mot de passe, utilisez la commande :
   approve $PASSWORD password NOUVEAUMOTDEPASSE
-(Remplacer le mot de passe que vous voulez a la place de
+(Remplacer le mot de passe que vous voulez à la place de
   NOUVEAUMOTDEPASSE.)
 
 Pour avoir un sommaire des commandes de Majordomo, utilisez la

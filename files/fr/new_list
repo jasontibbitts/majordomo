@@ -1,6 +1,6 @@
             Guide pour les nouveaux gestionnaires de liste
 
-La liste $LIST a été crée sur
+La liste $LIST a été créée sur
    $SITE
 et vous ($USER) avez été nommé gestionnaire de la liste.
 
@@ -15,17 +15,17 @@ Lisez le attentivement, et gardez le pour référence future.
 Voici différentes adresses en relation avec votre liste.
 
   $WHOAMI
-Est l'adresse de la liste. Les messages envoyés a cette adresse seront
-distribués a tous les abonnés.
+Est l'adresse de la liste. Les messages envoyés à cette adresse seront
+distribués à tous les abonnés.
 
   $MJ
 Est l'adresse du serveur. Envoyez toutes les commandes administratives
-a cette adresse. Mettez toujours les commandes dans le corps du
+à cette adresse. Mettez toujours les commandes dans le corps du
 message, jamais dans le sujet.
 
   $OWNER
 Est l'adresse des gestionnaires de la liste. Les abonnés peuvent vous
-contacter en envoyant un email a cette adresse.
+contacter en envoyant un email à cette adresse.
 
   $MJOWNER
 Est l'adresse des gestionnaires du serveur. Vous pouvez leur envoyer
@@ -60,7 +60,7 @@ commande suivante :
   default password $PASSWORD
   subscribe $LIST someone@example.com
 
-Majordomo appliquera le mot de passe de la première commande a la
+Majordomo appliquera le mot de passe de la première commande à la
 deuxième commande.
 
 La seconde façon est de préfixer chaque commande avec la commande
@@ -77,7 +77,7 @@ Les nouvelles listes requirent en général quelques modifications dans
 leur documentation.
 
 Nous vous recommençons d'utiliser la commande "newinfo" pour adapter
-le message de bienvenue. Le document "info" est envoyé a tous les
+le message de bienvenue. Le document "info" est envoyé à tous les
 nouveaux abonnés lorsqu'ils s'abonnent a votre liste.
 
 Tout d'abord, affichez le document "info" existant avec la commande :
@@ -117,5 +117,5 @@ Pour afficher l'interface web pour les utilisateurs, visitez le site :
   $WWWUSR_URL
 
 
-Si vous avez besoin d'aide pour administrer votre liste, écrivez a
+Si vous avez besoin d'aide pour administrer votre liste, écrivez à
 l'administrateur du domaine à $MJOWNER.

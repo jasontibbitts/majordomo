@@ -3,7 +3,7 @@ La requête suivante
 
   "$CMDLINE"
 
-à été envoyée a $SITE
+a été envoyée à $SITE
 par $REQUESTER.
 
 Pour accepter ou rejeter cette requête, choisissez l'une de ces
@@ -37,6 +37,6 @@ envoyé.
 Si vous ne répondez pas dans les $EXPIRE jours, ce ticket expirera, et
 la requête ne sera pas complétée
 
-Si vous voulez communiquer avec une personne, envoyez un email a
+Si vous voulez communiquer avec une personne, envoyez un email à
 $OWNER.
 

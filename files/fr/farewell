@@ -5,7 +5,7 @@ a été supprimé de la liste $LIST.
 Vous ne recevrez plus de messages de la liste, mais votre mot de passe
 sur $SITE est toujours valide.
 
-Si vous désirez vous abonner de nouveau a la liste $LIST, écrivez à :
+Si vous désirez vous abonner de nouveau à la liste $LIST, écrivez à :
   $MJ
 Et dans le corps du message, entrez la commande :
   approve $PASSWORD subscribe $LIST $VICTIM

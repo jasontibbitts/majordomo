@@ -1,4 +1,4 @@
-Ce message est automatiquement envoyé en réponse a votre récent
+Ce message est automatiquement envoyé en réponse à votre récent
 message à $REQUEST.
 
 Toutes les requêtes administratives, abonnement et désabonnement
@@ -53,7 +53,7 @@ avec comme adresse jane@example.org, utilisez la commande :
 AIDE
 ====
 
-Pour en connaître plus a propos du serveur et les commandes qu'il
+Pour en connaître plus à propos du serveur et les commandes qu'il
 comprends, envoyez un message à
   $MJ
 Et dans le corps du message, mettez la commande :

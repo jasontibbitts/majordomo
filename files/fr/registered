@@ -7,7 +7,7 @@ Votre mot de passe personnel est :
 
   $PASSWORD
 
-Pour interagir avec le serveur Majordomo, envoyez un email a :
+Pour interagir avec le serveur Majordomo, envoyez un email à :
 
   $MJ
 
@@ -33,7 +33,7 @@ Pour vous désabonner d'une liste, la commande :
 
 Si vous désirez modifier votre mot de passe, utilisez la commande :
   approve $PASSWORD password NOUVEAUMOTDEPASSE
-(Remplacer le mot de passe que vous voulez a la place de
+(Remplacer le mot de passe que vous voulez à la place de
   NOUVEAUMOTDEPASSE.)
 
 Pour avoir un sommaire des commandes de Majordomo, utilisez la

@@ -10,7 +10,7 @@ Cette requête sera effectuée le ou après le :
 
   $FULFILL
 
-a moins que vous arrêtiez.
+à moins que vous arrêtiez.
 
 Pour accepter ou rejeter cette requête, choisissez l'une des
 possibilités suivantes :
@@ -19,7 +19,7 @@ possibilités suivantes :
    <URL:$URL>
    et suivez les instructions.
 
-2. Répondez a $MJ 
+2. Répondez à $MJ 
    avec l'une des commandes suivantes dans le corps du message :
 
     accept

@@ -3,25 +3,25 @@ Ce message vous est envoyé de
   $SITE
 car votre adresse
   $VICTIM
-renvoyais des erreurs (impossible de recevoir) aux message de la liste
+renvoyait des erreurs (impossible de recevoir) aux message de la liste
   $LIST
 
 ID de session :
   $SESSIONID
 
 
-Le but de ce message est de faire un test final ; si ce message
-revenais en erreur, vous seriez supprimé de la liste. Puisque vous
+Le but de ce message est de faire un dernier test ; si ce message
+revenait en erreur, vous seriez supprimé de la liste. Puisque vous
 lisez ceci, soit le message n'est pas revenu en erreur, soit il y a
 quelque chose de bizarre qui arrive et qui fait qu'un message d'erreur
 est retourné au gestionnaire de la liste bien que le message arrive
-dans votre boite aux lettres. Si c'est le cas, quelques explications
+dans votre boîte aux lettres. Si c'est le cas, quelques explications
 possibles sont exposées plus bas. Pour vous aider, une copie du
 message d'erreur est attaché a ce message.
 
 Vous devriez vérifier toutes les redirections qui peuvent être mises
 en place et vous assurer que tous fonctionnent sans soucis. Vous
-Voudrez peut être aussi vérifier auprès de votre fournisseur d'accès
+voudrez peut être aussi vérifier auprès de votre fournisseur d'accès
 pour vous assurer que tout est OK de leur coté, et aussi vérifier avec
 le serveur de la liste à
   $MAJORDOMO

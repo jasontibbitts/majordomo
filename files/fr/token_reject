@@ -23,5 +23,5 @@ Si une raison a été donnée lors du rejet de la commande, elle apparaît
 ici :
 $MESSAGE
 
-Tout ce qui est en relation a propos de la session $SESSIONID
+Tout ce qui est en relation à propos de la session $SESSIONID
 sera inclus en fichier attaché.
