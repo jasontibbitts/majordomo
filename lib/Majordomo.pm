@@ -1025,8 +1025,10 @@ sub substitute_vars_format {
     }
   }
 
+  # if no arrays are present, restore newlines and return.
   unless (keys %subcount) {
     $str =~ s/\002\001/\n/g;
+    $str =~ s/\\\$/\$/g;
     return $str;
   }
 
@@ -1295,6 +1297,7 @@ sub _reg_add {
   }
   else {
     # Make a new registration
+    $existing = 0;
     $data = {
              stripaddr => $addr->strip,
              fulladdr  => $addr->full,
@@ -5412,7 +5415,8 @@ sub _register {
   $welcome = 0 if $mode =~ /(nowelcome|quiet)/;
   
   if ($welcome) {
-    $ok = $self->welcome('GLOBAL', $vict, 'PASSWORD' => $pw);
+    $ok = $self->welcome('GLOBAL', $vict, 'PASSWORD' => $pw, 
+                         'REGISTERED' => 0);
     unless ($ok) {
       # Perhaps complain to the list owner?
     }
@@ -6268,7 +6272,8 @@ sub _subscribe {
   $welcome = 0 if ($sublist ne 'MAIN');
 
   if ($welcome) {
-    $ok = $self->welcome($list, $vict, 'PASSWORD' => $rdata->{'password'});
+    $ok = $self->welcome($list, $vict, 'PASSWORD' => $rdata->{'password'},
+                         'REGISTERED' => $exist);
     unless ($ok) {
       # Perhaps complain to the list owner?
     }

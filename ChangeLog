@@ -1,3 +1,29 @@
+2001-10-23  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (substitute_vars_format)  Bugfix:
+	unescape dollar signs if no array substitutions are present.
+	(_register, _subscribe)  Add support for 'R' and 'U' flags
+	in the welcome_files setting.
+
+	* lib/Mj/Config.pm:  (parse_welcome_files)  Add support
+	for the 'R' and 'U' flags.
+
+	* lib/Mj/Format.pm:  (rekey)  Bugfix:  Include the count
+	of missing subscription entries in the total.  Thanks
+	to Roger Klorese.
+	(g_get)  Bugfix:  escape substitution variables in the
+	file description when the "get-edit" command is used.
+
+	* lib/Mj/Inform.pm:  (_inform_owner)  Make the full set
+	of substitutions available in the body and subject of
+	an inform message.
+
+	* lib/Mj/MailOut.pm:  (welcome)  Make use of the 'R' and 'U'
+	flags from the welcome_files setting.
+
+	* lib/Mj/Util.pm:  (n_defaults)  Bugfix:  do not issue reminders
+	for bounce probes.  Thanks to Roger Klorese.
+
 2001-10-18  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Bugfix:  complete
