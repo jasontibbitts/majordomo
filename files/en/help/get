@@ -1,14 +1,21 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-get listname filename [address]
+get[-immedate] listname filename [address]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or GLOBAL)
 filename, required, is the pathname of the file to be sent
-address, if specified, is where the file should be sent via email
+address,    if specified, is where the file should be sent via email
+-immediate, if specified, returns text inline instead of separate email
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 This command returns a file from the list, which the list owner must
 have previously stored there. If no such file exists, or if you are
 not authorized to get it, the "get" command returns an error message.
+
+Files retrieved with the 'get' command are normally mailed to you
+in a separate message (one per file); 'get-immediate' will return the
+file inline instead of mailing it as a separate message.  The 'intro',
+'info' and 'faq' commands are shortcuts for 'get'. For example,
+"get LISTNAME faq" is equivalent to "faq LISTNAME".
 
 Each list may be set up so that different sets of people can "get"
 files from it. If get fails, contact the list owner to make sure you
@@ -30,8 +37,11 @@ is called "ANOTHERFILE", then these commands would be valid:
 where a slash "/" separates the directory name from the file name.
 
 See Also:
+   help faq        (shortcut for 'get' with specific arguments)
    help get_access (determines who can get files from a list)
    help index      (find out which files are available for "get")
+   help info       (shortcut for 'get' with specific arguments)
+   help intro      (shortcut for 'get' with specific arguments)
    help put        (to create files or directories under a list)
 
 For a list of all help topics send this one-line message

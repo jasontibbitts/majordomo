@@ -77,7 +77,7 @@ end
 ==> stops reading Majordomo commands from email or the keyboard
 
 filesync listname
-==> updates the filespace information database for listname
+==> OBSOLETE: used to update the filespace information database for listname
 
 get listname filename [address]
 ==> retrieves the given file from the list's file storage

@@ -15,7 +15,6 @@ and rekeying.
 
 See Also:
    help configset addr_xforms (downcase or otherwise fix addresses)
-   help filesync              (updates the filespace info database)
 
 For a list of all help topics send this one-line message
    help topics

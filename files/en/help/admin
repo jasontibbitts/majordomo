@@ -320,7 +320,7 @@ Section 6 - Creating and Running Lists (all the other stuff you need)
   by Majordomo2... especially if you have shell access and plan to edit
   or create files by hand (using the operating system shell). Links and/or
   manually created files will work, but only if the ownership permissions
-  are right and only if you run "filesync" to update the list's cache.
+  are right.
 
   Each list has a directory where retrievable files are stored; this is
   called a filespace.  Because normal filesystems do not track enough

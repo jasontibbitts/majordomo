@@ -114,7 +114,6 @@ changed and the link is not updated, but it's a good workaround:
   mj_shell -p XXX configset GLOBAL tmpdir = /var/mj
   cd .../GLOBAL/files
   ln -s /var/mj tmpdir
-  mj_shell -p XXX filesync GLOBAL
   mj_shell -p XXX index GLOBAL /tmpdir
   mj_shell -p XXX get GLOBAL /tmpdir/mje4268.1.mime
 where the "get" command can retrieve any file listed by "index".

@@ -85,8 +85,7 @@ for ways to change the message which asks for accept/reject tokens
 Once created, a file or directory can only be deleted from the
 operating system shell prompt. Remove the file or directory from
 the apropriate directory under the list to delete it, as there is
-no Majordomo command to delete a "put" item. Be sure to use the
-"filesync" command after manually deleting files.
+no Majordomo command to delete a previously "put" file or directory.
 
 Directories for use by "put" are stored under the list's "files"
 directory if the file (or directory) path starts with a "/". To
@@ -201,7 +200,6 @@ See Also:
    help digest    (for additional file names and usage)
    help get       (retrieve files by email)
    help index     (find out which files are available for "put")
-   help filesync  (which must be used if you create files without "put")
    help newfaq    (a shortcut way to put the file "faq")
    help newinfo   (a shortcut way to put the file "info")
    help newintro  (a shortcut way to put the file "intro")
