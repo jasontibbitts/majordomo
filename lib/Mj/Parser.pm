@@ -46,8 +46,8 @@ sub parse_entity {
 
   $args{'title'} ||= 'toplevel';
 
-  my (@entities, @parts, @attachments, @ents, $body, $i, $infh, $name,
-      $outfh, $type, $ok, $count);
+  my (@attachments, @ents, @entities, @parts, $body, $count, $formatter, 
+      $i, $infh, $name, $outfh, $ok, $tree, $txtfile, $type);
 
   $::log->in(30, undef, "info", "Parsing entity $args{'title'}");
   @parts = $entity->parts;
@@ -78,7 +78,7 @@ sub parse_entity {
   }
   # We've arrived at a single part whch doesn't contain others.
   $type = $entity->head->mime_type;
-  if ($type !~ m!^text(/plain)?$!i) {
+  if ($type !~ m!^text(/plain|/html)?$!i) {
     # We have something other than a plain text part
     push @entities, build MIME::Entity
       (
@@ -89,10 +89,69 @@ sub parse_entity {
     $ok = 0;
   }
   else {
-    # We have a plain text part; parse it.
-    $body = $entity->bodyhandle;
-    $infh = $body->open("r") or
-      $::log->abort("Hosed! Couldn't open body part, $!");
+    if ($type =~ /html/) {
+      $txtfile = "$args{'tmpdir'}/mje." . Majordomo::unique() . ".in";
+      $outfh = new IO::File "> $txtfile";
+      $::log->abort("Could not open file $txtfile: $!") unless ($outfh);
+      
+      $entity->print_body($outfh);
+      $outfh->close() 
+        or $::log->abort("Unable to close file $txtfile: $!");
+
+      require HTML::TreeBuilder;
+      $tree = HTML::TreeBuilder->new->parse_file($txtfile);
+      unlink $txtfile;
+
+      $txtfile = "$args{'tmpdir'}/mje." . Majordomo::unique() . ".in";
+      $outfh = new IO::File "> $txtfile";
+      $::log->abort("Could not open file $txtfile: $!") unless ($outfh);
+      my (%breaks) =  ( 
+                        'blockquote' => 3,
+                        'body' => 2,
+                        'br' => 1,
+                        'h1' => 3,
+                        'h2' => 3,
+                        'h3' => 3,
+                        'h4' => 3,
+                        'h5' => 3,
+                        'h6' => 3,
+                        'hr' => 1,
+                        'li' => 1,
+                        'p'  => 2,
+                        'pre' => 3,
+                        'tr' => 1,
+                      );
+
+      $tree->traverse(
+        sub {
+            my($node, $start, $depth) = @_;
+            if (ref $node) {
+              my $tag = $node->tag;
+              if (defined($tag) and exists($breaks{$tag})) {
+                print $outfh "\n" if ($start and ($breaks{$tag} & 1));
+                print $outfh "\n" if (!$start and ($breaks{$tag} & 2));
+              }
+              return 1;
+            }
+            else {
+              print $outfh $node;
+            }
+            1;
+        }
+      );
+
+      $outfh->close() 
+        or $::log->abort("Unable to close file $txtfile: $!");
+
+      $infh = new IO::File "$txtfile";
+      $::log->abort("Could not open file $txtfile: $!") unless ($infh);
+    }
+    else {
+      # We have a plain text part; parse it.
+      $body = $entity->bodyhandle;
+      $infh = $body->open("r") or
+        $::log->abort("Hosed! Couldn't open body part, $!");
+    }
 
     # Open handles for all of the attachments to this part
     for $i (@{$args{'parts'}}) {
@@ -118,7 +177,9 @@ sub parse_entity {
 		     attachments => \@attachments,
 		    );
     $infh->close;
-    $outfh->close;
+    $outfh->close()
+      or $::log->abort("Unable to close file $name: $!");
+
     for $i (@attachments) {
       $i->close;
     }
@@ -134,6 +195,8 @@ sub parse_entity {
     # also do a separate entity for each command, or for those which produce
     # a large amount of output.
   }
+
+  # unlink ($txtfile) if (defined $txtfile);
   $::log->out("executed $ok");
   return ($ok, @entities);
 }
@@ -424,7 +487,9 @@ sub parse_part {
 
       # Mail the result if posing.
       if ($user ne $args{'reply_to'}) {
-        $outfh->close;
+        $outfh->close()
+          or $::log->abort("Unable to close file $name: $!");
+
         my $sender = $mj->_global_config_get('sender');
         $ent = build MIME::Entity
           (
