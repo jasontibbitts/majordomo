@@ -282,6 +282,11 @@ EOB
                         '-c subscribe-set --req setting=nomail';
       $vblock .= "$list-subscribe-nomail\@$dom    $list$vut-subscribe-nomail\n";
     }
+    if (exists $args{'aliases'}->{'subscribe-unique'}) {
+      $block .= sprintf $aliasfmt, '-subscribe-unique:', 
+                        '-c subscribe-set --req setting=unique';
+      $vblock .= "$list-subscribe-unique\@$dom    $list$vut-subscribe-unique\n";
+    }
     if (exists $args{'aliases'}->{'unsubscribe'}) {
       $block .= sprintf $aliasfmt, '-unsubscribe:', '-c unsubscribe';
       $vblock .= "$list-unsubscribe\@$dom    $list$vut-unsubscribe\n";

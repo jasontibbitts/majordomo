@@ -226,7 +226,7 @@ package Mj::Config;
     'type'   => 'enum_array',
     'values' => [qw(auxiliary moderator owner request resend subscribe
                     subscribe-digest subscribe-digest-all subscribe-each
-                    subscribe-nomail unsubscribe)],
+                    subscribe-nomail subscribe-unique unsubscribe)],
     'groups' => [qw(miscellany)],
     'local'  => 1,
     'visible'=> 1,
