@@ -1,5 +1,12 @@
         Notes on upgrading from previous versions of Majordomo 2
 
+2003.01.18 (CVS):
+
+The format of the address in a bounce probe has changed.  As a result,
+the address that causes a bounce may be misindentified in a few cases
+after Majordomo is upgraded.  Upgrading during a quiet time should
+minimize the effect of the format change.
+
 2002.11.28 (CVS):
 
 Instead of using syslog, debugging information for the mj_shell program
