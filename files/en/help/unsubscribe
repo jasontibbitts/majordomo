@@ -1,6 +1,6 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 unsubscribe[-farewell][-nofarewell] listname [address]
-unsubscribe-pattern[-allmatching][-farewell] listname pattern
+unsubscribe-pattern[-allmatching][-farewell][-nofarewell] listname pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 address,  if specified, is an email address 
 listname, required, is the name of a mailing list at this domain
@@ -31,9 +31,14 @@ the list administrators.
 When your address is removed from a mailing list with the unsubscribe
 command, your address will remain in Majordomo's registration database
 unless you use the unregister command to remove it.  As long as your
-address is registered, you can continue to use your personal password
-to join mailing lists.  See "help unregister" and "help password" for
-more details.
+address is registered, you can continue to use your personal password to
+join mailing lists.  See "help unregister" and "help password" for more
+details.  
+
+If you use the unsubscribe-farewell command to leave a mailing list,
+Majordomo will send a farewell message to you.  The standard farewell
+message contains instructions for using your password to resubscribe in
+one easy step.
 
 If you wish to change your address, you can use the changeaddr command
 instead of unsubscribing your old address and subscribing your new
@@ -48,14 +53,20 @@ following command:
 See "help set" for more details.
 
 
-If the "farewell" setting is "yes", Majordomo will send a farewell message
-to each address that is removed from the list.  The contents of this
-message is determined by the "farewell_files" setting.  The "farewell"
-command mode can be used to force this farewell message to be sent, and the
-"nofarewell" mode will suppress it.
-
-
                      Notes for list administrators
+
+Farewell messages
+-----------------
+The "farewell" configuration setting determines whether or not a
+farewell message will be sent by default.  If the farewell setting is
+set to "yes", Majordomo will send a farewell message to each address
+that is removed from the list unless the "nofarewell" command mode is
+used.  If the farewell setting is set to "no", a farewell message will
+be sent only if the "farewell" command mode is used.  The contents of
+the farewell message are determined by the "farewell_files"
+configuration setting.  See "help configset_farewell" and 
+"help configset_farewell_files" for more details.
+
 
 Patterns
 --------
