@@ -491,7 +491,6 @@ No transformations are necessary to downcase hostnames in addresses; that
 is done automatically by the address parser.
 
 =cut
-use Safe;
 sub _xform {
   my $self = shift;
   my (@xforms, $cpt, $i, $eval);
@@ -512,7 +511,7 @@ sub _xform {
   local $addr = $self->{'strip'};
 
   # Set up the Safe compartment
-  $cpt = new Safe;
+  eval { require Safe; $cpt = new Safe; };
   $cpt->permit_only(qw(pushmark const rv2sv concat leaveeval lc uc));
   $cpt->share('$addr');
 
