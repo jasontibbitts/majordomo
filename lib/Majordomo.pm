@@ -3380,7 +3380,7 @@ sub _createlist {
        WHOAMI   => $self->_list_config_get($list, 'whoami'),
        OWNER    => $self->_list_config_get($list, 'whoami_owner'),
        MJ       => $self->_global_config_get('whoami'),
-       MJOWNER  => $sender,
+       MJOWNER  => $self->_global_config_get('whoami_owner'),
        USER     => $owner->strip,
        SITE     => $self->_global_config_get('site_name'),
        LIST     => $list,
