@@ -4,7 +4,8 @@
 
 The configuration settings are arranged into several categories.
 Press the check boxes next to one or more category names, then 
-press one of the <b>configshow</b> buttons.
+press one of the <b>configshow</b> buttons to view or change
+the settings in those categories.
 
 <form method=POST action="$CGIURL">
   <input type=hidden name=list  value="$LIST">
