@@ -1161,37 +1161,45 @@ sub _a_default {
   return $self->$action(@_);
 }
 
+#
 # Normally the default would be to allow, but we must first check the
-# advertise and noadvertise variables.  These are regexp arrays
-# (unparsed but already syntax checked).  If advertise matches then we
-# succeed, else if noadvertise then we fail (unless the address is
-# subscribed to the list), else we succeed.
+# noadvertise and advertise configuration settings.  
+# These are regexp arrays (unparsed but already syntax checked).  
+#
+# If a noadvertise pattern matches then we fail.
+# If there are advertise patterns, we succeed if one matches, else we fail.
+# Otherwise, we succeed.
+#
 use Safe;
 sub _d_advertise {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150;
-  my ($adv, $i, $noadv);
+  my ($adv, $i, $noadv, $strip);
   shift @_;
 
-  $adv = $self->_list_config_get($td->{'list'}, 'advertise');
+  $strip = $td->{'user'}->strip;
 
-  for $i (@$adv) {
-    return $self->_a_allow(@_) if Majordomo::_re_match($i, $td->{'user'}->strip);
-  }
-
-  # Somewhat complicated; we try not to check membership unless we
-  # need to; we do so only if we would otherwise deny.
   $noadv = $self->_list_config_get($td->{'list'}, 'noadvertise');
-  for $i (@$noadv) {
-    if (Majordomo::_re_match($i, $td->{'user'}->strip)) {
-      if ($self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'user'})) {
-	return $self->_a_allow(@_);
+  if (ref $noadv eq 'ARRAY' and scalar @$noadv) {
+    for $i (@$noadv) {
+      if (Majordomo::_re_match($i, $strip)) {
+        return $self->_a_deny(@_);
       }
-      return $self->_a_deny(@_);
     }
   }
-  # By default we allow
-  return $self->_a_allow(@_);
+
+  $adv = $self->_list_config_get($td->{'list'}, 'advertise');
+  if (ref $adv eq 'ARRAY' and scalar @$adv) {
+    for $i (@$adv) {
+      if (Majordomo::_re_match($i, $strip)) {
+        return $self->_a_allow(@_);
+      }
+    }
+    return $self->_a_deny(@_);
+  }
+  else {
+    return $self->_a_allow(@_);
+  }
 }
 
 # Provide the expected behavior for the post command.  This means we
