@@ -889,6 +889,7 @@ sub _r_ck_body {
   # Now the meat.  Open the body
   $body = $ent->bodyhandle->open('r');
   $line = 1;
+  $avars->{body_length} = 0;
 
   # Iterate over the lines
   while (defined($text = $body->getline)) {
@@ -913,6 +914,8 @@ sub _r_ck_body {
   $avars->{quoted_lines} ||= 0; $avars->{lines} ||= 1;
   $avars->{percent_quoted} =
     int(100*($avars->{quoted_lines} / $avars->{lines}));
+  # Untaint
+  $avars->{body_length} =~ /(\d+)/; $avars->{body_length} = $1;
 
   if ($first) {
     $sum1 = $sum1->hexdigest;
