@@ -25,8 +25,8 @@ an empty value:
 configset LISTNAME inform <<ABC
 ABC
 
-If you are receiving notices about unsubscriptions, you might want to
-avoid getting a notice when you remove an address from the list.
+If you are receiving notices about the unsubscribe command, you might
+want to avoid getting a notice when you remove an address from the list.
 To do this, use the noinform command mode.  For example,
 
   unsubscribe-noinform LISTNAME jane@example.net
