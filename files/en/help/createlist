@@ -16,7 +16,7 @@ owner,     required, is an email address for who will manage the list
 Creates the internal structures needed to maintain a list with the given
 name, unless the "-nocreate" or "-regen" options are used or unless the
 list already exists and the "-force" option is not used. Be sure to review
-"help configset default_flags", "help configset default_class, and also
+"help configset default_flags", "help configset default_class", and also
 "help set": it is easier to set up the default values correctly than it
 is to have each subscriber alter them. Some items like replyfile specs
 in "configset access_rules" may not function properly if default_flags
