@@ -2936,23 +2936,22 @@ sub createlist {
   my($mess, $ok);
 
   unless ($mode =~ /regen/) {
-    return (0, '', "Must supply a list name.\n")
+    return (0, "Must supply a list name.\n")
       unless $list;
 
-    return (0, '', "Must supply an address for the owner.\n")
+    return (0, "Must supply an address for the owner.\n")
       unless $owner;
 
     $owner = new Mj::Addr($owner);
     ($ok, $mess) = $owner->valid;
-    return (0, '', "Owner address is invalid:\n$mess") unless $ok;
+    return (0, "Owner address is invalid:\n$mess") unless $ok;
 
     $owner ||= '';
     my $log = new Log::In 50, "$list, $owner";
 
-    return (0, "Illegal list name: $list")
+    return (0, "Illegal list name: $list\n")
       unless $self->legal_list_name($list);
   }
-  
   $self->_fill_lists;
 
   # Check the password XXX Think more about where the results are
@@ -2964,14 +2963,13 @@ sub createlist {
   ($ok, $mess) = 
     $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
 			       "createlist", $user, $owner, $owner, $list);
-    
   unless ($ok > 0) {
-    return ($ok, '', $mess);
+    return ($ok, $mess);
   }
 
   $self->_createlist('', $user, $owner, $mode, $cmdline, $owner, $list);
 }
-    
+
 sub _createlist {
   my($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
   $list ||= '';
