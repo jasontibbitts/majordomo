@@ -23,6 +23,7 @@ settings, and a better description of what each option does.
 
 See Also:
    help set       (for how a user can set these options after subscribing)
+   help configset default_class   (controls subscription class of 'digest', 'each', etc)
    help configset allowed_flags   (restricts subscribers ability to use set)
    help configset nonmember_flags (sets non-subscriber defaults for ack messages)
 

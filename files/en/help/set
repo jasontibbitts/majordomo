@@ -42,7 +42,7 @@ each one will override the others in the group):
   6. subject prefix added by owner (prefix, noprefix)
   7. replyto header added by owner (replyto, noreplyto)
   8. rewrite "From:" header when you post (rewritefrom, norewritefrom)
-  9. summary of all possible flags
+  9. summary of all possible flags (and how to default them)
 
 At the bottom of this file is a summary of all possible flags and a
 cross reference to default settings that might be useful to list owners.
@@ -80,7 +80,8 @@ For the class of "digest", the list owner can define sub-classes on
 a per-list basis. Typical sub-classes, NOT always present, might be:
      digest-weekly
      digest-daily
-
+The list owner can also determine the default class for new subscribers
+as described in "help configset default_class".
 
 1a) Subscription Class of "each":
 
@@ -380,7 +381,7 @@ field. Remember to put in your actual email address and the real list name.
 
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  9. summary of all possible flags
+  9. summary of all possible flags (and how to default them)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Here is a summary of all possible flags, grouped into mutually
@@ -391,44 +392,44 @@ Remember to put in your actual email address and the real list name!
 If you use the special pseudo-list name "ALL", this command changes
 each place where the specified address is subscribed.
 
-1. Subscription class:                 (no such options in default_flags)
-   set LISTNAME each EmailAddress                  (default subscription)
+1. Subscription class:               (these options set in default_class)
+   set LISTNAME each EmailAddress
    set LISTNAME digest[-name][-index][-text][-mime] EmailAddress
    set LISTNAME   nomail[-time] EmailAddress
    set LISTNAME vacation[-time] EmailAddress
 NOTE: "nomail" and "vacation" are identical, use whichever you like.
 
-2. Informative messages about your post:       (controlled by A,a,b,d,f,j)
-   set LISTNAME ackall       EmailAddress           ('A' in default_flags)
-   set LISTNAME ackimportant EmailAddress           ('a' in default_flags)
+2. Informative messages about your post:        (default_flags of b,d,f,j)
+   set LISTNAME ackall       EmailAddress   (can not set in default_flags)
+   set LISTNAME ackimportant EmailAddress   (can not set in default_flags)
    set LISTNAME ackstall     EmailAddress           ('b' in default_flags)
    set LISTNAME ackdeny      EmailAddress           ('d' in default_flags)
    set LISTNAME ackpost      EmailAddress           ('f' in default_flags)
    set LISTNAME ackreject    EmailAddress           ('j' in default_flags)
-   set LISTNAME noack EmailAddress  (none of A,a,b,d,f,j in default_flags)
+   set LISTNAME noack EmailAddress      (none of b,d,f,j in default_flags)
 
-3. Whether you want a copy of your own posts:            (controlled by S)
+3. Whether you want a copy of your own posts:         (default_flags of S)
    set LISTNAME   selfcopy EmailAddress             ('S' in default_flags)
    set LISTNAME noselfcopy EmailAddress            (no S in default_flags)
 
-4. Whether you want to be visible with "who":            (controlled by H)
+4. Whether you want to be visible with "who":       (default_flags of H,h)
    set LISTNAME   hideall     EmailAddressl         ('H' in default_flags)
    set LISTNAME   hideaddress EmailAddress          ('h' in default_flags)
    set LISTNAME nohide        EmailAddress  (none of H,h in default_flags)
 
-5. Suppress list mail if you already got a CC:           (controlled by C)
+5. Suppress list mail if you already got a CC:        (default_flags of C)
    set LISTNAME   eliminatecc EmailAddress          ('C' in default_flags)
    set LISTNAME noeliminatecc EmailAddress         (no C in default_flags)
 
-6. Suppress subject prefix added by owner:               (controlled by P)
+6. Suppress subject prefix added by owner:            (default_flags of P)
    set LISTNAME   prefix EmailAddress               ('P' in default_flags)
    set LISTNAME noprefix EmailAddress              (no P in default_flags)
 
-7. Suppress replyto header added by owner:               (controlled by R)
+7. Suppress replyto header added by owner:            (default_flags of R)
    set LISTNAME   replyto EmailAddress              ('R' in default_flags)
    set LISTNAME noreplyto EmailAddress             (no R in default_flags)
 
-8. Rewrite the comment in the From: header:              (controlled by W)
+8. Rewrite the comment in the From: header:           (default_flags of W)
    set LISTNAME   rewritefrom EmailAddress          ('W' in default_flags)
    set LISTNAME norewritefrom EmailAddress         (no W in default_flags)
 
@@ -439,6 +440,7 @@ See Also:
    help configset ack_attach_original    (attaches post to error message if stalled)
    help configset allowed_flags          (restricts subscribers ability to set flags)
    help configset allowed_classes        (restricts subscribers ability to set digest)
+   help configset default_class          (sets per-list defaults before subscribing)
    help configset default_flags          (sets per-list defaults before subscribing)
    help configset nonmember_flags        (sets non-subscriber defaults for ack messages)
    help configshow                       (for how to get a list of availabel digests)

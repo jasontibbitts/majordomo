@@ -1,3 +1,4 @@
-When users first subscribe, they will be placed into this class.  If
-the class given does not exist, they will be placed into the 'each'
-class, where they receive each message.
+When users first subscribe, they will be placed into this subscription
+class. If the class given does not exist, they will be placed into the
+'each' class, where they receive each message. All possible classes
+are listed in "help set".
