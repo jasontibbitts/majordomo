@@ -710,8 +710,18 @@ sub _time_to_str {
   $arg %= (86400);
   $out .= $long ? ($i > 1)? "$i days " : "1 day " : "${i}d" if $i;
   $i = int(($arg + 1800) / 3600);
+  $arg %= (3600);
   $out .= $long ? ($i > 1)? "$i hours" : "1 hour" : "${i}h" if $i;
-
+  unless ($out) {
+    if ($long) {
+      $i = int(($arg + 30) / 60);
+      $out = ($i > 1)? "$i minutes" : "1 minute";
+    }
+    else {
+      $out = "0h";
+    }
+  }
+   
   $out;
 }
 
@@ -1891,6 +1901,19 @@ sub archive_expand_range {
   my $self = shift;
   return unless $self->_make_archive;
   $self->{'archive'}->expand_range(@_);
+}
+
+sub archive_delete_msg {
+  my $self = shift;
+  return unless $self->_make_archive;
+  $self->{'archive'}->remove(@_);
+}
+
+sub archive_sync {
+  my $self = shift;
+  my $qp = $self->config_get('quote_pattern');
+  return unless $self->_make_archive;
+  $self->{'archive'}->sync(@_, $qp);
 }
 
 sub count_posts {
