@@ -1,5 +1,5 @@
-This is the sequence number used to number messages which pass through
-the list.  It is automatically incremented by one for each message. 
-It may be manually set here, but watch out for apparently duplicate
-messages if you set up your headers so your subscribers can track
-the number (useful to debug sporadic delivery, etc).
+This sequence_number setting contains the number of messages that have
+been delivered to the subscribers of a mailing list, plus one.  It is
+automatically increased by one every time a message is delivered.
+Numbering messages allows Majordomo to track delivery failures more
+efficiently. 

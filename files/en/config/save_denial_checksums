@@ -1,5 +1,4 @@
-If set (any value other than 0), the checksums for the body of a posted
-message will be saved even if that message is denied by the access rules.
-If the checksums are saved, any succeeding message with an identical
-body will be regarded as a duplicate. If not set, or set to zero, posts
-which are not distributed will not cause future posts to be rejected.
+The save_denial_checksums configuration setting determines whether or
+not checksums of the body of a posted message are saved if the message is
+denied by the access rules.  Checksums are used to prevent duplicate
+messages from being distributed to the subscribers of a mailing list.

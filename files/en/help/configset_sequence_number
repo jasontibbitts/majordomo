@@ -11,24 +11,34 @@ EXAMPLE:
 configset listname sequence_number = 101
 
 
-This is the sequence number used to number messages which pass through
-the list.  It is automatically incremented by one for each message. 
-It may be manually set here, but watch out for apparently duplicate
-messages if you configure the headers of posted messages to display
-the sequence number.
+$INCLUDE-config/sequence_number
 
-One advantage of displaying the sequence number in the headers is
-that it will become clear to subscribers if some messages have
-not been delivered to them.  It is possible for subscribers to
-obtain a new copy of posted messages using the archive command
+The sequence number is available in some places through the SEQNO
+substitution variable.  This substitution is available to the
+message_footer, message_fronter, message_headers, reply_to, and
+subject_prefix configuration settings.   It is also available to the
+ack_archive and ack_success reply files.  See "help variables" for an
+introduction to substitutions.  
+
+An "X-Sequence-Number" header is added to every message that is stored
+in the archive of the mailing list.
+
+When the "who-bounce" command or the "show" command lists the numbers of
+messages that have bounced, it is reporting the sequence numbers of
+messages that could not be delivered.
+
 
 See Also:
+   help admin_delivery
    help archive (to retrieve previously posted messages)
-   help configset_archive_access  (to limit who can use the archive command)
-   help configset_message_headers (for how to insert this number)
-   help configset_reply_to        (for how to insert this number)
-   help configset_subject_prefix  (for how to insert this number)
+   help configset_bounce_rules
+   help configset_message_footer
+   help configset_message_fronter
+   help configset_message_headers
+   help configset_reply_to
+   help configset_subject_prefix
+   help reply_files
+   help show
+   help who
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

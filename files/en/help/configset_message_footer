@@ -18,6 +18,7 @@ Administrative commands like unsubscribe send to majordomo@example.org
 Help: Try listname-owner@example.org first then try admin@example.org
 ENDTAG
 
+
 $INCLUDE-config/message_footer
 
 The footer text will undergo variable substitution as it is added to the
@@ -37,7 +38,7 @@ is '-' and the second is a space or a tab or another '-', the first '-'
 is removed without changing anything else. If the second character is a
 printing character, the leading '-' is left alone.  Leading white space
 does not have to be escaped with a dash, but it can be if you wish.
-This syntax applies only to the message_fronters and message_footers
+This syntax applies only to the message_fronter and message_footer
 settings.
 
 For multipart/mixed messages, fronters appear as separate parts at the

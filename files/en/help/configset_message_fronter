@@ -50,8 +50,8 @@ character is '-' and the second is a space or a tab or another '-',
 the first '-' is removed without changing anything else. If the
 second character is a printing character, the leading '-' is left
 alone. Note that leading white space does NOT have to be escaped
-with a dash, but it can be if you wish. This syntax applies only
-to message_fronters and message_footers.
+with a dash, but it can be if you wish.  This syntax applies only
+to the message_fronter and message_footer settings.
 
 For multipart/mixed messages, fronters appear as separate parts at the
 beginning of the message.  Message fronters are never added to other
