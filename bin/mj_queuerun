@@ -32,12 +32,23 @@ mj_queuerun - process outstanding queue entries.
 
 =head1 DESCRIPTION
 
-When instructed, this program will go over every appropriately named file
-in the queue directory and process it.  The server and the queueing program
-are intended to be very small so that all the work can be done here.  This
-program only exits after it has processed all outstanding queue files and
-has had no new ones for some period of time.  This saves on compilation
-time, which can get very expensive.
+The Majordomo queue runner program, mj_queuerun, examines a series of
+queue directories for messages.  Each message that it finds will be
+processed unless another queue runner process is already processing that
+message.  When a queue directory has more than one messages, the
+messages will be processed in a random order.  
+
+A sequence counter is kept for each message in a queue directory.  If a
+technical problem causes a queue runner to abort, a particular message
+may be examined more than once.  If a message cannot be processed after
+three tries, a special emergency log will be kept for the fourth try.
+If the message cannot be processed on the fourth try, it will be
+discarded.
+
+After all of the messages have been processed, the queue runner will
+wait for a message from the queue server program, mj_queueserv.  If a
+message is received, the queue runner will examine each of the queue
+directories again.  Otherwise, the queue runner will exit.
 
 =cut
 sub out { syswrite(STDOUT, $_[0], length($_[0]));}
@@ -849,7 +860,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

@@ -1055,6 +1055,8 @@ When running in interactive mode, B<mj_shell> will use ornamentation to
 spruce up the prompt of the underlying ReadLine library supports it.  The
 B<--noormanemts> switch will turn these off.
 
+=back
+
 =head1 COPYRIGHT
 
 Copyright (c) 1997, 1998, 2000 Jason Tibbitts for The Majordomo Development

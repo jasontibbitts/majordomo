@@ -29,10 +29,39 @@ mj_email - email interface to Majordomo
 
 =head1 DESCRIPTION
 
-This is an email front end for the Majordomo system.  It takes an email
-message on standard input, parses it according to MIME semantics (including
-subparts, with automatic base64 and quoted-printable decoding) and acts on
-each command therein.
+The Majordomo e-mail interface, mj_email, handles four different kinds
+of message:
+
+=over 4
+
+=item list
+
+The message is intended to be distributed to the subscribers 
+of a mailing list.
+
+=item majordomo
+
+The message contains commands that will be processed 
+by the Majordomo server.
+
+=item owner
+
+The message is intended to be sent to the owners
+or moderators of a mailing list.
+
+=item request
+
+The purpose of the message will depend upon the GLOBAL I<request_answer>
+configuration setting.  By default, commands in the message 
+will be processed by the server.
+
+=back
+
+The mj_email command has been superseded by three programs that comprise
+the Majordomo e-mail queueing system:  mj_enqueue, mj_queueserv, and
+mj_queuerun.  The queueing system limits the number of programs that are
+employed in message processing at any given time.  As a result, the
+queueing system responds to periods of high activity more evenly.
 
 =cut
 use lib "$::LIBDIR";
@@ -678,14 +707,14 @@ sub do_qmail {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2001 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

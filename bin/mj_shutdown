@@ -25,12 +25,18 @@ BEGIN {
 }
 
 use Socket;
+use Getopt::Long;
 use strict;
-my (%opts, $dom, $i, $line, $ok, $pid, $rendezvous, $q1, $q2, $q3, $qdir,
-    $qfile, $qfunc);
+my (%opts, $ok, $rendezvous, $time);
 
 umask oct($::UMASK);
 $ENV{PATH} = '';
+
+Getopt::Long::Configure("bundling");
+GetOptions(\%opts, 't=i');
+
+$time = $opts{'t'} || 0;
+$time = 0 if ($time < 0);
 
 $rendezvous = "$::TMPDIR/mj_queueserv.sock";
 unless (socket(SOCK, PF_UNIX, SOCK_STREAM, 0)) {
@@ -40,11 +46,11 @@ unless (socket(SOCK, PF_UNIX, SOCK_STREAM, 0)) {
 
 if ($ok = connect(SOCK, sockaddr_un($rendezvous))) {
   # Connected to the server; 
-  print SOCK "quit\n";
-  print "Asked server to shut down.\n";
+  print SOCK "quit $time\n";
+  print "The queue server has been asked to shut down in $time seconds.\n";
 }
 else {
-  print "Can't connect to server; perhaps it isn't running.\n";
+  print "Unable connect to server; perhaps it is not running.\n";
 }
 
 exit;
@@ -59,21 +65,37 @@ B<mj_shutdown>
 
 =head1 DESCRIPTION
 
-This asks a running mj_queueserv processes to exit.  The process is not
-killed and any currently executing queue servers are allowed to finish.
-(They will notice that the server has gone away when they request more
+The mj_shutdown program sends a message to the mj_queueserv program
+which asks the queue server to exit.  The mj_queueserv process is not
+killed.  Any existing queue runners are allowed to finish (They will
+notice that the queue server has stopped running when they request more
 work.)
+
+The mj_shutdown program must be run by the majordomo user.
+
+=head2 Options
+
+The mj_shutdown program supports the following command line option:
+
+=over 4
+
+=item B<-t> I<delay>
+
+Normally, the queue server will be asked to shut down immediately.
+If this option is used, the queue server will wait for I<delay>
+seconds before exiting.  This option is useful for delaying message
+processing while the software is being upgraded.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1999 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1999, 2001 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

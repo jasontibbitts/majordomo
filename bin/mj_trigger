@@ -21,6 +21,10 @@ BEGIN {
 
 mj_trigger - Simple Majordomo event trigger
 
+=head1 SYNOPSIS
+
+B<mj_trigger> B<-t> trigger_type
+
 =head1 DESCRIPTION
 
 mj_trigger is a program designed to be put into the Majordomo user''s
@@ -31,23 +35,25 @@ Majordomo currently understands hourly and daily functions.
 
 A sample crontab entry looks like:
 
-# Run the daily trigger at midnight
-0 0 * * * /path/to/mj_trigger C<-t> daily
-# Run the hourly trigger at the top of each hour
-0 * * * * /path/to/mj_trigger C<-t> hourly
+  # Expire locks at midnight
+  0 0 * * * /path/to/mj_trigger -t lock
+  # Run the hourly trigger at the top of each hour
+  0 * * * * /path/to/mj_trigger -t hourly
 
-Several functions are performed by the triggers, and each
-has a separate argument to the C<-t> switch:
+Several functions are performed by the triggers, and each has a separate
+argument to the C<-t> switch:
 
-=item B<bounce> or B<vacation>
+=over 4
 
-Expire subscriber data, such as bounces (controlled by the
-I<bounce_max_age> configuration variable) and vacation settings.
+=item B<bounce>
+
+Expire bounce data, which is controlled by the I<bounce_max_age>
+configuration setting.
 
 =item B<checksum>
 
-Expire duplicate message checksums and message-ids, as
-indicated by the I<dup_lifetime> configuration setting.
+Expire duplicate message checksums and message-ids, as indicated by the
+I<dup_lifetime> configuration setting.
 
 =item B<delay>
 
@@ -57,10 +63,21 @@ Complete delayed requests.
 
 Issue digests, as indicated by the I<digests> configuration setting.
 
+=item B<inactive>
+
+Remove registered addresses and subscriptions that have been inactive
+for too long.  The maximum period of inactivity is determined by the
+I<inactive_lifetime> configuration setting.
+
 =item B<log>
 
 Remove log entries older in days than the I<log_lifetime> configuration
 setting.
+
+=item B<post>
+
+Remove old statistics for posted messages.  The expiration age is
+determined by the I<post_lifetime> configuration setting.
 
 =item B<session>
 
@@ -68,14 +85,20 @@ Remove session data older than the I<session_lifetime> setting.
 
 =item B<token>
 
-Send reminders, and expire old requests and temporary passwords
-(as required by the I<token_remind>, I<token_lifetime>, 
- and I<latchkey_lifetime> settings).
+Send reminders, and expire old requests and temporary passwords (as
+required by the I<token_remind>, I<token_lifetime>, and
+I<latchkey_lifetime> settings).
 
-Excepting B<digest>, which has its own setting, 
-these triggers are invoked by the B<daily> trigger, or by the
-B<hourly> trigger at the times indicated by the I<triggers> 
-configuration setting.
+=item B<vacation>
+
+Restore the delivery mode of subscribers whose vacation periods have
+expired.
+
+=back
+
+Excepting B<digest>, which has its own setting, these triggers are
+invoked by the B<daily> trigger, or by the B<hourly> trigger at the
+times indicated by the I<triggers> configuration setting.
 
 =cut
 
@@ -180,14 +203,14 @@ exit 0;
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2001 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

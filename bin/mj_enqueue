@@ -327,18 +327,73 @@ B<mj_enqueue>
 
 =head1 DESCRIPTION
 
-Blah.
+The mj_enqueue program is a small process that performs two tasks in the
+Majordomo queueing system for e-mail messages.  First, it stores a copy
+of the message in the appropriate queue subdirectory for later
+processing by the queue runner program.  Second, it attempts to contact
+the queue server program, mj_queueserv, to indicate that a message has
+arrived.  If a queue server is not already running, mj_enqueue will
+attempt to start the mj_queueserv program.
+
+The subdirectory in which an e-mail message is stored will depend upon
+several things:
+
+=over 4
+
+=item Domain priority
+
+The priority of the domain to which the message was sent.
+
+=item Domain name
+
+The name of the domain to which the message was sent.
+
+=item Mailing list priority
+
+The priority of the mailing list to which the message was sent.
+
+=item Message type
+
+The type of message that was sent.  There are four basic types:  
+
+=over 4
+
+=item list
+
+The message is intended to be distributed to the subscribers of a mailing list.
+
+=item majordomo
+
+The message contains commands that will be processed by the Majordomo server.
+
+=item owner
+
+The message is intended to be sent to the owners or moderators 
+of a mailing list.
+
+=item request
+
+The purpose of the message will depend upon the GLOBAL request_answer
+configuration setting.  By default, commands in the message will be
+processed by the server.
+
+=back
+
+=back
+
+Use the "help admin_domain" and "help configset_priority" commands
+to learn more about Majordomo domains and priority numbers.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1999 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1999, 2001 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
