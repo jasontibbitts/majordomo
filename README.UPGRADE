@@ -19,11 +19,14 @@ command for each message archive.
 2001.09.12 (CVS):
 
 The optional module Text::Reflow can be used for better results
-when the attachment rules cause a plain text body part to be
+when the attachment_filters setting causes a plain text body part to be
 reformatted.  To install Text::Reflow usually requires perl version
 5.6.0 or newer.  If Text::Reflow is installed, the attachment rules
 will make use of it automatically.  Text::Reflow 1.04 or newer is
-required.
+required.  The latest version is available from 
+  http://www.dur.ac.uk/~dcs0mpw/martin/software/
+If Text::Reflow is not installed, a simpler and cruder method for
+breaking long lines will be used.
 
 Previously, no more than one issue of a digest was delivered to 
 subscribers per hour.  With the new "digest-check-repeat" command,
