@@ -454,7 +454,10 @@ one field/value?  Ugh.
 
 We take either a field/value pair or coderef.  There are a couple of
 interesting optimizations we can do with the field/value pair that get the
-operation down close to one regexp match per line.
+operation down close to one regexp match per line.  If a coderef is passed,
+it will be called with the extracted data hash for each database entry.  It
+should return true or false, indicating whether or not the field matched.
+If it returns 'undef', the search will stop immediately.  This is useful
 
 This returns a list of entries, or an empty list if no matching entries
 before EOF.
@@ -514,15 +517,27 @@ sub get_matching {
   my $count = shift;
   my $field = shift;
   my $value = shift;
-  my (@keys, $key, $data, $i);
+  my (@keys, $code, $key, $data, $i, $tmp);
+
+  $code = 1 if ref($field) eq 'CODE';
 
   for ($i=0; ($count ? ($i<$count) : 1); $i++) {
-    $key = $self->{'get_handle'}->search("/\001\Q$value\E/");
+    if ($code) {
+      $key = $self->{'get_handle'}->getline;
+    }
+    else {
+      $key = $self->{'get_handle'}->search("/\001\Q$value\E/");
+    }
     last unless $key;
     chomp $key;
     ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
-    if (defined($data->{$field}) && 
+    if ($code) {
+      $tmp = &$field($data);
+      last unless defined $tmp;
+      push @keys, ($key, $data) if $tmp;
+    }
+    elsif (defined($data->{$field}) && 
 	$data->{$field} eq $value)
       {
 	push @keys, ($key, $data);

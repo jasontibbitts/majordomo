@@ -40,50 +40,34 @@ Top of the list
     index footer
     digest footer - after all messages
 
-
-
-
-    Trigger parameters:
-      maximum size
-      maximum messages
-      minimum size
-      minimum messages
-      max age of 1st message
-      min age of last message
-      time(s)
-      runone, runall
-
-if ($age1st > $maxage) {
-  trigger;
-}
-else {
-  if ($size >= $minsize || $msg >= $minmsg) {
-    if ($agelast > $minage) {
-      if (time > $triggertime && $nottriggeredrecently) {
-        trigger;
-      }
-    }
-  }
-}
-
-persistent digest_info:
- @messages
- $volume
- $issue
- $last_triggered
- $last_triggered_clock
-
-saved via Data::Dumper.
-
 Way to force the users to use the digest version:
-allowed_subscribtion_classes - array of names of subscription classes that
-users can join without owner's password approval.  'digest' covers all
-digests, 'digest-blah' allows only 'blah' digest.
+  allowed_subscribtion_classes - array of names of subscription classes that
+  users can join without owner's password approval.  'digest' covers all
+  digests, 'digest-blah' allows only 'blah' digest.
 
-! Digestifier:
-    Add message number to digest
-    Trigger - ?
-    Build digest given message numbers.
+List::digest_trigger - just call trigger method, pass results to digest_generate.
+
+List::digest_add - add num.data pair to digest (call $self->{digest}->add).
+  If results, call digest_generate
+
+List::digest_generate - actually make all of the digests and stuff them in
+  files.  Wrap the filenames up with the classes to be delivered to somehow
+  (key by digest name, perhaps) and return them.  Mj::Resend can deliver
+  them.
+
+  Take the built entities
+  and stuff them into files.  Return a list of digest, file pairs.
+  Resend::_post can take those and deliver them to the appropriate classes:
+    digest-digestname-digesttype: digest-daily-mime, digest-weekly-html
+
+Optimize digest sending: when a digest is made, the digests will always be
+sent to more then one class.  Therefore it is a waste to scan the list
+twice.  What we want to do is extract matching addresses according to
+class, then stuff them into the appropriate delivery buckets.
+
+To do this, change the args to Mj::Deliver::deliver to take per-class
+args.  Then build a proper selection function, extract out all matching
+entries, and put them in the various delivery buckets all at once.
 
 - add nonterminal access_rules.  Now we take the first matching, but we
   could act and keep going.  This could be used to add reasons to a list,

@@ -203,12 +203,7 @@ sub add {
   # Find the starting line of the new message
   $data->{line} = $self->{splits}{$sub}{lines}+1;
 
-  # Instantiate the index; implicitly use text (or 'none' if we supported
-  # it) here
-  unless ($self->{'indices'}{$arc}) {
-    $self->{'indices'}{$arc} = new Mj::SimpleDB("$dir/.index/I$self->{'list'}.$arc",
-						'text', \@index_fields);
-  }
+  $self->_make_index($arc);
 
   # Generate and append the mbox separator if necessary
   if ($sender) {
@@ -259,14 +254,15 @@ sub add {
   # Close the archive
   $fh->close;
 
-  # Return the message number - yyyymmcc.#####
-  $msgno;
+  # Return the message number - yyyymmdd/#####
+  ("$arc/$msgno", $data);
 }
 
-=head2 get_message(message_num)
+=head2 get_message(message_num, data)
 
 This takes a message number (as archive/number) and sets up the archive''s
-iterator to read it.
+iterator to read it.  If data is not provided, it is looked up from the
+index.
 
 What to return?  Perhaps all useful message data, in a hashref?
 
@@ -274,23 +270,21 @@ What to return?  Perhaps all useful message data, in a hashref?
 sub get_message {
   my $self = shift;
   my $msg  = shift;
+  my $data = shift;
   my $log = new Log::In 150, "$msg";
-  my ($arc, $data, $dir, $fh, $file, $idx);
+  my ($arc, $dir, $fh, $file);
 
   # Figure out appropriate index database and message number
   ($arc, $msg) = $msg =~ m!([^/]+)/(.*)!;
   $dir = $self->{dir};
-  $idx = "$dir/.index/I$self->{'list'}.$arc";
   $file= "$dir/$self->{'list'}.$arc";
 
-  # Open the database
-  unless ($self->{'indices'}{$arc}) {
-    $self->{'indices'}{$arc} = new Mj::SimpleDB($idx, 'text', \@index_fields);
+  unless ($data) {
+    # Look up the data for the message
+    $self->_make_index($arc);
+    $data = $self->{'indices'}{$arc}->lookup($msg);
+    return unless $data;
   }
-  
-  # Look up the data for the message
-  $data = $self->{'indices'}{$arc}->lookup($msg);
-  return unless $data;
 
   # Open FH on appropriate split
   if (length($data->{'split'})) {
@@ -363,18 +357,18 @@ sub get_done {
   undef $self->{get_handle};
 }
 
-=head2 get_to_file(message, filename)
+=head2 get_to_file(message, filename, data)
 
 Retrieves a message from the archive and places it in the given file, which
 must be writable.  If a filename is not provided, one is generated
-randomly.
+randomly.  If data is not provided, it is looked up from the index.
 
 =cut
 sub get_to_file {
   my $self = shift;
   my $msg  = shift;
   my $file = shift || Majordomo::tempname();
-  my $data = $self->get_message($msg);
+  my $data = $self->get_message($msg, shift);
   return unless $data;
   my $fh =   new IO::File ">$file";
   my $chunk;
@@ -397,19 +391,12 @@ sub get_data {
   my $self = shift;
   my $msg  = shift;
   my $log = new Log::In 150, "$msg";
-  my ($arc, $data, $dir, $fh, $file, $idx);
+  my ($arc, $data);
 
   # Figure out appropriate index database and message number
   ($arc, $msg) = $msg =~ m!([^/]+)/(.*)!;
-  $dir = $self->{dir};
-  $idx = "$dir/.index/I$self->{'list'}.$arc";
-  $file= "$dir/$self->{'list'}.$arc";
+  $self->_make_index($arc);
 
-  # Open the database
-  unless ($self->{'indices'}{$arc}) {
-    $self->{'indices'}{$arc} = new Mj::SimpleDB($idx, 'text', \@index_fields);
-  }
-  
   # Look up the data for the message
   $self->{'indices'}{$arc}->lookup($msg);
 }
@@ -488,14 +475,40 @@ sub expand_date {
   my $self  = shift;
   my $start = shift;
   my $end   = shift || $start;
-  my ($e, $s);
+  my (@arcs, @matches, @out, @tmp, $e, $ea, $i, $j, $k, $match, $s, $sa);
 
+  # Figure out start and end times
   $s = _secs_start($start);
   $e = _secs_end($end);
 
-warn "$start -> $s; $end -> $e";
+  # Figure out the names of the starting and ending archives
+  $sa = _arc_name($self->{'split'}, $s);
+  $ea = _arc_name($self->{'split'}, $e);
 
-  
+  # Extract the names of all archives lying between them
+  @arcs  = sort(grep {$_ >= $sa && $_ <= $ea} keys(%{$self->{'archives'}}));
+
+  $match = sub {
+    my $date = (shift)->{'date'};
+    return 0     unless $date >= $s;
+    return undef unless $date <= $e;
+    1
+  };
+
+  for $i (@arcs) {
+    $self->_make_index($i);
+    $self->{'indices'}{$i}->get_start;
+    while (1) {
+      @tmp = $self->{'indices'}{$i}->get_matching(100, $match);
+      last unless scalar(@tmp);
+      push @matches, @tmp;
+    }
+    $self->{'indices'}{$i}->get_done;
+    while (($j, $k) = splice(@matches, 0, 2)) {
+      push @out, ["$i/$j", $k];
+    }
+  }
+  @out;
 }
 
 =head2 _secs_start(date)
@@ -719,15 +732,19 @@ sub _write_counts {
   $fh->close;
 }
 
-=head2 load_index
+=head2 _make_index
 
-Loads the index for a given archive.  This must be done as a precursor to
-any by-message retrieval.  Indexes are small when compared to the archive
-and give exact line and bute counts enabling messages to be read in with a
-seek and a sysread.
+Instantiates the index for a particular archive.
 
 =cut
+sub _make_index {
+  my ($self, $arc) = @_;
 
+  unless ($self->{'indices'}{$arc}) {
+    my $idx = "$self->{'dir'}/.index/I$self->{'list'}.$arc";
+    $self->{'indices'}{$arc} = new Mj::SimpleDB($idx, 'text', \@index_fields);
+  }
+}
 
 =head2 expand_range
 
@@ -756,8 +773,10 @@ Takes a range of articles and expands it into a list of articles.
 
 A limit on the size of the returned article list can be set.
 
-This must be an archive method because it needs to expand a date to a list
-of article numbers using the index.
+If the data for an article is known when the range is expanded, it will be
+returned as a [number, data] listref.  Otherwise it will just be returned
+as a string.  This spares extraneous lookups when the data is known because
+of the expansion process.
 
 =cut
 sub expand_range {
@@ -795,11 +814,11 @@ sub expand_range {
       if (@args && $args[0] eq '-') {
 	# Date range: expand to list of dates, unshift dates into args
 	shift @args; $j = shift @args;
-	unshift @args, $self->_expand_date_range($i, $j);
+	unshift @args, $self->expand_date($i, $j);
       }
       else {
 	# Expand date to all messages on that date; push into @out
-	push @out, $self->_expand_date($i);
+	push @out, $self->expand_date($i);
       }
     }
   }

@@ -2361,7 +2361,7 @@ sub archive {
     @msgs = $self->{'lists'}{$list}->archive_expand_range(0, @args);
 
     # Build a digest; gives back an entity
-    ($ent, $msgs) = $self->{'lists'}{$list}->build_digest
+    ($ent, $msgs) = $self->{'lists'}{$list}->digest_build
       (messages      => [@msgs],
        type          => 'mime',
        subject       => "Custom Digest from $list",

@@ -112,10 +112,8 @@ sub deliver {
   my $log  = new Log::In 150, "$args{list}, $args{file}, $args{class}";
 
   my (%exclude, @addrs, @data, @dests, @probes, $addr, $canon, $datref, $i,
-      $n, $ok, $error, $probeit);
+      $n, $ok, $error, $probeit, $sender);
 
-  my $file   = $args{file};
-  my $sender = $args{sender};
   my $rules  = $args{rules};
   my $class  = $args{class};
   my $list   = $args{list};
@@ -132,13 +130,14 @@ sub deliver {
 
   # Deal with extended sender manipulation
   if ($args{manip}) {
-    $sender = Bf::Sender::M_regular_sender($sender, $args{sendsep}, $args{seqnum});
+    $sender = Bf::Sender::M_regular_sender($args{sender}, $args{sendsep},
+					   $args{seqnum});
   }
     
   # Fill in a bit of info
   for ($i=0; $i<@{$rules}; $i++) {
     $rules->[$i]{'data'}{'sender'} = $sender;
-    $rules->[$i]{'data'}{'file'}   = $file;
+    $rules->[$i]{'data'}{'file'}   = $args{file};
   }
 
   # If we're doing any normal delivery (i.e. we're not probing or we're
@@ -185,7 +184,6 @@ sub deliver {
     while (($canon, $datref) = splice(@data, 0, 2)) {
       next if $exclude{$canon};
       $addr = $datref->{'stripaddr'};
-
       # Do we probe? XXX Also check bounce status and probe
       # possibly-bouncing addresses.
       $probeit =

@@ -1,4 +1,65 @@
+Tue Oct 13 15:53:46 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Archive.pm (add): Return the complete message name, not
+ 	just the number within the current archive.
+
+Mon Oct 12 17:18:14 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_digests): Initialize some parts of the
+ 	parsed structure.
+
+	* lib/Mj/List.pm (digest_build): Rename from build_digest.
+
+	* lib/Mj/Resend.pm (_post): Call deliver with new args.
+
+	* lib/Mj/MailOut.pm (deliver): Take exclude list as a listref now.
+	Put class at end of arglist.
+	
+	* bin/mj_shell (completer): Tighten up spece requirements when
+ 	completing config variables.  Fix report by RSW.
+
+Sun Oct 11 22:24:09 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Get rid of high pripority class.
+
+	* lib/Mj/Digest.pm (add): Update all state information and call
+ 	the trigger.
+	(decide): New function: decide based upon configured digest data
+ 	and state whether or not to push a new digest.
+	(choose): New function: choose which of the waiting messages
+ 	should be in the new digest.
+
+Wed Oct  7 17:35:11 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Digest.pm (in_clock): New function: is a time in a clock
+ 	list or not.
+
+	* lib/Mj/Config.pm (parse_digests): Revise parsing of 'digests';
+ 	eliminate runall and use 'separate' instead.
+
+	* lib/mj_cf_data.pl: Revise description of 'digests'.
+
+Tue Oct  6 09:29:53 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Reorder so that message is added to
+ 	archive before message_headers is added; this lets us provide the
+ 	archive number to message_headers for expansion.
+
+	* lib/Mj/Archive.pm (get_message): Now accept a hash filled out
+ 	with data; if it exists, don't bother going to the index.
+	(expand_date): New function: find all article names and data
+ 	posted in a given year/month/week/day.
+	(_secs_start, _secs_end): New functions: find seconds count of
+ 	beginning and end of date interval.
+
+Mon Oct  5 21:18:29 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Archive.pm (get_data): Clean up.
+
 Sun Oct  4 09:52:57 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/SimpleDB/Text.pm (get_matching): Add coderef
+ 	functionality.
 
 	* lib/Mj/Resend.pm (_post): Use $arcent, $archead to extract
  	information about the message about to be archived, instead of

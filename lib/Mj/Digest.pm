@@ -29,7 +29,7 @@ use strict;
 1;
 #__END__
 
-=head2 new(archive, dir, datahashref)
+=head2 new(archive, dir, digestdata)
 
 This creates a digest object.  dir is the place where the digest will store
 its state file (volume, issue, spooled messages, etc).  archive is an
@@ -37,6 +37,34 @@ archive object already created that digest will use to do its message
 retrieval.  The data hash should contain all of the data necessary to
 operate the trigger decision mechanism and the build mechanism (generally
 passed directly from the List object).  It will not be modified.
+
+digestdata should contain the parsed version of the 'digests' variable,
+containing hashrefs keyed on the digest name (and an additional
+'default_digest' key).  Each of those hashrefs conains:
+
+  minmsg  - minimum number of messages in a digest
+  minsize - minimum size of a digest (in bytes)
+  maxage  - maximum age of oldest message in the digest
+  maxmsg  - maximum mumber of messages in a digest
+  maxsize - maximum size of a digest
+  minage  - mimumum age of the newest message in the digest
+  separate- minimum time between digests
+  mime    - default digest format is MIME
+  times   - array of clock values
+  desc    - digest description
+
+The digest keeps state in a file (in $dir) called _digests.  This is a
+Data::Dumped hashref with one key per named digest.  Each subhash contains:
+
+  messages - a list of [message name, data] pairs waiting to be sent.
+  lastrun  - the last time this digest was pushed.
+  bytecount- sum of 'bytes' from all message data.
+  newest   - the time of the most recent message.
+  oldest   - the time of the least recent message.
+
+We must be very careful with the data file; it cannot be cached because
+hosing it results in duplicates or dropped messages.  This it must be
+locked, read, manipulated, saved, erased from memory and unlocked.
 
 =cut
 sub new {
@@ -51,19 +79,69 @@ sub new {
 
   # Open state file if it exists
 
-  $self->{'archive'} = $arc;
-  $self->{'dir'}     = $dir;
+  $self->{'archive'}  = $arc;
+  $self->{'dir'}      = $dir;
+  $self->{'decision'} = $data;
+  $self->{'digests'}  = [];
+
+  for my $i (keys(%$data)) {
+    push @{$self->{'digests'}}, $i unless $i eq 'default_digest';
+  }
   return $self;
 }
 
-=head2 add(message, datehashref)
+=head2 add(message, messagedata)
 
 This adds a message to the digest''s message pool.  The information in the
-data hash is used by the decision algorithm.
+messagedata hashref is used by the decision algorithm.
+
+messagedata is the hash returned from Archive::add, containing the follwing
+keys of possible importance:
+
+  bytes
+  lines
+  body_lines
+  quited
+  date
+  from
+  subject
+  refs
+
+Returns what trigger returns.
 
 =cut
 sub add {
-   
+  my $self = shift;
+  my $mess = shift;
+  my $data = shift;
+  my $log = new Log::In 250, "$mess";
+  my (%out, $i, $state);
+
+  $state = $self->_open_state;
+
+  for $i (@{$self->{digests}}) {
+    unless ($state->{$i}) {
+      $state->{$i}{messages} = [];
+      $state->{$i}{lastrun}  = 0;
+      $state->{$i}{bytecount}= 0;
+      $state->{$i}{newest}   = 0;
+    }
+    push @{$state->{$i}{messages}}, [$mess, $data];
+    $state->{$i}{bytecount} += $data->{bytes};
+    $state->{$i}{newest} = $data->{date} if $data->{date} > $state->{$i}{newest};
+    if ($state->{$i}{oldest}) {
+      $state->{$i}{oldest} = $data->{date} if $data->{date} < $state->{$i}{oldest};
+    }
+    else {
+      $state->{$i}{oldest} = $data->{date};
+    }
+  }
+
+  # Trigger a run?
+  %out = $self->trigger($state);
+
+  $self->_close_state($state, 1);
+  %out;
 }
 
 =head2 volume(number)
@@ -85,14 +163,204 @@ sub volume {
   1;
 }
 
-=head2 trigger
+=head2 trigger(digest)
 
-This causes the digest to decide whether or not it should generate a
-digest message.
+This triggers the decision algorithm by running through all defined digests
+and running 'decide'.  It also opens and closes the state file if
+necessary.
+
+Returns a hash keyed on digest names of lists of [article, data] lists.
 
 =cut
 sub trigger {
+  my $self  = shift;
+  my $state = shift;
+  my $log = new Log::In 250;
+  my (%out, @msgs, $change, $close, $i, $push);
 
+  unless ($state) {
+    $state = $self->_open_state;
+    $close = 1;
+  }
+
+  for $i (@{$self->{digests}}) {
+    $push = $self->decide($state->{$i}, $self->{decision}{$i});
+    $change ||= $push;
+    if ($push) {
+      @msgs = $self->choose($state->{$i}, $self->{decision}{$i});
+      if (@msgs) {
+	$out{$i} = [@msgs];
+      }
+    }
+  }
+  if ($close) {
+    $self->_close_state($state, $change);
+  }
+  return %out;
+}
+
+=head2 decide(state, decision parameters)
+
+This takes the state and decision parameters for a single digest and
+decided if it should be pushed.  It returns only a flag, true if a digest
+should be generated.
+
+=cut
+sub decide {
+  my $self = shift;
+  my $s    = shift; # Digest state
+  my $p    = shift; # Decision parameters
+  my $log = new Log::In 250;
+  my $time = time;
+
+  # Check time; bail if not right time
+  return 0 unless in_clock($p->{'times'});
+
+  # Check time difference; bail if a digest was 'recently' pushed.
+  return 0 if $p->{separate} && ($time - $s->{lastrun}) < $p->{separate};
+
+  # Check oldest message, push digest if too old (maxage)
+  return 1 if $p->{maxage} && $time - $s->{oldest} > $p->{maxage};
+
+  # Check sizes; bail if not enough messages or not enough bytes (minsize,
+  # minmsg)
+  return 0 unless !$p->{minsize} || $s->{bytecount} >= $p->{minsize};
+
+  return 0 unless scalar(@{$s->{messages}}) >= $p->{minmsg};
+
+  # Check newest message; bail if not old enough (minage)
+  return 0 unless !$p->{minage} || ($time - $s->{newest}) >= $p->{minage};
+
+  # OK, we found no reason _not_ to push a digest
+  1;
+}
+
+=head2 choose(state, decision parameters)
+
+This chooses messages to be built into a digest and returns them, in order,
+as [name, data] pairs.  The return value is suitable for passing to
+Digest::Build::build.
+
+This currently only shifts articles out of the waiting article list until
+the digest gets too large or we run out of messages.
+
+=cut
+sub choose {
+  my $self = shift;
+  my $s    = shift;
+  my $d    = shift;
+  my $log = new Log::In 250;
+  my $mm   = $d->{maxmsg}  || 200;  # Some just-beyond-reasonable maxima
+  my $ms   = $d->{maxsize} || 2**22;
+  my $msgs = $s->{messages};
+  my (@out, $bcnt, $mcnt);
+
+  # Shouldn't happen, but bail if we have no messages to choose from
+  return unless @$msgs;
+
+  # We always push at least one message
+  $mcnt = 1; $bcnt = $msgs->[0][1]{bytes}; push @out, shift @$msgs;
+
+  # Loop until we're out of messages or the next message would exceed our
+  # size limits
+  while (@$msgs && $mcnt < $mm && ($msgs->[0][1]{bytes} + $bcnt) <= $ms) {
+    $mcnt++; $bcnt += $msgs->[0][1]{bytes}; push @out, shift @$msgs;
+  }
+
+  # Recalculate bytecount, oldest, newest.
+  $s->{bytecount} = 0; $s->{oldest} = 0;  $s->{newest} = 0;
+  for my $i (@$msgs) {
+    $s->{bytecount} += $i->[1]{bytes};
+    $s->{newest} = $i->[1]{date} if $i->[1]{date} > $s->{newest};
+    if ($s->{oldest}) {
+      $s->{oldest} = $i->[1]{date} if $i->[1]{date} < $s->{oldest};
+    }
+    else {
+      $s->{oldest} = $i->[1]{date};
+    }
+  }
+
+  @out;
+}
+
+=head2 in_clock(clock, time)
+
+This determines if a given time (defaulting to the current time) falls
+within the range of times given in clock, which is expected to be in the
+format returned by Mj::Config::_str_to_clock.
+
+A clock is a list of lists:
+
+[
+ flag: day of week (w), day of month (m), free date (a)
+ start
+ end
+]
+
+Start and end can be equivalent; since the granularity is one hour, this
+gives a range of exactly one hour.
+
+=cut
+sub in_clock {
+  my $clock = shift;
+  my $time  = shift || time;
+  my ($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($time);
+  $mday--; # Clock values start at 0
+
+  for my $i (@$clock) {
+    # Handle hour of day
+    if ($i->[0] eq 'a') {
+      return 1 if $hour  >= $i->[1] && $hour  <= $i->[2];
+    }
+    elsif ($i->[0] eq 'w') {
+      # Handle day/hour of week
+      my $whour = $wday*24 + $hour;
+      return 1 if $whour >= $i->[1] && $whour <= $i->[2];
+    }
+    elsif ($i->[0] eq 'm') {
+      # Handle day/hour of month
+      my $mhour = $mday*24 + $hour;
+      return 1 if $mhour >= $i->[1] && $mhour <= $i->[2];
+    }
+    # Else things are really screwed
+  }
+  # None of the intervals include the time, so no match.
+  0;
+}
+
+=head2 _open_state, _close_state(data, dirty)
+
+These manage the file holding the digest state.  This file is handled
+carefully; the open routine loads it and returns a reference to it, keeping
+it locked all the while.  The close routine writes it back if it was dirty
+and unlocks it.
+
+=cut
+sub _open_state {
+  my $self = shift;
+  my $file = "$self->{'dir'}/_digests";
+
+  unless (-f $file) {
+    open DIGEST, ">>$file";
+    close DIGEST;
+  }
+
+  $self->{'datafh'} = new Mj::FileRepl($file);
+  do $file;
+}
+
+sub _close_state {
+  my $self = shift;
+  my $data = shift;
+  my $dirty= shift;
+
+  unless ($dirty) {
+    $self->{'datafh'}->abandon;
+    return;
+  }
+  
+  $self->{'datafh'}->print(Dumper $data);
+  $self->{'datafh'}->commit;
 }
 
 =head1 COPYRIGHT

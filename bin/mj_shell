@@ -404,7 +404,7 @@ sub completer {
     }
   # Complete config variables.  XXX This doesn't handle completion of group
   # names, but I'm inclined to not worry about it.
-  if ($line =~ /^config.*?\s+(\S+)\s+(\S*)$/) {
+  if ($line =~ /^config\S+\s+(\S+)\s+(\S*)$/) {
     @vars = $mj->config_get_vars($user, $pass, '', 'shell', $1, 'ALL');
     return sort(grep(/^$2/, @vars));
   }

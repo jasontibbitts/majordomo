@@ -58,7 +58,7 @@ use Data::Dumper;
 sub build_mime {
   my %args = @_;
   my (@msgs, $count, $data, $digest, $file, $func, $i, $index, $indexf,
-      $indexh, $tmp, $top);
+      $indexh, $msg, $tmp, $top);
   
   $count = 0;
   $top = build MIME::Entity
@@ -79,9 +79,17 @@ sub build_mime {
   # Extract all messages from the archive into files, building them into
   # entities and generating the index file.
   for $i (@{$args{'messages'}}) {
-    ($data, $file) = $args{'archive'}->get_to_file($i);
+    if (ref($i)) {
+      $msg  = $i->[0];
+      $data = $i->[1];
+    }
+    else {
+      $msg = $i;
+      $data = undef;
+    }
+    ($data, $file) = $args{'archive'}->get_to_file($msg, undef, $data);
     unless ($data) {
-      $indexh->print("  Message $i not in archive.\n");
+      $indexh->print("  Message $msg not in archive.\n");
       next;
     }
     $count++;
@@ -124,7 +132,7 @@ can choose which messages to retrieve.
 sub build_index {
   my %args = @_;
   my (@msgs, $count, $data, $func, $i, $index, $indexf,
-      $indexh, $tmp);
+      $indexh, $msg, $tmp);
   
   $count = 0;
   $indexf = Majordomo::tempname();
@@ -134,16 +142,23 @@ sub build_index {
   # Extract all messages from the archive into files, building them into
   # entities and generating the index file.
   for $i (@{$args{'messages'}}) {
-    $data = $args{'archive'}->get_data($i);
+    if (ref($i)) {
+      $msg  = $i->[0];
+      $data = $i->[1];
+    }
+    else {
+      $msg = $i;
+      $data = $args{'archive'}->get_data($msg);
+    }
     unless ($data) {
-      $indexh->print("  Message $i not in archive.\n");
+      $indexh->print("  Message $msg not in archive.\n");
       next;
     }
     $count++;
     {
       no strict 'refs';
       $func = "idx_$args{'index_line'}";
-      $indexh->print(&$func($args{'type'}, $i, $data));
+      $indexh->print(&$func($args{'type'}, $msg, $data));
     }
   }
 

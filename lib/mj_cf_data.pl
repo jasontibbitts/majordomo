@@ -1146,6 +1146,7 @@ tokens are defined:
   \$SENDER  - the sender as taken from the from line,
   \$SEQNO   - the contents of the sequence_number variable, which is
               automatically incremented each time a message is posted
+  \$ARCHIVE - the number of this message in the archives
   \$VERSION - the version of Majordomo.
 EOC
    },
@@ -1269,10 +1270,15 @@ minage   - A digest will not be created if it most recent article is
            creation in the middle of active discussion.  The default
            is no minimum age.
 
-runall   - Controls whether or not only one digest is created, or if
-           digests are created until the pool of messages is exhausted
-           to the point that the minimum digest size cannot be met.
-           The default is to create multiple digests if necessary.
+separate - The minimum amount of time that separates digests.  When
+           messages come in quickly, or when a body of messages builds
+           up during the times that digests are not allowed to be
+           generated, it is possible that there are too many messages
+           to be sent in a single digest and perhaps enough messages
+           to fill more than one digest.  To prevent multiple digests
+           from being generated too close to one another, set this to
+           some amound of time.  To generate as many digests as
+           necessary to clear out the backlog, leave this unset.
 
 mime     - This specifies whether new subscribers recive the digest in
            MIME mode by default.  Subscribers can still specify MIME
@@ -1319,15 +1325,15 @@ These settings take precedence in the following order:
 Each digest is defined by two lines.  The first contains data in the
 following order, separated by vertical bars (\'|\') or colons:
 
-name    | minsizes | maxage | maxsizes | minage | runall | mime | time
+name    | minsizes | maxage | maxsizes | minage | separate | mime | time
 
 The second line holds a description of the digest.
 
 Here is an example, defining two digests:
 
-daily   | 20K, 5m  | 3d     | 40K, 10m |        | no     | no   | 23
+daily   | 20K, 5m  | 3d     | 40K, 10m |        | 1d       | no   | 23
 The test-list daily digest
-weekly  | 20k, 5m  |        | 100k,30m |        | yes    | yes  | fr(23)
+weekly  | 20k, 5m  |        | 100k,30m |        |          | yes  | fr(23)
 The test-list weekly digest
 
 EOC

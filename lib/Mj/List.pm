@@ -1091,8 +1091,8 @@ sub _make_digest {
   return 1 if $self->{'digest'};
   $self->_make_archive;
 
-  $self->{'digest'} = new Mj::Digest($self->{'archive'},
-				     $self->{'ldir'},
+  $self->{'digest'} = new Mj::Digest($self->{archive},
+				     "$self->{ldir}/$self->{name}",
 				     $self->config_get('digests'),
 				    );
 }
@@ -1288,17 +1288,31 @@ sub archive_expand_range {
 
 These functions interface with the list''s Digest object.
 
-=head2 build_digest
+=head2 digest_build
 
 Builds a digest.
 XXXX Currently a hack.
 
 =cut
 use Mj::Digest::Build;
-sub build_digest {
+sub digest_build {
   my $self = shift;
   $self->_make_archive;
   Mj::Digest::Build::build(@_, 'archive' => $self->{'archive'});
+}
+
+=head2 digest_add
+
+Adds an [article, data] pair to the lists'' digest object.  This will
+return what Mj::Digest::add returns, which is a hash keyed on digest name
+containing the list of [article, data] pairs of the messages in that digest
+which need to be sent out.
+
+=cut
+sub digest_add {
+  my $self = shift;
+  $self->_make_digest;
+  $self->{digest}->add(@_);
 }
 
 =head1 COPYRIGHT

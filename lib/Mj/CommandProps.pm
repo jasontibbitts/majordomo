@@ -32,6 +32,8 @@ my %reg_actions =
    'mailfile'        => 1,
    'reply'           => 1,
    'replyfile'       => 1,
+   'set'             => 1,
+   'unset'           => 1,
   );
 
 my %reg_legal =

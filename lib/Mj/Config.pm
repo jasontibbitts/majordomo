@@ -1468,8 +1468,8 @@ sub parse_digests {
     # minage
     $elem->{'minage'} = _str_to_offset($table->[$i][4]);
     
-    # runall
-    $elem->{'runall'} = $table->[$i][5] =~ /y/ ? 1 : 0;
+    # separate
+    $elem->{'separate'} = _str_to_offset($table->[$i][5]);
 
     # mime
     $elem->{'mime'} = $table->[$i][6] =~ /y/ ? 1 : 0;
@@ -2790,7 +2790,7 @@ sub _str_to_clock {
       }
       elsif ($i =~ /^\d+$/) {
 	$start = $day*24 + $i;
-	$end   = undef;
+	$end   = $start;
       }
       else {
 	# XXX Error condition
@@ -2804,13 +2804,14 @@ sub _str_to_clock {
     $flag  = 'm';
     $start = ($1-1) * 24;
     $end   = $1 * 24 - 1;
+    push @out, [$flag, $start, $end];
   }
 
   # Deal with just a time
   elsif ($arg =~ /^\d+$/) {
     $flag = 'a';
     $start = $arg;
-    $end = undef;
+    $end   = $arg;
     push @out, [$flag, $start, $end];
   }
 
@@ -2818,12 +2819,13 @@ sub _str_to_clock {
   elsif ($arg =~ /^(\d+)-(\d+)$/) {
     $flag  = 'a';
     $start = $1;
-    $end   = $2;
+    $end   = $2
     push @out, [$flag, $start, $end];
   }
 
   # No putting it off; deal with weekdays
   elsif ($arg =~ /^(m|tu|w|th|f)[dayonesuri]*\((.*)\)/) {
+    # mon(0-6, 12, 20-23)
     $flag = 'w';
     $day = $days{$1};
 
@@ -2834,7 +2836,7 @@ sub _str_to_clock {
       }
       elsif ($i =~ /^\d+$/) {
 	$start = $day*24 + $i;
-	$end   = undef;
+	$end   = $start;
       }
       else {
 	# XXX Error conition
@@ -2843,7 +2845,8 @@ sub _str_to_clock {
       push @out, [$flag, $start, $end];
     }
   }
-  elsif ($arg =~ /^(m|tu|w|th|f)[dayonesuri]*\((.*\))/) {
+  elsif ($arg =~ /^(m|tu|w|th|f)[dayonesuri]*/) {
+    # just a day, no parenthesized times
     $flag  = 'w';
     $day   = $days{$1};
     $start = $day*24;

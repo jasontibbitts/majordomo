@@ -1,5 +1,11 @@
 Notes on upgrading from alpha1 or before:
 
+1998.10.07(CVS):
+
+The format of the 'digests' variable has changed slightly.  Nobody should
+be using this yet anyway, but if you have it set then read up on the new
+structure so that you won't get parsing errors.
+
 1998.09.23(CVS):
 
 The format and arrangement of the archives has changed; for each list that

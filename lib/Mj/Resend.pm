@@ -289,8 +289,8 @@ sub _post {
      $avars) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
-  my(%avars, @refs, @skip, $arcent, $archead, $ent, $head, $i, $msgnum,
-     $prefix, $replyto, $sender, $seqno, $subject, $tmp, $tmpdir,
+  my(%avars, %digest, @refs, @skip, $arcdata, $arcent, $archead, $ent, $head, $i,
+     $msgnum, $prefix, $replyto, $sender, $seqno, $subject, $tmp, $tmpdir,
      $tprefix);
 
   $self->_make_list($list);
@@ -337,6 +337,37 @@ sub _post {
     $head->delete($i);
     $archead->delete($i);
   }
+
+  # Pass to archiver; first extract all references
+  $tmp = $archead->get('references') || '';
+  while ($tmp =~ s/<([^>]*)>//) {
+    push @refs, $1;
+  }
+  $tmp = $archead->get('in-reply-to') || '';
+  while ($tmp =~ s/<([^>]*)>//) {
+    push @refs, $1;
+  }
+
+  # Unlink the file and print out the archive copy
+  $file = "$tmpdir/mjr.$$.arc";
+  open FINAL, ">$file" ||
+    $::log->abort("Couldn't open archive output file, $!");
+  $arcent->print(\*FINAL);
+  close FINAL;
+
+  # Pass to archive.  XXX Is $user good enough, or should we re-extract?
+  $subject = $archead->get('subject'); chomp $subject;
+  ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add
+    ($file,
+     undef,
+     {
+      'body_lines' => $avars{lines},
+      'from'       => "$user", # Stringify on purpose
+      'quoted'     => $avars{quoted_lines},
+      'refs'       => join("\002",@refs),
+      'subject'    => $subject,
+     },
+    );
 
   # Munge Subject:.  Is anyone daft enough to use SENDER?  It breaks pretty
   # badly if you do...  Much of this pain is brought to you by people who
@@ -396,6 +427,7 @@ sub _post {
 				       'VERSION' => $Majordomo::VERSION,
 				       'SENDER'  => $user,
 				       'SEQNO'   => $seqno,
+				       'ARCHIVE' => $archive,
 				      );
     $head->add(undef, $i);
   }
@@ -406,7 +438,8 @@ sub _post {
   # Add fronter and footer.
   $self->_add_fters($list, $ent);
 
-  # Print message to file
+  # Unlink archive copy and print delivery message to file
+  unlink "$file";
   $file = "$tmpdir/mjr.$$.final";
   open FINAL, ">$file" ||
     $::log->abort("Couldn't open final output file, $!");
@@ -415,43 +448,16 @@ sub _post {
   
   # Invoke delivery routine on the file, first to high-priority folks, then
   # to the rest
-  $self->deliver($list, $sender, $file, $seqno, 'high');
-  $self->deliver($list, $sender, $file, $seqno, 'each');
+#  $self->deliver($list, $sender, $file, $seqno, 'high');
+  $self->deliver($list, $sender, $file, $seqno, [], 'each');
   
-  # Pass to archiver; first extract all references
-  $tmp = $archead->get('references') || '';
-  while ($tmp =~ s/<([^>]*)>//) {
-    push @refs, $1;
-  }
-  $tmp = $archead->get('in-reply-to') || '';
-  while ($tmp =~ s/<([^>]*)>//) {
-    push @refs, $1;
-  }
+  # Pass to digest if we got back good archive data
+  %digest = $self->{'lists'}{$list}->digest_add($msgnum, $arcdata) if $msgnum;
 
-  # Unlink the file and print out the archive copy
-  unlink "$file";
-  $file = "$tmpdir/mjr.$$.arc";
-  open FINAL, ">$file" ||
-    $::log->abort("Couldn't open final output file, $!");
-  $arcent->print(\*FINAL);
-  close FINAL;
+#  use Data::Dumper; print Dumper \%digest;
 
-  # Pass to archive.  XXX Is $user good enough, or should we re-extract?
-  $subject = $archead->get('subject'); chomp $subject;
-  $msgnum = $self->{'lists'}{$list}->archive_add
-    ($file,
-     undef,
-     {
-      'body_lines' => $avars{lines},
-      'from'       => $user,
-      'quoted'     => $avars{quoted_lines},
-      'refs'       => join(',',@refs),
-      'subject'    => $subject,
-     },
-    );
+  # XXX We have to deliver the digests here because the list can't do it itself.
 
-  # Pass to digest
-  #$self->{'lists'}{$list}->digest_add($msgnum) if $msgnum;
 
   # Inform sender of successful delivery
   
@@ -1074,7 +1080,6 @@ sub _trim_approved {
 	$ofh->getline;
 	while (defined ($line = $ofh->getline)) {
 	  $nfh->print($line);
-	  warn("$line");
 	}
 	$obody = $part->bodyhandle($nbody);
 	$obody->purge;

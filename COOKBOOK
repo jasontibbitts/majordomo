@@ -1,0 +1,53 @@
+This file contains examples of how you would solve certain problems.  The
+answers are probably not complete; in many cases Mj2 is so flexible that
+there are many ways to solve the problem.
+
+
+Problem:
+  How to have a list with 30 members but allow posting by 300 addresses and
+  nobody else?
+
+Solution 1:
+  Sign everyone up, but put the people who don't want to get anything in the
+  class 'nomail'.  (set blah-list nomail address@host.dom).  This means the
+  people who can post are real subscribers; they just don't get any
+  messages.  Set restrict_post appropriately:
+
+  restrict_post <<END
+  blah-list
+  END
+
+  to close off posting to the list.
+
+
+Solution 2 (most like Majordomo 1):
+  Sign up the recipient users and put everyone else in a sublist:
+
+  auxadd blah-list posters address@host.dom
+         `-list    `-sublist
+
+  then restrict posting to the main list and that sublist:
+
+  restrict_post <<END
+  blah-list
+  posters
+  END
+
+
+Solution 3 (most flexible):
+  Sign up the recipient users, put everyone else in a sublist, make a file
+  explaining that only members can post, 'put' it with the name
+  'membersonly', and make an access rule:
+
+  access_rules <<END
+  post
+  deny, mailfile=membersonly
+  !@MAIN && !@posters
+  END
+
+  This rule denies all postings from users who are not in the main list and
+  are not in the 'posters' sublist.  They will be sent the named denial
+  message if they try to post.
+
+  The 'deny' can be changed to 'consult' to let the list owner approve the
+  messages if desired, as with the other two solutions.
