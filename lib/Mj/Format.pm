@@ -1117,7 +1117,7 @@ sub index {
 sub lists {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my (%lists, $basic_format, $cat_format, $category, $count, $data, 
-      $desc, $digests, $flags, $global_subs, $i, $legend, $list, 
+      $desc, $digests, $flags, $gsubs, $i, $legend, $list, 
       $site, $str, $subs, $tmp);
   my $log = new Log::In 29, $type;
   $count = 0;
@@ -1130,7 +1130,7 @@ sub lists {
 
   my ($ok, @lists) = @$result;
 
-  $global_subs = {
+  $gsubs = {
            $mj->standard_subs('GLOBAL'),
            'CGIDATA' => $request->{'cgidata'} || '',
            'CGIURL'  => $request->{'cgiurl'} || '',
@@ -1140,9 +1140,9 @@ sub lists {
           };
 
   if ($ok <= 0) {
-    $global_subs->{'ERROR'} = &escape($lists[0], $type);
+    $gsubs->{'ERROR'} = &escape($lists[0], $type);
     $tmp = $mj->format_get_string($type, 'lists_error');
-    $str = $mj->substitute_vars_format($tmp, $global_subs);
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out &indicate($type, "$str\n", $ok, 1);
     return 1;
   }
@@ -1150,7 +1150,7 @@ sub lists {
   if (@lists) {
     unless ($request->{'mode'} =~ /compact|tiny/) {
       $tmp = $mj->format_get_string($type, 'lists_head');
-      $str = $mj->substitute_vars_format($tmp, $global_subs);
+      $str = $mj->substitute_vars_format($tmp, $gsubs);
       print $out "$str\n";
     }
  
@@ -1195,7 +1195,7 @@ sub lists {
         $digests = ["(none)\n"] if ($list =~ /:/);
 
         $subs = { 
-                  %{$global_subs},
+                  %{$gsubs},
                   'ARCURL'        => $data->{'archive'} || "",
                   'CAN_READ'      => $data->{'can_read'} ? " " : '',
                   'CATEGORY'      => $category || "?",
@@ -1220,14 +1220,14 @@ sub lists {
   else {
     # No lists were found.
     $tmp = $mj->format_get_string($type, 'lists_none');
-    $str = $mj->substitute_vars_format($tmp, $global_subs);
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
   }
 
   return 1 if $request->{'mode'} =~ /compact|tiny/;
 
   $subs = {
-            %{$global_subs},
+            %{$gsubs},
             'COUNT' => $count,
           };
   $tmp = $mj->format_get_string($type, 'lists_foot');
@@ -1236,7 +1236,7 @@ sub lists {
 
   if ($request->{'mode'} =~ /enhanced/) {
     $subs = {
-              %{$global_subs},
+              %{$gsubs},
               'COUNT'         =>  $count,
               'SUBSCRIPTIONS' =>  $legend,
               'USER'          => &escape("$request->{'user'}", $type),
@@ -1862,12 +1862,12 @@ sub set {
 sub show {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my (@lists, $bouncedata, $error, $flag, $global_subs, $i, $j, $lsubs,
+  my (@lists, $bouncedata, $error, $flag, $gsubs, $i, $j, $lsubs,
       $settings, $show, $str, $subs, $tmp);
   my ($ok, $data) = @$result;
   $error = [];
 
-  $global_subs = {
+  $gsubs = {
     $mj->standard_subs('GLOBAL'),
     'CGIDATA' => $request->{'cgidata'} || '',
     'CGIURL'  => $request->{'cgiurl'} || '',
@@ -1875,6 +1875,11 @@ sub show {
     'USER'    => &escape("$request->{'user'}", $type),
     'VICTIM'  => &escape("$request->{'victim'}", $type),
   };
+
+  if (ref $request->{'victim'} and $request->{'victim'}->isvalid) {
+    $gsubs->{'QSADDR'} = &qescape($request->{'victim'}->strip, $type);
+    $gsubs->{'STRIPADDR'} = $request->{'victim'}->strip;
+  }
  
   # use Data::Dumper; print $out Dumper $data;
 
@@ -1883,6 +1888,7 @@ sub show {
   # also 0, but a hashref is returned containing what information we could
   # get from the address.
   if ($ok == 0) {
+    # XLANG
     if (ref($data)) {
       push @$error, 'The show command failed.';
       push @$error, "$data->{error}";
@@ -1892,7 +1898,7 @@ sub show {
       push @$error, "$data";
     }
 
-    $subs = { %$global_subs,
+    $subs = { %$gsubs,
               'ERROR' => $error,
             };
 
@@ -1904,13 +1910,14 @@ sub show {
   }
 
   elsif ($ok < 0) {  
+    # XLANG
     push @$error, "Address is valid.";
     push @$error, "Mailbox: $data->{'strip'}";
     push @$error, "Comment: $data->{'comment'}"
       if (defined $data->{comment} && length $data->{comment});
     push @$error, &indicate($type, $data->{error}, $ok);
 
-    $subs = { %$global_subs,
+    $subs = { %$gsubs,
               'ERROR' => $error,
             };
 
@@ -1921,7 +1928,7 @@ sub show {
     return $ok;
   }
 
-  $subs = { %$global_subs };
+  $subs = { %$gsubs };
 
   for $i (keys %$data) {
     next if ($i eq 'lists' or $i eq 'regdata');
@@ -2066,7 +2073,7 @@ use Date::Format;
 sub showtokens {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$request->{'list'}";
-  my (@tokens, $bf, $count, $data, $df, $global_subs, 
+  my (@tokens, $bf, $count, $data, $df, $gsubs, 
       $list, $ok,  $size, $str, $subs, $tmp, $tokens, $user);
   my (%type_abbrev) = (
                         'alias'   => 'L',
@@ -2077,7 +2084,7 @@ sub showtokens {
                         'probe'   => 'P',
                       );
 
-  $global_subs = {
+  $gsubs = {
            $mj->standard_subs($request->{'list'}),
            'CGIDATA' => $request->{'cgidata'} || '',
            'CGIURL'  => $request->{'cgiurl'} || '',
@@ -2088,14 +2095,14 @@ sub showtokens {
   ($ok, @tokens) = @$result;
   unless (@tokens) {
     $tmp = $mj->format_get_string($type, 'showtokens_none');
-    $str = $mj->substitute_vars_format($tmp, $global_subs);
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
   }
 
   unless ($ok > 0) {
     $subs = {
-             %{$global_subs},
+             %{$gsubs},
              'ERROR'  => $tokens[0],
             };
     $tmp = $mj->format_get_string($type, 'showtokens_error');
@@ -2127,7 +2134,7 @@ sub showtokens {
     $user = &escape($data->{'user'}, $type);
 
     $subs = { 
-              %{$global_subs},
+              %{$gsubs},
               'ADATE'  => time2str('%m-%d %H:%M', $data->{'time'}), 
               'ATYPE'  => $type_abbrev{$data->{'type'}},
               'COMMAND'=> $data->{'command'},
@@ -2150,7 +2157,7 @@ sub showtokens {
     print $out "$str\n";
   }
   $subs = {
-           %{$global_subs},
+           %{$gsubs},
            'COUNT' => $count,
           };
               
