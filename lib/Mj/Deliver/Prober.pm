@@ -60,7 +60,7 @@ sub add {
 
   # Generate an appropriate sender.
   my $sender =
-    Bf::Sender::M_probe_sender($self->{data}{sender},
+    Bf::Sender::any_probe_sender($self->{data}{sender},
 			       $self->{sendsep},
 			       $self->{seqnum},
 			       $addr,
