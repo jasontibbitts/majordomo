@@ -51,6 +51,14 @@ click the <b>Confirm New Request</b> link at the top or bottom of
 this document and follow the instructions to tell Majordomo the token 
 identifier for the request.  
 </p>
+
+<p>
+Once you have <b>accept</b>ed or <b>reject</b>ed a command, its 
+token identifier is removed from the database and becomes invalid.
+Only press an <b>accept</b> or <b>reject</b> button once:  pressing
+a second time will cause an error message to be displayed.
+</p>
+
 <p>
 To return to this introduction at any time, click the
 <b>Introduction</b> link at the top or bottom.

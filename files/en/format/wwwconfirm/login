@@ -53,6 +53,13 @@
 </form>
 
 <p>
+Once the <b>accept</b> or <b>reject</b> button is pressed, the token
+identifier for the command or posted message will immediately become
+invalid.  Do not press the <b>accept</b> or <b>reject</b> button
+more than once.
+</p>
+
+<p>
 Click the <b>Introduction</b> link at the top or
 bottom of the page to get detailed instructions.
 </p>
