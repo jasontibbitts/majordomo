@@ -82,11 +82,12 @@ delivered to a mailing list within the domain.  This allows subscribers
 to avoid cross-posted messages, using the "unique" delivery class
 (see "help set" for an explanation of delivery classes).
 
-The GLOBAL list shares the values of (only) four configuration settings
-with all of the other mailing lists in the same domain.  The four
-settings are admin_body, admin_headers, taboo_body, and taboo_headers.
-These settings are combined with a mailing list's individual settings
-when Majordomo attempts to find prohibited content in posted messages.
+The GLOBAL list shares the values of (only) six configuration settings
+with all of the other mailing lists in the same domain.  The five
+settings are admin_body, admin_headers, noarchive_body,
+noarchive_headers, taboo_body, and taboo_headers.  These settings are
+combined with a mailing list's individual settings when Majordomo
+attempts to find prohibited content in posted messages.
 
 Majordomo automatically maintains the GLOBAL:owners auxiliary list, which
 contains the addresses of all mailing list owners within a domain.
@@ -137,6 +138,8 @@ See Also:
    help configset
    help configset_admin_body
    help configset_admin_headers
+   help configset_noarchive_body
+   help configset_noarchive_headers
    help configset_taboo_body
    help configset_taboo_headers
    help configset_whereami
@@ -152,8 +155,4 @@ See Also:
    help unregister
    help which
 
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
-
+$INCLUDE-help/foot
