@@ -164,6 +164,7 @@ les cases a cot&eacute; d'une option pour en changer sa valeur.
     aussi les messages qu'il poste sur la liste.
   </dd>
 </dl>
+
 <p>
 $VICTIM est abonn&eacute; a la liste $LIST depuis $SUBTIME.<br>
 Ses options ont &eacute;t&eacute; modifi&eacute;es pour la

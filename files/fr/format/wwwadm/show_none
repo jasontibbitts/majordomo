@@ -4,7 +4,7 @@
       Boite email : $STRIP
       Commentaire : $COMMENT
     L'adresse se transforme en: ?XFORM
-    Adresse aliasée à:         ?ALIAS
+    Adresse alias&eacute;e &agrave;:         ?ALIAS
     Alias vers cette adresse : ?ALIASES
-    Cette adresse n'est pas enregistrée à $SITE.
+    Cette adresse n'est pas enregistr&eacute;e &agrave; $SITE.
 

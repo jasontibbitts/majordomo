@@ -13,11 +13,29 @@ cette page en s&eacute;lectionnant <b>Aide</b>.
   <td valign="top">Connexion</td>
   <td>
 
+    <p>
     Si vous en avez fini avec la liste $LIST et que d&eacute;sirez
     administrer une autre liste, Cliquez sur <b>Connexion</b>. Il vous
     sera alors demand&eacute; un nouveau nom de liste et un mot de
     passe.  Votre mot de passe temporaire pour cette session continue
     a &ecirc;tre valide.
+    </p>
+    
+    <p>
+    Pour administrer un domaine diff&eacute;rent ici, entrez le domaine dans
+    le champ <b>Domaine</b>. Cliquez sur <b>changer de domaine</b>
+    pour recevoir les instructions sur la mani&egrave;re de s'autentifier.
+
+    <form method="POST" action="$CGIURL">
+      <input type="hidden" name="user" value="$USER">
+      <input type="hidden" name="func" value="login">
+      <input type="hidden" name="list" value="GLOBAL">
+      Domaine&nbsp;:
+      <input name="domain" size="45" value="">
+      <input type="submit" name="f" value="change domain">
+    </form>
+    
+    </p>
 
   </td>
 </tr>

@@ -4,7 +4,7 @@
 
 <p>
 Les d&eacute;tails a propos des modes de r&eacute;ception et des 13 param&egrave;tres
-personnels appara&icirc;ssent ci dessous. Si vous modifiez le mode ou les r&eacute;glages,
+personnels apparaissent ci dessous. Si vous modifiez le mode ou les r&eacute;glages,
 cliquez sur le bouton <b>set</b> pour rendre vos changements permanents.
 </p>
 <p>
@@ -17,7 +17,6 @@ d'adieu, cliquez sur le bouton <b>unsubscribe-farewell</b>.
   <input type="submit" name="func" value="unsubscribe">
   <input type="submit" name="func" value="unsubscribe-farewell">
 </p>
-<p>
 
 <dl>
   <dt>

@@ -4,9 +4,14 @@
   <input type="hidden" name="passw" value="$CMDPASS">
 
 <p>
-Une fois que vous avez modifi&eacute; vos param&egrave;tres, cliquez
-sur le bouton <b>set</b> pour rendre les modifications
-permanentes.<br>
+Chacun de vos abonnements &agrave; une m&eacute;thode de r&eacute;ception
+ainsi que 13 param&egrave;tres personnels. Le d&eacute;tail a propos de ces
+modes de r&eacute;ception et des param&egrave;tres se trouve ci dessous. Si vous modifiez
+le mode de r&eacute;ception ou un param&egrave;tre, cliquez sur le bouton <b>set</b> pour
+rendre vos modifications permanentes.
+</p>
+
+<p>
   <input type="submit" name="func" value="set">
 </p>
 <p>
