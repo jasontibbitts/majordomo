@@ -91,7 +91,7 @@ sub new {
   $self->{'sender'} = $sender;
   $self->{'file'}   = $file || $data->{'file'};
 
-  # Figure out method and args; 
+  # Figure out method and args;
   if ($single) {
     $self->{'method'} = 'maxaddrs';
     $self->{'size'} = 1;
@@ -113,7 +113,7 @@ sub new {
   # specified
   else {
     $self->{'method'} = 'maxaddrs';
-    
+
     # Don't want to load POSIX here just to get ceil(), so fake it with a
     # cheap approximation.
     $self->{'size'} =
@@ -135,7 +135,7 @@ sub new {
   else {
     $self->{'hostlist'} = ['localhost'];
   }
-  
+
   # Build backup list
   @tmp1 = keys %{$data->{'backup'}};
   if (@tmp1) {
@@ -256,7 +256,7 @@ sub sendenvelope {
   my(%data, $ch, $host, $i, $ok);
 
   $ch = $self->{'currenthost'};
-  
+
   # We'll loop until we get it delivered, or we die trying; the continue
   # block gets executed to nuke hosts, deal with emergencies and sleep if
   # we get a failure any time before we send the envelope.
@@ -265,7 +265,7 @@ sub sendenvelope {
     if ($self->{'hostdata'}{$host}) {
       %data = %{$self->{'hostdata'}{$host}};
     }
-    
+
     unless ($self->{'envelopes'}[$ch]) {
       if (lc($host) eq '@qmail') {
 	$self->{'envelopes'}[$ch] = $self->make_qqenvelope($ch);
@@ -274,13 +274,13 @@ sub sendenvelope {
 	$self->{'envelopes'}[$ch] = $self->make_envelope($ch);
       }
     }
-    
+
     # If that failed, continue and try again
     next unless $self->{'envelopes'}[$ch];
 
     # We're guaranteed to have an envelope.  Address it and fall through to
     # error processing if we couldn't.
-    $ok = $self->{'envelopes'}[$ch]->address($self->{'addrs'}, 
+    $ok = $self->{'envelopes'}[$ch]->address($self->{'addrs'},
                                              $self->{'deferred'},
                                              $self->{'failed'});
     # Return now if no addresses remain to be processed.
@@ -294,7 +294,7 @@ sub sendenvelope {
     if ($ok < 0) {
       # Some addresses were processed successfully, but the envelope
       # is not addressed.  This could happen if we reached a recipient
-      # limit, sent the message and reinitialized. 
+      # limit, sent the message and reinitialized.
       return 1;
     }
 
@@ -314,14 +314,14 @@ sub sendenvelope {
       warn "Could not deliver, even in emergency mode!";
       $log->abort("Could not deliver, even in emergency mode!");
     }
-    
+
     # We try three times...
     if ($i > 3) {
       # This host is hosed; delete it from the active list and shrink the
       # envelope list as well.
       splice(@{$self->{'activehosts'}}, $ch, 1);
       splice(@{$self->{'envelopes'}},   $ch, 1);
-      
+
       # Activate the backups if we haven't done so already.
       if ($self->{'failures'} == 0) {
 	push(@{$self->{'activehosts'}}, @{$self->{'backuplist'}});
@@ -331,7 +331,7 @@ sub sendenvelope {
       # Start the counter at zero again
       $i = 0 unless $self->{'emergency'};
       $self->{'failures'}++;
-      
+
       # Fix the host pointer if we deleted the end of the list.  This could
       # cause us to stop failing if we don't have to open another envelope,
       # hence the while loop condition.  Note that a zero modulus is
@@ -351,20 +351,20 @@ sub sendenvelope {
       # We've tried just the emergency destination several times now and
       # we're still not getting through.  So now we stuff all of the hosts
       # back in, go into 'super emergency' mode, and try them all again
-      $self->{'activehosts'} = 
-        [@{$self->{'hostlist'}}, @{$self->{'backuplist'}}, 'localhost'];      
+      $self->{'activehosts'} =
+        [@{$self->{'hostlist'}}, @{$self->{'backuplist'}}, 'localhost'];
       $log->complain("Going into super-emergency delivery mode!")
 	unless $self->{'emergency'} == 2;
       $self->{'emergency'} = 2;
     }
-    
+
     # Wait a while, waiting longer the more we fail.
     sleep ((10 * $i * $self->{'emergency'}) + 2 + rand(5));
   }
-  
+
   # We delivered an envelope OK, so move to the next host
   $ch = ($ch + 1) % @{$self->{'activehosts'}};
-  
+
   $self->{'currenthost'} = $ch;
   1;
 }
@@ -385,10 +385,10 @@ sub add {
   my $self  = shift;
   my $addr  = shift;
   my $dom   = shift || $addr; # Actually the canonical address
-  my $flush = shift; 
+  my $flush = shift;
 #  my $log   = new Log::In 200, "$addr, $dom";
   my($ch, $env, $host, $i, $ok, $sendit);
-  
+
   # Extract that domain from the canonical address
   $dom =~ s/.*@//;
 
@@ -418,7 +418,7 @@ sub add {
       }
     }
   }
-  
+
   # Minseparate; automatically separate out recurring hosts
   elsif ($self->{'method'} eq 'minseparate') {
 
@@ -429,7 +429,7 @@ sub add {
 
       # Did we get enough to make a separate batch?
       if ($self->{'count'} < $self->{'size'}) {
-	
+
 #	print "Didnt get enough...\n";
 
 	# Nope; stuff what we've collected into the straggler list
@@ -466,7 +466,7 @@ sub add {
 #     print "  $addr\n";
       $self->{'count'}++;
     }
-    
+
     # Else the domain didn't change
     else {
       push @{$self->{'addrs'}}, $addr;
@@ -487,7 +487,7 @@ use Symbol;
 sub flush {
   my $self = shift;
   my $log  = new Log::In 150;
-  my ($addr, $ch, $fh, $file, $sender, @tmp);
+  my ($addr, @tmp);
 
   if (@{$self->{'stragglers'}}) {
     if (@{$self->{'addrs'}} >= $self->{'size'}) {
@@ -506,7 +506,7 @@ sub flush {
     $self->{'addrs'} = [];
   }
   # deferred addresses failed temporarily during RCPT TO.
-  # They are processed last to minimize delays for mail delivered to 
+  # They are processed last to minimize delays for mail delivered to
   # other recipients.  To lower retry times, each address
   # is done individually.
   if (@{$self->{'deferred'}}) {
@@ -524,69 +524,8 @@ sub flush {
   # RCPT TO or were deferred and failed during the retry.
   # Report the problem to the sender.
   if (@{$self->{'failed'}}) {
-    @tmp = @{$self->{'failed'}};
-    unless (grep {$_->[0] eq $self->{'sender'}} @tmp) {
-      return if ($self->{'sender'} =~ /example\.com$/);
-      # save original values
-      $sender = $self->{'sender'};
-      $file = $self->{'file'};
-      $ch = $self->{'currenthost'};
-
-      # XXX temporary file has original file name with ".flr" appended
-      $fh = gensym();
-      $self->{'file'} .= ".flr";
-      return unless (open $fh, ">$self->{'file'}");
-
-      # create an error message resembling an exim bounce. 
-      print $fh <<EOM;
-To: $sender
-From: $sender
-Subject: Majordomo Delivery Error
-
-This message was created automatically by mail delivery software.
-A Majordomo message could not be delivered to the following addresses:
-
-EOM
-
-      for (@tmp) {
-        print $fh "  $_->[0]:\n";
-	if ($_->[1]) {
-	  print $fh "    $_->[1] $_->[2]\n";
-	}
-	else {
-	  print $fh "    554 Connection timed out\n";
-	}
-      }
-      print $fh "-- Original message omitted --\n";
-      close($fh)
-        or $::log->abort("Unable to close file $self->{'file'}: $!");
-
-      # reinitialize using temporary values and send the message.
-      if (lc($self->{'activehosts'}[$ch]) eq '@qmail') {
-	$self->{'envelopes'}[$ch] = $self->make_qqenvelope($ch);
-      }
-      else {
-	$self->{'envelopes'}[$ch] = $self->make_envelope($ch);
-      }
-      $self->sender('');
-      $self->add($sender);
-      $self->sendenvelope;
-    
-      # restore original values 
-      unlink $self->{'file'};
-      $self->{'addrs'}    = [];
-      $self->{'deferred'} = [];
-      $self->{'failed'}   = [];
-      $self->sender($sender);
-      $self->{'file'} = $file;
-      if (lc($self->{'activehosts'}[$ch]) eq '@qmail') {
-	$self->{'envelopes'}[$ch] = $self->make_qqenvelope($ch);
-      }
-      else {
-	$self->{'envelopes'}[$ch] = $self->make_envelope($ch);
-      }
-    } # unless the sender is a failed address
-  } # if there are failed addresses
+    $self->_gen_bounces;
+  }
 }
 
 =head2 sender
@@ -606,6 +545,86 @@ sub sender {
     $env->sender($sender) if (defined $env);
   }
 }
+
+=head2 _gen_bounces
+
+Generate a bounce for each address that failed during the SMTP transaction.
+This is necessary because, having rejected the RCPT, the receiving MTA
+obviously isn't going to generate a bounce.
+
+The bounce format vaguely resembles that of Exim; it is close enough that
+the bounce parser will process it as such, which is good enough for
+automatic bounce processing to work.
+
+=cut
+sub _gen_bounces {
+  my $self = shift;
+  my(@tmp, $ch, $fh, $file, $sender);
+
+  @tmp = @{$self->{'failed'}};
+  unless (grep {$_->[0] eq $self->{'sender'}} @tmp) {
+    return if ($self->{'sender'} =~ /example\.com$/);
+    # save original values
+    $sender = $self->{'sender'};
+    $file = $self->{'file'};
+    $ch = $self->{'currenthost'};
+
+    # XXX temporary file has original file name with ".flr" appended
+    $fh = gensym();
+    $self->{'file'} .= ".flr";
+    return unless (open $fh, ">$self->{'file'}");
+
+    # create an error message resembling an exim bounce.
+    print $fh <<EOM;
+To: $sender
+From: $sender
+Subject: Majordomo Delivery Error
+
+This message was created automatically by mail delivery software.
+A Majordomo message could not be delivered to the following addresses:
+
+EOM
+
+    for (@tmp) {
+      print $fh "  $_->[0]:\n";
+      if ($_->[1]) {
+	print $fh "    $_->[1] $_->[2]\n";
+      }
+      else {
+	print $fh "    554 Connection timed out\n";
+      }
+    }
+    print $fh "-- Original message omitted --\n";
+    close($fh)
+      or $::log->abort("Unable to close file $self->{'file'}: $!");
+
+    # reinitialize using temporary values and send the message.
+    if (lc($self->{'activehosts'}[$ch]) eq '@qmail') {
+      $self->{'envelopes'}[$ch] = $self->make_qqenvelope($ch);
+    }
+    else {
+      $self->{'envelopes'}[$ch] = $self->make_envelope($ch);
+    }
+    $self->sender('');
+    $self->add($sender);
+    $self->sendenvelope;
+
+    # restore original values
+    unlink $self->{'file'};
+    $self->{'addrs'}    = [];
+    $self->{'deferred'} = [];
+    $self->{'failed'}   = [];
+    $self->sender($sender);
+    $self->{'file'} = $file;
+    if (lc($self->{'activehosts'}[$ch]) eq '@qmail') {
+      $self->{'envelopes'}[$ch] = $self->make_qqenvelope($ch);
+    }
+    else {
+      $self->{'envelopes'}[$ch] = $self->make_envelope($ch);
+    }
+  } # unless the sender is a failed address
+}
+
 
 =head1 COPYRIGHT
 
