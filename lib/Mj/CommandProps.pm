@@ -17,7 +17,7 @@ require Exporter;
                                   rules_vars rules_action rules_actions 
                                   action_files)],
                 'access'   => [qw(access_def)],
-       );
+               );
 use strict;
 
 # All supported actions, plus some additional information used for syntax checking
@@ -837,6 +837,26 @@ my %commands =
                                    'probe'       => 1,
                                   },
                    'tokendata' => {'arg1' => 'action'}
+                  },
+    'access'   => {
+                   'default' => 'deny',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%generic_actions,
+                  },
+   },
+   'sublist' =>
+   {
+    'parser' => [qw(email shell list global nohereargs real)],
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {},
+                   'modes'    =>  {
+                                   %generic_modes,
+                                   'create'      => 1,
+                                   'destroy'     => {'exclude' => 'create'},
+                                  },
+                   'tokendata' => {
+                                   'arg1' => 'sublist',
+                                  }
                   },
     'access'   => {
                    'default' => 'deny',

@@ -2626,6 +2626,53 @@ sub showtokens {
   1;
 }
 
+sub sublist {
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+  my ($mess, $ok, $str, $subs, $tmp);
+  ($ok, $mess) = @$result;
+  return $ok if ($mess eq 'NONE');
+
+  $subs = { $mj->standard_subs($request->{'list'}),
+           'CGIDATA'  => $request->{'cgidata'},
+           'CGIURL'   => $request->{'cgiurl'},
+           'CMDPASS'  => &escape($request->{'password'}, $type),
+           'SUBLIST'  => &escape($request->{'sublist'}, $type),
+           'USER'     => &escape("$request->{'user'}", $type),
+          };
+
+  unless ($ok > 0) {
+    $subs->{'ERROR'} = &escape($mess, $type);
+    $tmp = $mj->format_get_string($type, 'sublist_error', $request->{'list'});
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok, 1);
+    return $ok;
+  }
+
+  if ($request->{'mode'} =~ /create/) { 
+    $tmp = $mj->format_get_string($type, 'sublist_create', $request->{'list'});
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok, 1);
+  }
+  elsif ($request->{'mode'} =~ /destroy/) { 
+    $tmp = $mj->format_get_string($type, 'sublist_destroy', $request->{'list'});
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok, 1);
+  }
+  else { 
+    if (ref $mess eq 'HASH') {
+      $subs->{'DESCRIPTION'} = &escape($mess->{'description'}, $type);
+      $subs->{'POSTS'} = &escape($mess->{'posts'}, $type);
+      $subs->{'SUBS'} = &escape($mess->{'subs'}, $type);
+    }
+    $tmp = $mj->format_get_string($type, 'sublist', $request->{'list'});
+    $str = $mj->substitute_vars_format($tmp, $subs);
+
+    print $out &indicate($type, "$str\n", $ok, 1);
+  }
+
+  $ok;
+}
+
 sub subscribe {
   g_sub('subscribe', @_);
 }
@@ -3207,6 +3254,8 @@ sub who {
     $tmp = $mj->format_get_string($type, 'who_none', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
+    $request->{'command'} = "who_done";
+    $mj->dispatch($request);
     return 1;
   }
 

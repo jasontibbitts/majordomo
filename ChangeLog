@@ -1,3 +1,25 @@
+2004-10-21  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Add support for the sublist command.
+
+	* lib/Majordomo.pm:  (sublist, _sublist)  Add support
+	for the sublist command.  Suggested by Roger Klorese.
+	(_subscribe) Exclude digest subscriptions for sublists.  
+	(trigger)  Update the registry after a subscription 
+	expires.  Thanks to SRE.
+	
+	* lib/Mj/CommandProps.pm:  Add support for the sublist command.
+
+	* lib/Mj/Format.pm:  Add support for the sublist command.
+
+	* lib/Mj/List.pm:  (get_setting_data)  Exclude digests
+	from the list of classes for sublists.
+	(aux_create, aux_destroy)  Support the creation and destruction
+	of sublists.
+
+	* lib/Mj/SimpleDB/Base.pm:  (erase)  Remove a sublist's database
+	file if one exists.
+
 2004-10-18  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  Version number is now 0.1200410180.
@@ -90,7 +112,7 @@
 	* Makefile.PL, postinstall:  Qmail requires mj_enqueue
 	and mj_email to be setuid in case a domain is managed
 	by some user other than the majordomo user.
-        Thanks to Peter Ajamian.
+	Thanks to Peter Ajamian.
 
 2004-09-17  Michael Yount <csf@moscow.com>
 
@@ -158,7 +180,7 @@
 	* lib/Majordomo.pm:  (_changeaddr)  Preserve 
 	subscriptions from aliased addresses.
 	(_unalias)  Correct subscription addresses and alias
-        targets.
+	targets.
 
 2004-09-05  Michael Yount <csf@moscow.com>
 
@@ -169,7 +191,7 @@
 	Bugfix:  Adjust aliases properly when the changeaddr command
 	is issued from an alias.  Thanks to Roger Klorese.
 
-        * lib/Mj/Format.pm:  (show)  Substitution correction.
+	* lib/Mj/Format.pm:  (show)  Substitution correction.
 
 2004-09-04  Michael Yount <csf@moscow.com>
 

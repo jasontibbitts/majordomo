@@ -22,7 +22,7 @@ BEGIN {
 
 =head1 NAME
 
-mj_wwwadm - demonstration of majordomo administration via the WWW.
+mj_wwwadm - The Majordomo 2 web interface for administrators.
 
 =head1 SYNOPSIS
 
@@ -79,6 +79,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
                 'sessioninfo'   => [0, 'showtokens'],
                 'set'           => [1, 'who'],
                 'showtokens'    => [1, 'showtokens'],
+                'sublist'       => [1, 'sublist'],
                 'subscribe'     => [1, 'who'],
                 'tokeninfo'     => [0, 'showtokens'],
                 'unalias'       => [1, 'who'],
@@ -333,7 +334,13 @@ for ($i = 0 ; $i < scalar @lists ; $i++) {
   }
 }
 
-($truelist, $sublist, $mess) = $mj->valid_list($lists[0], 1, 1);
+$tmp = $lists[0];
+$sublist = $cgi->param('sublist');
+if (defined $sublist and length $sublist) {
+  $tmp =~ s/(:.*)?$/:$sublist/;
+}
+
+($truelist, $sublist, $mess) = $mj->valid_list($tmp, 1, 1);
 unless (defined $truelist and length $truelist) {
   unless (defined $mess and length $mess) {
     $mess = $mj->format_error('unknown_list', 'GLOBAL', 'LIST' => $lists[0]);
