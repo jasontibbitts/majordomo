@@ -58,6 +58,10 @@ print SITE qq!
 \$VAR1 = {
           'mta'           => '$config->{mta}',
           'mta_separator' => '$config->{mta_separator}',
+          'mta_options'   => {
+                              'maintain_config' => 0,
+                              'maintain_vut' => 0,
+                             },
           'cgi_bin'       => '$config->{cgi_bin}',
           'install_dir'   => '$config->{install_dir}',
           'site_password' => 'hurl',
