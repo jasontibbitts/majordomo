@@ -37,7 +37,7 @@ $Mj::Config::default_string = q(
  'addr_require_fqdn'    => 1,
  'addr_strict_domain_check' => 1,
  'aliases'              => 'ORQ',
- 'allowed_classes'      => [qw(each digest nomail)],
+ 'allowed_classes'      => [qw(each digest nomail unique)],
  'allowed_flags'        => 'ACHPRSW',
  'archive_dir'          => '',
  'archive_size'         => 'unlimited',
@@ -58,7 +58,6 @@ $Mj::Config::default_string = q(
                              'session  | daily', 
                              'token    | daily' ] : 
                            [ 'delay    | hourly' ],
- 'database_backend'     => 'text',
  'default_class'        => 'each',
  'default_flags'        => 'SPR',
  'delivery_rules'       => [],

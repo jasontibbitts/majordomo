@@ -239,7 +239,7 @@ EOC
    'allowed_classes' =>
    {
     'type'   => 'enum_array',
-    'values' => [qw(all digest each nomail)],
+    'values' => [qw(all digest each nomail unique)],
     'groups' => [qw(class)],
     'visible'=> 1,
     'local'  => 1,
@@ -927,7 +927,7 @@ EOC
    {
     'type'   => 'integer',
     'groups' => [qw(resend majordomo)],
-    'global' => 0,
+    'global' => 1,
     'local'  => 1,
     'visible'=> 0,
    },
