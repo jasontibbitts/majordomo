@@ -194,10 +194,6 @@ sub parse_part {
     # Skip blank lines
     next if /^\s*$/;
 
-    # Stop parsing at a signature separator. XXX It is of dubious legality
-    # to call a function in the Majordomo namespace from here.  We know the
-    # module has been loaded because we have a valid Majordomo object, but
-    # still, this is client-side.
     if (re_match($sigsep, $_)) {
       print $outhandle ">>>> $_";
       print $outhandle "Stopping at signature separator.\n\n";
@@ -573,18 +569,21 @@ sub parse_line {
   my $log         = new Log::In 60;
   my (@arglist, $used, $line, $command, $tag, $attachhandle, $out);
 
-  # Merge lines ending in backslashes, ignoring trailing white space, UNLESS they are escaped as a double-backslash
+  # Merge lines ending in backslashes, ignoring trailing white space, 
+  # unless they are escaped as a double-backslash.
   chomp;
   while ( (/\\\s*$/) && !(/\\\\\s*$/) ) {
     s/\\\s*$/ /;
     $_ .= $inhandle->getline;
     chomp;
   }
-  s/\\$// if(/\\\\$/); # reduce escaped backslash to a simple backslash
 
   # Trim leading and trailing whitespace and remove tabs
   s/^\s*(.*?)\s*$/$1/;
   s/\t/ /g;
+
+  # Reduce escaped backslash to a simple backslash
+  s/\\\\$/\\/; 
 
   # Echo the line
   $out .= ">>>> $_\n";
@@ -637,32 +636,27 @@ sub parse_line {
       # Did we run out of input?
       unless (defined $line) {
         $out .= "Reached EOF without seeing tag $tag!\n";
+        # XXX Better return value is needed here.
         return $out;
       }
       chomp $line;
 
       $log->message(90, "info", "grabbed line $line");
 
-      # Merge lines ending in backslashes, ignoring trailing white space, UNLESS they are escaped as a double-backslash
-      while ( ($line =~ /\\\s*$/) && ($line !~ /\\\\\s*$/) ) {
-        $line =~ s/\\\s*$/ /;
+      # If a line ends in a single backslash, merge the following line.
+      while ( ($line =~ /\\$/) && ($line !~ /\\\\$/) ) {
+        $line =~ s/\\$/ /;
         $line .= $inhandle->getline;
         chomp $line;
       }
-      $line =~ s/\\$// if($line =~ /\\\\$/); # reduce escaped backslash to a simple backslash
+      # Change a trailing, escaped backslash to a simple backslash
+      $line =~ s/\\\\$/\\/; 
 
       # Did we find the tag?
       if ($line eq $tag) {
         $out .= ">>>> Found tag $tag.\n";
         last;
       }
-
-      # NO LONGER process leading dashes in here documents (now done only for message_footer and message_fronter)
-      # dash space         --> remove dash
-      # doubled up         --> remove one dash
-      # single dash        --> empty line
-      # dash anything else --> don't change
-      # $line =~ s/^-([\s-]|$)/$1/;
 
       # XXX ? # Here warn if this looks like a command followed by another TAG.
 
@@ -716,8 +710,10 @@ sub parse_args {
   my ($request, $args, $arglist, $attachh) = @_;
   my ($k, $arguments, @splitargs);
   my ($hereargs, @argnames, $argname);
+  my $log = new Log::In 250;
 
   $hereargs  = function_prop($request->{'command'}, 'hereargs');
+  $args =~ s/\s+$//;
   $request->{$hereargs} = [] if $hereargs;
   $arguments = function_prop($request->{'command'}, 'arguments');
   if (defined $arguments) {
