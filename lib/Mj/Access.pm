@@ -720,7 +720,14 @@ FINISH:
     ($ok, $deffile, $text, $fileinfo, $temp) =
       $self->$func($arg, $data, \%args);
     $allow = $ok if defined $ok;
-    $mess .= $text if defined $text;
+    if (defined $text) {
+      if ($text eq 'NONE') {
+        $mess = $text;
+      }
+      elsif (defined $mess and $mess ne 'NONE') {
+        $mess .= $text;
+      }
+    }
     push @temps, $temp if defined $temp;
   }
 
@@ -732,7 +739,7 @@ FINISH:
 
   # If there is no reply message,
   # reply with the default file for the last final action.
-  if (!$mess && $deffile) {
+  if (!$mess and $deffile) {
     (undef, undef, $mess, $fileinfo) =
       $self->_a_replyfile($deffile, $data, \%args);
   }
@@ -762,7 +769,7 @@ FINISH:
         'REQUESTER' => "$requester",
 	'VICTIM'  => "$victim",
        },
-      ) if (defined $mess and length $mess);
+      ) if (defined $mess and length $mess and $mess ne 'NONE');
 
   # Remove temporary files created by the action routines.
   for $i (@temps) {
@@ -1161,7 +1168,7 @@ sub _a_reply {
 
   # Return an empty message if passed 'NONE'; this means something to the
   # 'post' request.
-  return (undef, undef, '') if $arg eq 'NONE';
+  return (undef, undef, 'NONE') if $arg eq 'NONE';
 
   $arg =~ s/^\"(.*)\"$/$1/;
   return (undef, undef, "$arg\n");
@@ -1175,7 +1182,7 @@ sub _a_replyfile {
 
   # Given 'NONE', return an empty message.  This means something to the
   # 'post' request.
-  return (undef, undef, '') if $arg eq 'NONE';
+  return (undef, undef, 'NONE') if $arg eq 'NONE';
 
   # Retrieve the file, but don't fail
   ($file, %file) = $self->_list_file_get(list   => $td->{'list'},
