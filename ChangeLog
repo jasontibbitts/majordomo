@@ -1,3 +1,61 @@
+2001-09-12  Michael Yount <csf@moscow.com>
+
+	* Makefile.PL:  List the Text::Reflow and Time::HiRes modules
+	as optional modules.  Comment out DBI and DBD::Pg.
+
+	* lib/Majordomo.pm:  (legal_list_name)  Untaint and return
+	the list name.  This is useful for cleansing new list names
+	for the createlist command.
+	(_changeaddr)  Bugfix:  do not allow the change if the two
+	addresses are aliases.
+	(_createlist)  Support the "rename" command mode.
+	(_digest)  Improve error checking.  Add support for
+	comma-separated lists of digests.  Add support for the
+	"repeat" command mode, which allows more than one issue
+	of a digest to be delivered with one command.
+	(_set)  Bugfix:  make certain at least one message is
+	waiting before issuing a partial digest.
+	(trigger)  Use the digest-check-repeat command to allow
+	more than one issue to be delivered with one trigger.
+
+	* lib/Mj/CommandProps.pm:  Support the accept-intact,
+	createlist-rename, digest-repeat, and post-intact commands.
+
+	* lib/Mj/Config.pm:  (parse_digests)  Set the default value
+	of the "separate" field to 900 (15 minutes).  Validate the
+	digest type.
+
+	* lib/Mj/Digest.pm:  (examine)  Take a list of digests
+	as an argument. 
+
+	* lib/Mj/Format.pm:  (set)  Bugfix:  make certain at least
+	one message is waiting before indicating that a partial digest
+	was mailed.
+
+	* lib/Mj/List.pm:  (aux_rekey)  Bugfix:  determine the 
+	number of verified/repaired addresses after the databases
+	have been examined.
+	(rename_archive)  New routine.  Change the names of all
+	of the archive files to reflect the current list name.
+	This is used by the createlist-rename command.
+
+	* lib/Mj/Parser.pm:  (parse_entity)  Unlink a converted
+	HTML body part after the commands have been processed.
+
+	* lib/Mj/Resend.pm:  (_post)  Support the "intact" mode,
+	which causes message alterations by the attachment rules
+	to be avoided.
+	(_format_text)  Make use of Mj::Util::reflow_plain() if the
+	Text::Reflow module is available.
+	(_add_fters)  Only add f'ters to a multipart message if the
+	subtype is "mixed."
+
+	* lib/Mj/Util.pm:  (enriched_to_hyper, plain_to_hyper)  Bugfix:
+	convert special characters into HTML entities.
+	(reflow_plain)  New routine. Make use of the Text::Reflow module to 
+	reformat unindented paragraphs containing long lines, with
+	comment continuation.
+
 2001-09-03  Michael Yount <csf@moscow.com>
 
 	* Makefile.PL:  Require the HTML::FormatText and

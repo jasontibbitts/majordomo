@@ -252,6 +252,7 @@ my %commands =
                                    %generic_modes,
                                    'archive'     => 1,
                                    'hide'        => 1,
+                                   'intact'      => 1,
                                   },
                    'tokendata' => {'arg1' => 'tokens'},
                   },
@@ -352,7 +353,7 @@ my %commands =
                    'arguments' => {'newlist'   => {'type' => 'SCALAR',
                                                    'exclude' => 'regen'},
                                    'newpasswd' => {'type' => 'SCALAR',
-                                                   'include' => 'pass'},
+                                                   'include' => 'pass|rename'},
                                    'owners'   =>  {'type' => 'ARRAYELEM'}
                                   },
                    'hereargs'  => 'owners',
@@ -366,6 +367,7 @@ my %commands =
                                    'nowelcome'   => 1,
                                    'pass'        => 1,
                                    'regen'       => 1,
+                                   'rename'      => 1,
                                   },
                    'tokendata' => {'arg2' => 'owners',
                                    'arg1' => 'newlist',
@@ -388,6 +390,7 @@ my %commands =
                                    'check'       => 1,
                                    'force'       => 1,
                                    'incvol'      => 1,
+                                   'repeat'      => 1,
                                    'status'      => 1,
                                   },
                    'tokendata' => {'arg1' => 'args'}
@@ -562,6 +565,7 @@ my %commands =
                                    'addhdr'      => 1,
                                    'archive'     => 1,
                                    'hide'        => 1,
+                                   'intact'      => 1,
                                   },
                    'tokendata' => { 'arg1'   => 'file',
                                     'arg3'   => 'vars',}
