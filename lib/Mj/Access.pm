@@ -476,11 +476,13 @@ sub list_access_check {
   $args{'sublist'}         = $sublist;
 
   # Add some chunks of the address to the set of matchable variables
-  $victim->strip =~ /.*\@(.*)$/;
-  $args{'host'}     = $1;
-  $args{'addr'}     = $victim->strip;
-  $args{'fulladdr'} = $victim->full;
-  $args{'mode'}     = $mode;
+  unless ($args{'regexp'}) {
+    $victim->strip =~ /.*\@(.*)$/;
+    $args{'host'}     = $1;
+    $args{'addr'}     = $victim->strip;
+    $args{'fulladdr'} = $victim->full;
+  }
+  $args{'mode'}  = $mode;
   $args{'delay'} = $data->{'delay'};
 
   # Figure out if $requester and $victim are the same
