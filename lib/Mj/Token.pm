@@ -347,7 +347,7 @@ sub confirm {
         			      );
 
   $repl = {
-           $self->standard_subs($list),
+           $self->standard_subs($args{'list'}),
            'TOKEN'      => $realtoken,
            'URL'        => $url,
            'EXPIRE'     => $expire_days,
