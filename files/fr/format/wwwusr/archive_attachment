@@ -3,7 +3,7 @@
 [Volet $PART $CONTENT_TYPE ($SIZE kilo octets)]<br>
 
   <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PART&func=archive-get-part" target="_part">
-    (Voir dans une fen&ecirc;tre s&eacute;par&eacute;e ou
-    t&eacute;l&eacute;charger)
+    (Voir dans une fenêtre séparée ou
+    télécharger)
   </a>
 </p>

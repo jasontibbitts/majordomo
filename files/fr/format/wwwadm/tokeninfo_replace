@@ -1,5 +1,5 @@
 <!-- Majordomo tokeninfo_replace format file -->
 <pre>
-  Le volet $PART du contenu du ticket $TOKEN a &eacute;t&eacute;
-  modifi&eacute;.
+  Le volet $PART du contenu du ticket $TOKEN a été
+  modifié.
 </pre>

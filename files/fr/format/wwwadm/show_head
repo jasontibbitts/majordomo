@@ -4,10 +4,10 @@
       Adresse de la boîte aux lettres : $STRIPADDR
       Commentaire de l'adresse : ?COMMENT
     L'adresse se transforme en: ?XFORM
-    Adresse alias&eacute;e &agrave;:         ?ALIAS
+    Adresse aliasée à:         ?ALIAS
     Alias vers cette adresse : ?ALIASES
-    Enregistr&eacute;e comme          ?FULLADDR
-    Enregistr&eacute;e le             ?REGTIME
+    Enregistrée comme          ?FULLADDR
+    Enregistrée le             ?REGTIME
     Dernier changement         ?RCHANGETIME
     Administrateur de          ?OWNERSHIPS liste
-    Abonn&eacute; &agrave;                   ?COUNT listes
+    Abonné à                   ?COUNT listes

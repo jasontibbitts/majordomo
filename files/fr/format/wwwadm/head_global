@@ -3,6 +3,7 @@
 <!-- Majordomo head_global format file -->
 <html><head>
   <title>Administration de $LIST : $COMMAND</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15">
 </head>
 <body>
 
@@ -17,13 +18,13 @@
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=logout">
      <font size="-1" color="#f0f0f0">
-     D&eacute;connexion</font></a>
+     Déconnexion</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&amp;list=ALL&amp;func=showtokens">
      <font size="-1" color="#f0f0f0">
-     Mod&eacute;ration</font></a>
+     Modération</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
@@ -41,13 +42,13 @@
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&amp;list=DEFAULT&amp;func=configshow-categories">
      <font size="-1" color="#f0f0f0">
-     D&eacute;fauts</font></a>
+     Défauts</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=newlist">
      <font size="-1" color="#f0f0f0">
-     Cr&eacute;ation de Liste</font></a>
+     Création de Liste</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">

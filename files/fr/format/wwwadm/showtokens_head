@@ -1,17 +1,17 @@
 <!-- Majordomo showtokens_head format file -->
-<h4 align="center">Requ&ecirc;tes disponibles pour
-  mod&eacute;ration</h4>
+<h4 align="center">Requêtes disponibles pour
+  modération</h4>
 
 <p>
-Choisissez une ou plusieurs requ&ecirc;tes dans cette liste en cochant
-leur case associ&eacute;e, cliquez ensuite sur l'un des boutons.
+Choisissez une ou plusieurs requêtes dans cette liste en cochant
+leur case associée, cliquez ensuite sur l'un des boutons.
 [<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=welcome_showtokens">aide</a>]
 </p>
 
 <p>
-Cliquez sur un num&eacute;ro de <b>ticket</b> pour afficher les
-informations le concernant dans une fen&ecirc;tre
-s&eacute;par&eacute;e.
+Cliquez sur un numéro de <b>ticket</b> pour afficher les
+informations le concernant dans une fenêtre
+séparée.
 </p>
 
 <form method="POST" action="$CGIURL">
@@ -28,7 +28,7 @@ s&eacute;par&eacute;e.
 <table width="100%">
 <tr>
   <th>Ticket</th>
-  <th>Requ&ecirc;te</th>
+  <th>Requête</th>
   <th>Type</th>
   <th>Date</th>
   <th>Adresse</th>

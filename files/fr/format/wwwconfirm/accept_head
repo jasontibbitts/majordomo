@@ -1,6 +1,6 @@
 <!-- Majordomo accept_head format file -->
 <p>
-Le ticket $TOKEN a &eacute;t&eacute; accept&eacute; pour la
+Le ticket $TOKEN a été accepté pour la
 commande&nbsp;:
 </p>
 <table>
@@ -19,7 +19,7 @@ commande&nbsp;:
 </table>
 
 <p>
-Le r&eacute;sultat de la commande est&nbsp;:
+Le résultat de la commande est&nbsp;:
 </p>
 
 <pre>

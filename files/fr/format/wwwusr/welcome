@@ -2,9 +2,9 @@
 <pre>?ERROR</pre>
 
 <p>
-Bienvenue sur $SITE.  Les liens en ent&ecirc;te et pied de page vous
+Bienvenue sur $SITE.  Les liens en entête et pied de page vous
 aideront a participer ou quitter des listes de diffusions
-&eacute;lectroniques. Vous pouvez retourner a ce message
+électroniques. Vous pouvez retourner a ce message
 d'introduction en cliquant sur <b>Aide</b>.
 </p>
 
@@ -12,33 +12,33 @@ d'introduction en cliquant sur <b>Aide</b>.
 <tr>
   <td valign="top">Connexion</td>
   <td>
-    Si vous d&eacute;sirez vous abonner a une liste ou changer vos
-    param&egrave;tres, vous aurez besoin de vous connecter avec votre
+    Si vous désirez vous abonner a une liste ou changer vos
+    paramètres, vous aurez besoin de vous connecter avec votre
     adresse email, et un mot de passe si Majordomo vous en a
-    d&eacute;j&agrave; affect&eacute; un.  Cliquez sur
+    déjà affecté un.  Cliquez sur
     <b>Connexion</b> et suivez les instructions.
   </td>
 </tr>
 
 <tr>
-  <td valign="top">D&eacute;connexion</td>
+  <td valign="top">Déconnexion</td>
   <td>
-    Lorsque vous avez termin&eacute; votre session, cliquez sur
-    <b>D&eacute;connexion</b>.
+    Lorsque vous avez terminé votre session, cliquez sur
+    <b>Déconnexion</b>.
   </td>
 </tr>
 
 <tr>
-  <td valign="top">S'abonner<br>&agrave; une liste</td>
+  <td valign="top">S'abonner<br>à une liste</td>
   <td>
-    Si vous cliquez sur <b>S'abonner &agrave; une liste</b>, vous
+    Si vous cliquez sur <b>S'abonner à une liste</b>, vous
     aurez la liste des listes publiques de $SITE. En cliquant sur l'un
-    de leurs noms, vous aurez plus de d&eacute;tails sur une liste.
+    de leurs noms, vous aurez plus de détails sur une liste.
     Vous pouvez vous abonner a une liste en utilisant le formulaire en
     bas des pages.
     <p>
-    Si vous connaissez d&eacute;j&agrave; le nom de la liste a
-    laquelle vous d&eacute;sirez vous abonner, vous pouvez aller
+    Si vous connaissez déjà le nom de la liste a
+    laquelle vous désirez vous abonner, vous pouvez aller
     directement a sa page. Entrez le nom de la liste dans le champ
     <b>Liste</b>, cliquez ensuite sur le bouton <b>Recherche</b>
 
@@ -53,20 +53,20 @@ d'introduction en cliquant sur <b>Aide</b>.
     </form>
 
     Vous pouvez aussi utiliser un motif pour chercher dans la liste
-    des listes. R&eacute;f&eacute;rez vous a la page d'aide
-    $HELP:PATTERNS pour plus de d&eacute;tails sur les motifs de
+    des listes. Référez vous a la page d'aide
+    $HELP:PATTERNS pour plus de détails sur les motifs de
     Majordomo.
   </td>
 </tr>
 
 <tr>
-  <td valign="top">Se d&eacute;sabonner ou<br>modifier ses param&egrave;tres</td>
+  <td valign="top">Se désabonner ou<br>modifier ses paramètres</td>
   <td>
-    Si vous &ecirc;tes d&eacute;j&agrave; abonn&eacute; a une liste de
-    $DOMAIN, vous pouvez vous d&eacute;sabonner, supprimer votre
-    adresse du site, ou modifier vos param&egrave;tres d'abonnement.
-    Cliquez sur <b>Se d&eacute;sabonner ou modifier ses
-      param&egrave;tres</b> pour voir vos abonnements. <b>Un mot de
+    Si vous êtes déjà abonné a une liste de
+    $DOMAIN, vous pouvez vous désabonner, supprimer votre
+    adresse du site, ou modifier vos paramètres d'abonnement.
+    Cliquez sur <b>Se désabonner ou modifier ses
+      paramètres</b> pour voir vos abonnements. <b>Un mot de
       passe valide est requis</b>.
   </td>
 </tr>
@@ -74,15 +74,15 @@ d'introduction en cliquant sur <b>Aide</b>.
 <tr>
   <td valign="top">Aide</td>
   <td>
-    Majordomo a plus de 100 documents d'aides li&eacute;s. Ils
-    d&eacute;crivent comment envoyer des commandes par email &agrave;
-    Majordomo &agrave;
+    Majordomo a plus de 100 documents d'aides liés. Ils
+    décrivent comment envoyer des commandes par email à
+    Majordomo à
     <a href="mailto:$MJ">$MJ</a>.
-    Les pages d'aides peuvent &ecirc;tre affich&eacute;e dans une
-    nouvelle fen&ecirc;tre de votre navigateur.
+    Les pages d'aides peuvent être affichée dans une
+    nouvelle fenêtre de votre navigateur.
 
     <p>
-    Pour afficher le document d'aide d'un sujet pr&eacute;cis, entrez
+    Pour afficher le document d'aide d'un sujet précis, entrez
     son nom dans le champ <b>Sujet</b>, cliquez ensuite sur le bouton
     <b>Aide</b>.
     </p>
@@ -102,11 +102,11 @@ d'introduction en cliquant sur <b>Aide</b>.
     <dl>
       <dt>$HELP:OVERVIEW</dt>
         <dd>Vous donne des exemple de commandes de base&nbsp;: comment
-        s'abonner, se d&eacute;sabonner ou modifier ses
-        param&egrave;tres.</dd>
+        s'abonner, se désabonner ou modifier ses
+        paramètres.</dd>
         
       <dt>$HELP:COMMANDS</dt>
-        <dd>Un sommaire des commandes &agrave; votre disposition.</dd>
+        <dd>Un sommaire des commandes à votre disposition.</dd>
 
       <dt>$HELP:LISTS</dt>
         <dd>Comment avoir la liste des listes de $DOMAIN.</dd>
@@ -115,23 +115,23 @@ d'introduction en cliquant sur <b>Aide</b>.
         <dd>Comment s'enregistrer sans s'abonner a une liste.</dd>
 
       <dt>$HELP:SET</dt>
-        <dd>Comment afficher ou modifier les param&egrave;tres de ses
+        <dd>Comment afficher ou modifier les paramètres de ses
         abonnements.</dd>
 
       <dt>$HELP:SHOW</dt>
-        <dd>Comment afficher ses diff&eacute;rents param&egrave;tres
+        <dd>Comment afficher ses différents paramètres
         d'abonnement.</dd>
 
       <dt>$HELP:SUBSCRIBE</dt>
-        <dd>Comment s'abonner a une liste, et mettre a z&eacute;ro ses
-        param&egrave;tres en m&ecirc;me temps.</dd>
+        <dd>Comment s'abonner a une liste, et mettre a zéro ses
+        paramètres en même temps.</dd>
 
       <dt>$HELP:UNREGISTER</dt>
-        <dd>Comment se d&eacute;sabonner de partout en une seule
+        <dd>Comment se désabonner de partout en une seule
         fois.</dd>
 
       <dt>$HELP:UNSUBSCRIBE</dt>
-        <dd>Comment se d&eacute;sabonner d'une liste, sans utiliser de
+        <dd>Comment se désabonner d'une liste, sans utiliser de
         mot de passe.</dd>
 
     </dl>

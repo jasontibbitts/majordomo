@@ -1,5 +1,5 @@
 <!-- Majordomo archive_part_delete format file -->
 <pre>
-  Le volet $PART du contenu du message $MSGNO a &eacute;t&eacute;
-  supprim&eacute; des archives de la liste $LIST.
+  Le volet $PART du contenu du message $MSGNO a été
+  supprimé des archives de la liste $LIST.
 </pre>

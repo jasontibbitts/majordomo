@@ -3,6 +3,7 @@
 <!-- Majordomo head format file -->
 <html><head>
 <title>Majordomo $DOMAIN : $COMMAND</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15">
 </head>
 <body>
 
@@ -17,19 +18,19 @@
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=logout">
      <font size="-1" color="#f0f0f0">
-     D&eacute;connexion</font></a>
+     Déconnexion</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=lists-long">
      <font size="-1" color="#f0f0f0">
-     S'abonner &agrave; une liste</font></a>
+     S'abonner à une liste</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=show">
      <font size="-1" color="#f0f0f0">
-     Se d&eacute;sabonner ou modifier ses param&egrave;tres</font></a>
+     Se désabonner ou modifier ses paramètres</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">

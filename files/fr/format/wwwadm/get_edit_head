@@ -1,7 +1,7 @@
 <!-- Majordomo get_edit_head format file -->
 <form method="POST" action="$CGIURL">
 <p><b>$DESCRIPTION</b><br>
-Pour modifier ce document, &eacute;ditez le et ensuite, cliquez sur le
+Pour modifier ce document, éditez le et ensuite, cliquez sur le
 bouton
 <b>$REPLACECMD</b>.<br>
 </p>

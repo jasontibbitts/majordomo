@@ -4,10 +4,10 @@
   <input type="hidden" name="passw" value="$CMDPASS">
 
 <p>
-Chacun de vos abonnements &agrave; une m&eacute;thode de r&eacute;ception
-ainsi que 13 param&egrave;tres personnels. Le d&eacute;tail a propos de ces
-modes de r&eacute;ception et des param&egrave;tres se trouve ci dessous. Si vous modifiez
-le mode de r&eacute;ception ou un param&egrave;tre, cliquez sur le bouton <b>set</b> pour
+Chacun de vos abonnements à une méthode de réception
+ainsi que 13 paramètres personnels. Le détail a propos de ces
+modes de réception et des paramètres se trouve ci dessous. Si vous modifiez
+le mode de réception ou un paramètre, cliquez sur le bouton <b>set</b> pour
 rendre vos modifications permanentes.
 </p>
 

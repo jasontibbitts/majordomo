@@ -1,7 +1,7 @@
-Param&egrave;tres de $VICTIM sur la liste "$LIST" :
-  R&eacute;ception $CLASSDESC
-  R&eacute;glages :
+Paramètres de $VICTIM sur la liste "$LIST" :
+  Réception $CLASSDESC
+  Réglages :
     $FLAGDESC
-?PARTIAL Une compilation partielle a &eacute;t&eacute; envoy&eacute;.
-Derni&egrave;re modification $CHANGETIME
+?PARTIAL Une compilation partielle a été envoyé.
+Dernière modification $CHANGETIME
  

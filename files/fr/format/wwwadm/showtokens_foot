@@ -1,7 +1,7 @@
 <!-- Majordomo showtokens_foot format file -->
 </table>
 <p>
-Requ&ecirc;tes trouv&eacute;es&nbsp;: $COUNT<br>
+Requêtes trouvées&nbsp;: $COUNT<br>
 </p>
   <input type="submit" name="func" value="tokeninfo">
   <input type="submit" name="func" value="accept">
@@ -12,9 +12,9 @@ Requ&ecirc;tes trouv&eacute;es&nbsp;: $COUNT<br>
 </form>
 
 <p>
-Il est possible de mod&eacute;rer plus d'une liste en m&ecirc;me temps
+Il est possible de modérer plus d'une liste en même temps
 si vous avez un mot de passe administratif qui est valide pour ces
-listes. Pour mod&eacute;rer d'autres listes, tapez son nom dans la
+listes. Pour modérer d'autres listes, tapez son nom dans la
 liste et appuyez ensuite sur le bouton <b>Go</b>.
 <form method="POST" action="$CGIURL/$LIST">
   <input type="hidden" name="func" value="showtokens-delay">

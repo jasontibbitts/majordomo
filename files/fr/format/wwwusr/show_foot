@@ -9,7 +9,7 @@
 <h4 align="center">Administration de Listes</h4>
 <p>
 Les listes que vous administrez sur $DOMAIN, si il y en a, sont
-affich&eacute;es ici. Pour administrer une liste, s&eacute;lectionnez
+affichées ici. Pour administrer une liste, sélectionnez
 la liste dans le menu, et cliquez sur le bouton <b>Go</b>. Vous aurez
 alors a entrer le mot de passe administratif de la liste.
 
@@ -24,9 +24,9 @@ alors a entrer le mot de passe administratif de la liste.
 
 <h4 align="center">Autres adresses email</h4>
 <p>
-Si vous avez plus d'une adresse email, et que vous d&eacute;sirez
+Si vous avez plus d'une adresse email, et que vous désirez
 pouvoir envoyer des commandes et poster des messages depuis vos autres
-adresses, vous pouvez cr&eacute;er un $HELP:ALIAS. Entrez votre autre
+adresses, vous pouvez créer un $HELP:ALIAS. Entrez votre autre
 adresse dans le champ <b>Autre adresse</b> et cliquez sur le bouton
 <b>$HELP:ALIAS</b>. Majordomo traitera les commandes ou les messages
 que vous envoyez depuis vos alias comme si elles venaient de votre
@@ -39,7 +39,7 @@ Autre adresse&nbsp;:
   <input size="36" name="extra">
   <input type="submit" name="func" value="alias">
 <br>
-Pour supprimer un alias existant, s&eacute;lectionnez le dans le menu
+Pour supprimer un alias existant, sélectionnez le dans le menu
 et cliquez sur le bouton <b>unalias</b>.<br>
   <select name="alias">
     <option>?ALIASES</option>
@@ -50,11 +50,11 @@ et cliquez sur le bouton <b>unalias</b>.<br>
 
 <h4 align="center">Modifier votre adresse</h4>
 <p>
-Si vous d&eacute;sirez changer vos abonnements d'adresses, entrez
+Si vous désirez changer vos abonnements d'adresses, entrez
 cette adresse dans le champ <b>Nouvelle adresse</b> et cliquez sur le
 bouton <b>$HELP:CHANGEADDR</b>. Votre mot de passe continuera a
-&ecirc;tre valide pour votre nouvelle adresse. Majordomo vous enverra
-peut &ecirc;tre un message a votre nouvelle adresse vous demandant
+être valide pour votre nouvelle adresse. Majordomo vous enverra
+peut être un message a votre nouvelle adresse vous demandant
 confirmation.
 
 <form method="POST" action="$CGIURL">
@@ -73,8 +73,8 @@ Pour modifier votre mot de passe, entrez un mot de passe dans le champ
 <b>Nouveau mot de passe</b>, cliquez ensuite sur le bouton
 <b>$HELP:PASSWORD</b>. Si vous laissez le champ <b>Nouveau mot de
   passe</b> vide, Majordomo vous en choisira un. Autrement, le mot de
-passe que vous choisissez doit &ecirc;tre d'au moins $PWLENGTH
-caract&egrave;res.  Majordomo vous enverra une copie de ce mot de
+passe que vous choisissez doit être d'au moins $PWLENGTH
+caractères.  Majordomo vous enverra une copie de ce mot de
 passe a votre adresse.  Vous aurez besoin de vous reconnecter en
 utilisant votre nouveau mot de passe si vous souhaitez effectuer
 d'autres modifications dans vos abonnements.
@@ -89,11 +89,11 @@ Nouveau mot de passe&nbsp;:
 </form>
 </p>
 
-<h4 align="center">Se d&eacute;senregistrer de $SITE</h4>
+<h4 align="center">Se désenregistrer de $SITE</h4>
 <p>
-Pour vous d&eacute;senregistrer, cliquez sur le bouton
+Pour vous désenregistrer, cliquez sur le bouton
 <b>$HELP:UNREGISTER</b>. Tous vos abonnements et vos alias seront
-supprim&eacute;s, votre mot de passe sera invalid&eacute;.
+supprimés, votre mot de passe sera invalidé.
 
 <form method="POST" action="$CGIURL">
   <input type="hidden" name="user" value="$USER">
@@ -103,7 +103,7 @@ supprim&eacute;s, votre mot de passe sera invalid&eacute;.
 </p>
 
 <p>
-$FULLADDR a &eacute;t&eacute; enregistr&eacute; sur
+$FULLADDR a été enregistré sur
 $SITE 
 depuis $REGTIME.
 </p>

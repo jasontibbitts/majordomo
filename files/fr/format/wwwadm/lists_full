@@ -22,7 +22,7 @@
 </tr>
 
 <tr>
-  <td>Abonn&eacute;s</td>
+  <td>Abonnés</td>
   <td>$SUBS</td>
 </tr>
 
@@ -38,26 +38,26 @@
 </tr>
 
 <tr>
-  <td>Propri&eacute;taires de la liste</td>
+  <td>Propriétaires de la liste</td>
   <td><a href="mailto:$OWNER">$OWNER</a></td>
 </tr>
 
 <tr>
   <td valign="top">Documentation</td>
   <td><a href="$CGIURL?$CGIDATA&amp;func=faq&amp;list=$LIST">
-      Questions fr&eacute;quemment pos&eacute;es</a> 
-    (<a href="$CGIURL?$CGIDATA&amp;func=faq-edit&amp;list=$LIST">&Eacute;diter</a>)
+      Questions fréquemment posées</a> 
+    (<a href="$CGIURL?$CGIDATA&amp;func=faq-edit&amp;list=$LIST">Éditer</a>)
     <br>
 
     <a href="$CGIURL?$CGIDATA&amp;func=intro&amp;list=$LIST">
-      Introduction &agrave; la liste</a> 
-    (<a href="$CGIURL?$CGIDATA&amp;func=intro-edit&amp;list=$LIST">&Eacute;diter</a>)
+      Introduction à la liste</a> 
+    (<a href="$CGIURL?$CGIDATA&amp;func=intro-edit&amp;list=$LIST">Éditer</a>)
 
     <br>
 
     <a href="$CGIURL?$CGIDATA&amp;func=info&amp;list=$LIST">
       Message de bienvenue</a> 
-    (<a href="$CGIURL?$CGIDATA&amp;func=info-edit&amp;list=$LIST">&Eacute;diter</a>)
+    (<a href="$CGIURL?$CGIDATA&amp;func=info-edit&amp;list=$LIST">Éditer</a>)
 
     <p>
     <a href="$CGIURL?$CGIDATA&amp;func=archive-summary-reverse&amp;list=$LIST">
@@ -68,9 +68,9 @@
 
 <tr>
   <td valign=top>Abonnements</td>
-  <td>Pour ajouter un nouvel abonn&eacute;, entrez une adresse email
+  <td>Pour ajouter un nouvel abonné, entrez une adresse email
     dans le champ <b>Adresse</b>. Vous pouvez aussi ajouter le nom de
-    l'abonn&eacute; dans le champ <b>Nom</b>. Ensuite, cliquez sur le
+    l'abonné dans le champ <b>Nom</b>. Ensuite, cliquez sur le
     bouton <b>subscribe</b>.
 
     <form method="POST" action="$CGIURL">
@@ -85,14 +85,14 @@
 </tr>
 
 <tr>
-  <td>Activit&eacute; r&eacute;cente</td>
+  <td>Activité récente</td>
   <td>
     (<a href="$CGIURL?$CGIDATA&amp;func=report-full&amp;list=$LIST&amp;extra=1cd">Aujourd'hui</a>)
 
-    (<a href="$CGIURL?$CGIDATA&amp;func=report-summary&amp;list=$LIST&amp;extra=7cd">R&eacute;sum&eacute;
+    (<a href="$CGIURL?$CGIDATA&amp;func=report-summary&amp;list=$LIST&amp;extra=7cd">Résumé
       sur 7 jours</a>)
 
-    (<a href="$CGIURL?$CGIDATA&amp;func=report-summary&amp;list=$LIST&amp;extra=30cd">R&eacute;sum&eacute;
+    (<a href="$CGIURL?$CGIDATA&amp;func=report-summary&amp;list=$LIST&amp;extra=30cd">Résumé
       sur 30 jours</a>)
   </td>
 </tr>
@@ -101,8 +101,8 @@
   <td>Liste des listes</td>
   <td>
     <a href="$CGIURL?$CGIDATA&amp;func=lists-long&amp;list=$LIST">Afficher
-      toutes les listes pour lesquelles l'acc&egrave;s est autoris&eacute;.</a><br>
-    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=newlist">Cr&eacute;er,
-      renommer ou d&eacute;truire une liste.</a>
+      toutes les listes pour lesquelles l'accès est autorisé.</a><br>
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=newlist">Créer,
+      renommer ou détruire une liste.</a>
   </td>
 </tr>

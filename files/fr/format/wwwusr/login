@@ -9,7 +9,7 @@
   </td>
   <td>
     Entrez votre adresse email dans le champ a moins qu'elle soit
-    d&eacute;j&agrave; pr&eacute;sent.
+    déjà présent.
   </td>
 </tr>
 <tr>
@@ -17,9 +17,9 @@
     Mot de passe&nbsp;: <input type="password" name="passw" size="15" value="$CMDPASS">
   </td>
   <td valign="top">
-    Si vous avez d&eacute;j&agrave; un mot de passe Majordomo sur le
+    Si vous avez déjà un mot de passe Majordomo sur le
     domaine $DOMAIN, entrez le dans le champ <b>Mot de passe</b>. Il
-    n'est pas n&eacute;cessaire d'avoir un mot de passe pour s'abonner
+    n'est pas nécessaire d'avoir un mot de passe pour s'abonner
     aux listes.
   </td>
 </tr>
@@ -28,7 +28,7 @@
     <input type="radio" name="func" value="$COMMAND" checked>
       Connexion<br>
     <input type="radio" name="func" value="password-show">
-      J'ai oubli&eacute; mon mot de passe<br>
+      J'ai oublié mon mot de passe<br>
     <input type="radio" name="func" value="register">
       Enregistrer mon adresse<br>
     <input type="submit" value="Go">
@@ -36,19 +36,19 @@
   <td>
     Pour vous connecter, cliquez sur le bouton <b>Go</b>.
     <p>
-    Si vous &ecirc;tes d&eacute;j&agrave; enregistr&eacute; ou
-    abonn&eacute; a une liste de $DOMAIN, mais que vous n'avez pas
+    Si vous êtes déjà enregistré ou
+    abonné a une liste de $DOMAIN, mais que vous n'avez pas
     votre mot de passe, Majordomo peut vous envoyer votre mot de
-    passe. Cochez <b>J'ai oubli&eacute; mon mot de passe</b>, et
+    passe. Cochez <b>J'ai oublié mon mot de passe</b>, et
     cliquez ensuite sur le bouton <b>Go</b>. Un message de
-    confirmation sera peut &ecirc;tre envoy&eacute; a votre adresse.
+    confirmation sera peut être envoyé a votre adresse.
     </p>
     <p>
-    Si vous n'&ecirc;tes pas encore abonn&eacute; a une liste de
+    Si vous n'êtes pas encore abonné a une liste de
     $DOMAIN, vous pouvez vous enregistrer et obtenir un mot de passe.
     Cliquez sur le bouton <b>Enregistrer mon adresse</b>, et cliquez
     sur le bouton <b>Go</b>. Un message de confirmation sera peut
-    &ecirc;tre envoy&eacute; a votre adresse.
+    être envoyé a votre adresse.
     </p>
   </td>
 </tr>

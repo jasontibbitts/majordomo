@@ -1,6 +1,6 @@
 <!-- Majordomo tokeninfo_nosession format file -->
 <p>
-Le $DATE, $REQUESTER &agrave; fait la requ&ecirc;te suivante
+Le $DATE, $REQUESTER à fait la requête suivante
 sur $SITE:
 <blockquote>
 $CMDLINE
@@ -8,7 +8,7 @@ $CMDLINE
 </p>
 
 <form method="POST" action="$CGIURL">
-?CONSULT?WILLACK <p>Si vous d&eacute;sirez expliquer vos raisons
+?CONSULT?WILLACK <p>Si vous désirez expliquer vos raisons
 ?CONSULT?WILLACK d'$HELP:ACCEPTer ou de $HELP:REJECTer la commande,
 ?CONSULT?WILLACK entrez la ici&nbsp;:
 ?CONSULT?WILLACK <br>
@@ -21,15 +21,15 @@ $CMDLINE
       <input type="submit" name="a" value="accept">
     </td>
     <td>
-      Cliquez sur le bouton <b>accept</b> pour approuver la requ&ecirc;te.
+      Cliquez sur le bouton <b>accept</b> pour approuver la requête.
 ?ISPOST  <tr>
 ?ISPOST    <td>
 ?ISPOST      <input type="submit" name="a" value="accept-archive">
 ?ISPOST    </td>
 ?ISPOST    <td>
 ?ISPOST      Cliquez sur le bouton <b>accept-archive</b> pour
-?ISPOST      approuver la requ&ecirc;te. Le message sera stock&eacute; dans les
-?ISPOST      archives mais ne sera pas distribu&eacute; aux abonn&eacute;s.
+?ISPOST      approuver la requête. Le message sera stocké dans les
+?ISPOST      archives mais ne sera pas distribué aux abonnés.
 ?ISPOST    </td>
 ?ISPOST  <tr>
 ?ISPOST    <td>
@@ -37,7 +37,7 @@ $CMDLINE
 ?ISPOST    </td>
 ?ISPOST    <td>
 ?ISPOST      Cliquez sur le bouton <b>accept-hide</b> pour approuver
-?ISPOST      la requ&ecirc;te. Le message ne sera pas affich&eacute; dans les
+?ISPOST      la requête. Le message ne sera pas affiché dans les
 ?ISPOST      archives publiques.
 ?ISPOST    </td>
     </td>
@@ -46,8 +46,8 @@ $CMDLINE
       <input type="submit" name="a" value="reject">
     </td>
     <td>
-      Cliquez sur le bouton <b>reject</b> pour rejeter la requ&ecirc;te.
-?CONSULT?WILLACK      Une explication sera envoy&eacute;e a $VICTIM.
+      Cliquez sur le bouton <b>reject</b> pour rejeter la requête.
+?CONSULT?WILLACK      Une explication sera envoyée a $VICTIM.
     </td>
 ?CONSULT?WILLACK  <tr>
 ?CONSULT?WILLACK    <td>
@@ -55,8 +55,8 @@ $CMDLINE
 ?CONSULT?WILLACK    </td>
 ?CONSULT?WILLACK    <td>
 ?CONSULT?WILLACK      Cliquez sur le bouton <b>reject-quiet</b> pour
-?CONSULT?WILLACK      rejeter la requ&ecirc;te. Aucune explication ne sera
-?CONSULT?WILLACK      envoy&eacute;e a $VICTIM.
+?CONSULT?WILLACK      rejeter la requête. Aucune explication ne sera
+?CONSULT?WILLACK      envoyée a $VICTIM.
 ?CONSULT?WILLACK    </td>
 </table>
   
@@ -67,9 +67,9 @@ $CMDLINE
 <p>
 Pour obtenir des instructions, cliquez sur le lien <b>Introduction</b>
 en haut ou en bas de la page.<br> Pour confirmer une autre
-requ&ecirc;te, cliquez sur le lien <b>Confirmez une nouvelle
-  requ&ecirc;te</b>.<br> Pour revenir &agrave; ce document, cliquez
-sur le lien <b>Afficher les d&eacute;tails</b>.  Pour obtenir plus
-d'informations sur cette requ&ecirc;te, cliquez sur <b>Afficher tous
-  les d&eacute;tails</b>.
+requête, cliquez sur le lien <b>Confirmez une nouvelle
+  requête</b>.<br> Pour revenir à ce document, cliquez
+sur le lien <b>Afficher les détails</b>.  Pour obtenir plus
+d'informations sur cette requête, cliquez sur <b>Afficher tous
+  les détails</b>.
 <p>

@@ -1,6 +1,6 @@
 <!-- Majordomo accept format file -->
 <p>
-Le ticket $TOKEN a &eacute;t&eacute; accept&eacute; pour la commande suivante&nbsp;:
+Le ticket $TOKEN a été accepté pour la commande suivante&nbsp;:
 </p>
 <table>
 <tr>
@@ -18,11 +18,11 @@ Le ticket $TOKEN a &eacute;t&eacute; accept&eacute; pour la commande suivante&nb
 </table>
 
 <p>
-?SUCCEED La commande a r&eacute;ussi.
+?SUCCEED La commande a réussi.
 ?STALL La commande est mise en attente et peut demande une
 ?STALL approbation.
-?FAIL  La commande a &eacute;chou&eacute;e.
-?NOTIFIED <br>Le r&eacute;sultat a &eacute;t&eacute; envoy&eacute; &agrave; $VICTIM.
+?FAIL  La commande a échouée.
+?NOTIFIED <br>Le résultat a été envoyé à $VICTIM.
 </p>
 
 <pre>?ERROR</pre>

@@ -1,15 +1,15 @@
 <!-- Majordomo who_registry_head format file -->
 <p>
 Pour supprimer des adresses du registre, cochez leur case
-associ&eacute;e, et cliquez sur le bouton $HELP:UNREGISTER. Supprimer
-une adresse la d&eacute;sabonne de toutes les listes automatiquement.
+associée, et cliquez sur le bouton $HELP:UNREGISTER. Supprimer
+une adresse la désabonne de toutes les listes automatiquement.
 </p>
 
 <p>
-Cliquez sur une adresse email pour avoir les d&eacute;tails a propos
-de ses abonnements dans une autre fen&ecirc;tre en utilisant l'
+Cliquez sur une adresse email pour avoir les détails a propos
+de ses abonnements dans une autre fenêtre en utilisant l'
 <a href="$WWWUSR_URL">
-  interface WWW pour les abonn&eacute;s
+  interface WWW pour les abonnés
 </a>.
 </p>
 
@@ -25,6 +25,6 @@ de ses abonnements dans une autre fen&ecirc;tre en utilisant l'
 <table>
 <tr>
   <th>Adresse</th>
-  <th>Derni&egrave;re modification</th>
+  <th>Dernière modification</th>
   <th>Abonnements</th>
 </tr>

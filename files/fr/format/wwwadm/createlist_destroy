@@ -1,11 +1,11 @@
 <!-- Majordomo createlist_destroy format file -->
 <p>
-La liste $NEWLIST a &eacute;t&eacute; d&eacute;truite.
+La liste $NEWLIST a été détruite.
 </p>
 
 <p>
-Si cela est n&eacute;cessaire, les alias a supprimer sont
-sp&eacute;cifier ci dessous&nbsp;:
+Si cela est nécessaire, les alias a supprimer sont
+spécifier ci dessous&nbsp;:
 </p>
 
 <pre>

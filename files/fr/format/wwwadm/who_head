@@ -1,27 +1,27 @@
 <!-- Majordomo who_head format file -->
-<h4 align=center>Supprimer des adresses ou modifier leurs param&egrave;tres</h4>
+<h4 align=center>Supprimer des adresses ou modifier leurs paramètres</h4>
 
 <p>
-Pour supprimer des abonn&eacute;s de la liste, cochez la case le
+Pour supprimer des abonnés de la liste, cochez la case le
 concernant.  Pour supprimer les adresses sans rien dire, cliquez le
 bouton $HTML:UNSUBSCRIBE. Pour envoyer un message d'adieu, cliquez sur
 le bouton <b>unsubscribe-farewell</b> a la place.
 </p>
 
 <p>
-Chaque abonn&eacute; a son mode de r&eacute;ception et ses
-r&eacute;glages personnels. Pour chaque abonn&eacute; dont vous
-souhaitez modifier les r&eacute;glages, cochez la case le concernant.
-Pour modifier sa m&eacute;thode de r&eacute;ception, choisissez la
-nouvelle m&eacute;thode dans le menu qui est juste a la droite de
-l'adresse.  Pour modifier les r&eacute;glages, cochez/d&eacute;cochez
+Chaque abonné a son mode de réception et ses
+réglages personnels. Pour chaque abonné dont vous
+souhaitez modifier les réglages, cochez la case le concernant.
+Pour modifier sa méthode de réception, choisissez la
+nouvelle méthode dans le menu qui est juste a la droite de
+l'adresse.  Pour modifier les réglages, cochez/décochez
 l'une des cases qui apparaissent en dessous de l'adresse. Enfin,
 cliquez sur le bouton $HELP:SET.
 </p>
 
 <p>
-Cliquez sur l'adresse d'un abonn&eacute; pour avoir une description
-plus &eacute;tendue des r&eacute;glages de cette adresse.
+Cliquez sur l'adresse d'un abonné pour avoir une description
+plus étendue des réglages de cette adresse.
 </p>
 
 <form method="POST" action="$CGIURL">
@@ -38,6 +38,6 @@ plus &eacute;tendue des r&eacute;glages de cette adresse.
 <table border>
 <tr>
   <td colspan="7">Adresse</td>
-  <td colspan="6">M&eacute;thode de r&eacute;ception</td>
+  <td colspan="6">Méthode de réception</td>
 </tr>
 

@@ -14,7 +14,7 @@
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=logout">
      <font size="-1" color="#f0f0f0">
-     D&eacute;connexion</font></a>
+     Déconnexion</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
@@ -26,7 +26,7 @@
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=show">
      <font size="-1" color="#f0f0f0">
-     Se d&eacute;sabonner ou modifier ses param&egrave;tres</font></a>
+     Se désabonner ou modifier ses paramètres</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">

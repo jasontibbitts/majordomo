@@ -7,8 +7,8 @@
     </p>
     
     <p> 
-    La cat&eacute;gorie $CATEGORY contient les $COUNT
-    param&egrave;tres suivants&nbsp;:<br>
+    La catégorie $CATEGORY contient les $COUNT
+    paramètres suivants&nbsp;:<br>
       $SETTINGS &nbsp;
     </p>
   </dd>

@@ -20,29 +20,29 @@ bouton <b>tokeninfo-remind</b>.<br>
 
 <p>
 Cliquez sur le bouton <b>accept</b> pour approuver le message et
-l'envoyer aux abonn&eacute;s de la liste $LIST.
+l'envoyer aux abonnés de la liste $LIST.
 </p>
 
 <p>
 Cliquez sur le bouton <b>accept-archive</b> pour approuver le message.
-Le message sera stock&eacute; dans les archives mais ne sera pas
-distribu&eacute; aux abonn&eacute;s.
+Le message sera stocké dans les archives mais ne sera pas
+distribué aux abonnés.
 </p>
 
 <p>
 Cliquez sur le bouton <b>accept-hide</b> Pour approuver le message et
-l'envoyer aux abonn&eacute;s de la liste $LIST. Ce message ne sera pas
-affich&eacute; dans les archives publiques.
+l'envoyer aux abonnés de la liste $LIST. Ce message ne sera pas
+affiché dans les archives publiques.
 </p>
 
 <p>
 Cliquez sur le bouton <b>reject</b> pour rejeter ce message.
-?WILLACK Une explication sera envoy&eacute;e &agrave; $VICTIM.
+?WILLACK Une explication sera envoyée à $VICTIM.
 </p>
 
 <p>
 ?WILLACK Cliquez sur le bouton <b>reject-quiet</b> pour rejeter le
-?WILLACK message. Aucune explication ne sera envoy&eacute;e &agrave;
+?WILLACK message. Aucune explication ne sera envoyée à
 ?WILLACK $VICTIM.
 </p>
 

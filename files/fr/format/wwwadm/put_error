@@ -1,6 +1,6 @@
 <!-- Majordomo put_error format file -->
 <p>
-La commande "$COMMAND" a &eacute;chou&eacute;.
+La commande "$COMMAND" a échoué.
 </p>
 
 <pre>?ERROR</pre>

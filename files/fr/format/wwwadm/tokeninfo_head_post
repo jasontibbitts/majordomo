@@ -1,7 +1,7 @@
 <!-- Majordomo tokeninfo_head_post format file -->
 <p>
-Un message a &eacute;t&eacute; post&eacute; a la liste $LIST &agrave;
-$SITE. Un r&eacute;sum&eacute; du message appara&icirc;t ci dessous.
+Un message a été posté a la liste $LIST à
+$SITE. Un résumé du message apparaît ci dessous.
 </p>
 
 <table>
@@ -13,7 +13,7 @@ $SITE. Un r&eacute;sum&eacute; du message appara&icirc;t ci dessous.
 
 <p>
 <form method="POST" action="$CGIURL">
-?WILLACK Si vous d&eacute;sirez expliquer vos raisons d'$HELP:ACCEPTer
+?WILLACK Si vous désirez expliquer vos raisons d'$HELP:ACCEPTer
 ?WILLACK ou de $HELP:REJECTer la commande, entrez la ici&nbsp;:
 ?WILLACK <textarea rows="4" cols="70" name="xplanation">
 ?WILLACK </textarea>
@@ -33,9 +33,9 @@ $SITE. Un r&eacute;sum&eacute; du message appara&icirc;t ci dessous.
 
 <p>
 <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$TOKEN%200&amp;func=tokeninfo-part" target="_part">
-  (Afficher le message complet dans une fen&ecirc;tre s&eacute;par&eacute;e)
+  (Afficher le message complet dans une fenêtre séparée)
 </a><br>
 <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$TOKEN%200&amp;func=tokeninfo-part-edit">
-  (&Eacute;diter le message complet)
+  (Éditer le message complet)
 </a>
 </p>

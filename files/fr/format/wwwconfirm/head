@@ -3,6 +3,7 @@
 <!-- Majordomo head format file -->
 <html><head>
   <title>Interface de confirmation de Majordomo 2</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15">
 </head>
 <body>
 
@@ -18,21 +19,21 @@
   <td align="center" bgcolor="#706060">
   <a href="$CGIURL?$CGIDATA&a=login&t=$TOKEN">
   <font color="#f0f0f0">
-    Confirmez une nouvelle requ&ecirc;te
+    Confirmez une nouvelle requête
   </font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
   <a href="$CGIURL?$CGIDATA&a=tokeninfo-nosession&t=$TOKEN">
   <font color="#f0f0f0">
-    Afficher les d&eacute;tails
+    Afficher les détails
   </font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
   <a href="$CGIURL?$CGIDATA&a=tokeninfo&t=$TOKEN">
   <font color="#f0f0f0">
-    Afficher <b>tous</b> les d&eacute;tails
+    Afficher <b>tous</b> les détails
   </font></a>
   </td>
 
@@ -41,5 +42,5 @@
 
 <p align="center">
     <font size=+1>$SITE</font><br>
-    Confirmation de requ&ecirc;te
+    Confirmation de requête
 </p>

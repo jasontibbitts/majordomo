@@ -1,21 +1,21 @@
 <!-- Majordomo who_foot format file -->
-<tr><td colspan="13">Adresses trouv&eacute;es&nbsp;: $COUNT </td></tr>
+<tr><td colspan="13">Adresses trouvées&nbsp;: $COUNT </td></tr>
 </table>
   <input type="submit" name="func" value="unsubscribe">
   <input type="submit" name="func" value="unsubscribe-farewell">
   <input type="submit" name="func" value="set">
 </form>
-<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;extra=$PATTERN&amp;start=?PREVIOUS&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses pr&eacute;c&eacute;dentes</a><br>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;extra=$PATTERN&amp;start=?PREVIOUS&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses précédentes</a><br>
 <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;extra=$PATTERN&amp;start=?NEXT&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses suivantes</a>
 
-<h4 align=center>cherchez la liste des abonn&eacute;s</h4>
+<h4 align=center>cherchez la liste des abonnés</h4>
 
 <ol>
-  <li>Choisissez l'une des m&eacute;thodes de recherche en cliquant le
-  bouton appropri&eacute;.</li>
+  <li>Choisissez l'une des méthodes de recherche en cliquant le
+  bouton approprié.</li>
   <li>Entrez le motif de recherche dans le champ <b>Motif de
-    recherche</b>. (r&eacute;f&eacute;rez vous au document d'aide
-  $HELP:PATTERNS pour apprendre a &eacute;crire des motifs de
+    recherche</b>. (référez vous au document d'aide
+  $HELP:PATTERNS pour apprendre a écrire des motifs de
   recherche.)
   <li>Entrez le nombre d'adresses que vous voulez voir afficher par
   pages dans le champ <b>Nombre d'adresses</b>.</li>
@@ -28,11 +28,11 @@
   <input type="hidden" name="user" value="$USER">
 
   <input type="radio" name="func" value="who" checked>
-  Recherchez la liste des abonn&eacute;s &agrave; $LIST 
+  Recherchez la liste des abonnés à $LIST 
     (en utilisant la commande $HELP:WHO)<br>
 
   <input type="radio" name="func" value="who-bounce">
-  Recherchez dans la liste des erreurs des abonn&eacute;s a $LIST.
+  Recherchez dans la liste des erreurs des abonnés a $LIST.
     (en utilisant la commande $HELP:WHO-bounce)<br>
 
   <input type="radio" name="func" value="which">
@@ -45,19 +45,19 @@ Nombre d'adresses&nbsp;:
   <input type="submit" value="search">
 </form>
 
-<h4 align=center>Ajouter ou supprimer des abonn&eacute;s</h4>
+<h4 align=center>Ajouter ou supprimer des abonnés</h4>
 
 <ol>
-  <li>Choisir l'une des m&eacute;thodes d'ajout/suppression en
-  s&eacute;lectionnant le bouton appropri&eacute;.</li>
+  <li>Choisir l'une des méthodes d'ajout/suppression en
+  sélectionnant le bouton approprié.</li>
   <li>Entrez les adresses dans le champ, une par ligne.</li>
-  <li>Si vous ajoutez des adresses, choisissez les param&egrave;tres
+  <li>Si vous ajoutez des adresses, choisissez les paramètres
   personnels pour ces adresses, ainsi que leur mode de
-  r&eacute;ceptions.  (R&eacute;f&eacute;rez vous au document d'aide
-  $HELP:SET pour plus de d&eacute;tails sur les modes de
-  r&eacute;ceptions ainsi que les autres param&egrave;tres.)</li>
+  réceptions.  (Référez vous au document d'aide
+  $HELP:SET pour plus de détails sur les modes de
+  réceptions ainsi que les autres paramètres.)</li>
   <li>Cliquez sur le bouton <b>Ajouter ou supprimer des
-    abonn&eacute;s</b>.</li>
+    abonnés</b>.</li>
 </ol>
 
 <form method="POST" action="$CGIURL">
@@ -66,19 +66,19 @@ Nombre d'adresses&nbsp;:
   <input type="hidden" name="user" value="$USER">
   
   <input type="radio" name="func" value="subscribe-set-welcome" checked> 
-  Ajouter des abonn&eacute;s a la liste $LIST. Leur envoyer un message
+  Ajouter des abonnés a la liste $LIST. Leur envoyer un message
   de bienvenue.<br>
 
   <input type="radio" name="func" value="subscribe-set-nowelcome"> 
-  Ajouter des abonn&eacute;s a la liste $LIST. <b>Ne pas</b> leur
+  Ajouter des abonnés a la liste $LIST. <b>Ne pas</b> leur
   envoyer un message de bienvenue.<br>
 
   <input type="radio" name="func" value="unsubscribe-farewell"> 
-  Supprimer des abonn&eacute;s de la liste $LIST. Leur envoyer un
+  Supprimer des abonnés de la liste $LIST. Leur envoyer un
   message d'adieu.<br>
 
   <input type="radio" name="func" value="unsubscribe"> 
-  Supprimer des abonn&eacute;s de la liste $LIST. <b>Ne pas</b> leur
+  Supprimer des abonnés de la liste $LIST. <b>Ne pas</b> leur
   envoyer un message d'adieu.<br>
 
   <textarea name="victims" rows="8" cols="70">
@@ -86,7 +86,7 @@ Nombre d'adresses&nbsp;:
 
   <p>
 
-R&eacute;glages pour les nouveaux abonn&eacute;s&nbsp;:
+Réglages pour les nouveaux abonnés&nbsp;:
   <table>
   <tr>
     <td><small>$SETTINGS</small></td>
@@ -96,11 +96,11 @@ R&eacute;glages pour les nouveaux abonn&eacute;s&nbsp;:
   </tr>
   </table>
 
-  Mode de r&eacute;ception&nbsp;: 
+  Mode de réception&nbsp;: 
   <select name="setting">
     <option value="$CLASSES" $CLASS_SELECTED>$CLASSES: $CLASS_DESCRIPTIONS</small>
   </select>
 
-  <input type="submit" value="Ajouter ou supprimer des abonn&eacute;s">
+  <input type="submit" value="Ajouter ou supprimer des abonnés">
 </form>
 

@@ -1,30 +1,30 @@
 <!-- Majordomo configshow_head format file -->
-<h4 align=center>Param&egrave;tres de configuration</h4>
+<h4 align=center>Paramètres de configuration</h4>
 
 <p>
-Cochez la case &agrave; c&ocirc;t&eacute; de chaque param&egrave;tre que
-vous souhaitez modifier ou &eacute;tudier, ensuite, pressez l'un des
+Cochez la case à côté de chaque paramètre que
+vous souhaitez modifier ou étudier, ensuite, pressez l'un des
 trois boutons.
 </p>
 <ul>
-  <li>Pour acc&eacute;der &agrave; la page d'aide des
-  param&egrave;tres, cliquez sur le bouton <b>help</b>.</li>
-  <li>Pour remettre les param&egrave;tres a leur valeur par
-  d&eacute;faut, cliquez sur le bouton <b>configdef</b>.</li>
-  <li>Pour changer les valeurs des param&egrave;tres que vous avez
+  <li>Pour accéder à la page d'aide des
+  paramètres, cliquez sur le bouton <b>help</b>.</li>
+  <li>Pour remettre les paramètres a leur valeur par
+  défaut, cliquez sur le bouton <b>configdef</b>.</li>
+  <li>Pour changer les valeurs des paramètres que vous avez
   choisis, modifiez la valeur et cliquez ensuite sur
   <b>configset</b>.</li>
 </ul>
 <p>
 Il y a 5 niveaux de mots de passe administratifs. Pour modifier un
-param&egrave;tre, il vous faut un niveau minimum.
-r&eacute;f&eacute;rez vous &agrave; la page :
+paramètre, il vous faut un niveau minimum.
+référez vous à la page :
 $HELP:ADMIN_PASSWORDS
-pour plus de d&eacute;tails.
+pour plus de détails.
 </p>
 <p>
-Cliquer sur le nom d'un param&egrave;tre vous ouvrira l'aide dans une
-nouvelle fen&ecirc;tre.
+Cliquer sur le nom d'un paramètre vous ouvrira l'aide dans une
+nouvelle fenêtre.
 </p>
 <form method="POST" action="$CGIURL">
   <input type="hidden" name="list" value="$LIST">

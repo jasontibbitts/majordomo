@@ -1,26 +1,26 @@
 <!-- Majordomo configshow_categories_head format file -->
 
-<h4 align=center>Cat&eacute;gories de configurations</h4>
+<h4 align=center>Catégories de configurations</h4>
 
 <p>
-Les param&egrave;tres de configuration sont s&eacute;par&eacute;s en
-plusieurs cat&eacute;gories.  Cochez les cases des cat&eacute;gories
-que vous voulez &eacute;diter, ensuite, pressez le bouton
-<b>configshow</b> pour visionner les par-am&egrave;res de ces
-cat&eacute;gories.
+Les paramètres de configuration sont séparés en
+plusieurs catégories.  Cochez les cases des catégories
+que vous voulez éditer, ensuite, pressez le bouton
+<b>configshow</b> pour visionner les par-amères de ces
+catégories.
 </p>
 
 <p>
-Pour voir tous les param&egrave;tres de configuration, laissez toutes
-les cases d&eacute;coch&eacute;es, et appuyez sur le bouton
+Pour voir tous les paramètres de configuration, laissez toutes
+les cases décochées, et appuyez sur le bouton
 <b>configshow</b>.
 </p>
 
 <p>
-Si votre liste n'est pas encore configur&eacute;e, nous vous
+Si votre liste n'est pas encore configurée, nous vous
 recommandons de commencer par
 <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=configshow&amp;extra=1">
-  configurer les param&egrave;tres les plus importants
+  configurer les paramètres les plus importants
 </a>.
 </p>
 

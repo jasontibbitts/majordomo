@@ -3,9 +3,9 @@
 
 <p>
 Bienvenue sur $SITE.
-Les liens en ent&ecirc;te et pied de page vous permettent de
-g&eacute;rer une ou plusieurs de vos listes. Vous pouvez revenir sur
-cette page en s&eacute;lectionnant <b>Aide</b>.
+Les liens en entête et pied de page vous permettent de
+gérer une ou plusieurs de vos listes. Vous pouvez revenir sur
+cette page en sélectionnant <b>Aide</b>.
 </p>
 
 <table cellspacing="15" width="100%">
@@ -13,52 +13,52 @@ cette page en s&eacute;lectionnant <b>Aide</b>.
   <td valign="top">Connexion</td>
   <td>
 
-    Si vous en avez fini avec la liste $LIST et que d&eacute;sirez
+    Si vous en avez fini avec la liste $LIST et que désirez
     administrer une autre liste, Cliquez sur <b>Connexion</b>. Il vous
-    sera alors demand&eacute; un nouveau nom de liste et un mot de
+    sera alors demandé un nouveau nom de liste et un mot de
     passe.  Votre mot de passe temporaire pour cette session continue
-    a &ecirc;tre valide.
+    a être valide.
 
   </td>
 </tr>
 <tr>
-  <td valign="top">D&eacute;connexion</td>
+  <td valign="top">Déconnexion</td>
   <td>
 
     Si vous en avez fini avec l'administration de la liste $LIST et
-    que vous d&eacute;sirez terminer votre session, cliquez sur
-    <b>D&eacute;connexion</b>.  Votre mot de passe temporaire de
+    que vous désirez terminer votre session, cliquez sur
+    <b>Déconnexion</b>.  Votre mot de passe temporaire de
     session deviendra invalide.
 
   </td>
 </tr>
 <tr>
-  <td valign="top">Mod&eacute;ration</td>
+  <td valign="top">Modération</td>
   <td>
 
-    De temps a autres, des messages post&eacute;s, des abonnements ou
-    d'autres requ&ecirc;tes n&eacute;cessiteront votre approbation
-    avant d'&ecirc;tre compl&egrave;tes.  Cliquez sur
-    <b>Mod&eacute;ration</b> pour voir toutes les diff&eacute;rentes
-    requ&ecirc;tes en cours pour vos listes. Les requ&ecirc;tes
-    libell&eacute;es <b>consult</b> ont besoin de votre attention,
-    alors que celles libell&eacute;es <b>confirm</b>
-    n&eacute;cessitent l'attention des personnes qui les ont
-    effectu&eacute;es. Les requ&ecirc;tes libell&eacute;es
-    <b>delay</b> seront effectu&eacute;es automatiquement, plus tard.
+    De temps a autres, des messages postés, des abonnements ou
+    d'autres requêtes nécessiteront votre approbation
+    avant d'être complètes.  Cliquez sur
+    <b>Modération</b> pour voir toutes les différentes
+    requêtes en cours pour vos listes. Les requêtes
+    libellées <b>consult</b> ont besoin de votre attention,
+    alors que celles libellées <b>confirm</b>
+    nécessitent l'attention des personnes qui les ont
+    effectuées. Les requêtes libellées
+    <b>delay</b> seront effectuées automatiquement, plus tard.
 [<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=welcome&amp;doc=showtokens">plus</a>]
 
   </td>
 </tr>
 <tr>
-  <td valign="top">Abonn&eacute;s</td>
+  <td valign="top">Abonnés</td>
   <td>
 
-    Cliquez sur <b>Abonn&eacute;s</b> Pour voir les 20
-    premi&egrave;res adresses des gens qui sont abonn&eacute;s a votre
-    liste. A partir de l&agrave;, vous pouvez ajouter ou supprimer des
-    adresses, ou changer les r&eacute;glages personnels des
-    abonn&eacute;s.
+    Cliquez sur <b>Abonnés</b> Pour voir les 20
+    premières adresses des gens qui sont abonnés a votre
+    liste. A partir de là, vous pouvez ajouter ou supprimer des
+    adresses, ou changer les réglages personnels des
+    abonnés.
 
   </td>
 </tr>
@@ -66,13 +66,13 @@ cette page en s&eacute;lectionnant <b>Aide</b>.
   <td valign="top">Configuration</td>
   <td>
 
-    Majordomo a plus de 100 param&egrave;tres de configuration que
-    vous pouvez utiliser pour r&eacute;gler les performances de votre
-    liste. Pour pouvoir les contr&ocirc;ler plus facilement, ils ont
-    &eacute;t&eacute; s&eacute;par&eacute;s en plusieurs
-    cat&eacute;gories. Cliquez sur <b>Configuration</b> pour avoir la
-    liste de ces cat&eacute;gories. Vous pourrez ensuite &eacute;diter
-    et modifier ces param&egrave;tres.
+    Majordomo a plus de 100 paramètres de configuration que
+    vous pouvez utiliser pour régler les performances de votre
+    liste. Pour pouvoir les contrôler plus facilement, ils ont
+    été séparés en plusieurs
+    catégories. Cliquez sur <b>Configuration</b> pour avoir la
+    liste de ces catégories. Vous pourrez ensuite éditer
+    et modifier ces paramètres.
 
   </td>
 </tr>
@@ -81,13 +81,13 @@ cette page en s&eacute;lectionnant <b>Aide</b>.
   <td>
 
     Si votre liste est publique, cliquez sur <b>Infos Liste</b> vous
-    montrera ce qui appara&icirc;tra aux gens qui visitent l' <a
-      href="$WWWUSR_URL">interface web des abonn&eacute;s</a>.
+    montrera ce qui apparaîtra aux gens qui visitent l' <a
+      href="$WWWUSR_URL">interface web des abonnés</a>.
     <p>
-    Vous pouvez aussi &eacute;diter le message de bienvenue et
-    d'autres documents, acc&eacute;der aux statistiques des messages
-    r&eacute;cents, naviguer dans les archives, ou afficher le statut
-    des compilations gr&acirc;ce &agrave; la page <b>Infos Liste</b>.
+    Vous pouvez aussi éditer le message de bienvenue et
+    d'autres documents, accéder aux statistiques des messages
+    récents, naviguer dans les archives, ou afficher le statut
+    des compilations grâce à la page <b>Infos Liste</b>.
 
 <p>
   </td>
@@ -96,15 +96,15 @@ cette page en s&eacute;lectionnant <b>Aide</b>.
   <td valign="top">Formulaire de Commande</td>
   <td>
 
-    Bien que d'autres fonctionnalit&eacute;s de ce service WWW vous
-    permettent de r&eacute;aliser bien des t&acirc;ches communes,
-    toutes les fonctionnalit&eacute;s ne sont pas encore
-    support&eacute;es. Toutefois, le <b>Formulaire de Commande</b>
-    permet d'ex&eacute;cuter des commandes d'une mani&egrave;re qui
-    plaira aux administrateurs exp&eacute;riment&eacute;s.
+    Bien que d'autres fonctionnalités de ce service WWW vous
+    permettent de réaliser bien des tâches communes,
+    toutes les fonctionnalités ne sont pas encore
+    supportées. Toutefois, le <b>Formulaire de Commande</b>
+    permet d'exécuter des commandes d'une manière qui
+    plaira aux administrateurs expérimentés.
     <p>
     En particulier, les commandes $HELP:GET, $HELP:INDEX, et $HELP:PUT
-    ne sont support&eacute;es que via le formulaire de commande.
+    ne sont supportées que via le formulaire de commande.
 
   </td>
 </tr>
@@ -112,15 +112,15 @@ cette page en s&eacute;lectionnant <b>Aide</b>.
   <td valign="top">Aide</td>
   <td>
 
-    Majordomo a plus de 100 documents d'aides li&eacute;s. Ils
-    d&eacute;crivent comment envoyer des commandes par email &agrave;
-    Majordomo &agrave;
+    Majordomo a plus de 100 documents d'aides liés. Ils
+    décrivent comment envoyer des commandes par email à
+    Majordomo à
     <a href="mailto:$MJ">$MJ</a>.
-    Les pages d'aides peuvent &ecirc;tre affich&eacute;e dans une
-    nouvelle fen&ecirc;tre de votre navigateur.
+    Les pages d'aides peuvent être affichée dans une
+    nouvelle fenêtre de votre navigateur.
 
     <p>
-    Pour afficher le document d'aide d'un sujet pr&eacute;cis, entrez
+    Pour afficher le document d'aide d'un sujet précis, entrez
     son nom dans le champ <b>Sujet</b>, cliquez ensuite sur le bouton
     <b>Aide</b>.
     </p>
@@ -139,7 +139,7 @@ cette page en s&eacute;lectionnant <b>Aide</b>.
     <dl>
       <dt>$HELP:ADMIN</dt>
         <dd>Une introduction a l'administration de liste, incluant des
-        indices pour r&eacute;soudre des probl&egrave;mes
+        indices pour résoudre des problèmes
         communs.</dd>
 
       <dt>$HELP:ADMIN_COMMANDS</dt>
@@ -148,22 +148,22 @@ cette page en s&eacute;lectionnant <b>Aide</b>.
 
       <dt>$HELP:ADMIN_PASSWORDS (important !)</dt>
         <dd>Comment utiliser des mots de passes quand vous envoyez des
-        commandes &agrave; Majordomo.</dd>
+        commandes à Majordomo.</dd>
 
       <dt>$HELP:COMMANDS</dt>
-        <dd>Un sommaire des commandes &agrave; la disposition des
-        abonn&eacute;s.</dd>
+        <dd>Un sommaire des commandes à la disposition des
+        abonnés.</dd>
 
       <dt>$HELP:CONFIGSHOW</dt>
-        <dd>Comment voir les param&egrave;tres actuels de la
+        <dd>Comment voir les paramètres actuels de la
         liste.</dd>
 
       <dt>$HELP:CONFIGSET and $HELP:CONFIGDEF</dt>
-        <dd>Comment modifier les param&egrave;tres de la liste.</dd>
+        <dd>Comment modifier les paramètres de la liste.</dd>
 
       <dt>$HELP:SET</dt>
-        <dd>Comment modifier les r&eacute;glages personnels des
-        abonn&eacute;s de votre liste.</dd>
+        <dd>Comment modifier les réglages personnels des
+        abonnés de votre liste.</dd>
 
       <dt>$HELP:SUBSCRIBE</dt>
         <dd>Comment ajouter des gens a votre liste.</dd>
@@ -172,21 +172,21 @@ cette page en s&eacute;lectionnant <b>Aide</b>.
         <dd>Comment supprimer des gens de votre liste.</dd>
 
       <dt>$HELP:SHOWTOKENS</dt>
-        <dd>Comment avoir un sommaire des requ&ecirc;tes qui
-        n&eacute;cessitent mod&eacute;ration.</dd>
+        <dd>Comment avoir un sommaire des requêtes qui
+        nécessitent modération.</dd>
 
       <dt>$HELP:TOKENINFO</dt>
         <dd>Comment obtenir plus d'informations a propos d'une
-        requ&ecirc;te qui n&eacute;cessite mod&eacute;ration.</dd>
+        requête qui nécessite modération.</dd>
 
       <dt>$HELP:TOPICS</dt>
         <dd>Un index de tous les documents d'aide de Majordomo.</dd>
 
       <dt>$HELP:WHO</dt>
-        <dd>Comment savoir qui est abonn&eacute; a votre liste.</dd>
+        <dd>Comment savoir qui est abonné a votre liste.</dd>
 
       <dt>$HELP:MJ_WWWADM</dt>
-        <dd>D&eacute;tails techniques a propos de cette
+        <dd>Détails techniques a propos de cette
         interface.</dd>
 
     </dl>

@@ -1,13 +1,13 @@
 <!-- Majordomo tokeninfo_head format file -->
 <p>
-Le $DATE, $REQUESTER a envoy&eacute; la commande suivante &agrave; $SITE&nbsp;:
+Le $DATE, $REQUESTER a envoyé la commande suivante à $SITE&nbsp;:
 <blockquote>
 $CMDLINE
 </blockquote>
 </p>
 <p>
 <form method="POST" action="$CGIURL">
-?WILLACK Si vous d&eacute;sirez expliquer vos raisons d'$HELP:ACCEPTer
+?WILLACK Si vous désirez expliquer vos raisons d'$HELP:ACCEPTer
 ?WILLACK ou de $HELP:REJECTer la commande, entrez la ici&nbsp;:
 ?WILLACK <br>
 ?WILLACK <textarea rows="4" cols="70" name="xplanation">
@@ -20,8 +20,8 @@ $CMDLINE
     </td>
     <td>
       Cliquez sur le bouton <b>accept</b> pour approuver la commande.
-?CONSULT  Le r&eacute;sultat de la commande sera envoy&eacute;
-?CONSULT  &agrave; $VICTIM.
+?CONSULT  Le résultat de la commande sera envoyé
+?CONSULT  à $VICTIM.
     </td>
   <tr>
     <td>
@@ -29,7 +29,7 @@ $CMDLINE
     </td>
     <td>
       Cliquez sur le bouton <b>reject</b> pour rejeter la commande.
-?WILLACK Une explication sera envoy&eacute;e &agrave; $VICTIM.
+?WILLACK Une explication sera envoyée à $VICTIM.
     </td>
 ?WILLACK  <tr>
 ?WILLACK    <td>
@@ -37,7 +37,7 @@ $CMDLINE
 ?WILLACK    </td>
 ?WILLACK    <td>
 ?WILLACK      Cliquez sur le bouton <b>reject-quiet</b> pour rejeter
-?WILLACK      la commande. Aucune explication ne sera envoy&eacute;e
+?WILLACK      la commande. Aucune explication ne sera envoyée
 ?WILLACK      a $VICTIM.
 ?WILLACK    </td>
 </table>
@@ -47,7 +47,7 @@ $CMDLINE
 <input type="hidden" name="passw" value="$CMDPASS">
 </p>
 <p>
-Plus de d&eacute;tail a propos de cette commande&nbsp;
+Plus de détail a propos de cette commande&nbsp;
 <table>
   <tr><td>Ticket&nbsp;:</td><td>$TOKEN</td></tr>
   <tr><td>Type&nbsp;:  </td><td>$TYPE</td></tr>
