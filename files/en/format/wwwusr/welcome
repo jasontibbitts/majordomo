@@ -65,7 +65,7 @@ Click the <b>Help</b> link to return to this page.
     <input type="hidden" name="user" value="$USER">
     Task:
     <select name="func">
-      <option value="archive-summary">Browse the Message Archives
+      <option value="archive-summary-reverse">Browse the Message Archives
       <option value="unsubscribe">Unsubscribe from a List
       <option value="subscribe">Subscribe to a List
       <option value="faq">Read the Frequently Asked Questions
