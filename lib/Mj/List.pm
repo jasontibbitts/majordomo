@@ -1057,14 +1057,15 @@ sub search {
   my $sublist = shift || 'MAIN';
   my $string  = shift;
   my $mode    = shift;
+  my $count   = shift || 1;
 
   return unless (exists $self->{'sublists'}{$sublist});
   if ($mode =~ /regex/) {
-    return ($self->{'sublists'}{$sublist}->get_matching_regexp(1, 
-                                             'fulladdr', $string))[0];
+    return ($self->{'sublists'}{$sublist}->get_matching_regexp($count, 
+                                             'fulladdr', $string));
   }
-  return ($self->{'sublists'}{$sublist}->get_matching_regexp(1, 
-                                           'fulladdr', "\Q$string\E"))[0];
+  return ($self->{'sublists'}{$sublist}->get_matching_regexp($count, 
+                                           'fulladdr', "\Q$string\E"));
 }
 
 =head2 get_member(address)

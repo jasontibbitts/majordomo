@@ -2,6 +2,8 @@
 
 	* lib/Majordomo.pm (dispatch):  Add simple command mode validation.
 
+	* lib/Mj/List.pm (search):  Allow a count of results desired.
+
 2000-12-01  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/MTAConfig.pm (add_alias): Fix bug in VUT owner-list

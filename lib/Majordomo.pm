@@ -5786,6 +5786,9 @@ sub who_start {
       = Mj::Config::compile_pattern($request->{'regexp'}, 0, "isubstring");
     return ($ok, $error) unless $ok;
   }
+  else {
+    $request->{'regexp'} = 'ALL';
+  }
 
   if ($request->{'mode'} =~ /alias/ and 
       ($request->{'list'} ne 'GLOBAL' or
@@ -5900,7 +5903,8 @@ sub who_chunk {
   }
   # who-alias for GLOBAL will search the alias list
   elsif ($request->{'list'} eq 'GLOBAL' and $request->{'mode'} =~ /alias/) {
-    @tmp = $self->{'alias'}->get($chunksize);
+    @tmp = $self->{'alias'}->get_matching_regexp($chunksize, 'stripsource',
+                                                 $request->{'regexp'});
     while (($j, $i) = splice(@tmp, 0, 2)) {
       # Do not show bookkeeping aliases.
       next if ($j eq $i->{'striptarget'});
@@ -5910,16 +5914,22 @@ sub who_chunk {
   }
   # who for GLOBAL will search the registry
   elsif ($request->{'list'} eq 'GLOBAL' and $request->{'sublist'} eq 'MAIN') {
-    @tmp = $self->{'reg'}->get($chunksize);
+    @tmp = $self->{'reg'}->get_matching_regexp($chunksize, 'fulladdr', 
+                                               $request->{'regexp'});
     while (($j, $i) = splice(@tmp, 0, 2)) {
       $i->{'canon'} = $j;
       push @chunk, $i;
     }
   }
   else {
-    @chunk = 
-      $self->{'lists'}{$request->{'list'}}->get_chunk($request->{'sublist'},
-                                                      $chunksize);
+    @tmp = 
+      $self->{'lists'}{$request->{'list'}}->search($request->{'sublist'},
+                                                   $request->{'regexp'},
+                                                   'regex', $chunksize);
+    while (($j, $i) = splice(@tmp, 0, 2)) {
+      $i->{'canon'} = $j;
+      push @chunk, $i;
+    }
   }
 
   unless (@chunk) {
