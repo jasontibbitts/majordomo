@@ -53,6 +53,7 @@ $Mj::Config::default_string = q(
                            [ 'bounce   | daily', 
                              'checksum | daily', 
                              'log      | daily',
+                             'post     | daily',
                              'session  | daily', 
                              'token    | daily' ] : [],
  'database_backend'     => 'text',
