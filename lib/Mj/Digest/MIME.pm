@@ -29,11 +29,14 @@ Allocates a MIME digest.
 
 The following args are required:
 
-  subject - the subject of the digest message.  Do appropriate
-            substitutions before calling this function.
-  indexfn - funcref to a function which generates an index line.
-
-index_header, index_fronter, fronter, footer
+  footer        text placed at the end of the digest
+  from          e-mail address of the sender
+  headers       e-mail headers to be added to the digest
+  indexfn       reference to a function which generates an index line
+  postindex     text placed after the index of messages
+  preindex      text placed before the index of messages
+  subject       the subject of the digest message
+  to            e-mail address of the recipient
 
 =cut
 use Date::Format;
@@ -183,8 +186,8 @@ sub done {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2002, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
