@@ -6,6 +6,7 @@ filename, required, is the file to distribute
 -each,   if specified, limits delivery to subscribers using "set each"
 -nomail, if specified, limits delivery to subscribers using "set nomail"
 -digest, if specified, limits delivery to subscribers using "set digest"
+-unique, if specified, limits delivery to subscribers using "set unique"
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 Distribute a file individually to some or all classes of subscribers
@@ -15,7 +16,7 @@ more resources than "post". This could be used for periodic reminders,
 announcements that need to reach 'digest' subscribers immediately, or
 just a way to ask 'nomail' subscribers why they are still on the list.
 
-The mode (each, nomail, digest) specifies which class of subscribers
+The mode (each, nomail, digest, unique) specifies which class of subscribers
 will receive the  message. The default is all classes. (When delivering
 an announcement, the "each" and "nomail" classes are used to distinguish
 addresses subscribed to one or more lists from those that aren't.)
@@ -42,7 +43,7 @@ subscriptions to all people with postponed subscriptions.
 See Also:
    help configset access_rules (to limit access to this command)
    help set (for how to switch subscriptions between delivery classes)
-   help variables (for substitutions that can be made in "filname")
+   help variables (for substitutions that can be made in "filename")
 
 For a list of all help topics send this one-line message
    help topics
