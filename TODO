@@ -35,7 +35,38 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
-Token::t_add take hashes instead of big, overly complicated lists.
+Exim support.
+
+New stored token format:
+  Data::Dumper to store a hash.  The contents are essentially opaque to the
+  token system; upon extraction certain elements are passed to the bottom
+  half in order.
+
+  Pass token routines a hash.  Store it verbatim in the database.  Note
+  that we can't use SimpleDB for this because the stringification breaks
+  opacity.
+
+  Token::t_add needs to take a hash.  In fact, it shouldn't even look at
+  its hash, it should just store it.
+
+  Token::t_remove should just return the hash uninterpreted.
+
+Back out severe hack:
+
+  Mj::Resend::post -> list_access_check call has 'unspooled_file' extra
+  argument.
+  Mj::Access::_a_consult -> pass on 'unspooled_file' from the access
+  variables.
+  Mj::Token::consult -> use unspooled file in mailing out the warning if
+  it's defined.  This should allow the confirm_consult case to function as
+  well.
+
+We do want speed, so Storable is warranted, but not for token storage and
+we require Data::Dumper for other things anyway.  For the list stuff, it is
+nice to be able to compare without unstringifying, so it is probably
+simpler to keep the current ^A and ^B separators to get a fast two-level
+stringifier and just use Data::Dumper for when we want to store a hash.
+
 
 Convert the following to take hashes:
 
@@ -43,11 +74,6 @@ Convert the following to take hashes:
     _a_consult, _a_forward, _a_reply, _a_replyfile, _a_mailfile, _a_default
 
   Access::_d_advertise, _d_password, _d_post, _d_subscribe
-
-Store things like token args as real lists (\002 separated) so that we have
-some expandability there.  Make sure everything passes them around as
-listrefs internally so we never have to worry about counts again.  This
-will break all stored tokens, though...
 
 Need to pass additional context-specific data to consult/confirm routines.
 First make Token routines take hashes, then pass an additional hashref of
@@ -76,6 +102,7 @@ Add option to set umask of generated alias files.
 Don't show the user variables that they can't change.  (Make their values
 visible to the interface but don't have configshow display them).
 
+confirm_consult needs to generate "now the owner must approve" message.
 
 
 - add nonterminal access_rules.  Now we take the first matching, but we

@@ -188,11 +188,12 @@ sub post {
       last unless -f "$self->{ldir}/GLOBAL/spool/$spool";
     }
 
+    # XXX Note severe hack with 'unspooled_file'
     ($ok, $mess, $fileinfo) =
       $self->list_access_check
 	($passwd, undef, $int, $mode, $cmd, $list, "post", $user, '',
 	 "$self->{ldir}/GLOBAL/spool/$spool", join("\002", @$reasons),
-	 join("\002", %$avars), %$avars);
+	 join("\002", %$avars), %$avars, 'unspooled_file' => $file);
   }
 
   $owner = $self->_list_config_get($list, 'sender');

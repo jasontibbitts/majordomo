@@ -1,3 +1,12 @@
+Fri Jun 18 23:18:20 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Access.pm (_a_confirm): Hack to get unspooled filename
+ 	into Token::confirm.
+
+	* lib/Mj/Resend.pm (post): Ditto.
+
+	* lib/Mj/Token.pm (consult): Ditto.
+
 Wed Jun  9 23:45:16 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* setup/install_util.pl (safe_mkdir): Always make sure that the

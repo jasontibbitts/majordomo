@@ -337,7 +337,9 @@ sub consult {
     }
     $ent = build MIME::Entity
       (
-       Path            => $args{'args'}[0],
+#       Path            => $args{'args'}[0],
+# Note serious hack here
+       Path            => $args{'unspooled_file'} || $args{'args'}[0],
        Type            => 'message/rfc822',
        Encoding        => '8bit',
        Filename        => undef,
