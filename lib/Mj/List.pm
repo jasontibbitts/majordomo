@@ -75,9 +75,10 @@ use vars (qw($addr %alias %flags %noflags %classes %digest_types));
    'single'   => ['each',   0],
    'all'      => ['all',    0, "all list traffic"],
    'digest'   => ['digest', 2, "messages in a digest"],
+   'mail'     => ['mail',   1, "resume receiving messages"],
    'nomail'   => ['nomail', 1, "no messages"],
-   'unique'   => ['unique', 0, "each unduplicated message"],
    'vacation' => ['nomail', 1],
+   'unique'   => ['unique', 0, "each unduplicated message"],
   );
 
 %digest_types =
@@ -610,15 +611,19 @@ sub make_setting {
 	$carg1 = $carg2 = '';
       }
 
-      # A class taking a time (nomail/vacation)
+      # A class taking a time (nomail/vacation/mail)
       elsif ($classes{$rset}->[1] == 1) {
-	# If passed 'return', immediately set things back to the saved
-	# settings if there were any
+	# If the class is 'nomail-return' or 'mail', return
+        # to the saved settings, if there were any; otherwise,
+        # use the 'each' class.
 	if ($arg eq 'return') {
-	  return (0, "Not currently in nomail mode.\n")
-	    unless $classes{$class}->[0] eq 'nomail';
 	  return (0, "No saved settings to return to.\n")
 	    unless $carg2;
+        }
+
+	if ($arg eq 'return' or $rset eq 'mail') {
+	  return (0, "Not currently in nomail mode.\n")
+	    unless $classes{$class}->[0] eq 'nomail';
 
 	  ($class, $carg1, $carg2) = split("\002", $carg2);
 	  $class = 'each' unless defined($class) && $classes{$class};
@@ -899,7 +904,7 @@ sub describe_class {
         return sprintf "$class-%s", time_to_str($arg1 - time);
       }
       else { 
-        $time = gmtime($arg1);
+        $time = localtime($arg1);
         return "$classes{$class}->[2] until $time"; # XLANG
       }
     }
