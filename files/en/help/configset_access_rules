@@ -430,6 +430,7 @@ Address match
 Membership check
 ----------------
   @MAIN - true if the victim is a subscriber to the mailing list.
+          ('@' can be used as an abbreviation for '@MAIN'.)
   @SUBLIST - true if the victim is a member of the SUBLIST auxiliary
     list. (See "help auxiliary_list" for an introduction to sublists.)
 
