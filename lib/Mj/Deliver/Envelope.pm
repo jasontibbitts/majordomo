@@ -140,6 +140,7 @@ sub init {
   my($val, $code, $mess) = $self->{'smtp'}->MAIL($self->{'sender'});
   return 0 unless $val;
   $self->{'initialized'} = 1;
+  $self->{'addressed'} = 0;
   1;
 }
 
@@ -193,7 +194,17 @@ sub address {
 
     if ($val == -2) {
       # We can't send any more RCPTs, so we send ourselves and start over.
-      $self->send;
+      if ($self->{'addressed'}) {
+        $self->send;
+      }
+      else {
+        ($val, $code, $mess) = $self->{'smtp'}->RSET;
+        $self->{'initialized'} = 0;
+      }
+      # A new MAIL FROM will be required if send() succeeded.
+      unless ($self->{'initialized'}) {
+        return 0 unless $self->init;
+      }
       ($val, $code, $mess) = $self->{'smtp'}->RCPT($i,1);
     }
     $self->{'addressed'} = 1 if $val > 0;
