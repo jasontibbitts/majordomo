@@ -179,6 +179,21 @@ they are).
   ignore
   ALL
 
+
+                             Probe Messages
+
+A bounce probe usually consists of two parts, the "bounceprobe" file and
+an attachment containing the error message.  To send a probe without the
+error message attached, use the "notify" action to disable attachments.
+For example, the following rule would cause a probe without the
+attachment to be sent for every bounce:
+
+  remove, notify=(attach=0)
+  ALL
+
+
+                                Comments
+
 It is possible to use comments before, between, and after the individual
 rules, but not within rules.  Comments are lines that begin with a '#'.
 
