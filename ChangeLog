@@ -1,3 +1,9 @@
+2000-06-14  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Bf/Parser.pm (parse_qmail): Fold parse_yahoo in; the bounce
+	formats are very similar.
+	(parse_postfix): New function to parse bounces from Postfix.
+
 2000-06-11  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Bf/Parser.pm (parse_exim): Handle multiline diagnostics.

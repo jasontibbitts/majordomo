@@ -35,7 +35,7 @@ Returns:
     for list message, C for confirmation token, etc.)
   msgno   - the message number of the bouncing message, if known
   address - address (if any) extracted from an envelope VERP.
-  data    - a hashref of data, one key per user 
+  data    - a hashref of data, one key per user
 
 We are supposed to give enough information to the calling layer so that it
 can make a reasonable decision about what to do with the bounce.
@@ -78,9 +78,9 @@ sub parse {
   $data = {}; $hints = {};
   $ok or ($ok = parse_dsn       ($ent, $data, $hints));
   $ok or ($ok = parse_exim      ($ent, $data, $hints));
+  $ok or ($ok = parse_postfix   ($ent, $data, $hints));
   $ok or ($ok = parse_qmail     ($ent, $data, $hints));
   $ok or ($ok = parse_exchange  ($ent, $data, $hints));
-  $ok or ($ok = parse_yahoo     ($ent, $data, $hints));
   $ok or ($ok = parse_sendmail  ($ent, $data, $hints));
   $ok or ($ok = parse_softswitch($ent, $data, $hints));
 
@@ -455,6 +455,65 @@ sub parse_exim {
   $ok;
 }
 
+=head2 parse_postfix
+
+Attempts to parse the bounces issued by Postfix.
+
+The message is multipart, with the first part being text/plain and having a
+content-description of 'Notification'.  The identifying line is:
+
+This is the Postfix program at host.*
+
+Failure is indicated by the string "could not be delivered".
+
+Bouncing addresses are located at the end, and look like
+
+<xxxx@yyyy.org>: unknown user: "xxxx"
+
+=cut
+sub parse_postfix {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $diag, $failure, $line, $ok, $user);
+
+  $ok = 0;
+
+  # Postfix returns only multipart bounces nested one level deep
+  return 0 unless $ent->parts;
+  return 0 if $ent->parts(0)->parts;
+
+  $bh = $ent->parts(0)->bodyhandle->open('r');
+  return 0 unless $bh;
+
+  # The first non-blank line must contain the Postfix greeting
+  while (defined($line = $bh->getline)) {
+    next if $line =~ /^\s*$/;
+    last if $line =~ /^\s*this is the postfix program/i;
+    return 0;
+  }
+
+  # Now look for two things: a line containing "could not deliver" which
+  # tells us that we're processing a set of failures, and an address in
+  # angle brackets.
+  while (defined($line = $bh->getline)) {
+    if ($line =~ /could not deliver/i) {
+      $failure = 1;
+      next;
+    }
+    if ($line =~ /^\s*<(.*)>:\s+(.*?)\s*$/) {
+      $user = $1;
+      $diag = $2;
+      $data->{$user}{'diag'} = $diag;
+      $data->{$user}{'status'} = $failure? 'failure' : 'warning';
+      $ok = 1;
+    }
+  }
+  return $ok;
+}
+
+
+
 =head2 parse_sendmail
 
 Attempts to parse the bounces issued by older versions of Sendmail.
@@ -557,20 +616,31 @@ sub parse_softswitch {
 
 =head2 parse_qmail
 
-Attempts to parse the bounces issued by qmail.  These bounces look like this:
+Attempts to parse the bounces issued by qmail, and also by yahoo (which is
+possibly running a modified qmail).  These bounces look like this:
 
 Hi. This is (site specific text)
 I'm afraid I wasn't able to deliver your message to the following addresses.
 This is a permanent error; I've given up. Sorry it didn't work out.
 
-<www.pintu28@netzero.com>:
+<xxxx@yyyy.com>:
 Sorry, no mailbox here by that name. (#5.1.1)
 
 --- Below this line is a copy of the message.
 
-There is no useful identifying information in the header.  We pull down the
-first non-blank like, look for "Hi", then look for "permanent error" to
-make sure it's not a warning.  (What does a warning look like, anyway?)
+Yahoo messages instead look like:
+
+Message from  yahoo.com.
+Unable to deliver message to the following address(es).
+
+<xxxx@yahoo.com>:
+User is over the quota.  You can try again later.
+
+
+--- Original message follows.
+
+Any message that doesn't match the "failure text" is assumed to be a
+warning.  Examples of warnings from qmail or Yahoo would be welcomed.
 
 =cut
 sub parse_qmail {
@@ -584,23 +654,26 @@ sub parse_qmail {
   # Qmail mails only single-part bounces
   return 0 if $ent->parts;
 
-  # The first non-blank line must contain the qmail greeting.
+  # The first non-blank line must contain the qmail or yahoo greeting.
   $bh = $ent->bodyhandle->open('r');
   return 0 unless $bh;
   while (defined($line = $bh->getline)) {
     next if $line =~ /^\s*$/;
     last if $line =~ /^\s*hi.*this is/i;
+    last if $line =~ /^\s*message from\s*yahoo.com/i;
     return 0;
   }
 
-  # Now look for two things: a line containing "permanent error" which
-  # tells us that we're processing a set of failures, and an address in
-  # angle brackets.
+  # Now look for two things: a line containing "permanent error" or "unable
+  # to deliver" which tells us that we're processing a set of failures, and
+  # an address in angle brackets.
   while (defined($line = $bh->getline)) {
-    if ($line =~ /permanent error/i) {
-      $failure = 1;
-      next;
-    }
+    if ($line =~ /permanent error/i   ||
+	$line =~ /unable to deliver/i)
+      {
+	$failure = 1;
+	next;
+      }
     if ($line =~ /^<(.*)>:$/) {
       $user = $1;
       $line = $bh->getline;
@@ -610,75 +683,13 @@ sub parse_qmail {
       $data->{$user}{'status'} = $failure? 'failure' : 'warning';
       $ok = 1;
     }
-    if ($line =~ /---.*copy of the message/i) {
-      last;
-    }
+    if ($line =~ /---.*copy of the message/i ||
+	$line =~ /---.*original message follows/i)
+      {
+	last;
+      }
   }
   return $ok;
-}
-
-=head2 parse_yahoo
-
-Attempts to parse the bounces issued by Yahoo as of 2000.05.20.
-
-These bounces come from MAILER-DAEMON@yahoo.com, have a subject of "failure
-delivery" and have a body looking like:
-
-Message from  yahoo.com.
-Unable to deliver message to the following address(es).
-
-<someone@yahoo.com>:
-User is over the quota.  You can try again later.
-
-
---- Original message follows.
-
-followed by a truncated version of the original message.
-
-=cut
-
-sub parse_yahoo {
-  my $log  = new Log::In 50;
-  my $ent  = shift;
-  my $data = shift;
-  my (%ok_from, %ok_subj, $bh, $line, $ok);
-
-  %ok_from = ('mailer-daemon@yahoo.com' => 1);
-  %ok_subj = ('failure delivery'         => 1);
-  $ok = 0;
-
-  # First check the From: and Subject: headers to see if we understand this
-  # bounce
-  my $f = lc($ent->head->get('from'));
-  my $s = lc($ent->head->get('subject'));
-  chomp $f; chomp $s;
-  return 0 unless $ok_from{lc($f)};
-  return 0 unless $ok_subj{lc($s)};
-  return 0 if $ent->parts; # Must be able to open the body
-
-  # Now run through the body.  We look for an address in brackets and, on
-  # the next line, the diagnostic.  We assume that we've failed; I don't
-  # believe that yahoo ever issues warnings.
-  $bh = $ent->bodyhandle->open('r');
-  return 0 unless $bh;
-  while (defined($line = $bh->getline)) {
-    chomp $line;
-
-    # Bail if we're getting into the bounced message
-    return $ok if lc($line) eq '--- original message follows.';
-
-    # If we have an address...
-    if ($line =~ /<(.*)>:/) {
-      $ok = 1;
-      $data->{$1}{'status'} = 'failure';
-
-      # The next line holds the diagnostic
-      $line = $bh->getline;
-      chomp($line);
-      $data->{$1}{'diag'} = $line;
-    }
-  }
-  $ok;
 }
 
 =head2 check_dsn_diags
