@@ -1,3 +1,8 @@
+2001-02-02  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* t/shell.t: Copy the mj_shell script and take out the 'use lib'
+	line so that the tests won't use already-installed libraries.
+
 2001-02-01  Michael Yount <csf@moscow.com>
 
 	* Makefile.PL:  (check_nr_install) Test to see if installation

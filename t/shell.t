@@ -13,6 +13,7 @@ ok(1, !$@);
 
 # Create the directory structure we need
 mkdir "tmp.$$", 0700 || die;
+mkdir "tmp.$$/bin", 0700 || die;
 mkdir "tmp.$$/locks", 0700 || die;
 mkdir "tmp.$$/SITE", 0700 || die;
 mkdir "tmp.$$/test", 0700 || die;
@@ -23,6 +24,10 @@ mkdir "tmp.$$/test/GLOBAL/sessions", 0700 || die;
 symlink "../../files", "tmp.$$/SITE/files" || die;
 copy  "t/global_config", "tmp.$$/test/GLOBAL/C_install" || die;
 copy  "t/default_config", "tmp.$$/test/DEFAULT/C_install" || die;
+
+# Make a copy of mj_shell, but delete the "use lib" line so we don't get
+# any previously-installed libraries.
+fixup_script();
 
 open SITE,">tmp.$$/SITE/config.pl";
 print SITE qq!
@@ -146,17 +151,32 @@ sub ok {
 }
 
 sub run {
-  if ($config->{'wrappers'}) {
-    $cmd = "$^X -T -I. -Iblib/lib blib/script/.mj_shell -Z --lockdir tmp.$$/locks -t tmp.$$ -d test " . shift;
-  }
-  else {
-    $cmd = "$^X -T -I. -Iblib/lib blib/script/mj_shell -Z --lockdir tmp.$$/locks -t tmp.$$ -d test " . shift;
-  }
-  $cmd .= " -D"
-    if (shift());
+  $cmd = "$^X -T -I. -Iblib/lib tmp.$$/bin/mj_shell -Z --lockdir tmp.$$/locks -t tmp.$$ -d test " . shift;
 
-#  warn "$cmd\n";
+  $cmd .= " -D" if (shift());
+
+  warn "$cmd\n";
   return `$cmd`;
+}
+
+sub fixup_script {
+  my($dot, $line, $script);
+
+  $dot = '';
+  $dot='.' if $config->{'wrappers'};
+
+  $script = "blib/script/${dot}mj_shell";
+  open(OSCRIPT, "<$script") || die;
+  open(NSCRIPT, ">tmp.$$/bin/mj_shell") || die;
+  while (defined($line = <OSCRIPT>)) {
+    if ($line =~ /^use lib .*;$/) {
+      print NSCRIPT '$::LIBDIR = $::LIBDIR;', "\n";
+      next;
+    }
+    print NSCRIPT $line;
+  }
+  close NSCRIPT;
+  close OSCRIPT;
 }
 
 END {
