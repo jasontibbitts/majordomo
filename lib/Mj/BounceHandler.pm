@@ -187,6 +187,7 @@ sub handle_bounce_message {
 
     # If we got something back, we need to inform the owners
     if (defined($tmp)) {
+      # XXX tmp is a hashref in some situations.
       $mess .= "$tmp\n";
 
       if ($subj) {
@@ -647,7 +648,7 @@ sub _hbr_consult {
   $bdata = $self->{lists}{$args{list}}->bounce_get($args{user});
   return if $bdata->{'C'};
 
-  $defaults = n_defaults('consult');
+  $defaults = n_defaults('consult', 'unsubscribe');
   $notify = n_build($args{notify}, $defaults);
   $notify->[0]{attach} = {file => $args{file}} if $notify->[0]{attach};
   # XXX Should replace $notify->[0]{file} as well.
@@ -701,7 +702,7 @@ sub _hbr_probe {
   $bdata = $self->{lists}{$args{list}}->bounce_get($args{user});
   return if $bdata->{'C'} || $bdata->{'P'};
 
-  $defaults = n_defaults('probe');
+  $defaults = n_defaults('probe', 'unsubscribe');
   $notify = n_build($args{notify}, $defaults);
   $notify->[0]{attach} = {file => $args{file}} if $notify->[0]{attach};
 
