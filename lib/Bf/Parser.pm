@@ -42,14 +42,13 @@ going.
 
 =cut
 
-use Bf::Sender;
 sub parse {
   my $log  = new Log::In 50;
   my $ent  = shift;
   my $list = shift;
   my $sep  = shift;
 
-  my ($info, $msgno, $to, $user);
+  my (%data, $info, $mess, $msgno, $to, $status, $type, $user);
 
   # Look for useful bits in the To: header
   $to = $ent->head->get('To');
@@ -66,21 +65,77 @@ sub parse {
   # M\d{1,5}=user=host
   # various other special types which we don't use right now.
   if ($info =~ /M(\d{1,5})=([^=]+)=([^=]+)/) {
-    $msgno = $1;
-    $user  = "$3\@$2";
-    return ('bounce', $user,
-	    "Detected a bounce of message #$msgno from $user.\n");
+    $type   = 'M';
+    $msgno  = $1;
+    $user   = "$3\@$2";
+    $status = 'bounce';
+    $mess   = "Detected a bounce of message #$msgno from $user.\n";
   }
   elsif ($info =~ /M(\d{1,5})/) {
-    $msgno = $1;
-    $user = undef;
-    return ('bounce', '',
-	    "Detected a bounce of message #$msgno but could not determine the user.\n");
+    $type   = 'M';
+    $msgno  = $1;
+    $user   = undef;
+    $status = 'bounce';
+    $mess   = "Detected a bounce of message #$msgno but could not determine the user.\n";
   }
   else {
-    return ('unknown', '',
-	    "Detected a special return message but could not discern its type.\n");
+    $status = 'unknown';
+    $mess   = "Detected a special return message but could not discern its type.\n";
   }
+
+  # Now try to identify the type of bounce
+  ($ok, %data) = parse_dsn($ent);
+
+  return ($status, $user, $mess);
+}
+
+=head2 parse_dsn
+
+Attempt to identify an RFC1894 DSN, as sent by Sendmail.
+
+sub parse_dsn {
+  my $ent = shift;
+  my (@status, $fh, $i, $to, $type);
+
+  # Check the Content-Type
+  $type = $ent->mime_type;
+
+  # We can quit now if we don't have a type of multipart/report and a 
+  unless ($type =~ !multipart/report!i &&
+	  $type =~ !report-type=delivery-status!i)
+    {
+      return 0;
+    }
+
+  # So we must have a DSN.  The second part has the info we want.
+  $type = $ent->parts(1)->mime_type;
+  if ($type !~ !message/delivery-status!i) {
+    # Weird, the second part is always supposed to be of this type.
+    # Well, who cares; perhaps we can get something out of it anyway.
+  }
+
+  # Pull apart the delivery-status part
+  $fh = $ent->bodyhandle->open('r');
+ REC:
+  for ($i = 0; 1; $i++) {
+    $status[$i] = {};
+    while (defined($line = $fh->getline)) {
+      chomp $line;
+      next REC if $line =~ /^\s*$/;
+      $line =~ /([^:]):\s*(.*)/;
+      $status[$i]->{$1} = $2;
+    }
+  }
+
+  use Data::Dumper; print Dumper $status;
+
+
+  # Start pulling apart the second part.  There's lots of info here, but we
+  # only want couple of things: Original-Recipient: lines if we can get
+  # them, Final-Recipient: lines otherwise, and Action: fields.
+  
+  return 0;
+
 }
 
 =head1 COPYRIGHT
