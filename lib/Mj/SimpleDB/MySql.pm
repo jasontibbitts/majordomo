@@ -40,6 +40,7 @@ sub new {
   my $log   = new Log::In 200, "$args{filename}";
 
   $self = $class->SUPER::new(@_);
+  return unless $self;
   
   $self->{backend}  = 'MySQL';
 

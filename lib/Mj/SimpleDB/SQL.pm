@@ -54,7 +54,8 @@ sub new {
       $self->{list} .= ":".$self->{table};
       $self->{table} = 'subscribers';
     } else {
-      die $self->{table};
+      $log->complain("Unknown db : $self->{table}");
+      return;
     }
     $self->{filename} = "$self->{domain}, $self->{list}, $self->{file}";
   } else {
@@ -76,65 +77,113 @@ issue the proper "CREATE TABLE" statements.
 {
   my $schema = {
     'default' => [
-		   { NAME => "t_domain",
-		     TYPE => "varchar(64)",
-		     PRIM_KEY => 1 },
-		   { NAME => "t_list",
-		     TYPE => "varchar(64)",
-		     PRIM_KEY => 1 },
-		   { NAME => "t_key",
-		     TYPE => "varchar(64)",
-		     PRIM_KEY => 1 }
+		   { NAME => "t_domain", TYPE => "varchar(64)",  PRIM_KEY => 1 },
+		   { NAME => "t_list",	 TYPE => "varchar(128)", PRIM_KEY => 1 },
+		   { NAME => "t_key",	 TYPE => "varchar(255)", PRIM_KEY => 1 },
 		 ],
     'parser' => [
-		  { NAME => 'changetime',
-		    TYPE => 'integer' },
-		  { NAME => 'events',
-	    	    TYPE => 'varchar(255)' }
+		  { NAME => 'changetime', TYPE => 'integer' },
+		  { NAME => 'events',	  TYPE => 'varchar(255)' },
 		],
     'bounce' => [
-		  { NAME => 'bounce',
-		    TYPE => 'integer' },
-		  { NAME => 'diagnostic',
-	    	    TYPE => 'varchar(255)' }
+		  { NAME => 'diagnostic', TYPE => 'varchar(255)' },
+		  { NAME => 'bounce',	  TYPE => 'text' },
 		],
     'dup_id' => [
-		  { NAME => 'changetime',
-		    TYPE => 'integer' },
-		  { NAME => 'lists',
-	    	    TYPE => 'varchar(255)' }
-		],
-    'dup_sum' => [
-		  { NAME => 'changetime',
-		    TYPE => 'integer' },
-		  { NAME => 'lists',
-	    	    TYPE => 'varchar(255)' }
-		],
-    'dup_partial' => [
-		  { NAME => 'changetime',
-		    TYPE => 'integer' },
-		  { NAME => 'lists',
-	    	    TYPE => 'varchar(255)' }
+		  { NAME => 'changetime', TYPE => 'integer' },
+		  { NAME => 'lists',	  TYPE => 'varchar(255)' },
 		],
     'posts' => [
-		  { NAME => 'changetime',
-		    TYPE => 'integer' },
-		  { NAME => 'postdata',
-	    	    TYPE => 'text' },
-		  { NAME => 'dummy',
-		    TYPE => 'char(1)' }
-		],
+		 { NAME => 'changetime', TYPE => 'integer' },
+		 { NAME => 'postdata',	 TYPE => 'text' },
+		 { NAME => 'dummy',	 TYPE => 'varchar(1)' },
+	       ],
     'aliases' => [
-		  { NAME => 'changetime',
-		    TYPE => 'integer' },
-		  { NAME => 'target',
-	    	    TYPE => 'varchar(255)' },
-		  { NAME => 'stripsource',
-	    	    TYPE => 'varchar(255)' },
-		  { NAME => 'striptarget',
-	    	    TYPE => 'varchar(255)' }
+		   { NAME => 'changetime',  TYPE => 'integer' },
+		   { NAME => 'target',	    TYPE => 'varchar(255)' },
+		   { NAME => 'stripsource', TYPE => 'varchar(255)' },
+		   { NAME => 'striptarget', TYPE => 'varchar(255)' },
+		 ],
+    'subscribers' => [
+		       { NAME => 'subtime',    TYPE => 'integer' },
+		       { NAME => 'changetime', TYPE => 'integer' },
+		       { NAME => 'stripaddr',  TYPE => 'varchar(130)' },
+		       { NAME => 'fulladdr',   TYPE => 'varchar(255)' },
+		       { NAME => 'class',      TYPE => 'varchar(10)' },
+		       { NAME => 'classarg',   TYPE => 'varchar(64)' },
+		       { NAME => 'classarg2',  TYPE => 'varchar(64)' },
+		       { NAME => 'flags',      TYPE => 'varchar(20)' },
+		       { NAME => 'expire',     TYPE => 'varchar(1)' },
+		       { NAME => 'remind',     TYPE => 'varchar(1)' },
+		       { NAME => 'id',	       TYPE => 'varchar(1)' },
+		       { NAME => 'diagnostic', TYPE => 'varchar(255)' },
+		       { NAME => 'groups',     TYPE => 'text' },
+		       { NAME => 'bounce',     TYPE => 'text' },
+		     ],
+    'register' => [
+		    { NAME => 'stripaddr',   TYPE => 'varchar(130)' },
+		    { NAME => 'fulladdr',    TYPE => 'varchar(255)' },
+		    { NAME => 'changetime',  TYPE => 'integer' },
+		    { NAME => 'regtime',     TYPE => 'integer' },
+		    { NAME => 'password',    TYPE => 'varchar(64)' },
+		    { NAME => 'language',    TYPE => 'varchar(5)' },
+		    { NAME => 'lists',	     TYPE => 'text' },
+		    { NAME => 'flags',	     TYPE => 'varchar(1)' },
+		    { NAME => 'bounce',	     TYPE => 'varchar(1)' },
+		    { NAME => 'warnings',    TYPE => 'varchar(1)' },
+		    { NAME => 'data01',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data02',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data03',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data04',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data05',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data06',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data07',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data08',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data09',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data10',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data11',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data12',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data13',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data14',	     TYPE => 'varchar(1)' },
+		    { NAME => 'data15',	     TYPE => 'varchar(1)' },
+		    { NAME => 'rewritefrom', TYPE => 'varchar(1)' },
+		  ],
+    'tokens' => [
+		  { NAME => 'type',       TYPE => 'varchar(10)' },
+		  { NAME => 'list',       TYPE => 'varchar(64)' },
+		  { NAME => 'command',    TYPE => 'varchar(15)' },
+		  { NAME => 'user',       TYPE => 'varchar(255)' },
+		  { NAME => 'victim',     TYPE => 'varchar(255)' },
+		  { NAME => 'mode',       TYPE => 'varchar(200)' }, # after a few calculations, 99 should be enought, but well
+		  { NAME => 'cmdline',    TYPE => 'varchar(255)' },
+		  { NAME => 'approvals',  TYPE => 'integer' },
+		  { NAME => 'chain1',     TYPE => 'varchar(120)' },
+		  { NAME => 'chain2',     TYPE => 'varchar(120)' },
+		  { NAME => 'chain3',     TYPE => 'varchar(120)' },
+		  { NAME => 'approver',   TYPE => 'varchar(64)' },
+		  { NAME => 'arg1',       TYPE => 'varchar(20)' },
+		  { NAME => 'arg2',       TYPE => 'varchar(20)' },
+		  { NAME => 'arg3',       TYPE => 'varchar(20)' },
+		  { NAME => 'time',       TYPE => 'integer' },
+		  { NAME => 'changetime', TYPE => 'integer' },
+		  { NAME => 'sessionid',  TYPE => 'varchar(40)' },
+		  { NAME => 'reminded',   TYPE => 'varchar(1)' },
+		  { NAME => 'permanent',  TYPE => 'varchar(1)' },
+		  { NAME => 'expire',     TYPE => 'integer' },
+		  { NAME => 'remind',     TYPE => 'integer' },
+		  { NAME => 'reasons',    TYPE => 'text' },
 		],
-  };
+    };
+    # copying definitions is the worst thing so...
+    $schema->{latchkeys}   = $schema->{tokens};
+    $schema->{dup_sum}     = $schema->{dup_id};
+    $schema->{dup_partial} = $schema->{dup_id};
+
+=cut
+
+There is not archive table in there yet, because it's hardcoded into text.
+
+=cut
   
   sub _make_db {
     my $self = shift;
@@ -815,120 +864,6 @@ sub _unstringify {
   my $string = shift;
   $string;
 }
-
-
-=head1 DATABASE SCHEMA
-
-All of these do also have these 3 fields :
-
-domain	varchar(64) not null
-list	varchar(64) not null
-key	varchar(255) not null
-
-
-table _parser :
-
-    changetime	integer
-    events	varchar(255)
-
-table _register :
-
-    stripaddr	varchar(130)
-    fulladdr	varchar(255)
-    changetime	integer
-    regtime	integer
-    password	varchar(64)
-    language	varchar(5)
-    lists	text
-    flags	varchar(10)
-    bounce	???
-    warnings	???
-    data01
-    data02
-    data03
-    data04
-    data05
-    data06
-    data07
-    data08
-    data09
-    data10
-    data11
-    data12
-    data13
-    data14
-    data15
-    rewritefrom	???
-
-table _bounce :
-
-    bounce	integer
-    diagnostic	varchar(255)
-
-table _dup_id/dup/partial :
-
-    lists	text
-    changetime	integer
-
-table _posts :
-
-    dummy	???
-    postdata	text
-    changetime	integer
-
-table _tokens/latchkeys :
-
-    type	varchar(10)
-    list	varchar(64)
-    command		
-    user		
-    victim
-    mode
-    cmdline
-    approvals
-    chain1
-    chain2
-    chain3
-    approver
-    arg1
-    arg2
-    arg3
-    time
-    changetime
-    sessionid
-    reminded
-    permanent
-    expire
-    remind
-    reasons
-
-table _subscribers/X"sublist" :
-
-    stripaddr	varchar(130)
-    fulladdr	varchar(255)
-    subtime	integer
-    changetime	integer
-    class	varchar(64) -- Maybe more
-    classarg	
-    classarg2
-    flags	varchar(20)
-    groups
-    expire
-    remind
-    id
-    bounce
-    diagnostic	varchar(255)
-
-table archives, nope, always text
-
-table _aliases
-
-    target	varchar(255)
-    stripsource	varchar(130)
-    striptarget	varchar(130)
-    changetime	integer
-
-=cut 
 
 1;
 
