@@ -1,8 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configdefault listname variable
+configdefault listname variable[,variable]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site
-variable, required, is one "configset" item
+variable, required, is one or more "configset" items
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 Sets the variable back to the default value.  Note that this causes the
@@ -11,7 +11,42 @@ rather than just setting it to the current default value. This is
 useful, for example, when the Majordomo defaults change and you want
 to remove a workaround "configset".
 
-Multiple variables cannot be defaulted at once (unlike configshow).
+The configuration settings for a mailing list are defined in
+three ways.  First, for every domain served by Majordomo at
+your site, there is a script named cf_defs_YOUR_DOMAIN.pl that
+contains the default settings for every list.  Since this
+file is overwritten every time Majordomo is upgraded, editing
+that file is not recommended.  Instead, a site administrator
+should use the configset command to change settings for the 
+DEFAULT list.
+
+Any change made to the DEFAULT list will override the value in
+the defaults script, even if a variable is set to an undefined
+value.  Likewise, any changes made with the configset command
+for your list will override the values in either the defaults
+script or the DEFAULT list. 
+  
+The difference between using configdefault to reset a variable
+is not the same as setting the variable to the default value with
+the configset command.  If you use the configdefault command,
+the variable will change if your site administrators change the
+default value.  If you use the configset command, the variable
+will stay the same, regardless of any changes made to the DEFAULT
+list.  
+
+If you wish to reset the values of more than one variable, either
+separate the variable names with commas, or use a here document.
+For example,
+
+configdefault YOUR_LIST who_access, intro_access, faq_access
+
+is the same as
+
+configdefault YOUR_LIST <<ENDTAG
+who_access
+intro_access
+faq_access
+ENDTAG
 
 A complete list of variables is included in "help configset".
 
