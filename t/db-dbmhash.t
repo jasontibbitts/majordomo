@@ -3,6 +3,12 @@ use Mj::SimpleDB;
 use Mj::Log;
 use Majordomo;
 use Safe;
+
+unless (eval { require DB_File }) {
+  print "1..0 # Skip: DB_File has not been installed\n";
+  exit 0;
+}
+
 $Majordomo::safe = new Safe;
 $Majordomo::safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
 
