@@ -1472,7 +1472,7 @@ sub set {
     else {
       $lsubs->{'ERROR'} = $change;
       $str = $mj->substitute_vars_format($files->{'error'}, $lsubs);
-      print $out, "$str\n";
+      print $out "$str\n";
     }
   }
 
