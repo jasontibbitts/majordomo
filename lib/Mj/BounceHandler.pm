@@ -534,6 +534,8 @@ sub _hbr_noprobe {
   my $self = shift;
   my %args = @_;
   my $log = new Log::In 100;
+  my ($mess, $ok, $time);
+  $time = $::log->elapsed;
 
   ($ok, $mess) =
     $self->_unsubscribe($args{list},
@@ -630,7 +632,8 @@ sub _hbr_probe {
   my $self = shift;
   my %args = @_;
   my $log = new Log::In 100;
-  my (%tokenargs, $bdata, $default);
+  my (%tokenargs, $bdata, $defaults, $notify, $token);
+
   # Check that no type 'P' or type 'C' bounce event exists for this address
   $bdata = $self->{lists}{$args{list}}->bounce_get($args{user});
   return if $bdata->{'C'} || $bdata->{'P'};
