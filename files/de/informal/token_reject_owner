@@ -1,0 +1,12 @@
+Der Benützer $REJECTER hat das
+Token $TOKEN von $MJ abgelehnt.
+
+Ein abgelehntes Token kann das Ergebnis von Fälschungen oder
+Mailbomben sein.  Deshalb erhältst Du in dieser Nachricht alle
+Informationen, die über den Vorgang bekannt sind, bei dem der
+Token erzeugt wurde.
+
+Hier die gespeicherten Daten des Vorgangs $SESSIONID:
+
+$SESSION
+

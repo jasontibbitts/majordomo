@@ -29,8 +29,8 @@ use IO::File;
 use Getopt::Long;
 
 use vars qw(%opts $log_entries $log_level $program_name);
-my (@in, $dom, $editor, $fh, $go, $i, $infile, $list, $mess, $ok, $result,
-    $tlist, $tmpg, $tmpu, $top);
+my (@in, $dom, $editor, $fh, $go, $i, $infile, $lang, $list, $mess, $ok,
+    $result, $tlist, $tmpg, $tmpu, $top);
 
 $| = 1;
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
@@ -43,6 +43,7 @@ umask oct($::UMASK);
 #  -d : specify domain to operate on
 #  -F : parse commands from given file
 #  -f : give attachment file
+#  -l : choose language
 #  -p : specify password
 #  -t : specify directory containing domains
 #  -u : specify user (for testing only)
@@ -55,8 +56,8 @@ umask oct($::UMASK);
 Getopt::Long::config('no_ignore_case', 'bundling');
 
 %opts = (ornaments => 1, aliascomplete => 0);
-GetOptions(\%::opts, 'D', 'd=s', 'F=s', 'f=s@', 'p=s', 't=s', 'u=s', 'Z',
-	   'id', 'lockdir=s', 'ornaments!', 'aliascomplete!');
+GetOptions(\%::opts, 'D', 'd=s', 'F=s', 'f=s@', 'l=s@', 'p=s', 't=s',
+	   'u=s', 'Z', 'id', 'lockdir=s', 'ornaments!', 'aliascomplete!');
 
 #use Data::Dumper;
 #print Dumper \%opts;
@@ -120,6 +121,8 @@ $top =~ /(.*)/;
 $top = $1;
 $dom =~ /(.*)/;
 $dom = $1;
+
+$lang = join(',',@{$opts{l}});
 
 # Deal with the file argument
 if ($opts{f}) {
@@ -622,6 +625,23 @@ only used by the text parser.
 
 I<filename> can also be the string '-', in which case standard input is
 read.
+
+=item B<-l> I<language>
+
+Specifies the user''s preferred language.  This should be in the standard
+two-letter (ISO 639) form, plus subtags as outlined in RFC 1766.  (For
+example, B<en> for English, B<de> for German, or B<no-nynorsk> for
+Norwegian/Nynorsk.)  Case is not significant.  Multiple preferences can be
+specified in order by separating them with commas or using multiple B<-l>
+options.
+
+Note that the server may not have all files available in all supported
+languages.  If a file does not exist in the preferred language, the other
+supplied languages are searched in order and finally English is used if no
+other choice is available.  In conformance with RFC 1766, tags are not
+considered separately from tags, so in the Nynorsk example above, plain
+Norwegian would not be returned unless it was listed as an additional
+preference.
 
 =item B<-p> I<password>
 

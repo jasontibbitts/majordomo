@@ -114,15 +114,14 @@ sub _inform_owner {
   my $owner    = $self->_list_config_get($list, 'sender');
   my $sender   = $self->_global_config_get('whoami');
 
-  my ($message, $desc, $c_type, $cset, $c_t_encoding) =
-    $self->_list_file_get($list, 'inform');
+  my ($message, %data) = $self->_list_file_get($list, 'inform');
 
   # Substitute in the header
-  $desc = $self->substitute_vars_string($desc,
-					'UREQUEST' => uc($req),
-					'REQUEST'  => $req,
-					'LIST'     => $list,
-				       );
+  my $desc = $self->substitute_vars_string($data{'description'},
+					   'UREQUEST' => uc($req),
+					   'REQUEST'  => $req,
+					   'LIST'     => $list,
+					  );
 
   # Substitute in the body
   $message = $self->substitute_vars($message,
@@ -138,13 +137,14 @@ sub _inform_owner {
   my $ent = build MIME::Entity
     (
      Path        => $message,
-     Type        => $c_type,
-     Charset     => $cset,
-     Encoding    => $c_t_encoding,
+     Type        => $date{'c_type'},
+     Charset     => $data{'charset'},
+     Encoding    => $data{'c_t_encoding'},
      Filename    => undef,
      -To         => $owner,
      -From       => $sender,
      -Subject    => $desc,
+     'Content-Language:' => $data{'language'},
     );
   
   my $out = $self->mail_entity($sender, $ent, $owner);

@@ -168,9 +168,8 @@ sub confirm {
       $cmdline, $approvals, $chain1, $chain2, $chain3, $chain4, $arg1,
       $arg2, $arg3) = @_;
   my $log  = new Log::In 50;
-  my (%repl, $token, $cset, $data, $ent, $sender, $url, $file, $mj_addr,
-      $mj_owner, $expire, $expire_days, $desc, $c_type, $c_t_encoding,
-      $remind, $remind_days);
+  my (%file, %repl, $token, $data, $ent, $sender, $url, $file, $mj_addr,
+      $mj_owner, $expire, $expire_days, $desc, $remind, $remind_days);
 
   $self->_make_tokendb;
 
@@ -190,12 +189,12 @@ sub confirm {
   if ($request eq 'post') {
     $self->_list_file_put('GLOBAL', "spool/$token", $arg1, 'overwrite',
 			  "Spooled awaiting acceptance of $token",
-			  'message/rfc822', 'ISO-8859-1', '8bit', 'w');
+			  'message/rfc822', 'ISO-8859-1', '8bit', 'en',
+			  'w');
   }
 
   # Extract the file from storage
-  ($file, $desc, $c_type, $cset, $c_t_encoding) =
-    $self->_list_file_get($list, $fname);
+  ($file, %file) = $self->_list_file_get($list, $fname);
   
   $log->abort("Couldn't get $fname from $list")
     unless $file;
@@ -228,20 +227,21 @@ sub confirm {
 	  );
 
   $file = $self->substitute_vars($file, %repl);
-  $desc = $self->substitute_vars_string($desc, %repl);
+  $desc = $self->substitute_vars_string($file{'description'}, %repl);
 
   # Send it off
   $ent = build MIME::Entity
     (
      Path        => $file,
-     Type        => $c_type,
-     Charset     => $cset,
-     Encoding    => $c_t_encoding,
+     Type        => $file{'c_type'},
+     Charset     => $file{'charset'},
+     Encoding    => $file{'c_t_encoding'},
      Filename    => undef,
      To          => "$victim",
      -From       => $mj_addr,
      '-Reply-To' => $mj_addr,
      -Subject    => "$token : $desc",
+     'Content-Language:' => $file{'language'},
     );
 
   $self->mail_entity($mj_owner, $ent, $victim);
@@ -299,9 +299,9 @@ sub consult {
       $mode, $cmdline, $approvals, $chain1, $chain2, $chain3, $chain4,
       $arg1, $arg2, $arg3, $sessionid) = @_;
   my $log  = new Log::In 50;
-  my (%repl, @mod1, @mod2, $c_t_encoding, $c_type, $cset, $data, $desc,
-      $ent, $expire, $expire_days, $file, $mj_addr, $mj_owner, $remind,
-      $remind_days, $sender, $subject, $token, $url);
+  my (%file, %repl, @mod1, @mod2, $data, $desc, $ent, $expire,
+      $expire_days, $file, $mj_addr, $mj_owner, $remind, $remind_days,
+      $sender, $subject, $token, $url);
 
   $self->_make_tokendb;
 
@@ -356,7 +356,8 @@ sub consult {
     # Drop the message into storage
     $self->_list_file_put('GLOBAL', "spool/$token", $arg1, 'overwrite',
 			  "Spooled awaiting acceptance of $token",
-			  'message/rfc822', 'ISO-8859-1', '8bit', 'w');
+			  'message/rfc822', 'ISO-8859-1', '8bit', 'en',
+			  'w');
 
     
     # Build a mesage
@@ -385,8 +386,7 @@ sub consult {
 
   # Not doing a post, so we send a form letter.
   # Extract the file from storage:
-  ($file, $desc, $c_type, $cset, $c_t_encoding) =
-    $self->_list_file_get($list, $fname);
+  ($file, %file) = $self->_list_file_get($list, $fname);
   
   $::log->abort("Couldn't get $fname from $list")
     unless $file;
@@ -411,19 +411,20 @@ sub consult {
 	  );
 
   $file = $self->substitute_vars($file, %repl);
-  $desc = $self->substitute_vars_string($desc, %repl);
+  $desc = $self->substitute_vars_string($file{'description'}, %repl);
 
   # Send it off
   $ent = build MIME::Entity
     (
      Path        => $file,
-     Type        => $c_type,
-     Charset     => $cset,
-     Encoding    => $c_t_encoding,
+     Type        => $file{'c_type'},
+     Charset     => $file{'charset'},
+     Encoding    => $file{'c_t_encoding'},
      Filename    => undef,
      -From       => $mj_addr,
      '-Reply-To' => $mj_addr,
      -Subject    => "$token : $desc",
+     'Content-Language:' => $file{'language'},
     );
 
   $self->mail_entity($sender, $ent, @mod2);
@@ -502,8 +503,7 @@ sub t_accept {
     $self->t_remove($token);
 
     # and build the return message string from the replyfile
-    my ($file, $desc, $c_type, $cset, $c_t_encoding) =
-      $self->_list_file_get($data->{'list'}, $data->{'chain4'});
+    my ($file) = $self->_list_file_get($data->{'list'}, $data->{'chain4'});
     my $fh = new Mj::File "$file"
       || $log->abort("Cannot read file $file, $!");
     while (defined ($line = $fh->getline)) {
@@ -668,9 +668,8 @@ sub t_remind {
   my $self = shift;
   my $log  = new Log::In 60;
   my $time = time;
-  my (%repl, @reminded, @tmp, $cset, $cte, $ctype, $data, $desc, $ent,
-      $expire, $file, $gurl, $i, $mj_addr, $mj_owner, $sender, $token,
-      $url);
+  my (%file, %repl, @reminded, @tmp, $data, $desc, $ent, $expire, $file,
+      $gurl, $i, $mj_addr, $mj_owner, $sender, $token, $url);
 
   my $mogrify = sub {
     my $key  = shift;
@@ -700,8 +699,7 @@ sub t_remind {
 
     while (($token, $data) = splice(@reminded, 0, 2)) {
       # Extract the file from storage
-      ($file, $desc, $ctype, $cset, $cte) =
-	$self->_list_file_get($data->{'list'}, "token_remind");
+      ($file, %file) = $self->_list_file_get($data->{'list'}, "token_remind");
 
       # Extract some list-specific variables
       $sender = $self->_list_config_get($data->{'list'}, 'sender');
@@ -733,19 +731,20 @@ sub t_remind {
 
       # Substitute values in the file and the description
       $file = $self->substitute_vars($file, %repl);
-      $desc = $self->substitute_vars_string($desc, %repl);
+      $desc = $self->substitute_vars_string($file{'description'}, %repl);
       
       # Build an entity
       $ent = build MIME::Entity
 	(
 	 Path        => $file,
-	 Type        => $ctype,
-	 Charset     => $cset,
-	 Encoding    => $cte,
+	 Type        => $file{'c-type'},
+	 Charset     => $file{'charset'},
+	 Encoding    => $file{'c-t-encoding'},
 	 Filename    => undef,
 	 -From       => $mj_addr,
 	 '-Reply-To' => $mj_addr,
 	 -Subject    => "$token : $desc",
+	 'Content-Language:' => $file{'language'},
 	);
       
       # Mail it out; the victim gets confirm notices, otherwise the owner

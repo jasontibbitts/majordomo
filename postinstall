@@ -9,17 +9,21 @@
 use DirHandle;
 use File::Copy "cp";
 sub dot ();
+
 # We call mj_shell (which we make sure has the right permissions) to do the
 # dirty work; it would be possible to include the routines directly, but
 # this makes sure that everything was installed correctly.  It's better to
 # bomb here than to let a bad installation slip by.
 
 $config = eval { require ".mj_config" };
-
 die "Can't do postinstall unless Makefile.PL has been run!"
   unless $config;
 
-# We pull some variables from the environment 
+@dirs = (); %files = (); # Silence warning.
+die "Can't get file index, $!"
+  unless eval { require "files/INDEX.pl" };
+
+# Pull some variables from the environment 
 $ask   = $ENV{ASK};
 $skip  = $ENV{SKIP};
 $verb  = $ENV{VERBOSE};
@@ -29,60 +33,6 @@ $| = 1;
 # List of script files to be installed.
 @sidscripts = (qw(mj_resend mj_shell mj_email mj_confirm));
 @scripts = (qw(mj_trigger));
-
-# List of default reply files and subjects to be installed in the GLOBAL
-# filespace
-%files =
-  ('en/ack_denial'	        => 'Denial',
-   'en/ack_rejection'	        => 'Rejection',
-   'en/ack_stall'	        => 'Stall',
-   'en/ack_success'	        => 'Success',
-   'en/ack_timeout'	        => 'Timeout',
-   'en/faq'			=> 'Default faq reply',
-   'en/file_sent'		=> 'File has been sent',
-   'en/info'			=> 'Info',
-   'en/intro'			=> 'Intro',
-   'en/welcome'			=> 'Welcome',
-   'en/registered'        	=> 'Welcome to $SITE',
-   'en/inform'			=> '$UREQUEST $LIST',
-   'en/repl_consult'		=> 'Default consult mailreply file',
-   'en/repl_confirm'		=> 'Default confirm mailreply file',
-   'en/repl_confcons'		=> 'Default confirm+consult mailreply file',
-   'en/repl_chain'		=> 'Default chained mailreply file',
-   'en/repl_deny'		=> 'Default denial replyfile',
-   'en/repl_forward'		=> 'Default forward replyfile',
-   'en/request_response'        => 'Automated response from $REQUEST',
-   'en/subscribe_to_self'	=> 'Attempt to subscribe $LIST to itself',
-   'en/token_reject'		=> 'Rejected token $TOKEN',
-   'en/token_reject_owner'      => 'Token rejected by $REJECTER',
-   'en/token_remind'            => 'REMINDER from $LIST',
-   'en/help/default'   	        => 'Default help file',
-   'en/help/commands'		=> 'Overview of available commands',
-   'en/help/parser'		=> 'Information about the text parser',
-   'en/help/subscribe'		=> 'Help on subscribing',
-   'en/help/topics'		=> 'Available help topics',
-   'en/help/admin_commands'	=> 'Overview of available administrative commands',
-   'en/help/admin_configuration'=> 'Overview of configuration variables and methods',
-   'en/help/admin_passwords'	=> 'Information on Majordomo security and passwords',
-  );
-
-if ($config->{cgi_bin}) {
-  $files{'en/confirm'} = 'CONFIRM from $LIST';
-  $files{'en/consult'} = 'CONSULT from $LIST';
-}
-else {
-  $files{'en/confirm'} = ['CONFIRM from $LIST', 'en/confirm_noweb'];
-  $files{'en/consult'} = ['CONSULT from $LIST', 'en/consult_noweb'];
-}
-
-# These have to be ordered...
-@dirs =
-  ('stock'         => 'Majordomo-supplied files',
-   'stock/en'	   => 'English',
-   'stock/en/help' => 'Help files',
-   'spool'         => 'Spooled files',
-   'public'        => 'Public files',
-  );
 
 $msg0 = <<EOM;
 
@@ -343,7 +293,7 @@ sub install_response_files {
   my $pass  = shift;
   my $files = shift;
   my $dirs  = shift;
-  my(@args, @dirs, $dir, $file, $i, $subj);
+  my(@args, @dirs, $dir, $file, $i, $lang, $subj);
 
   # Grab the password if necessary
   $pw = $config->{'domain'}{$dom}{'master_password'};
@@ -366,18 +316,33 @@ sub install_response_files {
   print FILE "default password $pw\n";
   # Make the directories
   while (($dir, $subj) = splice(@dirs, 0, 2)) {
-    print FILE "put=dir GLOBAL /$dir $subj\n";
+    print FILE "put-dir GLOBAL /$dir $subj\n";
   }
   # Put the files
   $i = 1;
   while (($file, $subj) = each %{$files}) {
-    if (ref($subj)) {
-      print FILE "put GLOBAL /stock/$file $$subj[0] <\@$i\n";
-      # Copy each file into the temp area, so Majordomo can read it.
-      cp("files/$$subj[1]", "$config->{wtmpdir}/inst.$$.$i");
+
+    # Extract the language to use
+    ($lang) = $file =~ m!^([^/]*)!;
+    if ($file =~ m!/informal/!) {
+      $lang .= "(informal)";
     }
+
+    # If we have a ref instead of a string for the subject
+    if (ref($subj)) {
+      print FILE "put-data GLOBAL /stock/$file text/plain $$subj[1] $$subj[2] $lang $$subj[0] <\@$i\n";
+      # Copy each file into the temp area, so Majordomo can read it.
+      if ($$subj[3]) {
+	cp("files/$$subj[3]", "$config->{wtmpdir}/inst.$$.$i");
+      }
+      else {
+	cp("files/$file", "$config->{wtmpdir}/inst.$$.$i");
+      }
+    }
+
+    # Else assume we have an European language and use appropriate defaults.
     else {
-      print FILE "put GLOBAL /stock/$file $subj <\@$i\n";
+      print FILE "put-data GLOBAL /stock/$file text/plain ISO-8859-1 8bit $lang $subj <\@$i\n";
       cp("files/$file", "$config->{wtmpdir}/inst.$$.$i");
     }
     chmod(0644, "$config->{wtmpdir}/inst.$$.$i");

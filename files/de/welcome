@@ -1,0 +1,22 @@
+Willkommen zur $LIST Mailing-Liste!
+
+Bitte bewahren Sie diese Nachricht auf, damit Sie später darauf Bezug
+nehmen können. Danke.
+
+Falls Sie sich irgendwann von dieser Liste wieder abmelden
+wollen, senden Sie das folgende Kommando per Mail an
+$REQUEST:
+
+    unsubscribe $USER
+
+Sie können auch eine Nachricht an $MAJORDOMO senden und
+das folgende Kommando im Textteil der Nachricht benutzen:
+
+    unsubscribe $LIST $USER
+
+Senden Sie eine Nachricht an $OWNER, falls Sie Kontakt
+mit dem Verwalter dieser Liste aufnehmen wollen (zum
+Beispiel weil Sie Probleme beim Abmelden von der Liste
+haben oder Fragen über die Liste stellen wollen).
+
+

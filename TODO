@@ -32,8 +32,28 @@ the owner alias and having to run things again.
 Top of the list 
 ---------------
 
-! Two more majordomo routines to work over for the rewrite:
-  config_get_vars
+! Make Access check password against stored user password, set
+password_valid flag, bypass confirmation for valid passwords.
+
+Possibilities:
+
+Make confirm action not bother if the password is valid.
+Just set the flag and let the default actions take care of it.
+
+The second requires that owners not break things when they write
+access_rules.  The first prevents them from overriding the behavior.
+
+! Utility method to set the default language from the interface.
+  Check the user's chosen language.  Should the language used be that of
+  the victim or the requester?  The requester will see the immediate
+  output, while the victim will receive instructions.  Or look up the
+  language preference of the user when sending out end-user information.
+
+! Update help texts from recent contributions.
+
+-- Snapshot
+
+! One more majordomo routines to work over for the rewrite:
   rekey - this needs to be a generic database-lint routine.  The keys
    should be regenerated from the stripped addresses and the list of lists
    in the reg database should be updated from the actual membership lists.
@@ -45,11 +65,8 @@ Need these functions to manipulate the reglist:
 
   password - change a password (later)
 
-! Update help texts from recent contributions.
-
-! Rewrite Format::lists to do proper sorting.
-
--- Snapshot
+! file_search mechanism should expand $LANG tags to 'tag-subtag-subtag',
+  'tag-subtag', and 'tag'.
 
 ! Dispatch should log password failures for overriding logging.
 

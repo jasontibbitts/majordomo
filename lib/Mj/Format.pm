@@ -236,7 +236,7 @@ sub index {
       $list, $vict, $dir, $arg2, $arg3, $ok, $mess, @in) = @_;
   my (%legend, @index, @item, @width, $count, $i, $j);
   $count = 0;
-  @width = (0, 0, 0, 0, 0, 0, 0, 0, 0);
+  @width = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   unless ($ok > 0) {
     eprint($out, $type, "Index failed.\n");
@@ -245,7 +245,7 @@ sub index {
   }
 
   # Split up the index return array
-  while (@item = splice(@in, 0, 7)) {
+  while (@item = splice(@in, 0, 8)) {
     push @index, [@item];
   }
   
@@ -261,14 +261,14 @@ sub index {
 	1 while $i->[0] =~ s!(\s*)[^/]*/(.+)!$1  $2!g;
       }
       # Figure out the optimal width
-      for $j (0, 3, 4, 5, 6) {
+      for $j (0, 3, 4, 5, 6, 7) {
 	$width[$j] = (length($i->[$j]) > $width[$j]) ?
 	  length($i->[$j]) : $width[$j];
       }
     }
   }
   $width[0] ||= 50; $width[3] ||= 12; $width[4] ||= 10; $width[5] ||= 12;
-  $width[6] ||= 5;
+  $width[6] ||= 5; $width[7] ||= 5;
 
   if (@index) {
     eprint($out, $type, "Files in $dir:\n") unless $mode =~ /short/;
@@ -280,12 +280,12 @@ sub index {
       }
       elsif ($mode =~ /long/) {
 	eprintf($out, $type,
-		"  %2s %-$width[0]s %$width[6]s  %-$width[3]s  %-$width[4]s  %-$width[5]s  %s\n",
-		$i->[1], $i->[0], $i->[6], $i->[3], $i->[4], $i->[5], $i->[2]);
+		"  %2s %-$width[0]s %$width[7]s  %-$width[3]s  %-$width[4]s  %-$width[5]s  %-$width[6]s  %s\n",
+		$i->[1], $i->[0], $i->[7], $i->[3], $i->[4], $i->[5], $i->[6], $i->[2]);
       }
       else { # normal
 	eprintf($out, $type,
-		"  %-$width[0]s %$width[6]d %s\n", $i->[0], $i->[6], $i->[2]);
+		"  %-$width[0]s %$width[6]d %s\n", $i->[0], $i->[7], $i->[2]);
       }
     }
     return 1 if $mode =~ /short/;

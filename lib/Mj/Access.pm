@@ -27,9 +27,9 @@ use Mj::Config qw(parse_table);
 use strict;
 use vars qw($victim $passwd @permitted_ops %args %memberof %requests);
 
-use AutoLoader 'AUTOLOAD';
+#use AutoLoader 'AUTOLOAD';
 1;
-__END__
+#__END__
 
 =head2 validate_passwd(user, passwd, auth, interface, list, action)
 
@@ -558,10 +558,9 @@ sub _a_replyfile {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
   my $log = new Log::In 150, "$arg";
-  my ($cset, $c_type, $c_t_encoding, $desc, $ent, $file, $fh, $line, $out);
+  my ($file, $fh, $line, $out);
 
-  ($file, $desc, $c_type, $cset, $c_t_encoding) =
-    $self->_list_file_get($list, $arg);
+  ($file) = $self->_list_file_get($list, $arg);
 
   $fh = new Mj::File "$file"
     || $log->abort("Cannot read file $file, $!");
@@ -575,11 +574,9 @@ use MIME::Entity;
 sub _a_mailfile {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
+  my (%file, $ent, $file);
 
-  my ($cset, $ent, $file, $desc, $c_type, $c_t_encoding);
-
-  ($file, $desc, $c_type, $cset, $c_t_encoding) =
-    $self->_list_file_get($list, $arg);
+  ($file, %file) = $self->_list_file_get($list, $arg);
   $file = $self->substitute_vars($file,
 				 'LIST'      => $list,
 				 'REQUESTER' => $requester,
@@ -589,11 +586,12 @@ sub _a_mailfile {
   $ent = build MIME::Entity
     (
      Path        => $file,
-     Type        => $c_type,
-     Charset     => $cset,
-     Encoding    => $c_t_encoding,
+     Type        => $file{'c_type'},
+     Charset     => $file{'charset'},
+     Encoding    => $file{'c_t_encoding'},
      Filename    => undef,
-     -Subject    => $desc,
+     -Subject    => $file{'description'},
+     'Content-Language:' => $file{'language'},
     );
   $self->mail_entity($sender, $ent, $requester);
   return (undef, undef, undef, $file);
@@ -787,7 +785,7 @@ sub _d_post {
     # Consult only if the value is defined and is either a string or a
     # positive integer.
     return $self->_a_consult(@_)
-      if defined($args{$i}) && ($args =~ /\D/ || $args{$i} > 0);
+      if defined($args{$i}) && ($args{$i} =~ /\D/ || $args{$i} > 0);
   }
 
   return $self->_a_allow(@_);

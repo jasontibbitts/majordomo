@@ -22,7 +22,7 @@ use Mj::SimpleDB;
 use vars qw(@ISA);
 @ISA=qw(Mj::SimpleDB);
 
-my @fields = qw(description permissions c-type charset c-t-encoding changetime);
+my @fields = qw(description permissions c-type charset c-t-encoding changetime language);
 
 =head2 new(path)
 

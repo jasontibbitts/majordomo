@@ -1306,17 +1306,19 @@ sub get_start {
 sub _get {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $name) = @_;
   my $log = new Log::In 35, "$list, $name";
-  my ($cset, $desc, $enc, $file, $mess, $nname, $ok, $type);
+  my (%data, $cset, $desc, $enc, $file, $mess, $nname, $ok, $type);
 
   $self->_make_list($list);
+
+  # Untaint the file name
+  $name =~ /(.*)/; $name = $1;
 
   # If given an "absolute path", trim it, else stick "public/" onto it
   unless (($nname = $name) =~ s!^/!!) {
     $nname = "public/$name";
   }
   
-  ($file, $desc, $type, $cset, $enc) = 
-    $self->_list_file_get($list, $nname);
+  ($file, %data) = $self->_list_file_get($list, $nname);
   
   unless ($file) {
     return (0, "No such file \"$name\".\n");
@@ -1332,12 +1334,12 @@ sub _get {
   }
 
   # Else build the entity and mail out the file
-  $self->_get_mailfile($list, $victim, $file, $desc, $type, $cset, $enc);
+  $self->_get_mailfile($list, $victim, $name, $file, %data); #$desc, $type, $cset, $enc);
 
   # and be sneaky and return another file to be read; this keeps the code
   # simpler and lets the owner customize the transmission message
-  ($file, $desc, $type, $cset, $enc) = 
-    $self->_list_file_get($list, 'file_sent');
+#  ($file, $desc, $type, $cset, $enc) = 
+  ($file, %data) = $self->_list_file_get($list, 'file_sent');
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
     return 0;
@@ -1348,7 +1350,7 @@ sub _get {
 use MIME::Entity;
 use Mj::MailOut;
 sub _get_mailfile {
-  my ($self, $list, $vict, $file, $desc, $type, $cset, $enc) = @_;
+  my ($self, $list, $vict, $name, $file, %data) = @_;
   my ($ent, $sender);
 
   $sender = $self->_list_config_get($list, 'sender');
@@ -1356,12 +1358,13 @@ sub _get_mailfile {
   $ent = build MIME::Entity
     (
      Path     => $file,
-     Type     => $type,
-     Charset  => $cset,
-     Encoding => $enc,
-     Subject  => $desc || "Requested file $file from $list",
+     Type     => $data{'c-type'},
+     Charset  => $data{'charset'},
+     Encoding => $data{'c-t-encoding'},
+     Subject  => $data{'desctiption'} || "Requested file $name from $list",
      Top      => 1,
      Filename => undef,
+     'Content-Language:' => $data{'language'},
     );
 
   $self->mail_entity($sender, $ent, $vict);
@@ -1419,12 +1422,11 @@ sub faq_start {
 sub _faq {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my ($cset, $desc, $enc, $file, $mess, $ok, $type);
+  my ($file);
 
   $self->_make_list($list);
 
-  ($file, $desc, $type, $cset, $enc) = 
-    $self->_list_file_get($list, 'faq');
+  ($file) = $self->_list_file_get($list, 'faq');
   
   unless ($file) {
     return (0, "No FAQ available.\n");
@@ -1452,6 +1454,7 @@ sub help_start {
     return ($ok, $mess);
   }
 
+  ($topic) = $topic =~ /(.*)/; # Untaint
   ($file) =  $self->_list_file_get('GLOBAL', "help/$topic");
 
   unless ($file) {
@@ -1491,12 +1494,11 @@ sub info_start {
 sub _info {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my ($cset, $desc, $enc, $file, $mess, $ok, $type);
+  my ($file);
 
   $self->_make_list($list);
 
-  ($file, $desc, $type, $cset, $enc) = 
-    $self->_list_file_get($list, 'info');
+  ($file) = $self->_list_file_get($list, 'info');
   
   unless ($file) {
     return (0, "No info available.\n");
@@ -1527,12 +1529,11 @@ sub intro_start {
 sub _intro {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my ($cset, $desc, $enc, $file, $mess, $ok, $type);
+  my ($file);
 
   $self->_make_list($list);
 
-  ($file, $desc, $type, $cset, $enc) = 
-    $self->_list_file_get($list, 'intro');
+  ($file) = $self->_list_file_get($list, 'intro');
   
   unless ($file) {
     return (0, "No intro available.\n");
@@ -1552,11 +1553,11 @@ This starts the file put operation.
 =cut
 sub put_start {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode, $list, $vict,
-      $file, $subj, $type, $cset, $cte) = @_;
+      $file, $subj, $type, $cset, $cte, $lang) = @_;
   my ($ok, $mess);
   
   $subj ||= $file;
-  my $log = new Log::In 30, "$list, $file, $subj, $type, $cset, $cte";
+  my $log = new Log::In 30, "$list, $file, $subj, $type, $cset, $cte, $lang";
   
   $self->_make_list($list);
 
@@ -1564,24 +1565,24 @@ sub put_start {
   ($ok, $mess) =
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
 			     $list, 'put', $user, $vict, $file, $subj,
-			     "$type%~%$cset%~%$cte");
+			     "$type%~%$cset%~%$cte%~%$lang");
   unless ($ok > 0) {
     return ($ok, $mess);
   }
 
   $self->_put($list, $user, $vict, $mode, $cmdline, $file, $subj,
-	      "$type%~%$cset%~%$cte");
+	      "$type%~%$cset%~%$cte%~%$lang");
 }
 
 sub _put {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $file, $subj, $stuff)
     = @_;
-  my ($cset, $enc, $mess, $ok, $type);
+  my ($cset, $enc, $lang, $mess, $ok, $type);
 
   # Extract the encoded type and encoding
-  ($type, $cset, $enc) = split('%~%', $stuff);
+  ($type, $cset, $enc, $lang) = split('%~%', $stuff);
 
-  my $log = new Log::In 35, "$list, $file, $subj, $type, $cset, $enc";
+  my $log = new Log::In 35, "$list, $file, $subj, $type, $cset, $enc, $lang";
   $self->_make_list($list);
 
   # If given an "absolute path", trim it, else stick "public/" onto it
@@ -1596,7 +1597,7 @@ sub _put {
 
   # The zero is the overwrite control; haven't quite figured out what to
   # do with it yet.
-  $self->{'lists'}{$list}->fs_put_start($file, 0, $subj, $type, $cset, $enc);
+  $self->{'lists'}{$list}->fs_put_start($file, 0, $subj, $type, $cset, $enc, $lang);
 }
 
 =head2 put_chunk(..., data, data, data, ...)
@@ -1652,13 +1653,12 @@ use Mj::MailOut;
 sub _request_response {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my (%subst, $cset, $desc, $enc, $ent, $file, $list_own, $majord,
+  my (%file, %subst, $cset, $desc, $enc, $ent, $file, $list_own, $majord,
       $majord_own, $mess, $sender, $site, $type, $whereami);
 
   $self->_make_list($list);
 
-  ($file, $desc, $type, $cset, $enc) = 
-    $self->_list_file_get($list, 'request_response');
+  ($file, %file) = $self->_list_file_get($list, 'request_response');
   return unless $file;
 
   # Build the entity and mail out the file
@@ -1684,12 +1684,13 @@ sub _request_response {
   $ent = build MIME::Entity
     (
      Path     => $file,
-     Type     => $type,
-     Charset  => $cset,
-     Encoding => $enc,
-     Subject  => $desc || "Your message to $list-request",
+     Type     => $file{'c-type'},
+     Charset  => $file{'charset'},
+     Encoding => $file{'c-t-encoding'},
+     Subject  => $file{'description'} || "Your message to $list-request",
      Top      => 1,
      Filename => undef,
+     'Content-Language:' => $file{'language'},
     );
 
   $self->mail_entity($sender, $ent, $victim);
@@ -2598,8 +2599,8 @@ sub reject {
   my ($self, $user, $pass, $auth, $int, $cmd, $mode, $list, $vict,
       $token) = @_;
   my $log = new Log::In 30, "$token";
-  my (%repl, $cset, $cte, $ctype, $data, $desc, $ent, $file, $in, $inf,
-      $inform, $line, $list_owner, $mj_addr, $mj_owner, $ok, $sess, $site);
+  my (%file, %repl, $data, $desc, $ent, $file, $in, $inf, $inform, $line,
+      $list_owner, $mj_addr, $mj_owner, $ok, $sess, $site);
 
   return (0, "Illegal token $token.\n")
     unless !$token || ($token = $self->t_recognize($token));
@@ -2646,23 +2647,23 @@ sub reject {
 	     'SESSION'    => $sess,
 	    );
     
-    ($file, $desc, $ctype, $cset, $cte) =
-      $self->_list_file_get($data->{'list'}, "token_reject");
+    ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject");
     $file = $self->substitute_vars($file, %repl);
-    $desc = $self->substitute_vars_string($desc, %repl);
+    $desc = $self->substitute_vars_string($file{'description'}, %repl);
     
     # Send it off
     $ent = build MIME::Entity
       (
        Path        => $file,
-       Type        => $ctype,
-       Charset     => $cset,
-       Encoding    => $cte,
+       Type        => $file{'c-type'},
+       Charset     => $file{'charset'},
+       Encoding    => $file{'c-t-encoding'},
        Filename    => undef,
        -From       => $mj_owner,
        -To         => $data->{'victim'},
        '-Reply-To' => $mj_owner,
        -Subject    => $desc,
+       'Content-Language:' => $file{'language'},
       );
     
     $self->mail_entity($mj_owner, $ent, $data->{'victim'});
@@ -2670,22 +2671,22 @@ sub reject {
     
     # Then we send a message to the list owner and majordomo owner if
     # appropriate
-    ($file, $desc, $ctype, $cset, $cte) =
-      $self->_list_file_get($data->{'list'}, "token_reject_owner");
+    ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject_owner");
     $file = $self->substitute_vars($file, %repl);
     $desc = $self->substitute_vars_string($desc, %repl);
     
     $ent = build MIME::Entity
       (
        Path        => $file,
-       Type        => $ctype,
-       Charset     => $cset,
-       Encoding    => $cte,
+       Type        => $file{'c-type'},
+       Charset     => $file{'charset'},
+       Encoding    => $file{'c-t-encoding'},
        Filename    => undef,
        -From       => $mj_owner,
        '-Reply-To' => $mj_owner,
-       -Subject    => $desc,
+       -Subject    => $desc, 
        -To         => $list_owner,
+       'Content-Language:' => $file{'language'},
       );
     
     # Should we inform the list owner?

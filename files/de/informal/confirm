@@ -1,0 +1,41 @@
+Majordomo hat (möglicherweise von Dir) den folgenden Majordomo-Befehl
+erhalten:
+
+  $CMDLINE
+
+
+Vor der Ausführung dieses Majordomo-Befehls wird Deine Bestätigung
+benötigt. Du hast zwei Möglichkeiten, um dem Majordomo-Befehl
+zuzustimmen:
+
+1. Wenn Du einen Web Browser hast, besuche einfach
+   <URL:$URL>
+   und folge den weiteren Anweisungen auf der Webseite.
+
+2. Oder antworte auf diese Nachricht, indem Du das Wort "accept"
+   (ohne Anfuehrungsstriche) in einer eigenen Textzeile
+   zurückschickst.
+
+
+Wenn Du nicht innerhalb von $REMIND Tagen bestätigst, erhaeltst Du
+eine Nachricht zur Erinnerung.
+
+Nach $EXPIRE Tagen ohne Bestätigung verfällt der Majordomo-Befehl und
+wird gelöscht.
+
+
+Falls dieser Majordomo-Befehl nicht von Dir stammt, fehlerhaft ist oder Du
+nicht willst, dass er ausgefuehrt wird, kannst Du ihn ablehnen:
+
+1. Wenn Du einen Web Browser hast, besuche einfach
+   <URL:$URL>
+   und folge den weiteren Anweisungen auf der Webseite.
+
+2. Oder antworte auf diese Nachricht, indem Du das Wort "reject"
+   (ohne Anführungsstriche) in einer eigenen Textzeile
+   zurückschickst.
+
+
+Sende eine Nachricht an $OWNER, falls Du weitere Fragen hast.
+
+

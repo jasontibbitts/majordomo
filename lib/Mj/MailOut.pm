@@ -21,9 +21,9 @@ Mj::Deliver.pm.
 package Mj::MailOut;
 use strict;
 
-use AutoLoader 'AUTOLOAD';
+#use AutoLoader 'AUTOLOAD';
 1;
-__END__
+#__END__
 
 =head2 mail_message(sender, file, addresses)
 
@@ -192,8 +192,8 @@ sub welcome {
   my $addr = shift;
   my %args = @_;
   my $log = new Log::In 150, "$list, $addr";
-  my (%subs, @mess, @temps, $count, $cset, $head, $final, $subj, $file,
-      $desc, $c_type, $c_t_encoding, $top, $i, $j);
+  my (%file, %subs, @mess, @temps, $count, $head, $final, $subj, $file,
+      $top, $i, $j);
 
   # Extract some necessary variables from the config files
   my $whoami        = $self->_global_config_get('whoami');
@@ -221,13 +221,13 @@ sub welcome {
     if ($i!=0 && $table->[$i][2] =~ /N/) {
       $count++;
     }
-    ($file, $desc, $c_type, $cset,  $c_t_encoding) =
-      $self->_list_file_get($list, $table->[$i][1]);
+    ($file, %file) = $self->_list_file_get($list, $table->[$i][1]);
     # XXX Need to complain here
     next unless $file;
 
-    $subj = $self->substitute_vars_string($table->[$i][0] || $desc, %subs);
-    
+    $subj = $self->substitute_vars_string($table->[$i][0] ||
+					  $file{'description'}, %subs);
+
     # We may have to substitute variables in the file
     if ($table->[$i][2] =~ /S/) {
       $file = $self->substitute_vars($file, %subs);
@@ -242,12 +242,13 @@ sub welcome {
     push @{$mess[$count]{'ents'}}, build MIME::Entity
       (
        Path        => $file,
-       Type        => $c_type,
-       Charset     => $cset,
-       Encoding    => $c_t_encoding,
+       Type        => $file{'c_type'},
+       Charset     => $file{'charset'},
+       Encoding    => $file{'c_t_encoding'},
        Filename    => undef,
        Description => $subj,
        Top         => 0,
+       '-Content-Language' => $file{'language'},
       );
   }
   

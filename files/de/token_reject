@@ -1,0 +1,15 @@
+Sie haben das Token $TOKEN von $MJ abgelehnt.
+
+Wenn der abgelehnte Majordomo-Befehl von Ihnen selber stammte, dann
+können Sie diese Nachricht wahrscheinlich ignorieren. Wenn jedoch der
+abgelehnte Majordomo-Befehl von anderer Seite kommt und Sie ihn als
+Belästigung empfindest, können die untenstehenden Informationen dabei
+helfen, den Urheber des Problems zu finden.
+
+Diese Information wird auch an die Verantwortlichen bei
+$SITE geschickt.
+
+
+Hier die gespeicherten Daten des Vorgangs $SESSIONID:
+
+$SESSION

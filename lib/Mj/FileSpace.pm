@@ -111,13 +111,15 @@ sub get {
     {
       return;
     }
+
+  $data->{'language'} ||= 'en';
   
-  return ("$self->{'dir'}/$file",
-	  $data->{'description'},
-	  $data->{'c-type'},
-	  $data->{'charset'},
-	  $data->{'c-t-encoding'},
-	 );
+  return ("$self->{'dir'}/$file", %$data);
+# 	  $data->{'description'},
+# 	  $data->{'c-type'},
+# 	  $data->{'charset'},
+# 	  $data->{'c-t-encoding'},
+# 	 );
 }
 
 =head2 put(file, source, overwrite, description, content-type,
@@ -150,6 +152,7 @@ sub put {
   my $type = shift || "text/plain";
   my $cset = shift || "ISO-8859-1";
   my $cte  = shift || "8bit";
+  my $lang = shift || 'en';
   my $perm = shift || "Rw";
   my $log  = new Log::In 120, "$src, $file";
   my ($path, $oldperm, $data);
@@ -188,6 +191,7 @@ sub put {
      'charset'     => $cset,
      'c-t-encoding'=> $cte,
      'permissions' => $perm,
+     'language'    => $lang,
     };
   $self->{'db'}->add("", $file, $data);
   (1, $path);
@@ -214,6 +218,7 @@ sub put_start {
   my $type = shift || "text/plain";
   my $cset = shift || "ISO-8859-1";
   my $cte  = shift || "8bit";
+  my $lang = shift || 'en',
   my $perm = shift || "Rw";
   my $log  = new Log::In 150, "$file, $desc";
   my ($data, $dir, $dpath, $oldperm, $path);
@@ -253,6 +258,7 @@ sub put_start {
      'charset'     => $cset,
      'c-t-encoding'=> $cte,
      'permissions' => $perm,
+     'language'    => $lang,
     };
   $self->{'db'}->add("", $file, $data);
 
@@ -508,6 +514,7 @@ sub index {
 	push @out, ($name, $data->{'permissions'}, $data->{'description'},
 		    $data->{'c-type'}, $data->{'charset'},
 		    $data->{'c-t-encoding'},
+		    $data->{'language'},
 		    (stat("$self->{'dir'}/$file"))[7]);
       }
   }

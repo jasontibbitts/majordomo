@@ -1,0 +1,8 @@
+Der Majordomo-Befehl:
+  $CMDLINE
+
+von:
+  $REQUESTER
+
+wurde mit folgendem Ergebnis ausgeführt:
+  $STATUS

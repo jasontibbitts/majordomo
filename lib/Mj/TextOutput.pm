@@ -538,32 +538,34 @@ This uploads a file to the server.  The first argument is the file name,
 the second is the description of the file (which gets used as the subject
 when the file is sent).
 
-If mode =~ /data/ we expect three additional args before the desctiption:
-content-type, charset and content-transfer-encoding.  All must be
-specified.
+If mode =~ /data/ we expect four additional args before the desctiption:
+content-type, charset, content-transfer-encoding and content-language.  All
+must be specified.
 
 =cut
 sub put {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27, "$args";
-  my(@out, @stuff, $cset, $ct, $cte, $desc, $file, $i, $mess, $ok);
-  
+  my(@out, @stuff, $cmdline, $cset, $ct, $cte, $desc, $file, $i, $mess,
+     $ok);
+
   # Pull apart the arguments
   if ($mode =~ /data/) {
-    ($file, $ct, $cset, $cte, $desc) = split(/\s+/, $args, 5);
+    ($file, $ct, $cset, $cte, $lang, $desc) = split(/\s+/, $args, 6);
+    $cmdline = "put".($mode?"-$mode":"")." $list $file $ct $cset $cte $lang $desc";
   }
   else {
     ($file, $desc) = split(/\s+/, $args, 2);
-    $ct = ''; $cset = ''; $cte = '';
+    $cmdline = "put".($mode?"-$mode":"")." $list $file $desc";
+    $ct = ''; $cset = ''; $cte = ''; $lang = '';
   }
 
-  # The last three arguments are the c-t , cset and c-t-e
-  @stuff = ($user, $passwd, $auth, $interface,
-	    "put".($mode?"=$mode":"")." $list $file $desc",
-	    $mode, $list, '', $file, $desc);
+  # The last four arguments are the c-t, cset, c-t-e and language
+  @stuff = ($user, $passwd, $auth, $interface, $cmdline, $mode, $list, '',
+	    $file, $desc);
 
-  ($ok, @out) = $mj->dispatch('put_start', @stuff, $ct, $cset, $cte);
+  ($ok, @out) = $mj->dispatch('put_start', @stuff, $ct, $cset, $cte, $lang);
 
   # Quit now if we have an error or if we're making a directory
   return Mj::Format::put($mj, $outfh, $outfh, 'text', @stuff, '', $ok, @out)

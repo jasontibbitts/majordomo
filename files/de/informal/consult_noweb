@@ -1,0 +1,23 @@
+Ein Benutzer hat den folgenden Majordomo-Befehl gesandt:
+
+  $CMDLINE
+
+
+Vor der Ausführung dieses Majordomo-Befehls wird Deine Genehmigung
+benötigt. Wenn Du willst, daß der Majordomo-Befehl ausgeführt wird,
+antworte bitte auf diese Nachricht, indem Du das Wort "accept"
+(ohne Anführungsstriche) in einer eigenen Textzeile zurückschickst.
+
+
+Wenn Du den Befehl nicht innerhalb von $REMIND Tagen bestätigst,
+erhältst Du eine Nachricht zur Erinnerung.
+
+Nach $EXPIRE Tagen ohne Bestätigung verfällt der Majordomo-Befehl und
+wird gelöscht.
+
+
+Falls Du diesen Majordomo-Befehl nicht erlauben willst, kannst Du ihn
+folgendermaßen ablehnen: Antworte auf diese Nachricht, indem Du das
+das Wort "reject" (ohne Anführungsstriche) zurückschickst. Wenn Du
+wollen, kannst Du nach dem Wort "reject" in derselben Zeile noch den
+Grund für die Ablehnung angeben.
