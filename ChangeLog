@@ -1,5 +1,11 @@
 2004-10-21  Michael Yount <csf@moscow.com>
 
+	* lib/Mj/Format.pm:  (lists)  Use the lists_aux_none format
+	file when no auxiliary lists are found.
+	Thanks to Roger Klorese.
+
+2004-10-21  Michael Yount <csf@moscow.com>
+
 	* bin/mj_wwwadm:  Add support for the sublist command.
 
 	* lib/Majordomo.pm:  (sublist, _sublist)  Add support

@@ -1550,7 +1550,12 @@ sub lists {
   }
   else {
     # No lists were found.
-    $tmp = $mj->format_get_string($type, 'lists_none', $request->{'list'});
+    if ($request->{'mode'} =~ /aux/) {
+      $tmp = $mj->format_get_string($type, 'lists_aux_none', $request->{'list'});
+    }
+    else {
+      $tmp = $mj->format_get_string($type, 'lists_none', $request->{'list'});
+    }
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
     return 1;

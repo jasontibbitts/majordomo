@@ -885,6 +885,13 @@ list of auxiliary lists.
 (standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
 
 
+lists_aux_none
+--------------
+(ALL)  This file indicates that no auxiliary lists were found.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
+
+
 lists_category
 --------------
 (ALL)  This file displays each category name
