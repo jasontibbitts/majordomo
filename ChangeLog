@@ -1,3 +1,8 @@
+2000-06-23  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/List.pm (expire_subscriber_data): Dumb logic error kept
+	bounce data from expiring.
+
 2000-06-23  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/List.pm (bounce_gen_stats): Use the configuration

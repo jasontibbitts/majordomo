@@ -1138,7 +1138,7 @@ sub expire_subscriber_data {
   my $mogrify = sub {
     my $key  = shift;
     my $data = shift;
-    my (@b1, @b2, $a1, $a2, $b, $c, $e, $u, $t);
+    my (@b1, @b2, $a1, $a2, $b, $c, $e, $u1, $u2, $t);
 
     # True if we have an expired timer
     $e = ($data->{class} eq 'nomail' &&
@@ -1146,17 +1146,15 @@ sub expire_subscriber_data {
 	  $time > $data->{classarg}
 	 );
 
-    # Fast exit unless we have a timed nomail class and the time has
-    # expired and we have no bounce data
-    return (0, 0) unless ($e && !$data->{bounce});
-
+    # Fast exit if we have no expired timers and no bounce data
+    return (0, 0) if !$e && !$data->{bounce};
     if ($e) {
       # Now we know we must expire; extract the args
       ($c, $a1, $a2) = split("\002", $data->{classarg2});
       $data->{'class'}     = defined $c  ? $c  : 'each';
       $data->{'classarg'}  = defined $a1 ? $a1 : '';
       $data->{'classarg2'} = defined $a2 ? $a2 : '';
-      $u = 1;
+      $u1 = 1;
     }
 
     # Expire old bounce data.
@@ -1164,18 +1162,18 @@ sub expire_subscriber_data {
       @b1 = split(/\s+/, $data->{bounce});
       $c = 0;
       while (1) {
-	last if $c > $maxbouncecount;
+	last if $c >= $maxbouncecount;
 	$b = pop @b1; last unless defined $b;
 	($t) = $b =~ /^(\d+)\w/;
 	next if $t < $bounceexpiretime;
 	push @b2, $b; $c++;
-	$u = 1;
+	$u2 = 1;
       }
-      $data->{bounce} = join(' ', @b2);
+      $data->{bounce} = join(' ', @b2) if $u2;
     }
 
     # Update if necessary
-    if ($u) {
+    if ($u1 || $u2) {
       return (0, 1, $data);
     }
     return (0, 0);
