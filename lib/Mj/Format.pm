@@ -1879,6 +1879,7 @@ sub g_get {
     last unless defined $chunk;
     $lastchar = substr $chunk, -1;
     eprint($out, $type, $chunk);
+    last unless $ok;
   }
 
   # Print the end of the here document in "edit" mode.
