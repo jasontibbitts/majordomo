@@ -12,49 +12,94 @@ address,  required, is an address already subscribed to listname
 -allmatching, if specified, operates on every address that matches
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This command sets the values of various subscription parameters, some
-of which can be pre-set by the list owner. Each time you use "set",
-you will get back a summary of all of your settings. If you use "ALL"
-as the list name, you will either alter (if you supply flags) or
-report on (if you use -check) every list you are subscribed to.
+Each subscriber to a Majordomo mailing list has several personal settings.
+The set command is used to view or change the values of those settings.
+Each of the settings is described in detail in this document.
 
-If you use the "set-check" option, you may not specify any flags
-and you will just get back a summary of your existing settings.
+The settings are sometimes called "classes" or "flags."  A flag is
+a setting that is either on or off.  "Class" is an abbreviation for 
+"delivery class," and refers to how a subscriber receives the messages that 
+are posted to the mailing list.  For example, subscribers with
+the "nomail" class will not receive any posted messages.
 
-NOTE: If you use the pseudo-list "ALL" instead of a specific list name,
-your subscription will be changed for every list to which you are subscribed.
-This can be very handy when you're going on (or returning from) vacation!
+Normally, the set command will allow you to view or change the settings
+for one subscriber on one mailing list.  However, the "set-pattern"
+command may be used by list owners to change the settings for more
+than one address at once.  Also, the "set ALL" command may be used
+by subscribers to change the settings for all of their subscriptions
+at once.
+
+Example:
+  set-pattern listname replyto /./
+will turn on the "replyto" flag for every address subscribed to a
+mailing list.
+
+Example:
+  set ALL nomail-14d
+will postpone mail for all of your subscriptions while you are 
+traveling, for the next 14 days.
+
+Normally, the set command is used to change settings.  However, 
+the "set-check" command will allow you to see the current settings
+without making any changes.
+
+Example:
+  set-check ALL
+will show all of your current settings (the show command will also
+do this.)
+
+Example:
+  set-check ALL someone@example.net
+will show the current settings for someone@example.net.  This may
+require the confirmation of someone@example.net.
 
 You can supply a comma-separated list of flags and classes. If there
 are conflicts, the ones at the end of the list take precedence.  If
-any of the settings are illegal then none of the command takes effect.
+any of the settings are invalid then the whole command will fail.
 
-If the "-regex" option is used, "address" is interpreted as a
+Example:
+  set ALL selfcopy,eliminatecc,noselfcopy
+will turn on the eliminatecc setting
+
+If "pattern" mode is used, the "address" is interpreted as a
 Majordomo matching pattern. Review the "help patterns" file carefully.
 Patterns can be very simple or full-blown Perl regular expressions.
-When -regex is used to unsubscribe addresses with wild cards, the
-list password is required and confirmations will not be requested.
-Without "-allmatching", only the first matching address is removed.
+When -pattern is used to change settings for several addresses, the
+list's administrative password is required. 
 
-If the "-allmatching" option is used with "-regex", then every
-address that matches the pattern will have its settings affected.
+If "allmatching" mode is used with "pattern" mode, every address 
+that matches the pattern will have its settings affected. Without 
+"allmatching", only the settings for the first matching address 
+will be displayed or changed.
 
 Each address has an original and a canonical form.  Usually these
-addresses are the same, but if the original address (the one
+two addresses are the same, but if the original address (the one
 that was used to subscribe to a mailing list) is an alias for
 another address, the latter address is the canonical address.
 
-When the "-regex" option is used, the canonical addresses are
+When "pattern" mode is used, the canonical addresses are
 compared to the pattern.  This may cause some surprising results
 when an original address that does not match the pattern is
-reported to have been had its settings changed.
+reported to have had its settings changed.
 
+Another way for list owners to change the settings of more than one
+address at once is to use a here document (see "help admin" for
+a discussion of here documents.) 
 
-                         TABLE OF CONTENTS
+Example:
+  set listname noreplyto <<ABCE
+a@example.net
+b@example.com
+c@example.org
+ABCE
+  will change the settings for the three addresses in the here document.  
+
+                           THE INDIVIDUAL SETTINGS
+                         
 The settings can be grouped as follows, and each of these numbered items
-is in a separate section below (specify only one of each group, because
-each one will override the others in the group):
-  1. subscription class or subclass
+is in a separate section below.  
+
+  1. delivery class or subclass
       (each, unique, nomail, nomail-period, nomail-return, vacation, digest, digest-XXX, all)
   2. informative messages
       (noack, ackall, ackimportant, ackstall, ackdeny, ackpost, ackreject)
@@ -65,24 +110,16 @@ each one will override the others in the group):
   7. replyto header added by owner (replyto, noreplyto)
   8. rewrite "From:" header when you post (rewritefrom, norewritefrom)
   9. summary of all possible flags (and how to default them)
- 10. administrators only: how to change flags for ALL subscribers
 
-At the bottom of this file is a summary of all possible flags and a
+At the bottom of this document is a summary of all possible flags and a
 cross reference to default settings that might be useful to list owners.
-With the exception of subscription class, the default settings can be
-pre-configured (see "help configset default_flags") by the list owner,
-and the ability to change settings can be restricted by the list owner
-(see "help configset allowed_flags").
-
-NOTE TO LIST OWNERS: See "help configset access_rules" for how to
-eliminate confirmation of set commands. The default is to require
-confirmation whether or not the "From:" header of the request
-matches the address on the command line. Without confirmation,
-subscribers are open to denial of service attacks (like malicious
-"set nomail"). The user will get a notice that their subscription
-was changed, but may miss post or may not get them in a timely
-manner if settings are changed without the subscriber's reply.
-
+The default settings for new subscribers are determined by the list owners
+(see "help configset_default_class" and "help configset_default_flags".)
+The acknowledgement settings also apply to people who are not subscribed
+to a mailing list (see "help configset_nonmember_flags".)  The list
+owners can also prohibit subscribers from changing their personal settings 
+(see "help configset_allowed_classes", "help configset_allowed_flags",
+and "help configset_set_policy".)
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   1. subscription class or subclass
@@ -102,17 +139,15 @@ There are four basic classes:
 
 In addition, there are some special classes:
      nomail-period - you get nothing for the specified time period.
+                     (For example, nomail-20d will postpone mail for 20 days.)
      nomail-return - cancels "set nomail", if one is in effect.
      vacation      - another way of spelling "nomail".
-     all           - special class for list owners, NOT a combination of the others
+     all           - for debugging purposes only, 
 
 For the class of "digest", the list owner can define sub-classes on
 a per-list basis. Typical sub-classes, NOT always present, might be:
      digest-weekly
      digest-daily
-The list owner can also determine the default class for new subscribers
-as described in "help configset default_class".
-
 
 1a) Subscription Class of "each":
 
@@ -146,14 +181,14 @@ as described in "help configset default_class".
 
   To temporarily suspend all messages from the list, without unsubscribing,
   send this one-line command to $MJ
-     set LISTNAME nomail YourEmailAddressHere
+     set LISTNAME nomail
   where "LISTNAME" is replaced with the name of the list. If you don't specify
   a time period (as described below), messages from the list will be suspended
   until you turn them back on with either 'digest' or 'each', or "nomail-return".
 
   If you didn't specify a time period (as described below), or if you come back
   early, send this command to cancel "nomail":
-     set LISTNAME nomail-return YourEmailAddressHere
+     set LISTNAME nomail-return
   which will return you to 'each' or 'digest', however your subscription was
   set before you enabled 'nomail', without you having to remember.
 
@@ -484,29 +519,6 @@ NOTE: "showall" and "nohide" are identical, use whichever you like.
    set LISTNAME norewritefrom Address           (no 'W' in default_flags)
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 10. administrators only: how to change flags for ALL subscribers
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-FOR ADMINISTRATORS WITH SHELL ACCESS ONLY: This trick fairly quickly
-changes the "set" options for every subscriber to every list on your
-system, which can be used to accommodate new flags or recover from a
-bad choice of default flags (see "help configset default_flags").
-The "set" command cannot wild-card addresses, but you can use "who"
-to obtain a list of unique subscribers and use "set ALL" to fix every
-list they are subscribed to.
-
-In this example, the "ackpost" flag is being turned off, and all
-other "set" flags are left unchanged:
-mj_shell -p XXX who-noinform-quiet GLOBAL > \
-  | sed "s/^/set-noinform-quiet ALL noackpost /" > mj.tmp
-mj_shell -p XXX -F mj.tmp > mj.log
-
-You should search the transcript for any sort of error message,
-and search the "mj.log" file for asterisks which indicate Majordomo
-parsing errors. The first and last line of the mj.tmp file will be
-invalid commands, but no harm will be done.
-
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 See Also:
    help configset access_rules           (to restrict or allow access to 'set' changes)
@@ -519,6 +531,7 @@ See Also:
    help configset dup_lifetime           (can bypass duplicate post / "unique" class checking)
    help configset nonmember_flags        (sets non-subscriber defaults for ack messages)
    help configshow                       (for how to get a list of availabel digests)
+   help show      (displays all of the current settings for one subscriber)
    help subscribe (allows you to choose the comment that appears with your address)
    help times     (details of how to specify a time period for 'nomail')
    help who       (-export option can extract all the set commands for an entire list)
