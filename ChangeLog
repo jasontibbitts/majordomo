@@ -1,3 +1,20 @@
+2001-02-13  Michael Yount <csf@moscow.com>
+
+	* files/en/help/admin*:  Revise and expand the introductory
+	documents for list owners.
+
+2001-02-11  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm: (_set) Return an error if a pattern was
+	used and no matches were found.
+
+	* lib/Mj/Access.pm: (_d_advertise) Revise the order of assessment
+	for compatibility with Mj1.  The noadvertise patterns take
+	precedence over the advertise patterns.
+
+	* lib/Mj/Config.pm: (parse_inform) Move inform setting defaults
+	out of the code and into the default configuration file.
+
 2001-02-05  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Access.pm: (list_access_check) Minor cleanup. 

@@ -372,8 +372,14 @@ files/en/help/accept
 files/en/help/access
 files/en/help/admin
 files/en/help/admin_commands
+files/en/help/admin_config
+files/en/help/admin_delivery
+files/en/help/admin_documents
 files/en/help/admin_domain
+files/en/help/admin_moderate
+files/en/help/admin_monitor
 files/en/help/admin_passwords
+files/en/help/admin_subscribers
 files/en/help/advertise
 files/en/help/alias
 files/en/help/aliasadd
@@ -384,6 +390,7 @@ files/en/help/archive
 files/en/help/auxiliary_list
 files/en/help/cancel
 files/en/help/changeaddr
+files/en/help/command_parser
 files/en/help/commands
 files/en/help/config
 files/en/help/configdef
@@ -518,6 +525,7 @@ files/en/help/end
 files/en/help/error_files
 files/en/help/exit
 files/en/help/faq
+files/en/help/foot
 files/en/help/format_files
 files/en/help/get
 files/en/help/help
