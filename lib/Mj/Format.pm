@@ -4,15 +4,15 @@ Mj::Format - Turn the results of a core call into formatted output.
 
 =head1 SYNOPSIS
 
-blah
+None.
 
 =head1 DESCRIPTION
 
 This takes the values returned from a call to the Majordomo core and
-formats them for human consumption.  The core return values are 
-simple because they were designed to cross a network boundary.  The
-results are (for the most part) unformatted because they are not bound to a
-specific interface.
+formats them for human consumption.  The core return values are simple
+because they were designed to cross a network boundary.  The results are
+(for the most part) unformatted because they are not bound to a specific
+interface.
 
 Format routines take:
   mj - a majordomo object, so that formatting routines can get config
@@ -46,59 +46,104 @@ __END__
 
 sub accept { 
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($command, $ok, $mess, $token, $data, $rresult, @tokens);
+  my (@tokens, $data, $fun, $gsubs, $mess, $ok, $rresult, 
+      $str, $subs, $tmp, $token);
+
+  $gsubs = { $mj->standard_subs('GLOBAL'),
+            'CGIDATA'  => $request->{'cgidata'},
+            'CGIURL'   => $request->{'cgiurl'},
+            'CMDPASS'  => $request->{'password'},
+            'USER'     => &escape("$request->{'user'}", $type),
+           };
 
   @tokens = @$result;
   while (@tokens) {
-    $ok  =  shift @tokens;
+    $ok = shift @tokens;
     if ($ok == 0) {
       $mess = shift @tokens;
-      eprint($err, $type, &indicate($mess, $ok));
-      next;
-    }
-    ($mess, $data, $rresult) = @{shift @tokens};
-    if ($ok < 0) {
-      eprint($err, $type, &indicate($mess, $ok));
+      $gsubs->{'ERROR'} = $mess;
+
+      $tmp = $mj->format_get_string($type, 'accept_error');
+      $str = $mj->substitute_vars_format($tmp, $gsubs);
+      print $out &indicate($type, "$str\n", $ok); 
+
       next;
     }
 
-    $command = $data->{'command'};
-    # Print some basic data
-    eprint($out, $type, "Token '$mess' for command:\n");
-    eprint($out, $type, "    \"$data->{'cmdline'}\"\n");
-    eprint($out, $type, "issued at: ", scalar localtime($data->{'time'}), "\n");
-    eprint($out, $type, "from sessionid: $data->{'sessionid'}\n");
+    ($mess, $data, $rresult) = @{shift @tokens};
+
+    $subs = { $mj->standard_subs($data->{'list'}),
+              'CGIDATA'  => $request->{'cgidata'},
+              'CGIURL'   => $request->{'cgiurl'},
+              'CMDPASS'  => $request->{'password'},
+              'ERROR'    => '',
+              'FAIL'     => '',
+              'NOTIFY'   => '',
+              'STALL'    => '',
+              'SUCCEED'  => '',
+              'TOKEN'    => $mess,
+              'USER'     => &escape("$request->{'user'}", $type),
+            };
+
+    for $tmp (keys %$data) {
+      if ($tmp eq 'user') {
+        $subs->{'REQUESTER'} = &escape($data->{'user'}, $type);
+      }
+      elsif ($tmp eq 'time') {
+        $subs->{'DATE'} = scalar localtime($data->{'time'});
+      }
+      else {
+        $subs->{uc $tmp} = &escape("$data->{$tmp}", $type);
+      }
+    }
+
+    if ($ok < 0) {
+      $subs->{'ERROR'} = $mess;
+
+      $tmp = $mj->format_get_string($type, 'accept_error');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out &indicate($type, "$str\n", $ok); 
+      next;
+    }
 
     # If we accepted a consult token, we can stop now.
     if ($data->{'type'} eq 'consult') {
-      eprint($out, $type, "was accepted.\n");
       if ($data->{'ack'}) {
-        eprint($out, $type, "$data->{'victim'} was notified.\n\n");
+        $subs->{'NOTIFY'} = " ";
         if (ref($rresult) eq 'ARRAY') {
           if ($rresult->[0] > 0) {
-            eprint($out, $type, "The command succeeded.\n\n");
+            $subs->{'SUCCEED'} = " ";
           }
           elsif ($rresult->[0] < 0) {
-            eprint($out, $type, "The command stalled.\n\n");
+            $subs->{'STALL'} = " ";
           }
           else {
-            eprint($out, $type, "The command failed.\n\n$rresult->[1]\n");
+            $subs->{'FAIL'} = " ";
+            $subs->{'ERROR'} = $rresult->[1];
           }
         }
       }
-      else {
-        eprint($out, $type, "$data->{'victim'} was not notified.\n\n");
-      }
-      next;
-    }
-    eprint($out, $type, "was accepted with these results:\n\n");
 
-    # Then call the appropriate formatting routine to format the real command
-    # return.
-    my $fun = "Mj::Format::$command";
-    {
-      no strict 'refs';
-      $ok = &$fun($mj, $out, $err, $type, $data, $rresult);
+      $tmp = $mj->format_get_string($type, 'accept');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out &indicate($type, "$str\n", $ok); 
+    }
+    else {
+      $tmp = $mj->format_get_string($type, 'accept_head');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out &indicate($type, "$str\n", $ok); 
+
+      # Then call the appropriate formatting routine to format the real command
+      # return.
+      $fun = "Mj::Format::$data->{'command'}";
+      {
+        no strict 'refs';
+        $ok = &$fun($mj, $out, $err, $type, $data, $rresult);
+      }
+
+      $tmp = $mj->format_get_string($type, 'accept_foot');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out &indicate($type, "$str\n", $ok); 
     }
   }
   $ok;
@@ -112,10 +157,10 @@ sub alias {
     eprint($out, $type, "$request->{'newaddress'} was successfully aliased to $request->{'user'}.\n");
   }
   else {
-    eprint($out, $type, &indicate(
+    eprint($out, $type, &indicate($type, 
       qq(The address "$request->{'newaddress'}" was not aliased to "$request->{'user'}".\n), 
       $ok));
-    eprint($out, $type, &indicate($mess, $ok));
+    eprint($out, $type, &indicate($type, $mess, $ok));
   }
 
   $ok;
@@ -130,7 +175,7 @@ sub announce {
   }
   else {
     eprint($out, $type, "The announcement was not sent.\n");
-    eprint($out, $type, &indicate($mess, $ok));
+    eprint($out, $type, &indicate($type, $mess, $ok));
   }
   $ok;
 }
@@ -156,7 +201,7 @@ sub archive {
     $subs->{'ERROR'} = $msgs[0];
     $tmp = $mj->format_get_string($type, 'archive_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate("$str\n", $ok, 1);
+    print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
   }
   unless (@msgs) {
@@ -174,7 +219,7 @@ sub archive {
   if ($request->{'mode'} =~ /sync/) {
     for (@msgs) {
       ($ok, $mess) = @{$mj->dispatch($request, [$_])};
-      eprint($out, $type, indicate($mess, $ok));
+      eprint($out, $type, indicate($type, $mess, $ok));
     }
   }
   elsif ($request->{'mode'} =~ /summary/) {
@@ -226,7 +271,7 @@ sub archive {
         }
         else {
           ($ok, $mess) = @{$mj->dispatch($request, [@tmp])};
-          eprint($out, $type, indicate($mess, $ok));
+          eprint($out, $type, indicate($type, $mess, $ok));
         }
 
         $lines = 0; @tmp = ();
@@ -340,7 +385,7 @@ sub _archive_part {
             };
     $tmp = $mj->format_get_string($type, 'archive_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate("$str\n", 0, 1);
+    print $out &indicate($type, "$str\n", 0, 1);
     return 0;
   }
  
@@ -537,16 +582,16 @@ sub changeaddr {
     eprint($out, $type, "Address changed from $request->{'victim'} to $request->{'user'}.\n");
   }
   elsif ($ok < 0) {
-    eprint($out, $type, &indicate(
+    eprint($out, $type, &indicate($type, 
       "Change from $request->{'victim'} to $request->{'user'} stalled, awaiting approval.\n",
       $ok));
-    eprint($out, $type, &indicate($mess, $ok)) if ($mess);
+    eprint($out, $type, &indicate($type, $mess, $ok)) if ($mess);
   }
   else {
-    eprint($out, $type, &indicate(
+    eprint($out, $type, &indicate($type, 
       "$request->{'victim'} was not changed to $request->{'user'}.\n",
       $ok));
-    eprint($out, $type, &indicate($mess, $ok)) if ($mess);
+    eprint($out, $type, &indicate($type, $mess, $ok)) if ($mess);
   }
   $ok;
 }
@@ -561,7 +606,7 @@ sub configdef {
     $ok = shift @results;
     ($mess, $var) = @{shift @results};
 
-    eprint ($out, $type, indicate($mess,$ok)) if $mess;
+    eprint ($out, $type, indicate($type, $mess,$ok)) if $mess;
     if ($ok > 0) {
       eprint($out, $type, "The $var setting was reset to its default value.\n");
     }
@@ -575,7 +620,7 @@ sub configset {
   my ($ok, $mess) = @$result;
   my ($val) = ${$request->{'value'}}[0];
   $val = '' unless defined $val;
-  eprint($out, $type, indicate($mess, $ok)) if $mess;
+  eprint($out, $type, indicate($type, $mess, $ok)) if $mess;
   if ($ok) {
     if ($request->{'mode'} =~ /append/) {
       eprintf($out, $type, "Value \"%s%s\" appended to %s.\n",
@@ -639,14 +684,14 @@ sub configshow {
     $gsubs->{'ERROR'} = $mess;
     $tmp = $mj->format_get_string($type, 'configshow_error');
     $str = $mj->substitute_vars_format($tmp, $gsubs);
-    print $out &indicate("$str\n", $ok);
+    print $out &indicate($type, "$str\n", $ok);
     return $ok;
   }
 
   unless (scalar @$result) {
     $tmp = $mj->format_get_string($type, 'configshow_none');
     $mess = $mj->substitute_vars_format($tmp, $gsubs);
-    print $out &indicate("$mess\n", $ok);
+    print $out &indicate($type, "$mess\n", $ok);
     return $ok;
   }
 
@@ -679,7 +724,7 @@ sub configshow {
       $subs->{'ERROR'} = $mess;
       $tmp = $mj->format_get_string($type, 'configshow_error');
       $str = $mj->substitute_vars_format($tmp, $subs);
-      print $out &indicate("$str\n", $ok);
+      print $out &indicate($type, "$str\n", $ok);
       next;
     }
 
@@ -691,7 +736,7 @@ sub configshow {
       @possible = sort @$val;
       $subs->{'SETTINGS'} = [ @possible ];
       $str = $mj->substitute_vars_format($gen, $subs);
-      print $out &indicate("$str\n", $ok);
+      print $out &indicate($type, "$str\n", $ok);
       next;
     }
       
@@ -702,7 +747,7 @@ sub configshow {
 
     if ($mj->{'interface'} =~ /^www/) {
       $subs->{'HELPLINK'} = 
-      qq(<a href="$cgiurl?$cgidata&list=$list&func=help&extra=$var" target="mj2help">$var</a>);
+      qq(<a href="$cgiurl?$cgidata\&amp;list=$list\&amp;func=help\&amp;extra=$var" target="_mj2help">$var</a>);
     }
     $subs->{'LEVEL'}    = $ok;
     $subs->{'TYPE'}     = $data->{'type'};
@@ -860,7 +905,7 @@ sub createlist {
     $subs->{'ERROR'} = $mess;
     $tmp = $mj->format_get_string($type, 'createlist_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate("$str\n", $ok, 1);
+    print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
   }
 
@@ -885,7 +930,7 @@ sub createlist {
   }
 
   $str = $mj->substitute_vars_format($tmp, $subs);
-  print $out &indicate("$str\n", $ok, 1);
+  print $out &indicate($type, "$str\n", $ok, 1);
 
   $ok;
 }
@@ -897,8 +942,8 @@ sub digest {
   my ($ok, $mess) = @$result;
   unless ($ok > 0) {
     eprint($out, $type, 
-           &indicate("The digest-$request->{'mode'} command failed.\n", $ok));
-    eprint($out, $type, &indicate($mess, $ok));
+           &indicate($type, "The digest-$request->{'mode'} command failed.\n", $ok));
+    eprint($out, $type, &indicate($type, $mess, $ok));
     return $ok;
   }
 
@@ -967,7 +1012,7 @@ sub help {
   my ($ok, $mess) = @$result;
 
   unless ($ok > 0) {
-    print $out &indicate("Help $request->{'topic'} failed.\n$mess", $ok);
+    print $out &indicate($type, "Help $request->{'topic'} failed.\n$mess", $ok);
     return $ok;
   }
 
@@ -991,7 +1036,7 @@ sub help {
       $chunk = &escape($chunk);
       $chunk =~ s/(\s{3}|&quot;)(help\s)(configset|admin|mj) (?=\w)/$1$2$3_/g;
       $chunk =~ 
-       s#(\s{3}|&quot;)(help\s)(\w+)#$1$2<a href="$cgiurl?\&${cgidata}\&list=${list}\&func=help\&extra=$3"$hwin>$3</a>#g;
+       s#(\s{3}|&quot;)(help\s)(\w+)#$1$2<a href="$cgiurl?\&amp;${cgidata}\&amp;list=${list}\&amp;func=help\&amp;extra=$3"$hwin>$3</a>#g;
     }
     print $out $chunk;
   }
@@ -1009,8 +1054,8 @@ sub index {
 
   my ($ok, @in) = @$result;
   unless ($ok > 0) {
-    eprint($out, $type, &indicate("The index command failed.\n", $ok));
-    eprint($out, $type, &indicate($in[0], $ok)) if $in[0];
+    eprint($out, $type, &indicate($type, "The index command failed.\n", $ok));
+    eprint($out, $type, &indicate($type, $in[0], $ok)) if $in[0];
     return $ok;
   }
 
@@ -1098,7 +1143,7 @@ sub lists {
     $global_subs->{'ERROR'} = &escape($lists[0], $type);
     $tmp = $mj->format_get_string($type, 'lists_error');
     $str = $mj->substitute_vars_format($tmp, $global_subs);
-    print $out &indicate("$str\n", $ok, 1);
+    print $out &indicate($type, "$str\n", $ok, 1);
     return 1;
   }
   
@@ -1217,13 +1262,13 @@ sub password {
             };
     $tmp = $mj->format_get_string($type, 'password');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate("$str\n", $ok, 1);
+    print $out &indicate($type, "$str\n", $ok, 1);
   }
   else {
-    eprint($out, $type, &indicate("Password not set.\n", $ok));
+    eprint($out, $type, &indicate($type, "Password not set.\n", $ok));
   }
   if ($mess) {
-    eprint($out, $type, &indicate($mess, $ok));
+    eprint($out, $type, &indicate($type, $mess, $ok));
   }
   $ok;
 }
@@ -1269,7 +1314,7 @@ sub post {
     eprint($out, $type, "Post failed.\nDetails:\n");
   }
   # The "message" given by a success is only the poster's address.
-  eprint($out, $type, indicate($mess, $ok, 1)) if ($mess and ($ok <= 0));
+  eprint($out, $type, indicate($type, $mess, $ok, 1)) if ($mess and ($ok <= 0));
 
   return $ok;
 }
@@ -1285,8 +1330,8 @@ sub put {
   else                                   {$act = 'put'     }
 
   unless ($ok) {
-    eprint($out, $type, &indicate("The $act command failed.\n", $ok));
-    eprint($out, $type, &indicate($mess, $ok)) if $mess;
+    eprint($out, $type, &indicate($type, "The $act command failed.\n", $ok));
+    eprint($out, $type, &indicate($type, $mess, $ok)) if $mess;
     return $ok;
   }
 
@@ -1326,12 +1371,12 @@ sub put {
     eprint($out, $type, "The $act command succeeded.\n");
   }
   elsif ($ok < 0) {
-    eprint($out, $type, &indicate("The $act command stalled.\n", $ok));
+    eprint($out, $type, &indicate($type, "The $act command stalled.\n", $ok));
   }
   else {
-    eprint($out, $type, &indicate("The $act command failed.\n", $ok));
+    eprint($out, $type, &indicate($type, "The $act command failed.\n", $ok));
   }
-  eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
+  eprint($out, $type, &indicate($type, $mess, $ok, 1)) if $mess;
 
   return $ok;
 } 
@@ -1342,31 +1387,72 @@ sub register {
 
 sub reject {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$type";
-  my ($data, $ok, $res, $token, @tokens);
+  my $log = new Log::In 29, $type;
+  my (@tokens, $data, $gsubs, $mess, $ok, $str, $subs, $tmp, $token);
+
+  $gsubs = { $mj->standard_subs('GLOBAL'),
+            'CGIDATA'  => $request->{'cgidata'},
+            'CGIURL'   => $request->{'cgiurl'},
+            'CMDPASS'  => $request->{'password'},
+            'USER'     => &escape("$request->{'user'}", $type),
+           };
 
   @tokens = @$result; 
 
-  while (@tokens) { 
-    ($ok, $res) = splice @tokens, 0, 2;
+  while (@tokens) {
+    ($ok, $mess) = splice @tokens, 0, 2;
     unless ($ok) {
-      eprint($out, $type, &indicate($res, $ok));
+      $gsubs->{'ERROR'} = $mess;
+
+      $tmp = $mj->format_get_string($type, 'reject_error');
+      $str = $mj->substitute_vars_format($tmp, $gsubs);
+      print $out &indicate($type, "$str\n", $ok); 
+
       next;
     }
-    ($token, $data) = @$res;
-    eprint($out, $type, "Token '$token' for command:\n");
-    eprint($out, $type, qq(    "$data->{'cmdline'}"\n));
-    eprint($out, $type, "issued at: ", scalar localtime($data->{'time'}), "\n");
-    eprint($out, $type, "from session: $data->{'sessionid'}\n");
-    eprint($out, $type, "has been rejected.\n");
-    if ($data->{'type'} eq 'consult') {
-      if ($data->{'ack'}) {
-        eprint($out, $type, "$data->{'victim'} was notified.\n\n");
+
+    ($token, $data) = @$mess;
+
+    $subs = { $mj->standard_subs($data->{'list'}),
+              'CGIDATA'  => $request->{'cgidata'},
+              'CGIURL'   => $request->{'cgiurl'},
+              'CMDPASS'  => $request->{'password'},
+              'ERROR'    => '',
+              'NOTIFY'   => '',
+              'TOKEN'    => $token,
+              'USER'     => &escape("$request->{'user'}", $type),
+            };
+
+    for $tmp (keys %$data) {
+      if ($tmp eq 'user') {
+        $subs->{'REQUESTER'} = &escape($data->{'user'}, $type);
+      }
+      elsif ($tmp eq 'time') {
+        $subs->{'DATE'} = scalar localtime($data->{'time'});
       }
       else {
-        eprint($out, $type, "$data->{'victim'} was not notified.\n\n");
+        $subs->{uc $tmp} = &escape("$data->{$tmp}", $type);
       }
     }
+
+    if ($ok < 0) {
+      $subs->{'ERROR'} = $mess;
+
+      $tmp = $mj->format_get_string($type, 'reject_error');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out &indicate($type, "$str\n", $ok); 
+      next;
+    }
+
+    if ($request->{'mode'} !~ /quiet/ and 
+        ($data->{'type'} ne 'consult' or $data->{'ack'})) 
+    {
+      $subs->{'NOTIFY'} = " ";
+    }
+
+    $tmp = $mj->format_get_string($type, 'reject');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok); 
   }
 
   1;
@@ -1418,7 +1504,7 @@ sub rekey {
       last unless (defined $ok);
 
       unless ($ok > 0) {
-        eprint($out, $type, &indicate($count, $ok));
+        eprint($out, $type, &indicate($type, $count, $ok));
         next;
       }
 
@@ -1446,7 +1532,7 @@ sub rekey {
   }
   else {
     eprint($out, $type, "The registry and subscriber databases were not rekeyed.\n");
-    eprint($out, $type, &indicate($ra, $ok));
+    eprint($out, $type, &indicate($type, $ra, $ok));
     return 0;
   }
   
@@ -1464,8 +1550,8 @@ sub report {
   my ($ok, $mess) = @$result;
 
   unless ($ok > 0) {
-    eprint($out, $type, &indicate("Unable to create report\n", $ok));
-    eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
+    eprint($out, $type, &indicate($type, "Unable to create report\n", $ok));
+    eprint($out, $type, &indicate($type, $mess, $ok, 1)) if $mess;
     return $ok;
   }
 
@@ -1494,7 +1580,7 @@ sub report {
   while (1) {
     ($ok, $chunk) = @{$mj->dispatch($request)};
     unless ($ok) {
-      eprint($out, $type, &indicate($chunk, $ok, 1)) if $chunk;
+      eprint($out, $type, &indicate($type, $chunk, $ok, 1)) if $chunk;
       last;
     }
     last unless scalar @$chunk;
@@ -1537,7 +1623,7 @@ sub report {
                      $data->[4], $data->[5], $data->[8];
         }
      
-        eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
+        eprint($out, $type, &indicate($type, $mess, $ok, 1)) if $mess;
       }
       elsif ($request->{'list'} eq 'ALL') {
         
@@ -1586,7 +1672,7 @@ sub report {
     else {
       $mess = "There was no activity.\n";
     }
-    eprint($out, $type, &indicate($mess, $ok, 1));
+    eprint($out, $type, &indicate($type, $mess, $ok, 1));
 
     for $end (sort keys %stats) {
       if ($request->{'list'} eq  'ALL') {
@@ -1600,7 +1686,7 @@ sub report {
                                  $stats{$end}{$begin}{'0'},
                                  $stats{$end}{$begin}{'time'} / 
                                  $stats{$end}{$begin}{'TOTAL'};
-          eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
+          eprint($out, $type, &indicate($type, $mess, $ok, 1)) if $mess;
         }
       }
       else {
@@ -1609,7 +1695,7 @@ sub report {
                            $stats{$end}{'-1'}, $stats{$end}{'0'},
                            $stats{$end}{'time'} / 
                            $stats{$end}{'TOTAL'};
-        eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
+        eprint($out, $type, &indicate($type, $mess, $ok, 1)) if $mess;
       }
     }
   }
@@ -1622,7 +1708,7 @@ sub sessioninfo {
 
   my ($ok, $sess) = @$result; 
   unless ($ok>0) {
-    eprint($out, $type, &indicate($sess, $ok)) if $sess;
+    eprint($out, $type, &indicate($type, $sess, $ok)) if $sess;
     return ($ok>0);
   }
   eprint($out, $type, 
@@ -1812,7 +1898,7 @@ sub show {
 
     $tmp = $mj->format_get_string($type, 'show_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate("$str\n", $ok, 1);
+    print $out &indicate($type, "$str\n", $ok, 1);
 
     return $ok;
   }
@@ -1822,7 +1908,7 @@ sub show {
     push @$error, "Mailbox: $data->{'strip'}";
     push @$error, "Comment: $data->{'comment'}"
       if (defined $data->{comment} && length $data->{comment});
-    push @$error, &indicate($data->{error}, $ok);
+    push @$error, &indicate($type, $data->{error}, $ok);
 
     $subs = { %$global_subs,
               'ERROR' => $error,
@@ -1830,7 +1916,7 @@ sub show {
 
     $tmp = $mj->format_get_string($type, 'show_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate("$str\n", $ok, 1);
+    print $out &indicate($type, "$str\n", $ok, 1);
 
     return $ok;
   }
@@ -2003,7 +2089,7 @@ sub showtokens {
   unless (@tokens) {
     $tmp = $mj->format_get_string($type, 'showtokens_none');
     $str = $mj->substitute_vars_format($tmp, $global_subs);
-    print $out &indicate("$str\n", $ok, 1);
+    print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
   }
 
@@ -2014,7 +2100,7 @@ sub showtokens {
             };
     $tmp = $mj->format_get_string($type, 'showtokens_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate("$str\n", $ok, 1);
+    print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
   }
 
@@ -2094,7 +2180,7 @@ sub tokeninfo {
             };
     $tmp = $mj->format_get_string($type, 'tokeninfo_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate("$str\n", $ok, 1);
+    print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
   }
 
@@ -2188,7 +2274,7 @@ sub _tokeninfo_post {
             };
     $tmp = $mj->format_get_string($type, 'tokeninfo_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate("$str\n", 0, 1);
+    print $out &indicate($type, "$str\n", 0, 1);
     return 0;
   }
  
@@ -2417,7 +2503,7 @@ sub unalias {
   }
   else {
     eprint($out, $type, "Alias from $request->{'victim'} to $request->{'user'} not removed.\n");
-    eprint($out, $type, &indicate($mess, $ok));
+    eprint($out, $type, &indicate($type, $mess, $ok));
   }
   $ok;
 }
@@ -2438,7 +2524,7 @@ sub which {
   my ($ok, @matches) = @$result;
   # Deal with initial failure
   if ($ok <= 0) {
-    eprint($out, $type, &indicate($matches[0], $ok)) if $matches[0];
+    eprint($out, $type, &indicate($type, $matches[0], $ok)) if $matches[0];
     return $ok;
   }
 
@@ -2545,7 +2631,7 @@ sub who {
   ($ok, $regexp, $settings) = @$result;
 
   if ($ok <= 0) {
-    $gsubs->{'ERROR'} = &indicate($regexp, $ok);
+    $gsubs->{'ERROR'} = &indicate($type, $regexp, $ok);
     $tmp = $mj->format_get_string($type, 'who_error');
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
@@ -2834,7 +2920,7 @@ sub g_get {
 
     $tmp = $mj->format_get_string($type, 'get_error');
     $chunk = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate("$chunk\n", $ok);
+    print $out &indicate($type, "$chunk\n", $ok);
 
     return $ok;
   }
@@ -2964,7 +3050,7 @@ sub g_sub {
   while (@res) {
     ($ok, $addr) = splice @res, 0, 2;
     unless ($ok > 0) {
-      eprint($out, $type, &indicate("$addr\n", $ok));
+      eprint($out, $type, &indicate($type, "$addr\n", $ok));
       next;
     }
     for (@$addr) {
@@ -2979,7 +3065,7 @@ sub g_sub {
 
 The cgidata method obtains the user address and password provided
 in the request hash and formats them in a way that is suitable for
-the query portion of a URL.
+the query portion of a URL as displayed in an HTML document.
 
 =cut
 sub cgidata {
@@ -2999,7 +3085,7 @@ sub cgidata {
   $pass = $request->{'password'}; 
   $pass = qescape($pass);
   
-  return sprintf ('user=%s&passw=%s', $addr, $pass);
+  return sprintf ('user=%s&amp;passw=%s', $addr, $pass);
 }
 
 sub eprint {
@@ -3088,11 +3174,11 @@ sub prepend {
 # true, the OK case will be indented five spaces to match the other
 # returns.
 sub indicate {
-  my ($mess, $ok, $indent) = @_;
-  if ($ok>0) {
+  my ($type, $mess, $ok, $indent) = @_;
+  if ($ok > 0 or $type =~ /^www/) {
     return $mess;
   }
-  if ($ok<0) {
+  if ($ok < 0) {
     return prepend('---- ', $mess);
   }
   return prepend('**** ',$mess);
