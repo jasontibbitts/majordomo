@@ -8,4 +8,5 @@
     Registered as            ?FULLADDR
     Registered on            ?REGTIME
     Data last changed on     ?RCHANGETIME
+    Administrator of the     ?OWNERSHIPS list
     Subscribed to            ?COUNT lists
