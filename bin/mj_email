@@ -136,6 +136,7 @@ eval '
   use Mj::CommandProps qw(:command);
   use Data::Dumper;
   use IO::File;
+  use Mail::Header;
 ';
 $::log->out;
 
@@ -197,9 +198,9 @@ exit ($opts{'S'} ? 99 : 0);
 # owner_done passing in all of the message.
 sub forward_to_owner {
   my ($mj, $list, $moderator) = @_;
-  my ($ok, $mess, $sess, $request);
+  my ($from, $ok, $mess, $sess, $request);
 
-  $sess = connect_no_parse($mj, 'owner');
+  ($sess, $from) = connect_no_parse($mj, 'owner');
   return unless $sess;
 
   # Some MTAs hand the message to us with the mbox separator prepended.
@@ -213,7 +214,7 @@ sub forward_to_owner {
     'list'      => $list,
     'mode'      => $moderator? 'M' : '',
     'password'  => '',
-    'user'      => '',
+    'user'      => $from,
   };
   ($ok, $mess) = $mj->dispatch($request);
   return unless $ok;
@@ -236,9 +237,9 @@ sub forward_to_owner {
 # of the message.
 sub resend {
   my ($mj, $list, $sublist) = @_;
-  my ($ok, $mess, @out, $request, $sess);
+  my ($from, $ok, $mess, $request, $sess);
 
-  $sess = connect_no_parse($mj, 'resend');
+  ($sess, $from) = connect_no_parse($mj, 'resend');
   return unless $sess;
 
   # Some MTAs hand the message to us with the mbox separator prepended.
@@ -253,7 +254,7 @@ sub resend {
     'list'      => $list,
     'mode'      => '',
     'password'  => '',
-    'user'      => '',
+    'user'      => $from,
   };
 
   ($ok, $mess) = @{$mj->dispatch($request)};
@@ -300,20 +301,26 @@ sub respond_with_file {
 # This pulls in the header, connects to the given majordomo object, and
 # returns the header _including_ the first blank line.  Standard input will
 # contain the remainder of the message.
+
 sub connect_no_parse {
   my ($mj, $int) = @_;
-  my ($i, $id, $sess);
+  my (@hdr, $from, $head, $i, $id, $sess);
+  $from = 'unknown@anonymous';
 
-  while (defined($i = <STDIN>)) {
+  while (defined($i = <MSG>)) {
     if ($i =~ /^\r?\n/) {
-      $id = $mj->connect($int, $sess, 'unknown@anonymous');
+      @hdr = split /\n/, $sess;
+      $head = new Mail::Header(\@hdr);
+      chomp($from = $head->get('from') ||
+        $head->get('apparently-from')) || 'unknown@anonymous';
+      $id = $mj->connect($int, $sess, $from);
       return unless $id;
       $sess .= $i;
       last;
     }
     $sess .= $i;
   }
-  $sess;
+  ($sess, $from);
 }
 
 # This parses the message and connects to the provided Majordomo object.
