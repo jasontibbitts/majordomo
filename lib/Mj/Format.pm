@@ -128,11 +128,11 @@ sub announce {
 sub archive {
   my ($mj, $out, $err, $type, $request, $result) = @_;
  
-  my ($first, $chunksize, $data, $last, $i, $line, $lines, 
-      $mess, %stats, @tmp);
+  my ($chunksize, $data, $first, $i, $last, $line, $lines, 
+      $mess, $msg, %stats, @tmp);
   my ($ok, @msgs) = @$result;
 
-  if ($ok <= 0) { 
+  if ($ok <= 0 || $request->{'mode'} =~ /sync/) { 
     eprint($out, $type, &indicate($msgs[0], $ok));
     return $ok;
   }
@@ -143,9 +143,7 @@ sub archive {
 
   $request->{'command'} = "archive_chunk";
 
-  # XXX Make this configurable so that it uses limits on
-  # number of messages per digest or size of digest.
-  if ($request->{'mode'} =~ /get/) {
+  if ($request->{'mode'} =~ /get|delete/) {
     $chunksize = 
       $mj->global_config_get($request->{'user'}, $request->{'password'}, 
                              "chunksize");
@@ -200,8 +198,10 @@ sub archive {
       eprint ($out, $type, $line);
     }
   }
+
+  $request->{'command'} = "archive_done";
+  $mj->dispatch($request); 
  
-  #  archive_done does nothing, so there is no need to call it.
   $ok;
 }
 
