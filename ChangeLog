@@ -1,4 +1,20 @@
+2000-05-09  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/MailOut.pm (owner_done): If the MIME parser didn't like
+	the message, don't try to do anything with it.
+
+2000-05-08  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Bf/Parser.pm (parse): Make sure $type is defined before
+	returning.
+
+	* lib/Mj/MailOut.pm (owner_done): Avoid undef warning when no
+	diagnostic is available.
+
 2000-05-06  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/MailOut.pm (owner_done): Report diagnostic in message to
+	owner.
 
 	* lib/Bf/Parser.pm (parse_dsn): Return Diagnostic-Code: if
 	available.  Loop over all per-user bounce status blocks and return

@@ -87,6 +87,7 @@ sub parse {
   ($info) = $to =~ /\Q$list\E-owner\Q$sep\E([^@]+)\@/;
 
   if (!defined($info)) {
+    $type = '';
  #   $status = 'none';
   }
 
@@ -110,6 +111,7 @@ sub parse {
 #    $mess   = "Detected a bounce of message #$msgno.\n";
   }
   else {
+    $type = '';
 #    $status = 'unknown';
 #    $mess   = "Detected a special return message but could not discern its type.\n";
   }
