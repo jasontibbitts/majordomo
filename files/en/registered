@@ -1,29 +1,42 @@
 The address
 
-$USER
+  $USER
 
 has been registered at $SITE.
-Note that you are not yet a member of any lists; you must join them
-individually.
+Your personal password is:
 
-Your initial password is:
+  $PASSWORD
 
-$PASSWORD
+To interact with the Majordomo server, send an e-mail message to 
 
-You may use your password to bypass the confirmation process when you
-interact with this server.  To use your password when interacting via
-email, you use the 'approve' command.  Some examples follow; note that
-'example' is a fictional list name.
+  $MJ
 
-To join the 'example' list without confirming your address, send:
-approve $PASSWORD subscribe example
+Always put commands in the body of the message.  Commands in the Subject
+header will be ignored.
 
-To remove yourself from the 'example' list even if your address changes, send:
-approve $PASSWORD unsubscribe example $USER
+Usually, when you subscribe to a mailing list, Majordomo will send you
+confirmation instructions for completing your subscription, for security
+reasons.  You can use your password to bypass confirmation when you join
+mailing lists or change the settings of your subscriptions.  Use the
+"approve" command to tell Majordomo your password.  In the following
+examples, substitute the name of a mailing list wherever you see
+LISTNAME.
 
-See the help document "passwords" for more information.  To retrieve this
-document, send a message to $MAJORDOMO containing the line:
+To see a list of public mailing lists, use this command:
+  lists
 
-help passwords
+To join a mailing list, use this command:
+  approve $PASSWORD subscribe LISTNAME
 
-To reach a person, send mail to $MJOWNER.
+To leave a mailing list, use this command:
+  approve $PASSWORD unsubscribe LISTNAME $USER
+
+If you wish to change your password, use this command:
+  approve $PASSWORD password YOURNEWPASSWORD
+(Substitute the password you want for YOURNEWPASSWORD.)
+
+To see a summary of Majordomo commands, use this command:
+  help commands
+
+If you need help from a person, send a message to 
+  $OWNER
