@@ -425,7 +425,8 @@ sub connect_no_parse {
 }
 
 # This parses the message and connects to the provided Majordomo object.
-# The MIME entity, unfolded header and user/reply address will be returned.
+# The MIME entity, unfolded header and user/reply address (stripped and
+# unstripped) will be returned.
 sub connect_and_parse {
   my ($mj, $int) = @_;
   my($entity, $head, $mime_parser, $ok, $user, $suser);
@@ -467,7 +468,7 @@ sub connect_and_parse {
     return;
   }
   
-  ($entity, $head, $suser);
+  ($entity, $head, $suser, $user);
 }
 
 # Parse commands in the subject here; we do this early to get the debug log
@@ -478,9 +479,9 @@ sub parse_commands {
   my ($mj, $deflist) = @_;
   my (@entities, $args, $av, $command, $debug_file, $debug_log,
       $debug_reply, $entity, $head, $i, $line, $list, $ok, $sender,
-      $sub_addin, $subject, $tag, $tlist, $top, $token, $user);
+      $sub_addin, $subject, $tag, $tlist, $top, $token, $user, $uuser);
 
-  ($entity, $head, $user) = connect_and_parse($mj, 'email');
+  ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
   return unless $entity;
   $subject = $head->get('subject') || "";
 
@@ -520,7 +521,7 @@ sub parse_commands {
   (undef, @entities) = 
     Mj::Parser::parse_entity($mj, '', , "email", $::TMPDIR, 
 			     {
-			      'reply_to' => $user,
+			      'reply_to' => $uuser,
 			      'deflist'  => $deflist,
 			      'token'    => $token,
 			     },
@@ -556,7 +557,7 @@ sub parse_commands {
   }
 
   $head = $top->head;
-  $head->replace('to'     , $user);
+  $head->replace('to'     , $uuser);
   $head->replace('subject', "Majordomo results$sub_addin");
   $head->replace('from'   , $mj->global_config_get(undef, undef, undef,
 						   'email', 'whoami'));

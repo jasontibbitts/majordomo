@@ -13,7 +13,7 @@ BEGIN {
 
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
-my $config_version = 6;
+my $config_version = 7;
 my(@SIDSCRIPTS, @SCRIPTS, @EXES);
 
 # MakeMaker has begun to displease me

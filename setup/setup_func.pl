@@ -125,8 +125,8 @@ sub do_default_config {
 
   while (defined($_ = <MASTER>)) {
     # Do substitutions
-    s!(^ \'whereami\'.*)DEFAULT(.*)!$1$dom$2!;
     s!(^ \'master_password\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{master_password}$2!;
+    s!(^ \'whereami\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{whereami}$2!;
     s!(^ \'whoami\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{whoami}$2!;
     s!(^ \'whoami_owner\'.*)DEFAULT(.*)!$1$owner$2!;
     s!(^ \'owners\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{owner}$2!;

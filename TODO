@@ -35,6 +35,24 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
+Warnings for nonexistant files specified in access_rules:
+
+  How to check for files?  Through a callback.
+  How to pass callbacks?  In a hash, keys named after the callback.
+
+   mj.list_file_get
+
+  
+
+Real database for storing duplicate message-IDs and checksums.  These are
+OK to trash, so they are the ideal place to experiment.
+
+For Dup databases, all we want is something that lets us query keys, add
+keys and iterate (mogrify).  So SimpleDB is still useful.
+  Remove abortive attempt at autoconversion.
+  Make the backend a site configurable (i.e. not on-the-fly changeable,
+   constant over domains).
+
 New stored token format:
   Data::Dumper to store a hash.  The contents are essentially opaque to the
   token system; upon extraction certain elements are passed to the bottom
@@ -157,9 +175,6 @@ BUT now compile_rule needs to turn set and unset into actual writes into
 compile_rule needs to understand the structure of actions and be able to
 handle them.  So it might as well parse the actions itself.
 
-
-
----- Alpha 2 Release ----
 
 Mechanism to set defaults for all lists:
   New DEFAULT pseudo-list.

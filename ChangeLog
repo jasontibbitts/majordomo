@@ -1,3 +1,23 @@
+Thu Jun 24 00:13:23 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_email (parse_commands): Make use of unstripped address
+ 	where useful.
+	(connect_and_parse): Return unstripped user address as well.
+
+	* bin/mj_queuerun (parse_commands): Make use of unstripped address
+ 	where useful.
+	(connect_and_parse): Return unstripped user address as well.
+
+Wed Jun 23 21:44:44 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* setup/ask_domain.pl (ask_domain): Restructure a bit; ask for the
+ 	actual Internet domain name in case the user decided to call the
+ 	Majordomo domain something different.
+
+	* setup/setup_func.pl (do_default_config): Replace 'whereami' with
+ 	newly configured variable instaed of just the domain colletcion
+ 	name.
+
 1999-06-23  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Access.pm (_a_replyfile): Set the nofail flag.

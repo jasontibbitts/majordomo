@@ -3,18 +3,17 @@ sub ask_domain {
   my $hdr = "Configuring the domain: $i.";
 
   #---- Ask for global configuration information:
-  #---- name of majordomo
+  #---- Actual Internet domain
   $msg = <<EOM;
 $hdr
 
-What is the name of Majordomo installation at $i?
- The installation can be given a name that is used as a title for reports,
-   the output of the lists command, and elsewhere.
+What is the actual Internet domain name?
+
 EOM
-  $def = $config->{'domain'}{$i}{'site_name'};
-  $config->{'domain'}{$i}{'site_name'} = get_str($msg, $def);
+  $def = $config->{'domain'}{$i}{'whereami'} || $i;
+  $config->{'domain'}{$i}{'whereami'} = get_str($msg, $def);
   
-    #---- Ask for the actual address that Majordomo will receive mail at
+  #---- Ask for the actual address that Majordomo will receive mail at
   $msg = <<EOM;
 $hdr
 
@@ -24,7 +23,7 @@ What address will the Majordomo at $i receive mail at?
 EOM
   $def = $config->{domain}{$i}{whoami} || 'majordomo';
   $config->{domain}{$i}{whoami} = get_str($msg, $def);
-  
+
   #---- owner address, for alias construction
   $msg = <<EOM;
 $hdr
@@ -35,6 +34,17 @@ EOM
   # XXX Should probably have a get_addr routine, but we might have
   # problems requiring Mj::Addr.pm.
   $config->{'domain'}{$i}{'owner'} = get_str($msg, $def);
+  
+  #---- name of majordomo
+  $msg = <<EOM;
+$hdr
+
+What is the name of Majordomo installation at $i?
+ The installation can be given a name that is used as a title for reports,
+   the output of the lists command, and elsewhere.
+EOM
+  $def = $config->{'domain'}{$i}{'site_name'};
+  $config->{'domain'}{$i}{'site_name'} = get_str($msg, $def);
   
   #---- Get global password
   $msg = <<EOM;

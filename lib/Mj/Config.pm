@@ -1091,11 +1091,14 @@ sub parse_access_rules {
   my $var  = shift;
   my $log  = new Log::In 150;
   my (%rules, @at, @tmp, $action, $check_aux, $check_main, $code, $data,
-      $error, $i, $j, $k, $ok, $part, $rule, $table, $tmp);
+      $error, $i, $j, $k, $ok, $part, $rule, $table, $tmp, $warn);
 
   # %$data will contain our output hash
   $data = {};
 
+  # We start with no warnings.
+  $warn = '';
+  
   # Do the table parse: two multi-item, single field lines, one multiline
   # field
   ($table, $error) = parse_table('fmfmx', $arr);
@@ -1160,8 +1163,9 @@ sub parse_access_rules {
     
     $data->{$i}{'code'} .= "\nreturn ['default'];\n";
   }
-  # If we get this far, we know we shouldn't have any errors
-  return (1, '', $data)
+  # If we get this far, we know we shouldn't have any errors, but maybe
+  # some warnings
+  return (1, $warn, $data)
 }
 
 
