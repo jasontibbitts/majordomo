@@ -1,0 +1,482 @@
+                      Access Commands and Variables
+
+This document contains all commands and variables which can be controlled
+through the access_rules configuration setting, and also shows which 
+variables can be tested, set, and unset while handling those requests. 
+Please refer to "help configset_access_rules" for a detailed explanation.
+
+This file does not contain any file substitution variables, which cause 
+new values to be substituted into reply messages.  To learn more about
+substitution variables, see "help variables".
+
+There are four sections in this document:
+  * The commands for which access rules can be used
+  * The variables available for each command
+  * An explanation of each access variable
+  * An explanation of each notify directive variable
+
+
+Commands which can be used in the access rules
+----------------------------------------------
+
+  Name              Default Access
+  ====              ==============
+  access            allow
+  advertise         special
+  alias             confirm
+  announce          deny
+  archive           access
+  changeaddr        confirm2
+  createlist        deny
+  digest            deny
+  faq               access
+  get               access
+  help              allow
+  index             access
+  info              access
+  intro             access
+  lists             allow
+  password          confirm
+  post              special
+  put               deny
+  register          confirm
+  rekey             deny
+  report            deny
+  request_response  allow
+  set               policy
+  show              mismatch
+  showtokens        deny
+  subscribe         policy
+  unalias           confirm
+  unregister        confirm
+  unsubscribe       policy
+  which             access
+  who               access
+
+
+Every command has a default level of access that determines who
+can use the command.
+
+access
+  The access is determined by a configuration setting.  For example,
+  the "which" command is controlled by the "which_access" setting.
+
+allow
+  Anyone can use the command.
+
+confirm
+  The person affected by the request must approve.
+
+confirm2
+  Both the person affected by the request and the person making
+  the request must approve.
+
+consult
+  The moderators must approve.
+
+deny
+  Only the list owners can use the command.
+
+mismatch
+  The command will succeed unless one person attempts to affect
+  someone else with the command.
+
+policy
+  The access is determined by a configuration setting.  For example, the 
+  "subscribe" command is controlled by the "subscribe_policy" setting.
+
+special
+  The access is determined by the access_rules settings in concert
+  with other configuration settings.
+
+
+Access variables
+----------------
+
+Variables available for all requests, with their types:
+
+  Name                          Type
+  ====                          ====
+  addr                          string
+  bounce                        boolean
+  delay                         timespan
+  expire                        timespan
+  fulfill                       boolean
+  fulladdr                      string
+  host                          string
+  interface                     string
+  master_password               number
+  mismatch                      boolean
+  mode                          string
+  posing                        boolean
+  remind                        timespan
+  sublist                       string
+  user_password                 boolean
+
+The password command also uses this variable:
+
+  password_length               number
+
+The post command also uses these variables:
+
+  admin                         number
+  any                           boolean
+  bad_approval                  boolean
+  body_length                   number
+  body_length_exceeded          boolean
+  days_since_subscribe          number
+  dup                           boolean
+  dup_checksum                  boolean
+  dup_msg_id                    boolean
+  dup_partial_checksum          boolean
+  invalid_from                  boolean
+  limit                         boolean
+  limit_hard                    boolean
+  limit_soft                    boolean
+  lines                         number
+  max_header_length             number
+  max_header_length_exceeded    boolean
+  mime                          boolean
+  mime_consult                  boolean
+  mime_deny                     boolean
+  mime_header_length            number
+  mime_header_length_exceeded   boolean
+  mode                          string
+  percent_quoted                number
+  post_block                    boolean
+  quoted_lines                  number
+  taboo                         number
+  total_header_length           number
+  total_header_length_exceeded  boolean
+
+The subscribe command also uses this variable:
+
+  matches_list                  boolean
+
+In addition, the "notify" action in the access_rules configuration setting
+supports several variables.  These variables are only useful inside
+"notify" directives.
+
+  approvals                     number
+  attach                        boolean
+  bounce                        boolean
+  file                          string
+  fulfill                       boolean
+  group                         string
+  pool                          number
+  remind                        timespan
+
+
+Each variable has a type that limits what values the variable can take.
+
+boolean
+  1 or 0, meaning true or false, respectively.
+
+number
+  A whole number.
+
+string
+  A string of characters.
+
+timespan
+  An abbreviation that indicates a length of time, such as "3d" for three
+  days.  See "help times" for more details.
+
+
+An explanation of each access variable
+-------------------------------
+
+addr 
+  This variable contains the user's address, stripped of comments.
+  (such as "jane@example.org')
+
+admin
+  This variable is set if any "admin" variable is set.  It is possible
+  for the admin configuration settings to create access variables.  
+  See "help configset_admin_body" and "help configset_admin_headers" for
+  more details.
+
+any
+  This variable is set if any of the dup, taboo, admin, mime, bad_approval,
+  or invalid_from variables is set.  It provides a convenient way to test 
+  whether or not a posted message violated any of the standard message checks.
+
+bad_approval
+  This variable is set if an "Approved" line with an invalid password is
+  present in a posted message.  See "help admin_moderate" for more details on
+  Approved lines.
+
+body_length
+  This variable contains the total number of characters in the body parts 
+  of a posted message.
+
+body_length_exceeded
+  This variable is set if the size of a posted message exceeds the 
+  value in the maxlength configuration setting.
+
+chain
+  "Chaining" occurs when a series of people must approve a request.  For 
+  example, if Jane tries to subscribe Ruth to a mailing list, the approval 
+  of both Ruth and the moderators of the mailing list would be required 
+  (this is called "confirm_consult" in the access rules).  Normally, a 
+  notice would sent to Ruth, and if Ruth approves, a notice would be sent 
+  to the moderators.  Unsetting the chain variable would cause notices 
+  to be sent to the moderators and to Ruth simultaneously.
+
+days_since_subscribe
+  This variable contains the number of days since the e-mail address (from
+  which a message was posted) was subscribed to a mailing list.  If the
+  message was not posted by a subscriber, this variable is set to -1.
+
+delay
+  This variable holds the length of time a request will be delayed.
+  See "help delay" for more details. 
+
+dup
+  This variable is set if any of the dup_checksum, dup_partial_checksum, or 
+  dup_msg_id variables is set.
+
+dup_checksum
+  This variable is set if the first body part of a posted message has been 
+  sent to the same mailing list recently.
+
+dup_msg_id
+  This variable is set if the Message-ID header of a posted message has been
+  sent to the same mailing list recently.
+
+dup_partial_checksum
+  This variable is set if the first ten lines of a posted message have been
+  sent to the same mailing list recently.
+
+expire
+  When a request requires someone's approval, there is a time limit for
+  approval that is determined by the token_lifetime configuration setting.
+  This variable is a time span that can be used to override the token_lifetime
+  setting.  See "help times" for more details on time spans.
+
+fulladdr
+  This variable contains the address of the person affected by a request, 
+  including any comments (such as "Jane Smith <jane@example.org>").
+
+host
+  This variable contains the domain name in the address of the person
+  affected by a request (such as "example.org").
+
+invalid_from
+  This variable is set if the e-mail address in the From header of a posted
+  message is not a valid address.
+
+interface
+  This variable contains the name of the interface used to make a
+  request, such as 'email', 'shell', or 'wwwadm'.
+
+limit
+  This variable is set if either of the limit_hard or limit_soft variables
+  is set.
+
+limit_hard
+  This variable is set if a posted message exceeded a hard limit, as
+  determined by the post_limits configuration setting.
+
+limit_soft
+  This variable is set if a posted message exceeded a soft limit, as
+  determined by the post_limits configuration setting.
+
+lines
+  This variable contains the total number of lines in a posted message.
+
+master_password
+  If an administrative password was used to issue a command, this variable
+  will contain the level of the password (see "help admin_passwords" for
+  more details).  Normally, an administrative password will cause a request
+  to be completed immediately; however, the access_password_override
+  configuration setting can be used to change this behavior (see
+  "help configset_access_password_override" for more details).
+
+matches_list
+  This variable is set if an attempt is made to subscribe a listname
+  to itself, which would create a mail loop.
+
+max_header_length
+  This variable contains the number of characters in the longest header
+  of a posted message.
+
+max_header_length_exceeded
+  This variable  is set if the longest header of a posted message exceeds
+  the size limit in the max_header_line_length configuration setting.
+
+mime
+  This variable is set if either mime_consult or mime_deny is set.
+
+mime_consult
+  This variable is set one or more body parts of a posted message were
+  marked for moderation by the attachment_rules configuration setting.
+
+mime_deny
+  This variable is set one or more body parts of a posted message were
+  marked for rejection by the attachment_rules configuration setting.
+
+mime_header_length
+  This variable contains the number of characters in the longest 
+  header that describes a body part of a posted message.
+
+mime_header_length_exceeded
+  This variable is set if the number of character in the longest
+  MIME headere exceeds the value of the max_mime_header_length
+  configuration setting
+
+mismatch
+  This variable is set if the e-mail address of the person making a
+  request and the e-mail address of the person affected by a request
+  are different.
+
+mode
+  This variable contains the command mode.  For example, it contains 
+  "enhanced" when the who-enhanced command is used.
+
+password_length
+  This variable contains the length in characters of a new personal 
+  password which is specified in the password command.  It can be
+  used to enforce a minimum length for new passwords.
+
+percent_quoted
+  This variable contains the percentage of lines in a posted message
+  which are quoted, between 0 and 100.  A "quoted" line is one which
+  indicates that a portion of a message was written by someone else.
+  Quoted lines frequently begin with a '>'.
+
+posing
+  This variable is set if the "default user" command is used to masquerade
+  as a different e-mail address.  See "help default" for more details.
+
+post_block
+  This variable is set if the 'postblock' flag is set for the address from
+  which a message was posted.  See "help configset_nonmember_flags" and
+  "help set" for more details.
+
+quoted_lines
+  This variable contains the number of lines in a posted message that 
+  matched the patterns in the quote_pattern configuration setting.  A
+  quote is a marker, such as '>', which is used to indicate that part
+  of a posted message was originally written by someone else. See
+  "help configset_quote_pattern" for more details.
+
+sublist
+  This variable is set to the name of an auxiliary list, if a request
+  pertains to an auxiliary list (See "help auxiliary_list" for more
+  details).
+
+taboo
+  This variable is set if any "admin" variable is set.  It is possible
+  for the admin configuration settings to create access variables.  
+  See "help configset_taboo_body" and "help configset_taboo_headers" for
+  more details.
+
+total_header_length
+  This variable contains the sum of the lengths of all of the headers
+  of a posted message. 
+
+total_header_length_exceeded
+  This variable is set if the sum of the header lengths of a posted
+  message exceeds the value in the max_total_header_length configuration
+  setting.
+
+user_password
+  This variable is set if the personal password of the e-mail address
+  that was affected by a request is used.
+
+
+An explanation of each notify directive variable
+------------------------------------------------
+
+Notify directives determine who receives a confirmation notice when a 
+posted message or request is held for approval.  The default value of 
+each variable will depend upon the type of notice (confirm, consult, or 
+delay).
+
+approvals
+  This variable contains the number of approvals required by person
+  or a group of moderators when a request or posted message is moderated.  If
+  it is greater than 1, each moderator will receive a separate 
+  confirmation notice.  The default value is 1.  A value of 0 would
+  make the approval of a particular group or person unnecessary,
+  which may be useful in situations when more than one person or
+  group receives a confirmation notice.
+
+attach
+  When a posted message requires confirmation, the message is usually
+  attached to the confirmation notice.  Unsetting this variable will
+  avoid the attachment.  The default value is 1 for consult notices,
+  and 0 for confirm and delay notices.
+  
+bounce
+  If a notice cannot be delivered to its recipients, this variable
+  determines if the delivery failure will cause the original request
+  to be discarded.  The default value is 1 for confirm notices, and
+  0 for consult and delay notices.
+
+file
+  This variable determines which document is sent in the confirmation
+  notice.  The default value is 'confirm' for confirm notices, 'consult'
+  for consult notices, and 'delay' for delay notices.
+
+fulfill
+  This variable determines what happens when a request expires.
+  Normally, requests that expire will simply be discarded.  However,
+  if the fulfill variable is set, the request will be completed when
+  it expires.  The default value is 1 for delay notices and 0 for confirm
+  and consult notices.
+
+group
+  This variable determines who receives a confirmation notice when a
+  request requires approval.  There are four standard values:
+
+  moderators  
+    The moderators of the mailing list receive a notice.
+
+  none
+    Nobody receives a notice.
+   
+  requester
+    The person who made the request receives a notice.
+
+  victim
+    The person affected by a request receives a notice.
+
+  In addition, the group can be the name of any existing auxiliary list
+  (see "help auxiliary_list" for more details).  The default value is
+  victim for confirm and delay notices, and moderators for consult 
+  notices.
+
+pool
+  This variable allows only a few moderators to receive a notice when
+  a request is moderated.  For example, if there are 5 moderators, and
+  the pool variable is set to 2, two of the moderators will be chosen
+  randomly to receive a notice.  Normally, the number of moderators is
+  determined by the moderator_group configuration setting. The default
+  value is -1, meaning that the moderator_group setting determines the
+  pool size.  A value of 0 would cause all of the moderators to receive
+  a notice.
+
+remind
+  This variable allows the time at which a reminder notice is sent to
+  be changed.  Reminder notices are usually sent after a number of
+  days, as indicated by the token_remind configuration setting.  This
+  variable should be set to a time span, such as "12h" for twelve
+  hours or "3d" for three days; see "help times" for more details on
+  time spans.  The default value is -1, meaning that the token_remind
+  configuration setting is used to determine when the reminder is
+  sent.
+
+
+See Also:
+   help access    (for the special case of granting/denying all access)
+   help admin_moderate
+   help admin_passwords
+   help auxiliary_list
+   help configset_access_password_override
+   help configset_access_rules        (to restrict access to any command)
+   help times
+   help variables (for file substitution variables)
+
+$INCLUDE-help/foot
