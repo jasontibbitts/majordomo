@@ -252,6 +252,7 @@ sub message {
 		       "$string\n");
 	}
 	else {
+          $string =~ s/%/%%/g;
 	  Sys::Syslog::syslog($prio, $string);
 	}
       }

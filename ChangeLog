@@ -9,6 +9,9 @@
 	* lib/Mj/Format.pm:  (cgidata)  Bugfix:  Escape 
 	non-alphanumeric characters in query strings.  
 	Thanks to Nick Simicich.
+
+	* lib/Mj/Log.pm:  (message)  Bugfix:  Double percent signs
+	to avoid warnings.  Thanks to Nick Simicich.
 	
 2002-05-05  Jason Tibbitts  <tibbs@math.uh.edu>
 
