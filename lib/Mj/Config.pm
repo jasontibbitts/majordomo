@@ -298,7 +298,7 @@ sub load {  # XXX unfinished
   }
   $self->{'sources'} = ['MAIN'];
 
-#  if ($self->{'list'} ne 'GLOBAL') {
+  if ($self->{'list'} ne 'GLOBAL') {
 #    if (exists $self->{'source'}{'MAIN'}{'raw'}{'templates'}) {
 #      for $file (@{$self->{'source'}{'MAIN'}{'raw'}{'templates'}}) {
 #        next unless $self->_load_dfl($file);
