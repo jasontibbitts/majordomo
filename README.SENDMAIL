@@ -7,7 +7,8 @@ list by itself.  It can also maintain alias files for each domain run at
 your site and generate the necessary virtusertable files required to run
 the lists in separate virtual domains.  It will not, however, modify your
 master alias file, nor will it make the necessary changes to your
-sendmail.cf to enable the additional alias and virtuser files required.
+sendmail.cf or sendmail.mc files to enable the additional alias and virtuser
+files required.
 
 When Makefile.PL is run, you will be prompted for what MTA you are running
 and (assuming it's Sendmail) whether or not you want Majordomo to maintain
@@ -112,18 +113,15 @@ O AliasFile=/etc/mail/aliases,/path/to/lists/ALIASES/mj-alias-domain1,/path/to/l
 
 again making the appropriate substitutions.
 
-Note that if you do not have confAUTO_REBUILD (for M4 users) or
-AutoRebuildAliases=True (for sendmail.cf hackers) set, then you will have
-to manually run the newaliases command to rebuild the alias databases
-appropriately.  It is recommended that you turn this on if you want to be
-able to issue a single Majordomo command and have new lists spring into
-being.
+Note that currently you must rebuild these using newaliases yourself;
+Newer versions of Sendmail have no facility to automatically rebuild these
+files, due to security concerns.  You may want to do it from cron.
+Eventually some way of having Majordomo call newaliases may be
+incorporated.
 
 
-VirtUser files:
 
-!!!NOTE: this is written according to the sendmail docs but has not been
-tested.  Please report your experiences.
+VirtUser (VUT) files:
 
 You should already have a line in sendmail.cf like
 
@@ -167,13 +165,13 @@ incorporated.
 
 
 Finally, a note about locking.  There is no locking between Sendmail and
-Majordomo when it comes to modifying the alias files.  This means that it
-is possible for Sendmail to rebuild the databases while Majordomo is
-modifying one of the files.  These files change rarely and info is added in
-a single write call so the changes are slim but still nonzero that an
-incomplete build of the alias database will result.  It may be worthwhile
-to call newaliases from crontab occasionally to make sure that things can't
-stay in an inconsistent state for long.
+Majordomo when it comes to modifying the alias and VUT files.  This means
+that it is possible for Sendmail to rebuild the databases while Majordomo
+is modifying one of the files.  These files change rarely and info is added
+in a single write call so the changes are slim but still nonzero that an
+incomplete build of the alias and VUT databases will result.  It may be
+worthwhile to call newaliases from crontab occasionally to make sure that
+things can't stay in an inconsistent state for long.
 
 
 Performance tuning:
