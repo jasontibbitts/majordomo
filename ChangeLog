@@ -1,3 +1,17 @@
+2004-10-12  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Add support for the unalias command,
+	and allow the aliases database to be searched.
+
+	* bin/mj_wwwusr:  Delete unneeded request data before
+	the "show" command is run.
+
+	* lib/Majordomo.pm:  (who_chunk)  Handle chunks of data
+	more consistently when some data are discarded.
+
+	* lib/Mj/Format.pm:  (who)  Add format file support for
+	the "who-alias" command.
+
 2004-10-10  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Deliver.pm, et al.:  Make use of the qmail path
