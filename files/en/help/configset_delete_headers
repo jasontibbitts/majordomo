@@ -23,17 +23,23 @@ Delivered-To
 ENDTAG
 
 
-Headers appearing in this list will be removed from the messages
-before being passed on to the recipients or placed into the archive.
+$INCLUDE-config/delete_headers
 
-Whenever a post is accepted, it is re-mailed to the list 
-address with an Approved: header included.  Any existing
-Delivered-To headers are removed to reduce the chance of a bounce.
+Including the name of a header in this setting will cause all such
+headers in a message to be removed.  The deletion of headers from a
+message takes place before other settings, such as the message_headers
+setting, add headers to the message.
 
 
 See Also:
-   help configset purge_received (for how to remove a special header)
+   help admin_delivery
+   help configset_message_headers
+   help configset_override_reply_to
+   help configset_precedence
+   help configset_purge_received
+   help configset_reply_to
+   help configset_subject_prefix
+   help configset_subject_re_pattern
+   help configset_subject_re_strip
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

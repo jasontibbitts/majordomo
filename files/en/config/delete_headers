@@ -1,2 +1,3 @@
-Headers appearing in this list will be removed from the messages
-before being passed on to the recipients or placed into the archive.
+The delete_headers setting contains a list of message headers.  Headers
+appearing in this list will be removed from a posted message before the
+message is delivered to the subscribers or placed in the archive.
