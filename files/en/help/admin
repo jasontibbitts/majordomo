@@ -12,7 +12,10 @@ list creation.
 
 In the examples in this document, wherever you see this word:
   LISTNAME
-substitute the name of any mailing list at $DOMAIN.
+substitute the name of any mailing list at $DOMAIN.  Wherever you see
+this word:
+  ADDRESS
+substitute an e-mail address.
 
 
 Interfaces
@@ -23,8 +26,9 @@ common way is to use e-mail.  Commands should be mailed to
   $MJ
 Commands should always be placed in the body of the e-mail messages,
 never in the Subject header.  Majordomo only processes commands in plain
-text parts of the message, although it is possible to use attachments in
-some circumstances.  See "help command_parser" for more information.
+text or HTML parts of a message, although it is possible to use
+attachments in some circumstances.  See "help command_parser" for more
+information.
 
 In addition, if you have shell access for the computer on which
 Majordomo runs, you may be able to use the mj_shell program 
@@ -102,7 +106,7 @@ the message is distributed on the list.  When this happens, we say that
 the request is "stalled."  Majordomo keeps track of these "pending
 requests" by assigning a "token identifier" to each request.  It then
 sends the list moderators a "consult" message with instructions for
-approving the action.
+approving or rejecting the request.
 
 The showtokens command will display all of the stalled requests for
 a mailing list.  For instance,
@@ -146,20 +150,22 @@ displayed using the who command,
 
 If your mailing list has many subscribers, you can search the 
 list using a pattern (see "help patterns" for more information).
-For example, to find all of the e-mail addresses containing the
-pattern "abc" in them, use the command
+For example, to find all of the e-mail addresses containing "abc", 
+use the following command:
   who-enhanced LISTNAME abc
 
 The who-enhanced command will show the personal settings for
 each subscriber (see "help set" for an explanation of the settings).
-To change the settings for a subscriber, use the set command:
-  set LISTNAME digest someone@example.net
+To change the settings for a subscriber, use the set command.
+For example, the following command:
+  set LISTNAME digest ADDRESS
+will cause a subscriber to receive messages bundled in a digest.
 
 You can add subscribers using the subscribe command, for example,
-  subscribe LISTNAME someone@example.com
+  subscribe LISTNAME ADDRESS
 
 Addresses can be removed using the unsubscribe command, for instance,
-  unsubscribe LISTNAME someone@example.com
+  unsubscribe LISTNAME ADDRESS
 
 Configuration settings such as subscribe_policy and unsubscribe_policy
 determine whether or not your approval is needed to join or leave your
@@ -230,7 +236,9 @@ Majordomo keeps a log of every posted message and command that it
 processes.  There are several ways in which you can see what the people
 on your list have been doing.  Majordomo can send you notices
 automatically, or you can ask Majordomo for a report when the need
-arises.
+arises.  For example, the following command will show a summary of all
+activity on a list for the past seven days:
+  report-summary LISTNAME 7d ALL
 
 Also, if your list is public, anyone can learn more about it with the
 following command:
