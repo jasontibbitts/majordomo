@@ -1669,8 +1669,8 @@ sub post_gen_stats {
   # Extract some useful data.  Note that $msgs[0] is the current post, so
   # the next most recent post is $msgs[1], if it exists.
   $stats->{posts} = scalar(@msgs);
-  $stats->{days_since_last_post} = ($now - $pdata->{$msgs[1]})/86400
-    if @msgs > 1;
+  $stats->{days_since_last_post} = ($now - $pdata->{$msgs[0]})/86400
+    if (scalar @msgs);
 
   for $i (@msgs) {
     $ptime = $pdata->{$i};
@@ -1711,6 +1711,7 @@ sub expire_post_data {
     while (1) {
       $b = pop @b1; last unless defined $b;
       ($t) = $b =~ /^(\d+)\w/;
+      next unless (defined $t);
       next if $t < $expiretime;
       push @b2, $b; 
     }
