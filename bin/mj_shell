@@ -31,9 +31,9 @@ no strict "refs";
 use Mj::Log;
 
 use vars qw(%opts $log_entries $log_level $program_name);
-my (@cmdfiles, @in, $disp, $dom, $editor, $fh, $go, $i, $id, $infile, $infh,
-    $lang, $list, $mess, $ok, $passw, $result, $sess, $tempfile, $tlist, 
-    $tmpg, $tmpu, $top);
+my (@cmdfiles, @in, $debuglog, $disp, $dom, $editor, $fh, $go, $i, $id,
+    $infile, $infh, $lang, $list, $mess, $ok, $passw, $result, $sess,
+    $tempfile, $tlist, $tmpg, $tmpu, $top);
 
 $| = 1;
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
@@ -102,17 +102,7 @@ $::log->add
   );
 
 if ($opts{D}) {
-  $::log->add	
-    (	
-     method      => 'handle',
-     id          => 'mjs',
-     handle      => \*STDERR,
-     level       => 5000,
-     subsystem   => 'mail',
-     log_entries => 1,
-     log_exits   => 1,
-     log_args    => 1,
-    );
+  debuglog(5000);
 };
 
 if ($opts{R}) {
@@ -510,6 +500,21 @@ sub parse_command {
       }
       print STDERR "Display was set to $dfl->{'display'}.\n";
     }
+    elsif ($command eq 'debug') {
+      if (defined $args) {
+	if ($args =~ /^\d+$/) {
+	  debug_log($args);
+	  print STDERR "Debug level set to $args.\n";
+	}
+	else {
+	  print STDERR "Illegal debug level \"$args\".\n";
+	}
+      }
+      else {
+	debug_log(0);
+	print STDERR "Debugging output turned off.\n";
+      }
+    }
     else {
       print STDERR "Illegal action \"$command\" for default.\n";
     }
@@ -759,6 +764,29 @@ sub tempfile {
   }
   die "Couldn't open a temporary file in $::WTMPDIR after ten tries:\n  $!\n  Cannot continue; exiting";
 }
+
+
+sub debug_log {
+  my $level = shift;
+
+  if (defined $debuglog) {
+    $::log->set_level($level, $debuglog);
+  }
+  else {
+    $debuglog = $::log->add
+      (
+       method      => 'handle',
+       id          => 'mjs',
+       handle      => \*STDERR,
+       level       => $level,
+       subsystem   => 'mail',
+       log_entries => 1,
+       log_exits   => 1,
+       log_args    => 1,
+      );
+  }
+}
+
 
 =head1 NAME
 

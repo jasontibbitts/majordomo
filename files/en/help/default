@@ -42,6 +42,9 @@ Section 5: default display PROGRAM
    The default display command is used in the mj_shell program to 
    make the results easier to read.
 
+Section 6: default debug INTEGER
+   Used in the mj_shell program to adjust the amount of debugging output.
+
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Section 1: default delay TIMESPEC
@@ -196,6 +199,18 @@ To turn off the editor or pager feature, use this command:
 If the mj_shell program is run with the "-P" option, the pager will
 be turned on immediately.
 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Section 6: default debug INTEGER
+
+It is occasionally useful to extract some debugging information from
+Majordomo.  mj_shell supports the -D switch to enable maximum debugging
+information, but also supports the "default debug" command for fine-tuning.
+
+Provide a positive integer to enable debugging information; higher numbers
+generate more data.  1000 is the maximum.
+
+To turn debugging off, just use "default debug" without the number.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
