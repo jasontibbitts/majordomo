@@ -3,7 +3,7 @@ configset  GLOBAL  description_max_lines = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 0
 Data Type     : integer
-Variable Group: lists
+Category      : lists
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

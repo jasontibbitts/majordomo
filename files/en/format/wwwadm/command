@@ -1,0 +1,82 @@
+<h3 align=center>Majordomo command form</h3>
+<form method=POST action="$CGIURL">
+<input type=hidden name=domain value="$DOMAIN">
+<input type=hidden name=command value="on">
+<table>
+<tr>
+  <td>
+    Command:&nbsp;&nbsp;
+    <select name=func>
+      <option> about this service
+      <option> accept
+      <option> archive-index
+      <option> archive-get
+      <option> configdef
+      <option> configshow
+      <option> configshow-categories
+      <option> configset
+      <option> digest-status
+      <option> get
+      <option> help
+      <option> index-recursive
+      <option> lists-full-long
+      <option> reject
+      <option> report
+      <option> report-summary
+      <option> sessioninfo
+      <option> set
+      <option> showtokens
+      <option> subscribe
+      <option> tokeninfo
+      <option> tokeninfo-full
+      <option> unsubscribe
+      <option> unregister
+      <option> which
+      <option> who
+      <option> who-bounces
+    </select>
+  <td colspan=2>
+    <input size=36 name=extra value="">
+<tr>
+  <td>
+    Mailing List:&nbsp;&nbsp;
+    <input size=20 name=list value="$LIST">
+  <td>
+    Password:&nbsp;&nbsp;
+    <input size=15 name=passw type=password value="$PASSWORD">
+  <td>
+    <input type=submit value="Issue Command">
+</table>
+</form>
+
+This command form will allow you to issue Majordomo administrative
+commands by name.  Some commands, like <b>report-summary</b>, 
+have a hyphen in their names.  The part that follows the hyphen 
+is called the <i>command mode</i>.
+<p>
+There are several steps required to use the command form.
+
+<ol>
+  <li>Choose a command from the <b>Command</b> menu.
+
+  <li>Make sure the mailing list in the <b>Mailing List</b> box
+  is correct.
+
+  <li>All commands except for <b>about this service</b> and <b>help</b> 
+  require a password.  The password for your mailing list 
+  should already be marked by 14 asterisks in the <b>Password:</b> box.
+
+  <li>If additional information is needed to issue
+  a command, type that information into the box
+  immediately to the right of the command menu.
+
+  <li>Press the <b>Issue Command</b> button.
+</ol>
+
+<p>
+To learn more about a particular command, select <b>help</b> in
+the command menu, type the name of the command (without
+the command mode) in the box immediately to the right,
+and press the <b>Issue Command</b> button. You will
+see a summary of how the command works.
+

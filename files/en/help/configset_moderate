@@ -3,7 +3,7 @@ configset listname moderate = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : no
 Data Type     : bool, choose from: 0 n no, 1 y yes
-Variable Group: resend, access
+Category      : moderate
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

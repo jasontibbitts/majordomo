@@ -1,0 +1,116 @@
+<!-- Majordomo welcome format file -->
+<pre>$ERROR</pre>
+<h4 align=center>Instructions</h4>
+
+Welcome to the Majordomo 2 subscriber interface at $SITE.  
+The links at the top and bottom of this document will help you to 
+join or leave our public mailing lists.  The following 
+paragraphs describe each of the links in turn.
+You can return to this page at any time by clicking the <b>Instructions</b>
+link.
+
+<h4 align=center>Sign In</h4>
+
+If you wish to subscribe to a mailing list or change your settings, you
+will need to sign in with your e-mail address, and a password if Majordomo
+has already assigned one to you.  Click the <b>Sign In</b> link, then
+follow the instructions to sign in.
+
+<h4 align=center>Subscribe to Mailing Lists</h4>
+
+There are two ways to subscribe to a mailing list.
+
+<p>
+The first way is to take the following steps:
+<ul>
+  <li>Click the <b>Subscribe to Mailing Lists</b> button. 
+  This will cause a list of public mailing lists at $SITE to
+  be displayed.
+
+  <li>Click the name of the list to which you want to subscribe.
+  This will cause details about the mailing list to be shown,
+  such as the list owners' address and the number of subscribers.
+
+  <li>Find the subscription form at the bottom of the page,
+  and follow the instructions there.
+</ul>
+
+<p>
+The second way is, if you know the name of the list, to type
+it into the <b>Mailing List</b> box in the following form,
+then press the <b>search</b> button.
+
+<form METHOD=post action="$CGIURL">
+  <input type=hidden name=domain value="$DOMAIN">
+  <input type=hidden name=func value="lists-full-long">
+  <input type=hidden name=passw value="$PASSWORD">
+  <input type=hidden name=user value="$USER">
+  Mailing List:
+  <input type=text name=extra>
+  <input type=submit value="search">
+</form>
+
+Experienced subscribers can use a Majordomo pattern to search the list
+of mailing lists.  See the $HELP:PATTERNS help page for details
+on Majordomo patterns.
+
+<h4 align=center>Unsubscribe or Change Settings</h4>
+
+This link will allow you to adjust your settings, change your address,
+add an alias, unsubscribe from one or more mailing lists, or
+to unregister your address from this site entirely.
+<b>A valid password is necessary to use this feature.</b>
+
+<h5>Obtaining a password</h5>
+
+When you subscribe to a Majordomo mailing list, your e-mail address
+is recorded in Majordomo's registration database, and a password
+is assigned to your address.  Regardless of how many subscriptions
+you have at this site, you will have only one password.
+
+<p>
+If you have subscribed to at least one mailing list here, you
+should have received your password in an e-mail welcome message.
+If you do not know your password, you can obtain a new one using the 
+$HELP:PASSWORD 
+command.  
+
+<p>
+If you have not already subscribed to a mailing list at this
+site, it is possible to obtain a password using the 
+$HELP:SUBSCRIBE 
+command to join a mailing list, or using the 
+$HELP:REGISTER
+command to add your address to the registration database.
+
+<p>
+You can obtain a new password or register using the following
+form.  Type your e-mail address into the box, then press
+the <b>password-gen</b> or the <b>register</b> button.
+
+<form METHOD=post action="$CGIURL">
+  <input type=hidden name=domain value="$DOMAIN">
+  <input type=hidden name=passw value="$PASSWORD">
+address:
+  <input type=text size=32 name=user value="$USER">
+  <input type=submit name=func value="password-gen">
+  <input type=submit name=func value="register">
+</form>
+
+A confirmation message will be sent to your e-mail address.
+
+<h4 align=center>Help</h4>
+
+Majordomo has over 100 linked help pages, which you can browse
+by clicking the <b>help</b> link.
+They describe how to send commands to Majordomo at 
+<a href="mailto:$MJ">$MJ</a>.  
+The following pages provide a good introduction.
+
+<ul>
+  <li>$HELP:COMMANDS
+  <li>$HELP:OVERVIEW
+  <li>$HELP:LISTS
+  <li>$HELP:REGISTER
+  <li>$HELP:SUBSCRIBE
+</ul>

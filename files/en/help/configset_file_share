@@ -5,7 +5,7 @@ TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : no default
 Data Type     : list_array
-Variable Group: filespace
+Category      : reply
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

@@ -3,7 +3,7 @@ configset  GLOBAL  session_lifetime = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 14
 Data Type     : integer
-Variable Group: majordomo
+Category      : miscellany
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

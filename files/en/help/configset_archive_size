@@ -3,7 +3,7 @@ configset listname archive_size = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : unlimited
 Data Type     : string
-Variable Group: archive
+Category      : archive
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

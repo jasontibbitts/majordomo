@@ -3,7 +3,7 @@ configset listname default_class = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : each
 Data Type     : string
-Variable Group: class
+Category      : deliver
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

@@ -1,0 +1,8 @@
+<!-- Majordomo showtokens_all_data format file -->
+<tr>
+<td><input type=checkbox name=extra value="$TOKEN">$TOKEN
+<td>$LIST
+<td>$TYPE
+<td>$COMMAND&nbsp;$SIZE
+<td>$ADATE
+<td>$USER

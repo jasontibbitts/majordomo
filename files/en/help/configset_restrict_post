@@ -5,7 +5,7 @@ TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : no default
 Data Type     : restrict_post
-Variable Group: resend, access
+Category      : moderate
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

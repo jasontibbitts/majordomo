@@ -3,7 +3,7 @@ configset listname reply_to = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : no default
 Data Type     : word
-Variable Group: resend
+Category      : deliver
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

@@ -5,7 +5,7 @@ configset listname default_language = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : en
 Data Type     : string
-Variable Group: language
+Category      : reply
 Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

@@ -1,0 +1,4 @@
+<!-- Majordomo who_registry format file -->
+<tr><td><input type=checkbox name=extra value="$FULLADDR">$FULLADDR
+<td>$LASTCHANGE
+<td>$LISTS

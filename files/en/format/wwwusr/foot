@@ -1,0 +1,26 @@
+<!-- Majordomo foot format file -->
+<hr>
+For assistance, please contact
+<a href="mailto:$MJOWNER">$MJOWNER</a>.
+<p>
+
+<table border>
+<tr>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=welcome">
+     Instructions</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=login">
+     Sign In</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=lists-long">
+     Subscribe to Mailing Lists</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=show">
+     Unsubscribe or Change Settings</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=help">
+     Help</a>
+</table>
+
+</body></html>

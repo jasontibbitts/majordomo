@@ -3,7 +3,7 @@ configset listname save_denial_checksums = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 0
 Data Type     : integer
-Variable Group: resend, majordomo
+Category      : moderate
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

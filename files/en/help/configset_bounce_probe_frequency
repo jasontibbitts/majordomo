@@ -3,7 +3,7 @@ configset listname bounce_probe_frequency = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 0
 Data Type     : integer
-Variable Group: resend, deliver, bounce
+Category      : bounce
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

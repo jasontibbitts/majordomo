@@ -3,7 +3,7 @@ configset listname archive_split = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : monthly
 Data Type     : enum, choose from: yearly monthly weekly daily
-Variable Group: archive
+Category      : archive
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

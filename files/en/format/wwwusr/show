@@ -1,0 +1,8 @@
+<!-- Majordomo show format file -->
+<tr><td align=center><input type=checkbox name=list value=$LIST>$LIST<br>
+<td align=center>
+<select name="$LIST;delivery">
+<option $SELECTED value="$CLASSES">$CLASS_DESCRIPTIONS
+</select>
+<td align=center>$CHECKBOX
+

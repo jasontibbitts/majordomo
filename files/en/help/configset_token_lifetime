@@ -5,7 +5,7 @@ configset listname token_lifetime = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 7
 Data Type     : integer
-Variable Group: access, token
+Category      : access
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

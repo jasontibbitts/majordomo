@@ -3,7 +3,7 @@ configset  GLOBAL  advertise_subscribed = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : yes
 Data Type     : bool, choose from: 0 n no, 1 y yes
-Variable Group: majordomo, access, advertise, lists
+Category      : lists
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

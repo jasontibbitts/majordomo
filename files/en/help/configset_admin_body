@@ -9,7 +9,7 @@ TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : /\bcancel\b/i ... (only first item is shown)
 Data Type     : taboo_body
-Variable Group: resend
+Category      : moderate
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

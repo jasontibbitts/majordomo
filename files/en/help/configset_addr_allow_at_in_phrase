@@ -3,7 +3,7 @@ configset  GLOBAL  addr_allow_at_in_phrase = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : no
 Data Type     : bool, choose from: 0 n no, 1 y yes
-Variable Group: addr
+Category      : address
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

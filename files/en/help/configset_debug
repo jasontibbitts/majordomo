@@ -5,7 +5,7 @@ configset listname debug = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 0
 Data Type     : integer
-Variable Group: mtaconfig
+Category      : miscellany
 Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

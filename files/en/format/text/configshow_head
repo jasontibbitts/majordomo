@@ -1,0 +1,9 @@
+# More information about any configuration setting may be obtained
+# using the help command.  For example, to learn more about the
+# access_rules setting, use either of these two, equivalent commands:
+#   help access_rules
+#   help configset access_rules
+#
+# The settings are divided into several categories.  A list of categories
+# may be obtained with the configshow-categories command.
+#

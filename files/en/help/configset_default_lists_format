@@ -3,7 +3,7 @@ configset  GLOBAL  default_lists_format = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : short
 Data Type     : enum, choose from: tiny compact short long enhanced
-Variable Group: lists
+Category      : lists
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

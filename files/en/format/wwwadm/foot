@@ -1,0 +1,34 @@
+<!-- Majordomo foot format file -->
+<hr>
+For assistance, contact 
+<a href="mailto:$MJOWNER">$MJOWNER</a>
+<p>
+<table border>
+<tr>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=welcome">
+     Instructions</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=showtokens-delay">
+     Moderation</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=who">
+     Subscribers</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=configshow-categories">
+     Configuration</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=lists-long">
+     Lists</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=help">
+     Help</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=command">
+     Command Form</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=login">
+     Sign In</a>
+</table>
+</body></html>
+

@@ -3,7 +3,7 @@ configset listname allowed_flags = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : ACHPRSW
 Data Type     : flags, choose from: A C H P R S W
-Variable Group: flags
+Category      : reply deliver
 Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

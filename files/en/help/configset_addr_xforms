@@ -5,7 +5,7 @@ TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : no default
 Data Type     : xform_array
-Variable Group: addr
+Category      : address
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

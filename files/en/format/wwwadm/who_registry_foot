@@ -1,0 +1,5 @@
+<!-- Majordomo who_registry_foot format file -->
+<tr><td colspan=3>Addresses found: $COUNT.
+</table>
+<input type=submit name=func value="$REMOVE">
+</form>

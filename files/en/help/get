@@ -1,9 +1,10 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-get[-immedate] listname filename [address]
+get[-edit][-immedate] listname filename [address]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or GLOBAL)
 filename, required, is the pathname of the file to be sent
 address,    if specified, is where the file should be sent via email
+-edit,      if specified, allows a document to be edited and replaced easily
 -immediate, if specified, returns text inline instead of separate email
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -38,6 +39,10 @@ is called "ANOTHERFILE", then these commands would be valid:
   get MYLIST TOPFILE
   get MYLIST SUBDIR/ANOTHERFILE
 where a slash "/" separates the directory name from the file name.
+
+The "edit" command mode causes the entire file to be wrapped in a "put"
+command.  This makes it easy for list owners to edit and replace 
+an existing file.
 
 See Also:
    help configset access_rules_variables (set/test for this command)

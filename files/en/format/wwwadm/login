@@ -1,0 +1,18 @@
+<form method=POST action="$CGIURL">
+<input type=hidden name=domain value="$DOMAIN">
+<input type=hidden name=user value="$USER">
+<input type=hidden name=func value="$COMMAND">
+Mailing List:  <input name=list value="$LIST">
+Password: <input type=password name=passw size=15 value="$PASSWORD">
+
+<input type=submit value="Sign In">
+</form>
+$ERROR
+<p>
+You must sign in using a valid mailing list name and password.
+<ul>
+<li>Type the list name into the <b>Mailing List</b> box.
+<li>Type the list's administrative password into the <b>Password</b> box.
+<li>Press the <b>Sign In</b> button.
+</ul>
+

@@ -3,7 +3,7 @@ configset listname purge_received = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : no
 Data Type     : bool, choose from: 0 n no, 1 y yes
-Variable Group: resend
+Category      : deliver
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

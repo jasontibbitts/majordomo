@@ -9,7 +9,7 @@ TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : [defined during installation] ... (only first item is shown)
 Data Type     : address_array
-Variable Group: majordomo
+Category      : moderate
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

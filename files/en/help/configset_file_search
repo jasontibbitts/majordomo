@@ -5,7 +5,7 @@ TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : :$LANG ... (only first item is shown)
 Data Type     : list_array
-Variable Group: filespace
+Category      : reply
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

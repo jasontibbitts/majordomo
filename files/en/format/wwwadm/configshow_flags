@@ -1,0 +1,11 @@
+<!-- Majordomo configshow_flags format file -->
+<tr><td>
+<input type=checkbox name=extra value="$VARIABLE"><br>
+<input type=submit name=func value="configset"><br>
+<input type=submit name=func value="configdef"><br>
+<input type=submit name=func value="help"><br>
+<td>
+<pre>?COMMENT</pre>
+<select multiple name="$VARIABLE">
+<option $SELECTED> $SETTINGS
+</select>

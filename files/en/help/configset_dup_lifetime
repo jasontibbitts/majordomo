@@ -5,7 +5,7 @@ configset listname dup_lifetime = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 28
 Data Type     : integer
-Variable Group: resend, majordomo
+Category      : moderate
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

@@ -5,7 +5,7 @@ configset listname sender = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : [defined during installation]
 Data Type     : address
-Variable Group: resend
+Category      : deliver
 Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

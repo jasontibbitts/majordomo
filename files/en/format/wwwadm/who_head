@@ -1,0 +1,17 @@
+<!-- Majordomo who_head format file -->
+<form method=POST action="$CGIURL">
+<input type=submit name=func value="$REMOVE">
+<input type=submit name=func value="set">
+<input type=hidden name=domain value="$DOMAIN">
+<input type=hidden name=list value="$LIST">
+<input type=hidden name=passw value="$PASSWORD">
+<br>To remove addresses, press the button next to one or more
+addresses from the following list, then press the <b>$REMOVE</b> button.
+<br>To change settings, press the button next to the addresses
+whose settings you wish to change, select the approproate settings,
+then press the <b>set</b> button.
+<table>
+<tr>
+<td align=center><small>address</small>
+<td align=center><small>delivery class</small>
+<td align=center><small>$SETTINGS</small>

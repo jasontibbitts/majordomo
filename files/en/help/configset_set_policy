@@ -5,7 +5,7 @@ configset listname set_policy = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : open+confirm
 Data Type     : enum, choose from: open closed auto open+confirm closed+confirm auto+confirm
-Variable Group: majordomo, access, subscribe
+Category      : access
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

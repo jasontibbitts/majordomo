@@ -3,7 +3,7 @@ configset listname bounce_max_count = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 100
 Data Type     : integer
-Variable Group: bounce
+Category      : bounce
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

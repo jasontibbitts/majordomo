@@ -3,7 +3,7 @@ configset  GLOBAL  signature_separator = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : /^[-_]/
 Data Type     : regexp
-Variable Group: parser
+Category      : miscellany
 Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

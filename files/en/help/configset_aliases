@@ -3,7 +3,7 @@ configset listname aliases = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : ORQ
 Data Type     : flags, choose from: A M O R Q S U
-Variable Group: mtaconfig
+Category      : miscellany
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

@@ -3,7 +3,7 @@ configset  GLOBAL  confirm_url = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : [defined during installation]
 Data Type     : string
-Variable Group: access, token
+Category      : access
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

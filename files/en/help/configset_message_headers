@@ -9,7 +9,7 @@ TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : Reply-To: $MJ ... (only first item is shown)
 Data Type     : string_array
-Variable Group: resend, digest
+Category      : deliver
 Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

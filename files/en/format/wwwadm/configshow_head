@@ -1,0 +1,16 @@
+<!-- Majordomo configshow_head format file -->
+<h4 align=center>Configuration Settings for the $LIST list</h4>
+It is possible to change, or receive help for, more than
+one setting, in the following way. 
+<ol>
+<li>Press the checkbox above the <b>configset</b> 
+button for each of the settings you wish to change or study. 
+<li>Make changes to each of the values you wish to change.
+<li>Press any one of the <b>configset</b>, <b>configdef</b>,
+or <b>help</b> buttons.
+</ol>
+<form method=POST action="$CGIURL">
+<input type=hidden name=domain value="$DOMAIN">
+<input type=hidden name=list value="$LIST">
+<input type=hidden name=passw value="$PASSWORD">
+<table border>

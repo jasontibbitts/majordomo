@@ -3,7 +3,7 @@ configset listname sequence_number = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 1
 Data Type     : integer
-Variable Group: resend
+Category      : deliver
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

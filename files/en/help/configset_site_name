@@ -3,7 +3,7 @@ configset  GLOBAL  site_name = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : [defined during installation]
 Data Type     : string
-Variable Group: majordomo
+Category      : miscellany
 Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

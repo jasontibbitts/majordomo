@@ -1,0 +1,29 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd">
+<!-- Majordomo head format file -->
+<html><head>
+<title>Majordomo 2 Subscribers: $COMMAND</title>
+</head>
+<body>
+
+<table border>
+<tr>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=welcome">
+     Instructions</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=login">
+     Sign In</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=lists-long">
+     Subscribe to Mailing Lists</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=show">
+     Unsubscribe or Change Settings</a>
+  <td>
+    <a href="$CGIURL?$CGIDATA&func=help">
+     Help</a>
+</table>
+
+<h4 align=center>$USER at $SITE</h4>
+

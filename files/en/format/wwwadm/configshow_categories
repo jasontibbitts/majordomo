@@ -1,0 +1,53 @@
+<!-- Majordomo configshow_category format file -->
+<h3 align=center>configuration categories</h3>
+The configuration settings fall into several categories.
+For your convenience, they are presented here.  Press
+the check boxes next to one or more categories, then 
+press the $HELP:CONFIGSHOW button to
+view or change the current settings.
+
+<form method=POST action="$CGIURL">
+Mailing List: <input name=list value="$LIST">
+Password: <input type=password size=15 name=passw value="$PASSWORD">
+<input type=submit name=func value="configshow">
+
+<dl>
+  <dt><input type=checkbox name=extra value="ACCESS">Access
+  <dd>Settings that affect who can issue a command, and
+  whether a command is completed immediately, stalled, or
+  discarded.
+
+  <dt><input type=checkbox name=extra value="ARCHIVE">Archive
+  <dd>Settings that affect the archiving of posted messages.
+
+  <dt><input type=checkbox name=extra value="BOUNCE">Bounce
+  <dd>Settings that control the processing of error messages.
+
+  <dt><input type=checkbox name=extra value="DELIVER">Deliver
+  <dd>Settings that alter the contents and control the delivery
+  of posted messages.
+
+  <dt><input type=checkbox name=extra value="LISTS">Lists
+  <dd>Settings related to the output of the <b>lists</b> command.
+
+  <dt><input type=checkbox name=extra value="MISCELLANY">Miscellany
+  <dd>Settings that do not fit one of the other categories.
+
+  <dt><input type=checkbox name=extra value="MODERATE">Moderate
+  <dd>Settings that determine who can post messages, whether
+  posts are distributed immediately, discarded, or moderated, and
+  the addresses of the moderators.
+
+  <dt><input type=checkbox name=extra value="PASSWORD">Password
+  <dd>Settings that relate to both administrative and personal
+  $HELP:PASSWORDs.
+
+  <dt><input type=checkbox name=extra value="REPLY">Reply
+  <dd>Settings that determine whether or not acknowledgement notices are sent;
+  where to find the files that contain the acknowledgement reply messages, 
+  and the language of the replies.
+</dl>
+
+<input type=submit name=func value="configshow">
+</form>
+ 

@@ -5,7 +5,7 @@ configset listname get_access = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : list
 Data Type     : enum, choose from: open closed list
-Variable Group: access, majordomo
+Category      : access
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

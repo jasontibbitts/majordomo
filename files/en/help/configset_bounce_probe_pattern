@@ -3,7 +3,7 @@ configset listname bounce_probe_pattern = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 
 Data Type     : regexp
-Variable Group: resend, deliver, bounce
+Category      : bounce
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

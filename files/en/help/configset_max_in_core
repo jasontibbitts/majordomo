@@ -3,7 +3,7 @@ configset  GLOBAL  max_in_core = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 20000
 Data Type     : integer
-Variable Group: email
+Category      : miscellany
 Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

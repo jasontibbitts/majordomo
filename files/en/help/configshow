@@ -1,10 +1,12 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configshow[-append][-declared][-extract][-nocomments] listname [settings]
+configshow-categories listname [settings]
 configshow-merge[-append][-extract][-nocomments] listname listname [settings]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname,    required, is an email list at this site
 settings,    if specified, are one or more comma-separated configuration settings
 -append,     if specified, causes "configset-append" commands to be displayed
+-categories, if specified, causes a list of setting categories to be displayed
 -declared,   if specified, displays settings that have been changed by the owners
 -extract,    if specified, causes "configset-extract" commands to be displayed
 -merge,      if specified, displays configset commands for the second list.
@@ -12,12 +14,54 @@ settings,    if specified, are one or more comma-separated configuration setting
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 Retrieves the value of the given setting(s). Multiple settings can
-be retrieved by listing them separated by commas or spaces. Listing no
-setting name at all retrieves the complete list of settings. In addition
-to single settings or combinations of settings, the names of setting
-groups can be given in upper case to show all of the settings
-belonging to the group. The ALL group is supported, and shows every
-setting currently visible.
+be retrieved by listing them separated by commas or spaces. For example,
+  configshow listname access_rules,delivery_rules
+will cause the values of the access_rules and delivery_rules settings to 
+be displayed.  The output of the configshow command is presented 
+in a way that makes it easy to change the settings (see "help configset" 
+for more details on changing the settings.)
+
+If no settings are named on the command line, or if the ALL category
+is used, all visible settings are shown in the output of the command.
+All settings are visible if a master password is used.  If no password is 
+used, only a handful of settings will be visible.
+
+In addition to the ALL category, ten other categories are provided for
+your convenience.  They include:
+
+ACCESS      controls who has the ability to run a Majordomo command
+            (not including posted messages, with the exception of 
+             the access_rules setting.)
+
+ADDRESS     controls what is considered a valid e-mail address.
+            (These settings apply only to the GLOBAL pseudo-list.)
+
+ARCHIVE     controls how archives of posted messages are stored.
+
+BOUNCE      controls how error e-mail messages are processed.
+
+DELIVER     controls the appearance and delivery of outgoing posted messages.
+
+LISTS       controls the output of the lists command.
+
+MISCELLANY  settings that do not fit any of the other categories.
+
+MODERATE    controls whether a posted message is delivered immediately,
+            stalled pending approval, or discarded.
+
+PASSWORD    includes the administrative master password, password 
+            length, and related settings.
+
+REPLY       controls whether or not notices are sent when a majordomo
+            request is stalled, fails, is completed or denied, and so on.
+            Settings that control the file space and language also appear 
+            in this category.
+
+Categories should always be indicated in capital letters.  Each category
+contains several settings, and some settings appear in more than one
+category.  The help page for each individual setting shows the categories
+to which the setting belongs.  A more detailed description of the
+categories is available using the configshow-categories command.
 
 Unless the '-nocomments' option is used, explanatory information about
 the setting(s) will be returned as well. The default values is shown

@@ -3,7 +3,7 @@ configset listname message_footer_frequency = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 100
 Data Type     : integer
-Variable Group: resend
+Category      : deliver
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

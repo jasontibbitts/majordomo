@@ -5,7 +5,7 @@ TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : /X-Loop:.*majordomo/i ... (only first item is shown)
 Data Type     : taboo_headers
-Variable Group: majordomo
+Category      : access
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

@@ -3,7 +3,7 @@ configset listname max_total_header_length = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 2048
 Data Type     : integer
-Variable Group: resend
+Category      : moderate
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

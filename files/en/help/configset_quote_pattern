@@ -3,7 +3,7 @@ configset listname quote_pattern = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : /^( - | : | > | [a-z]+> )/xi
 Data Type     : regexp
-Variable Group: resend
+Category      : moderate
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

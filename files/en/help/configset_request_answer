@@ -3,7 +3,7 @@ configset  GLOBAL  request_answer = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : majordomo
 Data Type     : enum, choose from: majordomo owner response
-Variable Group: general
+Category      : reply
 Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

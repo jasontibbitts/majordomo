@@ -3,7 +3,7 @@ configset listname default_flags = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : SPR
 Data Type     : flags, choose from: b C d f h H j P R S W
-Variable Group: flags
+Category      : reply deliver
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

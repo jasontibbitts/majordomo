@@ -1,0 +1,11 @@
+<!-- Majordomo who format file -->
+<tr><td><input type=checkbox name=victims value=\"$STRIPADDR\">$FULLADDR
+<td align=center>
+<select name="$STRIPADDR;delivery">
+<option $SELECTED value="$CLASSES">$CLASSES
+</select>
+<td align=center>$CHECKBOX
+<tr><td colspan=3>Diagnostic message from the last bounce: ?BOUNCE_DIAGNOSTIC
+<tr><td colspan=3>Bounces in the past week: ?BOUNCE_WEEK
+<tr><td colspan=3>Bounces in the past month: ?BOUNCE_MONTH
+<tr><td colspan=3>Bounce numbers: ?BOUNCE_NUMBERS

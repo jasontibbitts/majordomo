@@ -494,7 +494,7 @@ that there are many ways to solve the problem.
   Sign up the recipient users as usual, and put everyone else in
   a sublist like this:
 
-     auxadd blah-list posters address@host.dom
+     subscribe blah-list:posters address@host.dom
 
   (where "blah-list" is the main list and "posters" is the sublist)
   then restrict posting to the main list and that sublist:

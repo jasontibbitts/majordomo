@@ -9,7 +9,7 @@ TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : You have been registered at $SITE. ... (only first item is shown)
 Data Type     : welcome_files
-Variable Group: majordomo, welcome
+Category      : reply
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

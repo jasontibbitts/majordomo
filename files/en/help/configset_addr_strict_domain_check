@@ -3,7 +3,7 @@ configset  GLOBAL  addr_strict_domain_check = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : yes
 Data Type     : bool, choose from: 0 n no, 1 y yes
-Variable Group: addr
+Category      : address
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

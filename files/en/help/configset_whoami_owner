@@ -5,7 +5,7 @@ configset listname whoami_owner = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : [defined during installation]
 Data Type     : address
-Variable Group: majordomo
+Category      : miscellany
 Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

@@ -1,0 +1,12 @@
+<!-- Majordomo who_registry_head format file -->
+<form method=POST action="$CGIURL">
+<input type=submit name=func value="$REMOVE">
+<input type=hidden name=domain value="$DOMAIN">
+<input type=hidden name=list value="$LIST">
+<input type=hidden name=passw value="$PASSWORD">
+<br>To remove addresses, choose one or more
+addresses from the list below, then press the <b>$REMOVE</b> button.
+<table>
+<th>address
+<th>last changed
+<th>lists

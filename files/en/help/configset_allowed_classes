@@ -5,7 +5,7 @@ TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : each ... (only first item is shown)
 Data Type     : enum_array, choose from: all digest each nomail unique
-Variable Group: class
+Category      : deliver
 Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

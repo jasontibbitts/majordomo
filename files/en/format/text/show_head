@@ -1,0 +1,11 @@
+  Address: $VICTIM
+    Address is valid.
+      Mailbox: $STRIPADDR
+      Comment: ?COMMENT
+    Address transforms to:   ?XFORM
+    Address aliased to:      ?ALIAS
+    Aliased to this address: ?ALIASES
+    Registered as            ?FULLADDR
+    Registered on            ?REGTIME
+    Data last changed on     ?RCHANGETIME
+    Subscriptions:           ?COUNT

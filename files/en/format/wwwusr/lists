@@ -1,0 +1,9 @@
+<!-- Majordomo lists format file -->
+<tr>
+<td>
+<a href="$CGIURL?domain=$DOMAIN&user=$USER&func=lists-long-full&passw=$PASSWORD&extra=$LIST">
+$LIST
+</a>
+<td>
+$DESCRIPTION
+
