@@ -81,6 +81,7 @@ my %reg_legal =
   (
    'chain'          =>  'bool',
    'mismatch'       =>  'bool',
+   'nostall'        =>  'bool',
    'posing'         =>  'bool',
    'user_password'  =>  'bool',
    'master_password'=>  'integer',
@@ -131,11 +132,12 @@ my %commands =
                      {
                       %generic_modes,
                       'append'      => {'exclude' => 'extract'},
-                      'categories'  => {'exclude' => 'append|declared|extract|merge|nocomments' },
+                      'categories'  => {'exclude' => 'append|declared|extract|merge|nocomments|noforce' },
                       'declared'    => {'exclude' => 'merge'},
                       'extract'     => 1,
                       'merge'       => 1,
                       'nocomments'  => 1,
+                      'noforce'     => 1,
                      },
                   }
    },
@@ -151,6 +153,7 @@ my %commands =
                                    %generic_modes,
                                    'append'      => {'exclude' => 'extract'},
                                    'extract'     => 1,
+                                   'noforce'     => {'exclude' => 'append|extract'},
                                   },
                   }
    },
