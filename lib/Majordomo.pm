@@ -7049,7 +7049,7 @@ sub _set {
       }
 
       unless (exists $sd->{$l}) {
-        $sd->{$l} = $self->{'lists'}{$l}->get_setting_data;
+        $sd->{$l} = $self->{'lists'}{$l}->get_setting_data($sublist);
       }
 
       ($ok, $res) =
@@ -7257,7 +7257,7 @@ sub _show {
          flags      => $data->{'flags'},
 	 flagdesc   => [$self->{'lists'}{$i}->describe_flags($data->{'flags'})],
 	 fulladdr   => $data->{'fulladdr'},
-         settings   => $self->{'lists'}{$i}->get_setting_data,
+         settings   => $self->{'lists'}{$i}->get_setting_data('MAIN'),
 	 subtime    => $data->{'subtime'},
 	};
 
@@ -7360,6 +7360,99 @@ sub _showtokens {
   return (1, @out);
 }
 
+=head2 sublist (request)
+
+The sublist command creates, destroys, or displays information about
+one auxiliary list (sublist).
+
+=cut
+sub sublist {
+  my ($self, $request) = @_;
+  my $log = new Log::In 30, "$request->{'list'}, $request->{'sublist'}";
+  my ($mess, $ok);
+
+  ($ok, $mess) = $self->list_access_check($request);
+  unless ($ok > 0) {
+    return ($ok, $mess);
+  }
+
+  $self->_sublist($request->{'list'}, $request->{'user'}, $request->{'victim'},
+                  $request->{'mode'}, $request->{'cmdline'}, 
+                  $request->{'sublist'});
+}
+
+sub _sublist {
+  my ($self, $list, $requ, $vict, $mode, $cmd, $sublist) = @_;
+  my $log = new Log::In 35, "$list, $sublist";
+  my ($desc, $mess, $ok, $sublists);
+
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
+    unless $self->_make_list($list);
+ 
+  return (0, $self->format_error('no_sublist', $list, 'COMMAND' => 'sublist'))
+    unless (defined $sublist and length $sublist);
+
+  $sublist = lc $sublist unless ($sublist eq 'MAIN');
+
+  if ($mode =~ /create/) {
+    ($ok, $mess) = $self->{'lists'}{$list}->aux_create($sublist);
+    unless ($ok) {
+      if ($mess eq 'none') {
+        $mess = $self->format_error('no_sublist', $list, 'COMMAND' => 'sublist');
+      }
+      elsif ($mess eq 'existing') {
+        $mess = $self->format_error('existing_sublist', $list, 
+                                    'SUBLIST' => 'sublist');
+      }
+    }
+  }
+  elsif ($mode =~ /destroy/) {
+    ($ok, $mess) = $self->{'lists'}{$list}->aux_destroy($sublist);
+    unless ($ok) {
+      if ($mess eq 'none') {
+        $mess = $self->format_error('no_sublist', $list, 'COMMAND' => 'sublist');
+      }
+      elsif ($mess eq 'absent') {
+        $mess = $self->format_error('invalid_sublist', $list, 
+                                    'SUBLIST' => $sublist);
+      }
+      elsif ($mess eq 'public') {
+        $mess = $self->format_error('public_sublist', $list, 
+                                    'SUBLIST' => $sublist);
+      }
+    }
+  }
+  else {
+    if ($list ne 'DEFAULT' and $list ne 'GLOBAL') {
+      $sublists = { %{$self->_list_config_get($list, "sublists")}};
+    }
+    else {
+      $sublists = {};
+    }
+
+    $desc = '';
+    if (exists $sublists->{$sublist}) {
+      $desc = $sublists->{$sublist};
+    }
+
+    if ($self->{'lists'}{$list}->valid_aux($sublist)) {
+      $mess = {
+                'description' => $desc,
+                'posts' => $self->{'lists'}{$list}->count_posts(30, $sublist),
+                'subs'  => $self->{'lists'}{$list}->count_subs($sublist) || 0,
+              };
+      $ok = 1;
+    }
+    else {
+      $mess = $self->format_error('invalid_sublist', $list, 
+                                  'SUBLIST' => $sublist);
+      $ok = 0;
+    }
+  }
+
+  return ($ok, $mess);
+}
+
 =head2 subscribe()
 
 Perform the subscribe command.  If the "set" mode is used, an
@@ -7443,8 +7536,8 @@ sub _subscribe {
   my $setting = shift;
   my $sublist = shift || 'MAIN';
   my $log   = new Log::In 35, "$list, $vict";
-  my ($ok, $class, $classarg, $classarg2, $data, $exist, $flags, $ml,
-      $rdata, $sl, $welcome, $welcome_table);
+  my ($class, $classarg, $classarg2, $data, $exist, $flags, $ml,
+      $ok, $rdata, $sl, $welcome, $welcome_table);
 
   return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
@@ -7462,6 +7555,16 @@ sub _subscribe {
         $self->{'lists'}{$list}->default_class);
     unless ($ok) {
       return (0, $flags);
+    }
+    # sublists do not support digests
+    if ($sublist ne 'MAIN' and $class eq 'digest') {
+      ($class, $classarg, $classarg2) = 
+        $self->{'lists'}{$list}->default_class;
+      if ($class =~ /digest/) {
+        $class = 'nomail';
+        $classarg = '';
+        $classarg2 = '';
+      }
     }
   }
   else {
@@ -7774,7 +7877,8 @@ sub trigger {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'mode'}";
   my (%subs, @data, @files, @ready, @req, $addr, $cmdfile, $data,
-      $elapsed, $key, $list, $mess, $mode, $ok, $times, $tmp);
+      $elapsed, $farewell, $farewell_table, $key, $list, $mess, 
+      $mode, $ok, $times, $tmp);
   $mode = $request->{'mode'};
 
   # Right now the interfaces can't call this function (it's not in the
@@ -7808,6 +7912,7 @@ sub trigger {
       next unless (exists $times->{'delay'} and
                    Mj::Util::in_clock($times->{'delay'}));
 
+      # XLANG
       ($ok, $mess, $data, $tmp) =
         $self->t_accept($key, '', 'The request was completed after a delay', 0);
       $self->inform($data->{'list'},
@@ -7838,13 +7943,10 @@ sub trigger {
     ($ok, @data) = $self->r_expire;
     while (($addr, undef) = splice @data, 0, 2) {
       # Log the removal of the registration.
-      $self->inform('GLOBAL',
-                    'unregister',
-                    $request->{'user'},
-                    $addr,
-                    "unregister $addr",
-                    $self->{'interface'},
-                    1, '', 0, '', $::log->elapsed - $elapsed);
+      $self->inform('GLOBAL', 'unregister', $request->{'user'},
+                    $addr, "unregister $addr",
+                    $self->{'interface'}, 1, '', 0, 
+                    'inactive_lifetime exceeded', $::log->elapsed - $elapsed);
     }
   }
   if ($mode =~ /^h/) {
@@ -7903,15 +8005,29 @@ sub trigger {
     if ($mode =~ /^(da|i)/ or grep {$_ eq 'inactive'} @ready) {
       $elapsed = $::log->elapsed;
       ($ok, @data) = $self->{'lists'}{$list}->expire_inactive_subs;
+      $farewell = $self->_list_config_get($list, "farewell");
+
       while (($addr, undef) = splice @data, 0, 2) {
-        # Log the delivery mode change.
-        $self->inform($list,
-                      'unsubscribe',
-                      $request->{'user'},
-                      $addr,
-                      "unsubscribe $list $addr",
-                      $self->{'interface'},
-                      1, '', 0, '', $::log->elapsed - $elapsed);
+        $key = new Mj::Addr($addr);
+        if (defined $key) {
+          $self->_reg_remove($key, $list);
+
+          if ($farewell) {
+            $farewell_table = $self->_list_config_get($list, 'farewell_files');
+            $data = $self->_reg_lookup($key);
+            next unless $data;
+            $self->welcome($list, $key, $farewell_table,
+                           'PASSWORD' => $data->{'password'},
+                          );
+          }
+        }
+
+        # Log the unsubscription.
+        $self->inform($list, 'unsubscribe', $request->{'user'},
+                      $addr, "unsubscribe $list $addr",
+                      $self->{'interface'}, 1, '', 0, 
+                      'inactive_lifetime exceeded', 
+                      $::log->elapsed - $elapsed);
       }
     }
 
@@ -8105,9 +8221,9 @@ sub unregister {
 }
 
 sub _unregister {
-  my($self, $list, $requ, $vict, $mode, $cmd) = @_;
+  my ($self, $list, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, "$vict";
-  my(@out, @removed, @aliases, $data, $key, $l, $over, $tmp);
+  my (@out, @removed, @aliases, $data, $key, $l, $over, $tmp);
 
   # Since we call inform() ourselves, we must decide whether to
   # override owner information.  We can assume that the
@@ -8243,7 +8359,7 @@ sub _unsubscribe {
     # the registration entry for that address.
     $key = new Mj::Addr($key);
 
-    if ($sublist eq 'MAIN') {
+    if (defined $key and $sublist eq 'MAIN') {
       $self->_reg_remove($key, $list);
     }
 
@@ -8550,16 +8666,18 @@ sub _who {
   else {
     return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
       unless $self->_make_list($list);
-    # XLANG
-    return (0, "Unknown auxiliary list name \"$sublist\".")
-      unless ($ok = $self->{'lists'}{$list}->valid_aux($sublist));
+
+    unless ($ok = $self->{'lists'}{$list}->valid_aux($sublist)) {
+      return (0, $self->format_error('invalid_sublist', $list, 
+                                      'SUBLIST' => $sublist));
+    }
     $sublist = $ok;
 
     ($ok, $mess) = $self->{'lists'}{$list}->get_start($sublist);
     return (0, $mess) unless ($ok);
   }
 
-  $settings = $self->{'lists'}{$list}->get_setting_data;
+  $settings = $self->{'lists'}{$list}->get_setting_data($sublist);
 
   (1, $regexp, $settings);
 }
