@@ -188,6 +188,10 @@ reject [TOKEN]
   message or other request that is being held for approval.
   See "help reject" and "help admin_moderate" for more details.
 
+report LISTNAME [DATES] [ACTIONS]
+  The report command is used to display or summarize the recent 
+  activitiy on a mailing list.  See "help report" and "help admin_monitor"
+  for more details.
 
 sessioninfo SESSION
   The sessioninfo command is used to learn more about what caused a 
