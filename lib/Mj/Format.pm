@@ -1421,7 +1421,7 @@ sub tokeninfo {
   my (@tmp, $expire, $str, $subs, $time, $tmp);
   my ($ok, $data, $sess) = @$result;
  
-  $subs = { $mj->standard_subs('GLOBAL'),
+  $subs = { $mj->standard_subs($request->{'list'}),
             'CGIDATA' => cgidata($mj, $request),
             'CGIURL'  => $request->{'cgiurl'},
             'PASSWORD' => $request->{'password'},
