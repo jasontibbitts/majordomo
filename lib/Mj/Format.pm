@@ -2044,7 +2044,7 @@ sub showtokens {
     $size = '';
 
     if ($data->{'size'}) {
-      $size = sprintf ("%.1f",  ($data->{'size'} + 512) / 1024);
+      $size = sprintf ("%.1f",  ($data->{'size'} + 51) / 1024);
     }
 
     $user = &escape($data->{'user'}, $type);
