@@ -904,8 +904,7 @@ sub show {
 
   elsif ($ok < 0) {  
     eprint($out, $type, "    Address is valid.\n");
-    eprint($out, $type, "      Mailbox: $strip\n")
-      if $strip ne $request->{'victim'}->strip;
+    eprint($out, $type, "      Mailbox: $strip\n");
     eprint($out, $type, "      Comment: $data->{comment}\n")
       if defined $data->{comment} && length $data->{comment};
     eprint($out, $type, indicate($data->{error}, $ok));
@@ -913,8 +912,7 @@ sub show {
   }
 
   eprint($out, $type, "    Address is valid.\n");
-  eprint($out, $type, "      Mailbox: $strip\n")
-    if $strip ne $request->{'victim'}->strip;
+  eprint($out, $type, "      Mailbox: $strip\n");
   eprint($out, $type, "      Comment: $data->{comment}\n")
     if defined $data->{comment} && length $data->{comment};
 
