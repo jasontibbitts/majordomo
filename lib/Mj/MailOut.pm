@@ -48,6 +48,7 @@ sub mail_message {
   $args{'dbtype'} = 'none';
   $args{'regexp'} = '';
   $args{'buckets'} = 0;
+  $args{'lhost'} = $self->_global_config_get('whereami');
   $args{'classes'} = { 'all' => { 
                                  'file' => $file,
                                  'exclude' => [],
@@ -98,12 +99,13 @@ sub mail_entity {
   $tmpdir = $self->_global_config_get("tmpdir");
   $tmpfile = "$tmpdir/mj-tmp." . Majordomo::unique();
 
-  $fh = new IO::File "> $tmpfile" || $::log->abort("Can't open $tmpfile, $!");
+  $fh = gensym();
+  open ($fh, "> $tmpfile") || $::log->abort("Can't open $tmpfile, $!");
   $entity->print($fh);
-  $fh->close;
+  close $fh;
 
   if ($self->mail_message($sender, $tmpfile, @addrs)) {
-    unlink $tmpfile || $::log->abort("Can't unlink $tmpfile, $!");
+    unlink ($tmpfile) || $::log->abort("Can't unlink $tmpfile, $!");
   }
 }
 
@@ -140,6 +142,7 @@ sub deliver {
      chunk   => $self->_global_config_get('chunksize'),
      classes => $classes,
      domain  => $self->{'domain'},
+     lhost   => $self->_global_config_get('whereami'),
      listdir => $self->{'ldir'},
      list    => $list,
      manip   => 1,
@@ -203,6 +206,7 @@ sub probe {
      chunk   => $self->_global_config_get('chunksize'),
      classes => $classes,
      domain  => $self->{'domain'},
+     lhost   => $self->_global_config_get('whereami'),
      list    => $list,
      listdir => $self->{'ldir'},
      manip   => 1,
@@ -236,6 +240,7 @@ forwards a message to the owner(s) of a mailing list.
 
 =cut
 use Mj::BounceHandler;
+use Symbol;
 sub owner_start {
   my ($self, $request) = @_;
   my $log  = new Log::In 30, "$request->{'list'}";
@@ -243,14 +248,15 @@ sub owner_start {
   my $tmp  = $self->_global_config_get('tmpdir');
   my $file = "$tmp/owner." . Majordomo::unique();
   $self->{'owner_file'} = $file;
-  $self->{'owner_fh'} = new IO::File ">$file" or
+  $self->{'owner_fh'} = gensym();
+  open ($self->{'owner_fh'}, ">$file") or
     $log->abort("Can't open $file, $!");
   (1, '');
 }
 
 sub owner_chunk {
   my ($self, $request, $data) = @_;
-  $self->{'owner_fh'}->print($data);
+  print {$self->{'owner_fh'}} $data;
   (1, '');
 }
 
@@ -261,7 +267,7 @@ sub owner_done {
   my (@owners, $badaddr, $handled, $sender, $user);
   $badaddr = '';
 
-  $self->{'owner_fh'}->close;
+  close $self->{'owner_fh'};
   $self->_make_list($request->{'list'});
 
   # Call bounce handling routine
