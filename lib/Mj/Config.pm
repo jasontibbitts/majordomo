@@ -3530,7 +3530,7 @@ sub _str_to_clock {
 
   # Extract arguments outside and inside parentheses.
   ($out, $in) = $arg =~ /^([a-zA-Z0-9-]+)\s*(.*)$/;
-  return () unless $out;
+  return () unless defined $out;
 
   # Deal with 'always', 'any',
   if ($out =~ /^a[ln]/i) {
