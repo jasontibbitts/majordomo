@@ -401,8 +401,11 @@ for $list (@lists) {
       print $cgi->header('-type' => 'text/plain', '-expires' => '+10s');
     }
     else {
-      $tmp = $result->[1]->[2]->{$part}->{'type'} || 'text/plain';
-      print $cgi->header('-type' => $tmp, '-expires' => '+10s');
+      print $cgi->header(
+        '-type' => $result->[1]->[2]->{$part}->{'type'} || 'text/plain',
+        '-charset' => $result->[1]->[2]->{$part}->{'charset'},
+        '-expires' => '+10s',
+      );
     }
   }
 

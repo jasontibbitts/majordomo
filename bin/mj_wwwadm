@@ -41,7 +41,7 @@ use Mj::Log;
 use Mj::Parser;
 
 my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists, 
-    @settings, @values, $addr, $cgi, $cgidata, $cgiurl, $domain, 
+    @settings, @values, $addr, $cgi, $cgidata, $cgiurl, $cs, $domain, 
     $falseuser, $fh, $func, $i, $j, $line, $list, $loc, $mess, $mode, 
     $mj, $ofunc, $ok, $opass, $passw, $pathinfo, $raw, $req, $request, 
     $result, $sess, $str, $sublist, $subs, $tmp, $token, $truelist, 
@@ -462,6 +462,8 @@ if (@extra and $func ne 'showtokens') {
       if (! $result->[0] or 
           ($func eq 'archive' and ! $request->{'part'}))
       {
+        # The command failed, or the archive command is being used
+        # to display a whole message, so print the page header.
         print $cgi->header('-expires' => '+50s');
         if ($request->{'list'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
           $tmp = $mj->format_get_string('wwwadm', 'head_global',
@@ -481,16 +483,20 @@ if (@extra and $func ne 'showtokens') {
       else {
         if ($func eq 'tokeninfo' and ! $request->{'part'}) {
           $tmp = 'text/plain';
+          $cs = "";
         }
         elsif ($func eq 'tokeninfo') {
           $tmp = $result->[2]->{$request->{'part'}}->{'type'} || 'text/plain';
+          $cs  = $result->[2]->{$request->{'part'}}->{'charset'};
         }
         else {
           $tmp = $result->[1]->[2]->{$request->{'part'}}->{'type'} 
             || 'text/plain';
+          $cs  = $result->[1]->[2]->{$request->{'part'}}->{'charset'};
         }
 
-        print $cgi->header('-type' => $tmp, 'expires' => '+50s');
+        print $cgi->header('-type' => $tmp, '-charset' => $cs,
+                           '-expires' => '+50s');
       }
     }
 

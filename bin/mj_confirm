@@ -39,7 +39,8 @@ use Mj::Log;
 
 my (%commands, @contents, @domains, $action, $cgi, $cgidata, $cgiurl, 
     $domain, $func, $i, $mess, $mj, $mode, $ok, $part, $pathinfo, 
-    $ptoken, $result, $request, $sess, $str, $subs, $tmp, $token, $user);
+    $ptoken, $result, $request, $sess, $str, $subs, $tmp,
+    $token, $user);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -223,24 +224,19 @@ if ($func eq 'tokeninfo'
 {
   # Issue the correct HTTP header for this content-type, then display
   # the headers or body part.
-  if ($part =~ /[hH]$/) {
+  if ($part =~ /[hH]$/ or $part eq '0') {
     print $cgi->header('-type' => 'text/plain',
                        '-expires' => '+50s');
   }
   else {
-    if ($part eq '0') {
-      $tmp = 'text/plain';
-    }
-    else {
-      $tmp = $result->[2]->{$part}->{'type'} || 'text/plain';
-    }
- 
-    print $cgi->header('-type' => $tmp,
-                       '-expires' => '+50s');
+    print $cgi->header(
+      '-type' => $result->[2]->{$part}->{'type'} || 'text/plain',
+      '-charset' => $result->[2]->{$part}->{'charset'},
+      '-expires' => '+50s',
+    );
   }
 }
 else {
-  #----- Print the header -----#
   print $cgi->header(-expires => '+10s');
   $tmp = $mj->format_get_string('wwwconfirm', 'head', 'GLOBAL');
   $str = $mj->substitute_vars_format($tmp, $subs);
