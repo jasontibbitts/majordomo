@@ -886,7 +886,7 @@ sub t_remind {
       # Find number of days left until it dies
       $expire = int(($data->{'expire'}+43200-time)/86400);
 
-      ($reasons = $args{'reasons'}) =~ s/\002/\n  /g;
+      ($reasons = $data->{'reasons'}) =~ s/\002/\n  /g;
 
       # Generate replacement hash
       $repl = {
