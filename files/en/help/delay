@@ -1,0 +1,93 @@
+                                Delayed Requests
+
+Delays are used to postpone a request, or to confine a request 
+to a certain day or time.  For instance, suppose that you wanted
+to maintain a mailing list on which messages were only distributed
+at night, between 6 pm and 6 am.  This could easily be accomplished
+using the access rules for the list, and the delay trigger for
+the list.
+
+There are three ways to create a delay.
+
+The first way is to use the "default delay" command, followed by a time
+span (see "help times" for more information on time spans.)  For
+example,
+
+  default delay 3h
+
+would cause any succeeding command to be delayed for 3 hours,
+but only on the following conditions:
+
+1. The command is issued using an administrative password.
+
+2. The command would otherwise succeed immediately.
+  (Delays have no influence on requests which are denied, or held
+   awaiting someone's approval.)
+
+The delay can be set to zero by omitting the time span:
+
+  default delay 
+
+
+The second way is to use the delay action in an access rule.
+For example,
+
+  subscribe
+  delay=(delay, 3h)
+  ALL
+
+would cause all subscription requests to be delayed by three hours.
+The "delay" inside the parentheses is the name of a file.  The file
+is sent to the person whom the request affects, under normal circumstances.
+The delay action is what is called a "terminal" action, meaning that
+the request will be delayed immediately, and any "subscribe" access rules 
+that follow this one will be ignored.
+
+The third way is to set the delay access variable in an access rule.
+For example,
+
+  subscribe
+  set=(delay=3h)
+  ALL
+
+would have a similar effect to the previous example, but would not 
+indicate the file that is to be sent to the person whom the delay
+affects.  Another difference is that, after the variable has been
+set, Majordomo will continue to process succeeding access rules.
+The delay will only occur if the request would otherwise succeed.
+
+Under most circumstances, delaying a request will cause a notice to
+be sent to the person whom the request affects.  By default, the name of the
+file that contains this notice is "delay."  The notice gives 
+instructions for discarding the request, or causing it to be carried
+out immediately.  There are two situations in which the notice
+is not sent:
+
+1. When a message that is meant to be posted to a mailing list is delayed.
+
+2. If the "quiet" command mode is used.  For instance, the commands
+
+  default delay 4d
+  sub-quiet mylist someone@example.com
+
+would cause someone@example.com not to receive a delay notice (or
+welcome message) concerning the subscription.
+
+The delayed requests are completed automatically when the "delay"
+trigger is executed.  By default, this happens every hour, but
+the "triggers" setting can be adjusted to cause delayed requests
+to be fulfilled less frequently.
+
+
+See Also:
+   help configset access_rules
+   help configset access_rules_variables
+   help configset triggers
+   help default
+   help times
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
+
+
