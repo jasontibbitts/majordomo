@@ -1,0 +1,8 @@
+<!-- Majordomo subscribe_error format file -->
+<p>
+The subscribe command did not succeed.
+</p>
+
+<pre>
+$ERROR
+</pre>
