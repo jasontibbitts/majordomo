@@ -710,12 +710,15 @@ sub t_accept {
 
       my $pw = $self->_list_config_get($data->{'list'}, "master_password"); 
       # Add or replace the Approved header, and mail the message. 
+      # Remove the Delivered-To header if it exists.
       $ok = $parser->replace_headers($data->{'arg1'}, 
                                      'Approved' => $pw,
                                      '-Delivered-To' => '');
       if ($ok and $sender and $whoami) {
         $self->mail_message($sender, $data->{'arg1'}, $whoami);
         @out = (1, "The message was requeued and will be delivered soon.\n");
+        # Delete the spool file.
+        unlink $data->{'arg1'};
       }
       else {
         @out = (0, "The message could not be requeued.\n");
