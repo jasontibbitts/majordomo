@@ -1,4 +1,4 @@
-print "1..15\n";
+print "1..14\n";
 
 $| = 1;
 $counter = 1;
@@ -11,10 +11,22 @@ ok(1, !$@);
 # Create the directory structure we need
 mkdir "tmp.$$", 0700 || die;
 mkdir "tmp.$$/locks", 0700 || die;
+mkdir "tmp.$$/SITE", 0700 || die;
 mkdir "tmp.$$/test", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL/files", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL/sessions", 0700 || die;
+open SITE,">tmp.$$/SITE/config.pl";
+print SITE qq!
+\$VAR1 = {
+          'mta'           => '$config->{'mta'}',
+          'cgi_bin'       => '$config->{'cgi_bin'}',
+          'install_dir'   => '$config->{'install_dir'}',
+          'site_password' => 'hurl',
+        };
+!;
+close SITE;
+
 
 # Set a password
 $e = qq!\Qmaster_password set to "gonzo".\n!;
@@ -27,9 +39,9 @@ $r = run('-p gonzo configset GLOBAL whereami = example.com');
 ok($e, $r);
 
 # Set the MTA so we can create a list
-$e = qq!\Qmta set to "sendmail".\n!;
-$r = run('-p gonzo configset GLOBAL mta = sendmail');
-ok($e, $r);
+#$e = qq!\Qmta set to "sendmail".\n!;
+#$r = run('-p gonzo configset GLOBAL mta = sendmail');
+#ok($e, $r);
 
 # Create a list
 $e = ".*";
@@ -85,7 +97,7 @@ ok($e, $r);
 
 # Set a password
 $e = qq!\QPassword set.\n!;
-$r = run('-p gonzo -u enchanter@example.com password suspect');
+$r = run('-p gonzo -u enchanter@example.com password-quiet suspect');
 ok($e, $r);
 
 # Unsubscribe the aliased address using the set password
@@ -130,6 +142,5 @@ END {
 1;
 #
 ### Local Variables: ***
-### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***

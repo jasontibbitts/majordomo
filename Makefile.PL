@@ -356,7 +356,7 @@ EOM
   #---- Ask for insecure stored passwords
   $msg = <<EOM;
 
-For developers: the install process needs to know your global passwords.
+For developers: the install process needs to know various passwords.
  They can either be saved along with the rest of your install
   configuration, or prompted for at the end of the installation.  Saving
   your passwords can save typing if you are installing repeatedly (as
@@ -375,6 +375,24 @@ EOM
       warn "Nuking $i";
       delete $config->{'domain'}{$i}{'master_password'};
     }
+  }
+
+  #---- Get site password
+    $msg = <<EOM;
+
+Please choose a site password.
+  Majordomo allows a single site password that allows the holder to perform
+  any function on any list in any virtual domain at the site, in addition
+  to various more specific passwords.  It should be chosen with care.  It
+  can be of arbitrary length, but cannot contain spaces.
+
+EOM
+  $def = $config->{'site_password'};
+  if ($config->{save_passwords}) {
+    $config->{'site_password'} = get_str($msg, $def);
+  }
+  else {
+    delete $config->{'site_password'};
   }
 
   #---- Ask for default install location

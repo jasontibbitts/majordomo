@@ -77,11 +77,11 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform);
-$VERSION = "0.1199809180";
+$VERSION = "0.1199809200";
 
 use strict;
 no strict 'refs';
-use vars (qw($safe));
+use vars (qw($safe $indexflags));
 use IO::File;
 use Mj::Log;
 use Mj::List;
@@ -124,9 +124,14 @@ sub new {
   bless $self, $class;
   $self->{'sdirs'}  = 1;
   $self->{'ldir'}   = ($domain =~ m!^/!) ? $domain : "$topdir/$domain";
+  $self->{'sitedir'}= "$topdir/SITE";
   $self->{'domain'} = $domain;
   $self->{'lists'}  = {};
   $self->{'unique'} = 'AAA';
+
+  $self->{'sitedata'}{'config'} = do "$topdir/SITE/config.pl";
+  $log->abort("Can't find site config file $topdir/SITE/config.pl: $!")
+    unless $self->{'sitedata'}{'config'};
 
   $self->{backend} = ''; # Suppress warnings
   $self->_make_list('GLOBAL');
@@ -948,6 +953,18 @@ sub save_configs {
   }
   $::log->out;
 }  
+
+=head2 _site_config_get (private)
+
+Returns a value from the site config.
+
+=cut
+sub _site_config_get {
+  my $self = shift;
+  my $var  = shift;
+
+  $self->{'sitedata'}{'config'}{$var};
+}
 
 =head2 _global_config_get (private)
 
@@ -1771,7 +1788,7 @@ sub _list_file_get {
 
   # Build @paths list; maintain %paths hash to determine uniqueness.
   for $i (@search, 'GLOBAL:$LANG', 'GLOBAL:',
-	  'GLOBAL:stock/$LANG', 'GLOBAL:stock/en')
+	  'STOCK:$LANG', 'STOCK:en')
     {
       # Split and supply defaults
       ($l, $d) = split(':', $i);
@@ -1805,7 +1822,7 @@ sub _list_file_get {
     ($l, $f) = @{$i};
 
     # Consult the share list if necessary
-    if ($l ne $list && $l ne 'GLOBAL') {
+    if ($l ne $list && $l ne 'GLOBAL' && $l ne 'STOCK') {
      SHARE:
       for $j ($self->_list_config_get($l, "file_share")) {
 	if ($j =~ /^\s*$list\s*$/) {
@@ -1815,9 +1832,16 @@ sub _list_file_get {
       }
       next PATH unless $ok;
     }
-    # The list shares with us, so we can get the file
-    @out = $self->{'lists'}{$l}->fs_get($f, $force);
-    
+    # The list shares with us, so we can get the file.  Handle the special
+    # stock list first:
+warn "$l";
+    if ($l eq 'STOCK') {
+      @out = $self->_get_stock($f);
+    }
+    else {
+      @out = $self->{'lists'}{$l}->fs_get($f, $force);
+    }
+
     # We are done if we got something
     return @out if @out;
   }
@@ -1861,7 +1885,70 @@ sub list_file_sync {
   $self->_make_list($list);
   $self->{'lists'}{$list}->fs_sync;
 }
-		 
+
+=head2 _get_stock(file)
+
+This looks through the set of stock files in a final attempt to find a
+file.  This only gets called if no overridden copy of the file exists.
+
+The basic idea is to look for an index file in a known place, load it, make
+sure the requested file exists, and return its path.
+
+Returns the file name and a hash like that of FileSpace::get containing the
+pertinent data, or undef if the file does not exist.
+
+=cut
+sub _get_stock {
+  my $self = shift;
+  my $file = shift;
+  my $log = new Log::In 150, "$file, $self->{'sitedir'}";
+  my (%out, $data, $lang);
+
+  # Ugly hack, but 'my' variables aren't available in require'd files
+  $indexflags |= 1 if $self->{'sitedata'}{'config'}{'cgi_bin'};
+
+  # Pull in the index file if necessary
+  unless ($self->{'sitedata'}{'files'}) {
+    ($self->{'sitedata'}{'files'}, $self->{'sitedata'}{'dirs'})
+      = @{do "$self->{'sitedir'}/files/INDEX.pl"};
+    $log->abort("Can't load index file $self->{'sitedir'}/files/INDEX.pl!")
+      unless $self->{'sitedata'}{'files'};
+  }
+
+#  use Data::Dumper; print Dumper $self->{'sitedata'};
+
+  $data = $self->{'sitedata'}{'files'}{$file};
+  return unless $data;
+
+  ($lang) = $file =~ m!^([^/]*)!;
+  if (ref($data)) {
+    %out = (
+	    'description' => $data->[0],
+	    'c-type'      => 'text/plain',
+	    'charset'     => $data->[1],
+	    'c-t-encoding'=> $data->[2],
+	    'language'    => $lang,
+	    'changetime'  => 0,
+	   );
+    
+    if ($data->[3]) {
+      # Use alternate filename for noweb stuff
+      $file = $data->[3]
+    }
+  }
+  else {
+    %out = (
+	    'description' => $data,
+	    'c-type'      => 'text/plain',
+	    'charset'     => 'ISO-8859-1',
+	    'c-t-encoding'=> '8bit',
+	    'language'    => $lang,
+	    'changetime'  => 0,
+	   );
+  }    
+  return ("$self->{'sitedir'}/files/$file", %out);
+}
+
 ###########################################
 
 =head2 _fill_lists (private)
@@ -2446,9 +2533,9 @@ sub _createlist {
   my(@lists, $bdir, $dir, $dom, $head, $mess, $mta, $rmess, $who);
 
   $owner = new Mj::Addr($owner);
-  $mta   = $self->_global_config_get('mta');
+  $mta   = $self->_site_config_get('mta');
   $dom   = $self->{'domain'};
-  $bdir  = $self->_global_config_get('install_dir');
+  $bdir  = $self->_site_config_get('install_dir');
   $bdir .= "/bin";
   $who   = $self->_global_config_get('whoami');
   $who   =~ s/@.*$//; # Just want local part

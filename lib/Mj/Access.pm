@@ -37,7 +37,7 @@ This checks the validity of a password and whether or not it permits a
 certain action.
 
 This returns 0 if the password is invalid, a positive number if it is an
-access password (that enables a user to carry out secured actiohns) or a
+access password (that enables a user to carry out secured actions) or a
 negative number if it is a user password, used to bypass identity
 confirmation.  If the password happens to be both kinds of passwords, the
 strongest (most positive) possible value will be returned.
@@ -186,14 +186,21 @@ sub _build_passwd_data {
   # Bail quickly if we don't need to do anything
   return if $self->{'pw_loaded'}{$list} && !$force;
 
-  # First deal with the list's master_password.
-  $pw = $self->_list_config_get($list, "master_password");
+  # First deal with the site password
+  $pw = $self->_site_config_get('site_password');
+  if (defined $pw) {
+    # XXX If ALL is ever restricted, the site password must get extra privs.
+    $self->{'pw'}{$list}{$pw}{'ALL'}{'ALL'} = 5;
+  }
 
+  # Then deal with the list's master_password.
+  $pw = $self->_list_config_get($list, "master_password");
   if (defined $pw) {
     # XXX If ALL is ever restricted, the master must get extra privs.
     $self->{'pw'}{$list}{$pw}{'ALL'}{'ALL'} = ($list eq 'GLOBAL' ? 4 : 2);
   }
 
+  # Finally, the subsidiary passwords
   @pw = $self->_list_config_get($list, "passwords");
   ($table, $error) =
     parse_table('fsmp', \@pw);

@@ -3,6 +3,14 @@
 Here you'll find information on major changes.  (Read the ChangeLog
 for the boring stuff.)  Items at the top are newer.
 
+There is a single, site-wide password that works as a global password for
+all domains.  It is set at install time and is changed by rerunning make
+install.
+
+The stock response files are no longer in each domain's filespace; they
+exist outside all filespaces in a special SITE domain.  This results in
+disk space savings and a large speedup in the initial installation.
+
 Each registered user has a password which can be changed by the user and
 used to bypass the confirmation process.  User passwords are supplied just
 as owner passwords: using the approve command.

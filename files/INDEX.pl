@@ -1,7 +1,8 @@
 # List of default reply files and subjects to be installed in the GLOBAL
 # filespace
-%files =
-  (
+
+$files =
+  {
    # English
    'en/ack_denial'              => ['Denial',                                          'us-ascii', '7bit'],
    'en/ack_rejection'           => ['Rejection',                                       'us-ascii', '7bit'],
@@ -104,32 +105,34 @@
 #    'de/informal/help/admin_configuration'=> 'Overview of configuration variables and methods',
 #    'de/informal/help/admin_passwords'    => 'Information on Majordomo security and passwords',
 
-  );
+  };
 
-if ($config->{cgi_bin}) {
-  $files{'en/confirm'} = ['CONFIRM from $LIST', 'us-ascii', '7bit'];
-  $files{'en/consult'} = ['CONSULT from $LIST', 'us-ascii', '7bit'];
+# Files that are conditional on a working web server
+if ($indexflags & 1) {
+  $files->{'en/confirm'} = ['CONFIRM from $LIST', 'us-ascii', '7bit'];
+  $files->{'en/consult'} = ['CONSULT from $LIST', 'us-ascii', '7bit'];
 
-  $files{'de/confirm'} = 'CONFIRM from $LIST';
-  $files{'de/consult'} = 'CONSULT from $LIST';
+  $files->{'de/confirm'} = 'CONFIRM from $LIST';
+  $files->{'de/consult'} = 'CONSULT from $LIST';
 
-  $files{'de/informal/confirm'} = 'CONFIRM from $LIST';
-  $files{'de/informal/consult'} = 'CONSULT from $LIST';
+  $files->{'de/informal/confirm'} = 'CONFIRM from $LIST';
+  $files->{'de/informal/consult'} = 'CONSULT from $LIST';
 }
 else {
-  $files{'en/confirm'} = ['CONFIRM from $LIST', 'us-ascii', '7bit', 'en/confirm_noweb'];
-  $files{'en/consult'} = ['CONSULT from $LIST', 'us-ascii', '7bit', 'en/consult_noweb'];
+  $files->{'en/confirm'} = ['CONFIRM from $LIST', 'us-ascii', '7bit', 'en/confirm_noweb'];
+  $files->{'en/consult'} = ['CONSULT from $LIST', 'us-ascii', '7bit', 'en/consult_noweb'];
 
-  $files{'de/confirm'} = ['CONFIRM from $LIST', 'ISO-8859-1', '8bit', 'de/confirm_noweb'];
-  $files{'de/consult'} = ['CONSULT from $LIST', 'ISO-8859-1', '8bit', 'de/consult_noweb'];
+  $files->{'de/confirm'} = ['CONFIRM from $LIST', 'ISO-8859-1', '8bit', 'de/confirm_noweb'];
+  $files->{'de/consult'} = ['CONSULT from $LIST', 'ISO-8859-1', '8bit', 'de/consult_noweb'];
 
-  $files{'de/informal/confirm'} = ['CONFIRM from $LIST', 'ISO-8859-1', '8bit', 'de/informal/confirm_noweb'];
-  $files{'de/informal/consult'} = ['CONSULT from $LIST', 'ISO-8859-1', '8bit', 'de/informal/consult_noweb'];
+  $files->{'de/informal/confirm'} = ['CONFIRM from $LIST', 'ISO-8859-1', '8bit', 'de/informal/confirm_noweb'];
+  $files->{'de/informal/consult'} = ['CONSULT from $LIST', 'ISO-8859-1', '8bit', 'de/informal/consult_noweb'];
 }
 
-# These have to be ordered...
-@dirs =
-  ('stock'                  => 'Majordomo-supplied files',
+# Directories; no longer useful but left here in case they are subsequently
+# used, perhaps to fake a filespace to make the index command work better.
+$dirs =
+  ['stock'                  => 'Majordomo-supplied files',
    'stock/en'               => 'English',
    'stock/en/help'          => 'English Help files',
    'stock/de'               => 'German',
@@ -138,6 +141,6 @@ else {
    'stock/de/informal/help' => 'Informal German Help Files',
    'spool'                  => 'Spooled files',
    'public'                 => 'Public files',
-  );
+  ];
 
-1;
+[$files, $dirs];

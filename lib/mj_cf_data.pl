@@ -999,39 +999,39 @@ Also note that changing this variable will only change the settings for new
 messages; old archives will not be renamed or altered in any way.
 EOC
    },
-   'install_dir' =>
-   {
-    'type'   => 'directory',
-    'groups' => [qw(install)],
-    'visible'=> 0,
-    'global' => 1,
-    'comment'=> <<EOC,
-The directory holding the Majordomo binaries and libraries.  This is
-normally set automatically during installation, and is used in
-generating aliases.
-EOC
-   },
-   'lists_dir' =>
-   {
-    'type'   => 'directory',
-    'groups' => [qw(install)],
-    'global' => 1,
-    'comment'=> <<EOC,
-The directory holding the Majordomo lists.  This is normally set
-automatically during installation, and is used when creating lists.
-EOC
-   },
-   'mta'    =>
-   {
-    'type'   => 'string',
-    'groups' => [qw(install)],
-    'global' => 1,
-    'comment'=> <<EOC,
-The Mail Transfer Agent running on the Majordomo host.  This is
-normally set automatically during installation, and is used when
-creating lists.
-EOC
-   },
+#    'install_dir' =>
+#    {
+#     'type'   => 'directory',
+#     'groups' => [qw(install)],
+#     'visible'=> 0,
+#     'global' => 1,
+#     'comment'=> <<EOC,
+# The directory holding the Majordomo binaries and libraries.  This is
+# normally set automatically during installation, and is used in
+# generating aliases.
+# EOC
+#    },
+#    'lists_dir' =>
+#    {
+#     'type'   => 'directory',
+#     'groups' => [qw(install)],
+#     'global' => 1,
+#     'comment'=> <<EOC,
+# The directory holding the Majordomo lists.  This is normally set
+# automatically during installation, and is used when creating lists.
+# EOC
+#    },
+#    'mta'    =>
+#    {
+#     'type'   => 'string',
+#     'groups' => [qw(install)],
+#     'global' => 1,
+#     'comment'=> <<EOC,
+# The Mail Transfer Agent running on the Majordomo host.  This is
+# normally set automatically during installation, and is used when
+# creating lists.
+# EOC
+#    },
    'message_fronter' =>
    {
     'type'   => 'string_2darray',
@@ -1493,17 +1493,33 @@ To access files of another list, that list must must contain this
 list\'s name in its file_share variable.  If the referenced list does
 not share with this list, the relevant entries will be ignored.
 
+When it appears in the list slot, the special string \'STOCK\'
+indicates that the stock library of default files is searched.
+Majordomo comes with a library of files in various languages and these
+can be explicitly searched.
+
+Note that the special list \'GLOBAL\' exists to provide defaults for
+all lists in the domain.  GLOBAL and STOCK share all their files with
+all lists.
+
 If \'\$LANG\' appears in the path portion, it is expanded to the user\'s
 current language choice if one is available.  If one is not available,
-entries containing \'\$LANG\' will be ignored.
+it will expand to the value of the 'default_language' variable.
 
-Certain directories of the GLOBAL list are always searched to provide
-defaults; these directories correspond to the following entries:
+Certain directories of the GLOBAL and STOCK lists are always searched
+after everything else to provide defaults; these directories
+correspond to the following entries:
 
   GLOBAL:\$LANG
   GLOBAL:
-  GLOBAL:stock/\$LANG
-  GLOBAL:stock/en
+  STOCK:\$LANG
+  STOCK:en
+
+Thus any domain-local files in the preferred language are searched,
+followed by any domain-local files not in any specific language
+directory, followed by stock files in the preferred language, finally
+followed by English files.  An English version of any file which
+Majordomo makes use of internally will always be present.
 EOC
    },
    'file_share' =>

@@ -1,3 +1,40 @@
+Sun Sep 20 11:16:24 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm: Bump version number for snapshot.
+
+	* t/shell.t (run): Remove test setting MTA.  Use 'quiet' mode of
+ 	password command to avoid sending useless mail.
+
+	* postinstall (do_config): Display errors during mj_shell
+ 	execution.  Don't install variables moved into site config.
+
+	* lib/Mj/Access.pm (_build_passwd_data): Add in site_password
+ 	values, with return '5'.
+
+	* lib/Majordomo.pm (new): Load in the stock index file.
+
+Sat Sep 19 00:45:21 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/mj_cf_data.pl: Remove mta, lists_dir and install_dir;
+ 	they're now in the site config.
+
+	* lib/Majordomo.pm (_list_file_get): Modify default search list to
+ 	look in STOCK, and call _get_stock as appropriate.
+	(new): Load the site config file.
+	(_site_config_get): New function.
+	(_createlist): Call _site_config_get instead of _global_config_get
+ 	for varions site-specific variables.
+
+	* lib/mj_cf_data.pl: Modify description of file_search.
+
+	* Makefile.PL (configure): Prompt for site password.
+
+	* postinstall (create_dirs): Make the SITE and SITE/files
+ 	directories.
+
+	* lib/Majordomo.pm (new): Add 'sitedir'.
+	(_get_stock): New function; pull a file out of stock storage.
+
 Fri Sep 18 00:29:12 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* README.UPGRADE: Minor tweak in the instructions.

@@ -8,6 +8,7 @@
 
 use DirHandle;
 use File::Copy "cp";
+use Data::Dumper;
 sub dot ();
 
 # We call mj_shell (which we make sure has the right permissions) to do the
@@ -19,16 +20,15 @@ $config = eval { require ".mj_config" };
 die "Can't do postinstall unless Makefile.PL has been run!"
   unless $config;
 
-@dirs = (); %files = (); # Silence warning.
-die "Can't get file index, $!"
-  unless eval { require "files/INDEX.pl" };
+#@dirs = (); %files = (); # Silence warning.
+# die "Can't get file index, $!"
+#   unless eval { require "files/INDEX.pl" };
 
 # Pull some variables from the environment 
 $ask   = $ENV{ASK};
 $skip  = $ENV{SKIP};
 $verb  = $ENV{VERBOSE};
 $quiet = $ENV{QUIET};
-$maxf  = $ENV{MAXFILES} || 40;
 $| = 1;
 
 # List of script files to be installed.
@@ -50,15 +50,15 @@ $msg0s = <<EOM;
 What is the global password for domain \$DOM?
 EOM
 
-$msg1 = <<EOM;
+# $msg1 = <<EOM;
 
-Majordomo stores its lists in a hiearachy of directories.  These can be
- created for you now.  The various list files will be created as needed.
- If you do not answer yes, and the necessary directories do not already
- exist, the rest of the installation will fail.
+# Majordomo stores its lists in a hiearachy of directories.  These can be
+#  created for you now.  The various list files will be created as needed.
+#  If you do not answer yes, and the necessary directories do not already
+#  exist, the rest of the installation will fail.
 
-Create directories?
-EOM
+# Create directories?
+# EOM
 
 $msg2 = <<EOM;
 
@@ -72,15 +72,25 @@ If you do not do this, the rest of the installation may not proceed
 Do basic global configuration now?
 EOM
 
-$msg3 = <<EOM;
+# $msg3 = <<EOM;
 
-Majordomo stores response files (the confirmation message, the various help
- texts, etc.) separately instead of placing them into the program code.
- These files must be installed into the Majordomo system.  Note that these
- go into a special file area and will not overrwite any response files
- which have been uploaded.
+# Majordomo stores response files (the confirmation message, the various help
+#  texts, etc.) separately instead of placing them into the program code.
+#  These files must be installed into the Majordomo system.  Note that these
+#  go into a special file area and will not overrwite any response files
+#  which have been uploaded.
 
-Install response files?
+# Install response files?
+# EOM
+
+$msg4 = <<EOM;
+
+Your master site password must be known for some of the installation
+ process, but it is insecure to store it anywhere outside of Majordomo.
+ Thus you must enter it now.  If you have not yet set a password, choose
+ one and enter it below.
+
+What is the site password?
 EOM
 
 set_script_perms(\@sidscripts, \@scripts);
@@ -91,15 +101,19 @@ if ($config->{cgi_bin}) {
 }
 
 # Create list directories and such
-if (!$skip && (!$ask || get_bool($msg1))) {
-  create_dirs($config->{'lists_dir'},
-	      scalar getpwnam($config->{'uid'}),
-	      scalar getgrnam($config->{'gid'}),
-	      $config->{'umask'},
-	      $config->{'domains'},
-	      $config->{'tmpdir'},
-	     );
-}
+create_dirs($config->{'lists_dir'},
+	    scalar getpwnam($config->{'uid'}),
+	    scalar getgrnam($config->{'gid'}),
+	    $config->{'umask'},
+	    $config->{'domains'},
+	    $config->{'tmpdir'},
+	   );
+
+# Install response files
+install_response_files();
+
+# Make the site config
+do_site_config();
 
 # Configure a few global parameters
 if (!$skip && (!$ask || get_bool($msg2))) {
@@ -109,14 +123,6 @@ if (!$skip && (!$ask || get_bool($msg2))) {
 }
 
 # Convert lists if desired
-
-# Install response files
-if (!$skip && (!$ask || get_bool($msg3))) {
-  for my $i (@{$config->{'domains'}}) {
-    install_response_files($i, $config->{'domain'}{$i}{'password'},
-			   \%files, \@dirs);
-  }
-}
 
 # Give some basic MTA configuration
 if (!$skip && -t STDIN) {
@@ -228,13 +234,15 @@ sub create_dirs {
   safe_mkdir($l,           0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir($tmp,         0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$tmp/locks", 0777 & ~oct($um), $uid, $gid);dot;
+
+  safe_mkdir("$l/SITE",       0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir("$l/SITE/files", 0777 & ~oct($um), $uid, $gid);dot;
   
   for $i (@$doms) {
-    printf "Making directories for %s, mode %lo.\n", $i, (0777 & ~oct($um))
+    printf "ok.\nMaking directories for %s, mode %lo.\n", $i, (0777 & ~oct($um))
       if $verb;
-    safe_mkdir("$l/$i", 0777 & ~oct($um), $uid, $gid);dot;
-    safe_mkdir("$l/$i/GLOBAL", 0777 & ~oct($um), $uid, $gid);dot;
-    safe_mkdir("$l/$i/GLOBAL/files", 0777 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir("$l/$i",                 0777 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir("$l/$i/GLOBAL",          0777 & ~oct($um), $uid, $gid);dot;
     safe_mkdir("$l/$i/GLOBAL/sessions", 0777 & ~oct($um), $uid, $gid);dot;
   }
   print "ok.\n" unless $quiet;
@@ -244,7 +252,7 @@ sub create_dirs {
 sub do_config {
   my $dom = shift;
   # Do everything from the global $config
-  my(@args, $arg, $i, $ignore, $msg, $pw);
+  my(@args, $arg, $errcount, $i, $ignore, $msg, $pw);
 
   # Prompt for the password if necessary
   $pw = $config->{'domain'}{$dom}{'master_password'};
@@ -264,7 +272,7 @@ sub do_config {
   open FILE, ">$config->{wtmpdir}/inst.$$";
   print FILE "approve GLOBAL.pass configset GLOBAL master_password = $pw\n";
   print FILE "default password $pw\n";
-  for $i (qw(tmpdir site_name whoami install_dir lists_dir mta)) {
+  for $i (qw(tmpdir site_name whoami)) {
     $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
     print FILE "configset GLOBAL $i = $arg\n";
   }
@@ -277,122 +285,119 @@ sub do_config {
 
   print "\nDo not be alarmed if the first command fails.\n\n@args\n" if $verb;
 
-#  system(@args) == 0 or die "Error executing $args[0], $?";
   $cmdline = join(' ', @args);
   open SHELL, "$cmdline|" or die "Error executing $args[0], $?";
   while (<SHELL>) {
     print if $verb;
-    dot if />>>> / && !$verb;
+    dot if /^>>>> / && !$verb;
+    if (/^\*\*\*\* / && !/Password does not authorize .* to alter master_password./) {
+      print;
+      $errcount++;
+    }
   }
   close SHELL;
   unlink "$config->{wtmpdir}/inst.$$";
+
+  if ($errcount) {
+    print "\nWarning: there were unexpected errors!\nInstallation may be incorrect!\n";
+  }
+  else {
+    print "ok.\n" unless $quiet;
+  }
+}
+
+# Dump out the initial site config
+sub do_site_config {
+  my $data;
+
+  # Prompt for the site password if necessary
+  $pw = $config->{'site_password'};
+  unless ($pw) {
+    $pw = get_str($msg4);
+    $config->{'site_password'} = $pw;
+  }
+
+  print "Cnfiguring site-wide parameters:";
+
+  # Build up the Data hash.
+  $data = {
+	   'site_password' => $pw,
+	   'install_dir'   => $config->{'install_dir'},
+	   'mta'           => $config->{'mta'},
+	   'cgi_bin'       => $config->{'cgi_bin'},
+	  };
+
+  # Open the site config file
+  open SITE, ">$config->{'lists_dir'}/SITE/config.pl"
+    or die "Couldn't open site config file $config->{'lists_dir'}/SITE/config.pl: $!";
+  dot;
+
+  # Print out the data hash
+  print SITE Dumper($data)
+    or die "Couldn't populate site config file $config->{'lists_dir'}/SITE/config.pl: $!";
+  dot;
+
+  # Close the file
+  close SITE;
+  dot;
+
+  # Change ownership and permissions
+  chown (scalar getpwnam($config->{'uid'}),
+	 scalar getgrnam($config->{'gid'}),
+	 "$config->{'lists_dir'}/SITE/config.pl")
+    or die "Can't chown $config->{'lists_dir'}/SITE/config.pl: $!";
+  dot;
+
+  chmod ((0777 & ~oct($config->{'umask'}), "$config->{'lists_dir'}/SITE/config.pl"))
+    or die "Can't chmod $config->{install_dir}/majordomo.crontab, $!";
+
+  print ".ok.\n" unless $quiet;
+}
+
+# Copy all of the stock response files into their site-wide directory
+sub install_response_files {
+  my ($gid, $uid);
+
+  print "Installing stock response files:" unless $quiet;
+
+  rcopy("files", "$config->{'lists_dir'}/SITE/files", 1);
+  
+  $uid = getpwnam($config->{'uid'});
+  $gid = getgrnam($config->{'gid'});
+  $um  = oct($config->{'umask'});
+  rchown($uid, $gid, 0666 & ~$um, 0777 & ~$um,
+	 "$config->{'lists_dir'}/SITE/files");
   print "ok.\n" unless $quiet;
 }
 
-sub install_response_files {
-  my $dom   = shift;
-  my $pass  = shift;
-  my $files = shift;
-  my $dirs  = shift;
-  my(@args, @dirs, @oargs, $dir, $file, $i, $lang, $subj);
+# Recursively copy one directory to another, not paying attention to
+# ownership or permisions.
+sub rcopy {
+  my $src = shift;
+  my $dst = shift;
+  my $dot = shift;
+  my ($i);
 
-  # Grab the password if necessary
-  $pw = $config->{'domain'}{$dom}{'master_password'};
-  unless ($pw) {
-    ($msg = $msg0) =~ s/\$DOM/$dom/;
-    $pw = get_str($msg);
-    $config->{'domain'}{$dom}{'master_password'} = $pw;
-    $msg0 = $msg0s; # Switch to using the short prompt.
-  }
-  print "Installing response files for $dom:" unless $quiet;
+  $src =~ s!/$!!; # Strip trailing slash
+  $dst =~ s!/$!!; # Strip trailing slash
 
-  # Copy dirs so we don't destroy the original array
-  @dirs = @$dirs;
-
-  @oargs = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
-	   "$config->{wtmpdir}/inst.$$");
-
-  # Build the command file
-  open FILE, ">$config->{wtmpdir}/inst.$$";
-  chmod(0644, "$config->{wtmpdir}/inst.$$");
-  print FILE "default password $pw\n";
-  # Make the directories
-  while (($dir, $subj) = splice(@dirs, 0, 2)) {
-    print FILE "put-dir GLOBAL /$dir $subj\n";
-  }
-  # Put the files; first
-  $i = 1;
-  ($file, $subj) = each %{$files};
-  @args = @oargs;
-
-  # 
-  while (1) {
-    # Extract the language to use
-    ($lang) = $file =~ m!^([^/]*)!;
-    if ($file =~ m!/informal/!) {
-      $lang .= "(informal)";
-    }
-
-    # If we have a ref instead of a string for the subject
-    if (ref($subj)) {
-      print FILE "put-data GLOBAL /stock/$file text/plain $$subj[1] $$subj[2] $lang $$subj[0] <\@$i\n"
-	or die "Error writing to $config->{wtmpdir}/inst.$$: $!";
-      # Copy each file into the temp area, so Majordomo can read it.  First look for special names:
-      if ($$subj[3]) {
-	cp("files/$$subj[3]", "$config->{wtmpdir}/inst.$$.$i");
+  $dh = DirHandle->new($src);
+  for $i ($dh->read) {
+    next if $i eq '.' || $i eq '..' || $i eq 'CVS';
+    if (-d "$src/$i") {
+      unless (-d "$dst/$i") {
+	mkdir("$dst/$i", 0700)
+	  or die "Can't make directory $dst/$i: $!";
+	dot if $dot;
       }
-      # Or just use the default
-      else {
-	cp("files/$file", "$config->{wtmpdir}/inst.$$.$i");
-      }
+      rcopy("$src/$i", "$dst/$i", $dot);
     }
-    # Else assume we have an European language and use appropriate defaults.
     else {
-      print FILE "put-data GLOBAL /stock/$file text/plain ISO-8859-1 8bit $lang $subj <\@$i\n"
-	or die "Error writing to $config->{wtmpdir}/inst.$$: $!";
-      cp("files/$file", "$config->{wtmpdir}/inst.$$.$i");
+      cp("$src/$i", "$dst/$i")
+	or die "Can't copy to $dst/$i: $!";
+      dot if $dot;
     }
-
-    chmod(0644, "$config->{wtmpdir}/inst.$$.$i");
-    push @args, ("-f", "$config->{wtmpdir}/inst.$$.$i");
-    ($file, $subj) = each %{$files};
-
-    # We must stop and execute the command before we get too many files or
-    # if we've done the last of them
-    if (($i % $maxf) == 0 || !$file) {
-      close FILE;
-      $cmdline = join(' ', @args);
-      print "$cmdline\n" if $verb;
-      open SHELL, "$cmdline|" or die "Error executing $args[0], $?";
-      while (<SHELL>) {
-	print if $verb;
-	dot if />>>> / && !$verb;
-      }
-      close SHELL;
-
-      # Now clean up all of those temporary files we made.
-      close FILE;
-      unlink "$config->{wtmpdir}/inst.$$"
-	or die "Can't unlink $config->{wtmpdir}/inst.$$: $!";
-      while ($i > 0) {
-	unlink "$config->{wtmpdir}/inst.$$.$i"
-	  or die "Can't unlink $config->{wtmpdir}/inst.$$.$i: $!";
-	$i--;
-      }
-
-      # Start over with a new command file unless we're going to exit
-      if ($file) {
-	open FILE, ">$config->{wtmpdir}/inst.$$";
-	chmod(0644, "$config->{wtmpdir}/inst.$$");
-	print FILE "default password $pw\n";
-	@args = @oargs;
-      }
-    }
-
-    $i++;
-    last unless $file;
   }
-  print "ok.\n" unless $quiet;
 }
 
 sub suggest_mta {
@@ -497,6 +502,5 @@ sub dot () {
 1;
 #
 ### Local Variables: ***
-### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***

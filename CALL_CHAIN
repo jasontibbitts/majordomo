@@ -83,6 +83,8 @@ The core dispatch function then calls the inform routine appropriately so
 the request (and its success/failure/stall) is duly logged and the
 appropriate people are informed.
 
+---- Back across the core/interface junction ----
+
 The TextOutput routine then takes the return and calls the appropriate
 formatting function.
 
