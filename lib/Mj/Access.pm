@@ -727,6 +727,7 @@ sub _a_conf_cons {
 		 'request'   => $request,
 		 'requester' => $requester,
 		 'victim'    =>	$victim,
+		 'notify'    =>	$victim,
 		 'mode'      => $mode,
 		 'cmdline'   => $cmdline,
 		 'approvals' => 1,
@@ -751,6 +752,7 @@ sub _a_confirm {
 		 'request'   => $request,
 		 'requester' => $requester,
 		 'victim'    =>	$victim,
+		 'notify'    =>	$victim,
 		 'mode'      => $mode,
 		 'cmdline'   => $cmdline,
 		 'approvals' => 1,
@@ -769,8 +771,9 @@ sub _a_confirm2 {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
 
-  my ($chain, $tmp, $reply);
+  my ($chain, $tmp, $reply, $notify);
   $reply = "repl_confirm";
+  $notify = $victim;
   # Confirm file, consult file, consult group, consult approvals
   my ($file1, $file2, $group, $approvals) = split(/\s*,\s*/,$arg);
   if ($args{'mismatch'}) {
@@ -779,11 +782,9 @@ sub _a_confirm2 {
                $approvals || 1, 'repl_confirm' ];
       $reply = "repl_confirm2";
     }
-    # Swap roles if the victim's password was supplied.
+    # confirm with the requester if the victim's password was supplied.
     else {
-      $tmp = $requester;
-      $requester = $victim;
-      $victim = $tmp;
+      $notify = $requester;
     }
   }
   elsif ($args{'user_password'}) {
@@ -797,6 +798,7 @@ sub _a_confirm2 {
 		 'request'   => $request,
 		 'requester' => $requester,
 		 'victim'    =>	$victim,
+		 'notify'    =>	$notify,
 		 'mode'      => $mode,
 		 'cmdline'   => $cmdline,
 		 'approvals' => 1,
@@ -945,12 +947,12 @@ sub _a_default {
   if (access_def($request, 'confirm')) {
     return $self->_a_allow(@_) if $args{'user_password'};
     $action = "_a_confirm";
-    $reason = "confirm is the default action for $request."
+    $reason = "By default, $request must be confirmed by the person affected."
   }
 
   elsif (access_def($request, 'confirm2')) {
     $action = "_a_confirm2";
-    $reason = "confirm2 is the default action for $request."
+    $reason = "By default, $request must be confirmed all persons involved."
   }
 
   elsif (access_def($request, 'access')) {

@@ -234,14 +234,15 @@ sub confirm {
      Charset     => $file{'charset'},
      Encoding    => $file{'c_t_encoding'},
      Filename    => undef,
-     -To         => "$args{'victim'}", # Note explicit stringification
+                    # Note explicit stringification
+     -To         => "$args{'notify'}", 
      -From       => $mj_addr,
      '-Reply-To' => $mj_addr,
      -Subject    => "$token : $desc",
      'Content-Language:' => $file{'language'},
     );
 
-  $self->mail_entity($mj_owner, $ent, $args{'victim'});
+  $self->mail_entity($mj_owner, $ent, $args{'notify'});
 
   $ent->purge;
 }
@@ -468,8 +469,9 @@ sub t_accept {
         'group'     => $data->{'chain2'},
         'list'      => $data->{'list'},
         'request'   => $data->{'request'},
-        'requester' => $data->{'victim'},
-        'victim'    => $data->{'requester'},
+        'requester' => $data->{'requester'},
+        'victim'    => $data->{'victim'},
+        'notify'    => $data->{'requester'},
         'mode'      => $data->{'mode'},
         'cmdline'   => $data->{'cmdline'},
         'sessionid' => $data->{'sessionid'},
