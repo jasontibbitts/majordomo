@@ -423,15 +423,18 @@ sub dispatch {
       # Last resort; we found _nothing_ to call
      return [0, "No action implemented for $request->{'command'}"];
     }
-    if ($base_fun eq 'post' and defined $out->[1]) {
+    if ($base_fun eq 'post' or $base_fun eq 'owner' and defined $out->[1]) {
       $request->{'user'} = $out->[1];
+      $base_fun = "bounce" if ($base_fun eq 'owner');
     }
-    # Inform on post_done and post, but not on post_start.
+    # Inform on post_done and post and owner_done, 
+    # but not on post_start or owner_start.
     $over = 2 if ($request->{'command'} eq 'post_start');
+    $over = 2 if ($request->{'command'} eq 'owner_start');
 
     # Inform unless overridden or continuing an iterator
     unless ($over == 2 || 
-            $request->{'command'} =~ /(_chunk|(?<!post)_done)$/) {
+            $request->{'command'} =~ /(_chunk|(?<!post|wner)_done)$/) {
       # XXX How to handle an array of results?
       $self->inform($request->{'list'}, $base_fun, $request->{'user'}, 
                     $request->{'victim'}, $request->{'cmdline'}, 
@@ -3991,7 +3994,7 @@ sub _report {
   if (defined $action) {
     @actions = split /\s*,\s*/, $action;
     @legal = command_list();
-    push @legal, ('badtoken', 'consult', 'connect', 'ALL');
+    push @legal, ('badtoken', 'bounce', 'consult', 'connect', 'ALL');
     for $action (@actions) {
       unless (grep {$_ eq $action} @legal) {
         return (0, "Action $action is unknown.\n");
@@ -4039,12 +4042,12 @@ sub report_chunk {
   my ($self, $request) = @_;
   my $log = new Log::In 500, 
      "$request->{'list'}, $request->{'user'}, $request->{'action'}";
-  my (@data, @out, $count, $line, $owner, $trigger);
+  my (@data, @out, $count, $line, $bounce, $trigger);
   my @actions = split /\s*,\s*/, $request->{'action'};
   unless (@actions) {
     $actions[0] = 'ALL';
   }
-  $owner   = grep { $_ eq 'owner' } @actions;
+  $bounce  = grep { $_ eq 'bounce' } @actions;
   $trigger = grep { $_ eq 'trigger' } @actions;
 
   $request->{'begin'} ||= 0;
@@ -4066,7 +4069,7 @@ sub report_chunk {
                  and $data[9] <= $request->{'end'});
     next unless ($data[0] eq $request->{'list'} 
                  or $request->{'list'} eq 'ALL');
-    next if ($data[1] eq 'owner' and ! $owner);
+    next if ($data[1] eq 'bounce'  and ! $bounce);
     next if ($data[1] eq 'trigger' and ! $trigger);
     next unless ($actions[0] eq 'ALL' or grep {$_ eq $data[1]} @actions);
     push @out, [@data];

@@ -1,5 +1,12 @@
 2000-08-09  Michael Yount <csf@moscow.com>
 
+	* lib/Majordomo.pm:  (dispatch) Treat an "owner" command as
+	a "bounce" during inform() if a bad address was supplied.
+
+	* lib/Mj/MailOut.pm (handle_bounce):  Return the bad
+	address one was found (this does not account for multiple
+	bad addresses in one error message) for logging purposes.
+
 	* bin/mj_wwwadm, lib/Mj/Format.pm (who):  Show bounce diagnostics.
 
 	* lib/Mj/List.pm (bounce_add),  lib/Mj/SubscriberList.pm: 

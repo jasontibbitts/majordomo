@@ -230,15 +230,17 @@ sub owner_done {
   my ($self, $request) = @_;
   $request->{'list'} ||= 'GLOBAL';
   my $log  = new Log::In 30, "$request->{'list'}";
-  my (@owners, $handled, $sender);
+  my (@owners, $badaddr, $handled, $sender);
+  $badaddr = '';
 
   $self->{'owner_fh'}->close;
   $self->_make_list($request->{'list'});
 
   # Call bounce handling routine
-  $handled = $self->handle_bounce($request->{'list'}, $self->{'owner_file'});
+  ($handled, $badaddr) = 
+   $self->handle_bounce($request->{'list'}, $self->{'owner_file'});
 
-  unless ($handled) {
+  if (! $handled) {
     # Nothing from the bounce parser
     # Just mail out the file as if we never saw it
     $sender  = $self->_list_config_get('GLOBAL', 'sender');
@@ -255,7 +257,7 @@ sub owner_done {
   unlink $self->{'owner_file'};
   undef $self->{'owner_fh'};
   undef $self->{'owner_file'};
-  (1, '');
+  (1, $badaddr);
 }
 
 =head2 handle_bounce
@@ -382,7 +384,7 @@ sub handle_bounce {
   $nent->purge if $nent;
 
   # Tell the caller whether or not we handled the bounce
-  $handled;
+  ($handled, $user);
 }
 
 =head2 handle_bounce_token
