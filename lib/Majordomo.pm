@@ -179,12 +179,13 @@ sub new {
     @domains = domains($topdir);
     $basename = $domain;  $basename =~ s#.+/([^/\s]+)##;
     @tmp = grep { lc $_ eq lc $basename } @domains;
-    if (defined $tmp[0]) {
-      $self->{'ldir'} = "$topdir/$tmp[0]";
-      $self->{'domain'} = $tmp[0];
+    if (defined $tmp[0] and $tmp[0] =~ /(.+)/) {
+      $basename = $1;
+      $self->{'ldir'} = "$topdir/$basename";
+      $self->{'domain'} = $basename;
     }
     else {
-      return "The domain '$domain' is not supported!"; #XLANG
+      return qq(The domain "$domain" is not supported!); #XLANG
     }
   }
 
@@ -2186,6 +2187,7 @@ sub _list_sync_owners {
 
   for $i (@$old) {
     $addr = new Mj::Addr($i);
+    next unless (defined $addr);
     next unless $addr->isvalid;
     $strip = $addr->strip;
     $seen{$strip}--;
@@ -2193,6 +2195,7 @@ sub _list_sync_owners {
   }
   for $i (@$new) {
     $addr = new Mj::Addr($i);
+    next unless (defined $addr);
     next unless $addr->isvalid;
     $strip = $addr->strip;
     $seen{$strip}++;
@@ -2865,6 +2868,7 @@ sub password {
 }
 
 use MIME::Entity;
+use Mj::Format;
 sub _password {
   my ($self, $list, $user, $vict, $mode, $cmdline, $pass) = @_;
   my $log = new Log::In 35, "$vict";
@@ -2888,8 +2892,11 @@ sub _password {
 
     $subst = {
               $self->standard_subs('GLOBAL'),
-	      PASSWORD  => $pass,
-	      VICTIM    => $vict->strip,
+	      'PASSWORD'  => $pass,
+              'STRIPADDR' => $vict->strip,
+              'QSADDR'    => Mj::Format::qescape($vict->strip),
+	      'USER'      => "$vict",
+	      'VICTIM'    => "$vict",
 	     };
 
     ($file, %file) = $self->_list_file_get('GLOBAL', 'new_password');
@@ -4622,7 +4629,7 @@ sub _createlist {
       $who);
 
   $mta   = $self->_site_config_get('mta');
-  $dom   = $self->{'domain'};
+  $dom   = $self->_global_config_get('whereami') || $self->{'domain'};
   $pwl   = $self->_global_config_get('password_min_length') || 6;
   $bdir  = $self->_site_config_get('install_dir');
   $bdir .= "/bin";
@@ -4639,7 +4646,8 @@ sub _createlist {
             };
 
   %args = ('bindir'     => $bdir,
-	   'topdir'     => $self->{topdir},
+	   'topdir'     => $self->{'topdir'},
+           'mj_domain'  => $self->{'domain'},
 	   'domain'     => $dom,
 	   'whoami'     => $who,
 	   'options'    => $mtaopts,
@@ -7386,8 +7394,11 @@ sub _unsubscribe {
     if ($mode =~ /farewell/) {
       $data = $self->_reg_lookup($key);
       next unless $data;
-      $subs->{'VICTIM'} = $key;
+      $subs->{'USER'} = "$key";
+      $subs->{'VICTIM'} = "$key";
       $subs->{'PASSWORD'} = $data->{'password'};
+      $subs->{'STRIPADDR'} = $data->{'stripaddr'};
+      $subs->{'QSADDR'} = Mj::Format::qescape($data->{'stripaddr'});
 
       $fh = new IO::File ">$bye";
       next unless $fh;
