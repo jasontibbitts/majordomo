@@ -15,7 +15,7 @@ can be reported on and the log file truncated.  This enables an owner to
 get a periodic summary of all list action without receiving individual
 messages.
 
-Logs are stored in a simple one-line-per-entry format.  
+Logs are stored in a simple one-line-per-entry format.
 
 =cut
 
@@ -91,7 +91,7 @@ sub inform {
   # Decide whether or not to inform the owner
   my $data = $self->_list_config_get($list, 'inform');
   my $inf = $data->{$req}{'all'} || $data->{$req}{$stat} || 0;
-  
+
   # Inform the owner (1 is log, 2 is inform); we inform on accepts
   # elsewhere.
   if (((($inf & 2) && !$over) || ($over < 0)) && $req ne 'reject') {
@@ -159,9 +159,9 @@ sub _inform_owner {
      -Subject    => $desc,
      'Content-Language:' => $data{'language'},
     );
-  
+
   my $out = $self->mail_entity($sender, $ent, $owner);
-  
+
   # Clean up our tempfiles.  Crap; this kills the return value.
   $ent->purge;
 

@@ -213,8 +213,8 @@ sub handle_bounce {
   my ($self, $list, $file) = @_;
   my $log  = new Log::In 30, "$list";
 
-  my (@owners, @bouncers, $data, $diag, $ent, $fh, $handled, $i, $lsender,
-      $mess, $msgno, $nent, $parser, $sender, $subj, $tmpdir);
+  my (@bouncers, @owners, $data, $diag, $ent, $fh, $handled, $i, $lsender,
+      $mess, $msgno, $nent, $parser, $sender, $subj, $tmp, $tmpdir);
 
   $parser = new Mj::MIMEParser;
   $parser->output_to_core($self->_global_config_get("max_in_core"));
@@ -262,20 +262,14 @@ sub handle_bounce {
 
     # Now plow through the data from the parsers
     for $i (keys %$data) {
-      $status = $data->{$i}{status};
-      if ($status eq 'unknown' || $status eq 'warning' || $status eq 'failure') {
-	$user = new Mj::Addr($i);
-	$subbed = $self->is_subscriber($user, $list) ? 'yes' : 'no';
-	$mess .= "  User:       $i\n";
-	$mess .= "  Subscribed: $subbed\n";
-	$mess .= "  Status:     $data->{$i}{status}\n";
-	$mess .= "  Diagnostic: $data->{$i}{diag}\n\n";
-	if ($subj) {
-	  $subj .= ", $i";
-	}
-	else {
-	  $subj  = "Bounce detected from $i";
-	}
+      $tmp = $self->handle_bounce_user($i, $list, %{$data->{$i}});
+      $mess .= $tmp if $tmp;
+
+      if ($subj) {
+	$subj .= ", $i";
+      }
+      else {
+	$subj  = "Bounce detected from $i";
       }
     }
 
@@ -310,6 +304,61 @@ sub handle_bounce {
   # Tell the caller whether or not we handled the bounce
   $handled;
 }
+
+=head2 handle_bounce_user
+
+Does the bounce processing for a single user.  This involves:
+
+*) retrieving any stored bounce data
+
+*) trimming it down if necessary (expiring old entries)
+
+*) adding new bounce data
+
+*) writing the data back
+
+*) generating statistics
+
+*) deciding what action (if any) to take
+
+*) logging the bounce
+
+*) return an explanation message block to the caller
+
+=cut
+sub handle_bounce_user {
+  my $self = shift;
+  my $user = shift;
+  my $list = shift;
+  my %args = @_;
+  my ($mess, $status);
+
+  $status = $args{status};
+  if ($status eq 'unknown' || $status eq 'warning' || $status eq 'failure') {
+    $user = new Mj::Addr($user);
+
+    # No guarantees that an address pulled out of a bounce is valid
+    unless ($user->isvalid) {
+      return "  User:       $user (invalid)\n\n";
+    }
+
+    # Call the list's is_subscriber routine so we get the per-list data
+    # pre-cached for us.
+    $subbed = $self->{lists}{$list}->is_subscriber($user);
+    $mess .= "  User:       $user\n";
+    $mess .= "  Subscribed: " .($subbed?'yes':'no')."\n";
+
+    # If the user is subscribed
+    if ($subbed) {
+      # Not much, yet
+    }
+
+    $mess .= "  Status:     $args{status}\n";
+    $mess .= "  Diagnostic: $args{diag}\n\n";
+  }
+  $mess;
+}
+
 
 =head2 welcome(list, address)
 
