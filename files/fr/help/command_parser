@@ -1,0 +1,81 @@
+                        Le parser de commandes
+                  comment les messages sont traités
+
+Le parser est la partie de Majordomo qui extrait les commandes des
+emails. Dans le cas le plus simple, il récupère juste les commandes,
+une par ligne. Il peut, toutefois, faire bien plus.
+
+Si un message contient plusieurs parties, Majordomo ne traitera que
+les commandes dans la première partie, et seulement si elle est en
+"text/plain" ou "text/html". Les balises HTML sont supprimées des
+parties "text/html" avant que les commandes soient traitées.
+
+Les lignes commençant par un '#' sont considérées comme étant des
+commentaires et sont ignorées.
+
+Les ligne se terminant par un '\' sont jointes a la ligne suivante.
+
+Les parties suivantes peuvent être utilisées pour fournir des données
+a une commande. Elles sont référencées par un nombre, par exemple,
+cette commande :
+
+put LISTE /welcome Bienvenue sur LISTE <@1
+
+Stockera le contenu de la deuxième partie (la première après celle
+contenant les commandes) dans un fichier nommé "/welcome".
+
+Le parser peut aussi traiter des commandes multi-lignes en utilisant
+des here document. (Référez vous à "help here_document" pour plus de
+détails.)
+
+Casser les commandes trop longues
+---------------------------------
+
+Si une commande est trop longue pour tenir sur une ligne, ou si votre
+logiciel de courrier ajoute des retours à la ligne sans vous le dire,
+vous recevrez peut être des messages d'erreurs du serveur. Ces erreurs
+NE DIRONT PAS que la ligne étais trop longue, mais elle vous
+montreront que les morceaux de la ligne ont été interprétés comme des
+commandes séparées (et donc incomplètes). Pour régler ce problème,
+vous pouvez faire croire que la fin de ligne n'étais pas la fin de la
+commande : n'importe où ou un espace est permis, insérez un anti slash
+('\') et un retour a la ligne, pour demander au serveur d'interpréter
+plusieurs lignes comme une seule commande. (Les espaces après l'anti
+slash seront ignorés.)
+
+Par exemple :
+
+  subscribe-set LISTE digest Jean Paul De Quelque Soit Son Nom <quelquesoitsonnom@exemple.fr>
+
+est trop long pour certains logiciels de courrier. À la place, assurez
+que le '\' est le dernier caractère de la ligne, utilisez la commande :
+
+  subscribe-set LISTE digest \
+  Jean Paul De Quelque Soit Son Nom <quelquesoitsonnom@exemple.fr>
+
+Le parser réassemblera les deux lignes en une commande.
+
+Signatures
+----------
+
+Le serveur Majordomo s'arrêtera automatiquement de chercher des
+commandes dans le corps d'un message lorsqu'il trouve une signature
+reconnaissable (une qui commence avec "-- "). Toutefois, pour vous
+assurer que votre signature ne sera pas traitée, vous pouvez utiliser
+la commande "end". Référez vous à "help end" pour plus de détails.
+
+Pour modifier ce que Majordomo pense être le début d'une signature,
+référez vous à "help configset_signature_separator".
+
+Toutes ces fonctionnalités s'appliquent aussi au programme "mj_shell".
+
+Référez vous aussi à :
+   help admin
+   help approve
+   help command_line
+   help default
+   help help
+   help mj_shell
+   help overview
+
+$INCLUDE-help/foot

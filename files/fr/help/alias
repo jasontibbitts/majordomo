@@ -1,0 +1,59 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+alias adresse
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+adresse, requise, est une autre adresse depuis laquelle vous désirez
+                  pouvoir poster
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Si vous avez plus d'un compte mail, vous voudrez peut être avoir la
+possibilité de poster des messages depuis plus d'un de ces comptes,
+alors qu'un seul d'entre eux reçoit les messages. La commande "alias"
+vous permet de faire cela. Ne confondez pas cette commande (destinée
+aux abonnés) avec "configset aliases" (utilisé par les gestionnaires
+de listes).
+
+Pour poster depuis plusieurs comptes, tout d'abord, abonnez vous à
+une liste avec l'adresse vers laquelle vous voulez que les message
+aillent. Ensuite, envoyez cela à $MJ :
+       alias VotreAutreAdresseEmail
+ou VotreAutreAdresseEmail est l'adresse de votre autre compte.
+
+Assurez vous d'envoyer ce message avec votre adresse principale, pas
+celle que vous voulez aliaser. Si "VotreAutreAdresseEmail" est déjà
+abonnée à une liste sur le même serveur, cette commande échouera. Vous
+pouvez utiliser la commande "unregister" pour la supprimer, et
+ensuite, réenvoyer la commande "alias".
+
+Par ailleurs, si pour quelque raison que ce soit, vous êtes inscrit à
+une adresse depuis laquelle vous pouvez recevoir mais plus envoyer,
+vous pouvez utiliser la commande "default user" pour passer outre
+l'adresse email de retour. Cela permet de changer d'identité lorsque
+l'on envoie d'un autre compte (et établie un alias qui rends votre
+ancien compte équivalent au nouveau) :
+  default user ma_nouvelle@adresse.fr
+  alias mon_ancienne_adresse@ailleurs.fr
+Cela demandera certainement des confirmations, mais le compte utilisé
+pour les envoyer importe peu.
+
+NOTE : L'adresse DONNÉE à la commande "alias" sera considérée comme
+équivalente à l'adresse depuis laquelle vous avez ENVOYÉ la commande
+lors de vérifications sur qui peut poster sur quelle liste. Notez que
+cela s'applique à toutes les listes de ce site, vous n'aurez donc à
+utiliser la commande alias qu'une seule fois.
+
+Il n'y à pas, en février 99, de moyen d'accéder aux bases de données
+des adresses enregistrées ni aux alias. Contactez le programmeur dont
+l'adresse figure ci dessous pour un script Perl qui demande un accès
+shell.
+
+Référez vous aussi à :
+   help access_variables (modifier l'accès à cette commande)
+   help configset_aliases (configuration MTA, utilisée par les
+                           gestionnaires de listes)
+   help register  (doit arriver avant les alias)
+   help rekey     (altérer les bases des alias)
+   help subscribe (enregistrement automatique)
+   help unalias   (annule la commande alias)
+   help who       (affiche les alias)
+
+$INCLUDE-help/foot

@@ -1,0 +1,57 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+intro[-edit] liste
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+liste, requis, une liste de ce domaine.
+-edit, si spécifié, rends le document intro facile à éditer et
+       remplacer
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande "intro" affiche le message d'introduction d'une liste, si
+il existe.
+
+Dans les versions récentes de Majordomo 1, le document "intro" est
+envoyé comme message de bienvenue aux nouveaux abonnés lorsqu'ils
+s'abonnent. Majordomo 2 enverra le document "info" à la place. Le
+résultat est que le document "intro" n'est en général pas utilisé. et
+cette commande n'est supportée que pour des raisons de compatibilité.
+
+Le paramètre de configuration "welcome_files" peut être ajusté pour
+utiliser le document "intro" comme message de bienvenue, si le
+propriétaire de la liste le préfère.
+
+Le document "intro" supporte les variables de substitutions (référez
+vous à "help variables" pour plus de détails).
+
+Le mode de commande "edit" permet d'éditer et remplacer simplement le
+document existant. Par exemple, la commande :
+  intro-edit liste-test
+
+affichera le contenu du document "intro" entouré d'une commande
+"newintro" :
+
+newintro liste-test <<ADGBEH
+
+La liste-test est ouverte à tous ceux qui s'intéressent au nouveau
+Majordomo présent sur \$SITE. Toutefois, cette liste est
+modérée pour éviter les débordements. Si vous avez des questions à
+propos de la modération, écrivez à \$OWNER.
+ADGBEH
+
+Référez vous à "help here_document" et "help newintro" pour plus
+d'informations sur le remplacement du document "intro".
+
+
+Référez vous aussi à :
+   help admin_documents (pour en savoir plus sur l'espace de stockage
+                         d'une liste)
+   help configset_access_rules  (pour restreindre l'accès à cette
+                                 commande)
+   help configset_intro_access  (pour restreindre l'accès à cette
+                                 commande)
+   help configset_welcome_files (pour modifier le message de bienvenue)
+   help get   (pour un autre moyen de récupérer ce fichier)
+   help faq  (un autre document en relation avec la liste)
+   help info (un autre document en relation avec la liste)
+   help newintro (pour créer ou remplacer le document "intro")
+
+$INCLUDE-help/foot
