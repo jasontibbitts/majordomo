@@ -88,53 +88,6 @@ my %reg_legal =
    'sublist'        =>3,
   );
 
-# one-line descriptions of every access_rule variable used in $commands{???}{'access'}{'legal'}
-#  (not used at run-time, this hash is for the help file generator)
-# only "en" for now, but some day there may be versions in other than english!
-%Mj::CommandProps::access_vars_desc_en = (
-                        'addr' => "contains the user's address, stripped of comments (such as 'joe\@blow.org')",
-                       'admin' => "is set if any admin_* variable is set (note that admin configsets can create new variables)",
-                         'any' => "is set if any of dup, taboo, admin, mime, or bad_approval is set",
-                'bad_approval' => "is set if someone tried to do use a classic approval method and gave a bad password",
-        'body_length_exceeded' => "is set if 'body_length' exceeds the value in 'configset LISTNAME maxlength'",
-                 'body_length' => "contains the number of characters actually in the message body, see 'body_length_exceeded' for test",
-        'days_since_subscribe' => "contains the number of days since the user signed up (used for a cooling off period before allowing posting)",
-                       'delay' => "a string specifying the amount of time to delay a command",
-                         'dup' => "is set if any of dup_checksum, dup_partial_checksum, or dup_msg_id are set",
-                'dup_checksum' => "is set if the checksum of the message has been seen before",
-                  'dup_msg_id' => "is set if the message ID has been seen before",
-        'dup_partial_checksum' => "is set if the checksum of the first ten lines of the message has been seen before",
-                    'fulladdr' => "contains the user's address, complete with any comments provided (such as 'Joe Blow <joe\@blow.org>')",
-                        'host' => "contains the stuff on the right of the '\@' in the user's address (sometimes called the domain)",
-                   'interface' => "contains the interface used to make a request",
-                'invalid_from' => "is set if the From: header of a posted message contains an invalid address",
-                       'limit' => "is set if a soft or hard posting limit is reached",
-                  'limit_hard' => "is set if a hard posting limit is reached",
-                  'limit_soft' => "is set if a soft posting limit is reached",
-                       'lines' => "contains the total number of lines in the message",
-             'master_password' => "is set if one of the list's correct passwords was used",
-                'matches_list' => "is set if the victim address matches the listname on a subscribe request (e.g. someone is trying to make a mail loop)",
-           'max_header_length' => "contains the number of characters actually in the longest header, see 'max_header_length_exceeded' for test",
-  'max_header_length_exceeded' => "is set if 'max_header_length' exceeds the value in 'configset LISTNAME max_header_line_length'",
-                        'mime' => "is set if either mime_consult or mime_deny is true",
-                'mime_consult' => "is set if attachment_rules flagged a MIME part as 'consult'",
-                   'mime_deny' => "is set if attachment_rules flagged a MIME part as 'deny'",
-          'mime_header_length' => "contains the number of characters actually in the longest MIME header, see 'mime_header_length_exceeded' for test",
- 'mime_header_length_exceeded' => "is set if 'mime_header_length' exceeds the value in 'configset LISTNAME max_mime_header_length'",
-                    'mismatch' => "is set if the user and victim addresses are not the same (after aliasing, transformation, etc.)",
-                        'mode' => "contains the command mode or switch: for example, it contains 'enhanced' when the 'who-enhanced' command is used",
-             'password_length' => "contains the length in characters of the new password the user is trying to set (can be used to enforce a minimum length)",
-              'percent_quoted' => "contains the percentage of lines which are quoted (100 * quoted_lines / lines)",
-                      'posing' => "is set if 'default user' is in effect",
-                  'post_block' => "is set if the user has the 'postblock' flag set",
-                'quoted_lines' => "contains the number of lines that matched the pattern in 'configset quote_pattern'",
-                     'sublist' => "is set to the name of the sublist, if a requestinvolves an auxiliary list",
-                       'taboo' => "is set if any taboo_* variable is set (note that taboo configsets can create new variables)",
-         'total_header_length' => "contains the sum of the lengths of all headers, see 'total_header_length_exceeded' for test",
-'total_header_length_exceeded' => "is set if 'total_header_length' exceeds the value in 'configset LISTNAME max_total_header_length'",
-               'user_password' => "is set if the user's correct password was used",
-  );
-
 
 # The %commands hash contains the commands and a list of properties for
 # each.  Properties supported:
@@ -787,6 +740,7 @@ my %commands =
                    'arguments' => {'action' => {'type' => 'SCALAR'}},
                    'modes'    =>  {
                                    %generic_modes,
+                                   'async'       => 1,
                                    'delay'       => 1,
                                   },
                    'tokendata' => {'arg1' => 'action'}
@@ -990,6 +944,7 @@ my %aliases =
    'sub'            => 'subscribe',
    'unsub'          => 'unsubscribe',
   );
+
 
 # --- Functions for the text parser and interfaces
 
