@@ -860,7 +860,7 @@ my %commands =
    'unregister' =>
    {
     'parser'   => [qw(email shell real)],
-    'dispatch' => {'top' => 1, 'noaddr' => 1,
+    'dispatch' => {'top' => 1,
                    'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',
                    'modes'    =>  {
@@ -880,7 +880,7 @@ my %commands =
    'unsubscribe' =>
    {
     'parser'   => [qw(email shell list global all real)],
-    'dispatch' => {'top' => 1, 'noaddr' => 1,
+    'dispatch' => {'top' => 1,
                    'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',
                    'modes'    =>  {

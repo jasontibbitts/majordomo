@@ -1,3 +1,9 @@
+2001-10-16  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/CommandProps.pm:  Turn off the "noaddr" option for
+	the unregister and unsubscribe commands.  "pattern" mode is
+	again necessary to remove invalid addresses.
+
 2001-10-15  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (new)  Abort if the registry or alias
