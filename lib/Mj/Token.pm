@@ -557,6 +557,12 @@ sub t_accept {
   if ($data->{'type'} eq 'alias') {
     $self->t_remove($token);
     $token = $data->{'chain1'};
+    # If the number of approvals is negative, the token must
+    # be approved by another party.
+    if ($data->{'approvals'} < -1) {
+      return (-1, "Additional approval by another person is still required", 
+              $data, [-1]);
+    }
     return $self->t_accept($token, $mode, $comment, $delay);
   }
  
@@ -1001,7 +1007,7 @@ sub t_expire {
   my $self = shift;
   my $log  = new Log::In 60;
   my $time = time;
-  my (@kill, @nuked, $i, $key, $data);
+  my (@kill, @nuked, $data, $i, $key, $ok);
 
   my $mogrify = sub {
     my $key  = shift;
@@ -1021,9 +1027,16 @@ sub t_expire {
   # Unspool any spooled documents relating to the nuked tokens
   @kill = @nuked;
   while (($key, $data) = splice(@nuked, 0, 2)) {
+    $time = $::log->elapsed;
     if ($data->{'command'} eq 'post') {
       unlink "$self->{ldir}/GLOBAL/spool/$data->{arg1}";
     }
+    $self->inform($data->{'list'}, 'expire',
+                  qq("Automatic Token Expiration" <$self->{'sessionuser'}>),
+                  $data->{'user'}, "reject $key",
+                  $self->{'interface'}, 1, 0, 0, 
+                  qq(Token $key, from session $data->{'sessionid'}, has expired.),
+                  $::log->elapsed - $time);
   }
   $self->_make_latchkeydb;
   $self->{'latchkeydb'}->mogrify($mogrify);
