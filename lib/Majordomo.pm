@@ -248,19 +248,25 @@ sub connect {
   my $user = shift || 'unknown@anonymous';
   my $log = new Log::In 50, "$int, $user";
   my ($err, $id, $ok, $path, $req);
-
+ 
   $user = new Mj::Addr($user);
-  ($ok, $err) = $user->valid;
 
-  unless ($ok) {
-    $err = "Invalid address: $user\n$err";
-    $self->inform('GLOBAL', 'connect', $user, $user, 'connect',
-                  $int, $ok, '', 0, $err, $::log->elapsed);
-    return (undef, "$err") unless $ok;
+  unless ($int eq 'resend' or $int eq 'owner') {
+    ($ok, $err) = $user->valid;
+
+    unless ($ok) {
+      $err = "Invalid address: $user\n$err";
+      $self->inform('GLOBAL', 'connect', $user, $user, 'connect',
+                    $int, $ok, '', 0, $err, $::log->elapsed);
+      return (undef, "$err") unless $ok;
+    }
   }
 
   $self->{sessionuser} = $user;
-  $self->{interface} = $int;
+
+  # Untaint
+  $int =~ /(\w+)/;
+  $self->{interface} = $1;
 
   # Generate a session ID; hash the session, the time and the PID
   $id = MD5->hexhash($sess.scalar(localtime).$$);
@@ -345,8 +351,8 @@ processing done at the beginning.
 =cut
 sub dispatch {
   my ($self, $request, $extra) = @_;
-  my (@res, $base_fun, $comment, $continued, $data, $elapsed, $func, 
-      $l, $mess, $ok, $out, $over, $sl);
+  my (@addr, @res, $addr, $base_fun, $comment, $continued, $data, 
+      $elapsed, $func, $l, $mess, $ok, $out, $over, $sl, $validate);
   my ($level) = 29;
   $level = 500 if ($request->{'command'} =~ /_chunk$/);
 
@@ -405,34 +411,42 @@ sub dispatch {
   # Turn some strings into addresses and check their validity; never with a
   # continued function (they never need it) and only if the function needs
   # validated addresses.
-  if (function_prop($request->{'command'}, 'noaddr')) {
-    $request->{'victims'} ||= ['unknown@anonymous'];
+  $validate = 1;
+  if (function_prop($request->{'command'}, 'noaddr') or $continued) {
+    $validate = 0;
   }
-  elsif (!$continued) {
-    $request->{'user'} = new Mj::Addr($request->{'user'});
+
+  # Validate the address responsible for the request.
+  $request->{'user'} = new Mj::Addr($request->{'user'});
+  if ($validate) {
     ($ok, $mess) = $request->{'user'}->valid;
     return [0, "$request->{'user'} is an invalid address:\n$mess"]
       unless $ok;
+  }
 
-    # Each of the victims must be verified. 
-    if (exists ($request->{'victims'}) and ($request->{'mode'} !~ /regex/)) {
-      my ($addr, @tmp);
-      while (@{$request->{'victims'}}) {
-        $addr = shift @{$request->{'victims'}};
-        next unless $addr;
-        $addr =~ s/^\s+//;
-        $addr =~ s/\s+$//;
-        $addr = new Mj::Addr($addr);
-        ($ok, $mess) = $addr->valid;
-        return [0, "$addr is an invalid address:\n$mess"]
-          unless $ok;
-        push (@tmp, $addr); 
-      }
-      $request->{'victims'} = \@tmp;
+  # Each of the victims must be verified. 
+  if (exists ($request->{'victims'}) and 
+      @{$request->{'victims'}} and
+      $request->{'mode'} !~ /regex|pattern/) 
+  {
+    while (@{$request->{'victims'}}) {
+      $addr = shift @{$request->{'victims'}};
+      next unless $addr;
+      $addr =~ s/^\s+//;
+      $addr =~ s/\s+$//;
+      $addr = new Mj::Addr($addr);
+      ($ok, $mess) = $addr->valid;
+      return [0, "$addr is an invalid address:\n$mess"]
+        unless $ok;
+      push (@addr, $addr); 
     }
-    unless (exists $request->{'victims'} and @{$request->{'victims'}}) {
-      $request->{'victims'} = [$request->{'user'}];
-    }
+    $request->{'victims'} = [@addr];
+  }
+  if (exists ($request->{'victims'}) and @{$request->{'victims'}}) {
+    @addr = @{$request->{'victims'}};
+  }
+  else {
+    @addr = ($request->{'user'});
   }
 
   # Check for suppression of logging and owner information
@@ -455,8 +469,9 @@ sub dispatch {
     $over = 0;
   }
 
-  for $ok (@{$request->{'victims'}}) { 
-    $request->{'victim'} = $ok;
+  # Make a separate request for each affected address.
+  for $addr (@addr) { 
+    $request->{'victim'} = $addr;
     gen_cmdline($request) unless ($request->{'command'} =~ /_chunk|_done/);
     if (function_prop($request->{'command'}, 'top')) {
       $func = $request->{'command'};
@@ -791,7 +806,7 @@ sub substitute_vars_string {
   my $self = shift;
   my $str  = shift;
   my $subs = shift;
-  my $i;
+  my ($format, $i, $value);
 
   if (ref $str eq 'ARRAY') {
     for (@$str) {
@@ -803,7 +818,12 @@ sub substitute_vars_string {
 
   for $i (keys %$subs) {
     # Don't substitute after backslashed $'s
-    $str =~ s/([^\\]|^)\$\Q$i\E(\b|$)/$1$subs->{$i}/g;
+    while ($str =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/g) {
+      $format = defined $2 ? "%$2s" : "%s";
+      $format =~ s/://; 
+      $value = sprintf $format, $subs->{$i};
+      $str =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/$1$value/;
+    }
   }
   $str =~ s/\\\$/\$/g;
   $str;
@@ -1127,7 +1147,7 @@ parameters to list_config_get.
 =cut
 sub global_config_get {
   my ($self, $user, $passwd, $var, $raw) = @_;
-  $self->list_config_get($user, $passwd, 'GLOBAL', $var, $raw);
+  $self->list_config_get($user, $passwd, 'GLOBAL', 'MAIN', $var, $raw);
 }
 
 =head2 list_config_get(user, passwd, list, var)
@@ -1142,15 +1162,22 @@ For other variables, the standard security rules apply.
 
 =cut
 sub list_config_get {
-  my ($self, $user, $passwd, $list, $var, $raw) = @_;
+  my ($self, $user, $passwd, $list, $sublist, $var, $raw) = @_;
   my $log = new Log::In 170, "$list, $var";
   my (@out, $i, $ok);
+  $sublist ||= 'MAIN';
 
+  # Verify the list and sublist, and adjust the list to
+  # use the appropriate configuration file.
   return unless $self->_make_list($list);
+  return unless $self->{'lists'}{$list}->valid_config($sublist);
+  return unless $self->_list_set_config($list, $sublist);
 
-  # Anyone can see it if it is visible.
-  if ($self->config_get_visible($var)) {
-    return $self->_list_config_get($list, $var, $raw);
+  # Anyone can see it if it is visible or part of a template.
+  if ($self->config_get_visible($var) or $sublist ne 'MAIN') {
+    @out = $self->_list_config_get($list, $var, $raw);
+    $self->_list_set_config($list, 'MAIN');
+    return wantarray ? @out : $out[0];
   }
 
   # Make sure we have a real user before checking passwords
@@ -1164,7 +1191,9 @@ sub list_config_get {
   unless ($ok > 0) {
     return;
   }
-  $self->_list_config_get($list, $var, $raw);
+  @out = $self->_list_config_get($list, $var, $raw);
+  $self->_list_set_config($list, 'MAIN');
+  return wantarray ? @out : $out[0];
 }
 
 =head2 list_config_set
@@ -1176,45 +1205,47 @@ Alters the value of a list''s config variable.  Returns a list:
 
 =cut
 sub list_config_set {
-  my ($self, $user, $passwd, $list, $var) =
-    splice(@_, 0, 5);
-  my $log = new Log::In 150, "$list, $var";
-  my (@groups, $i, $mess, $ok, $global_only);
+  my ($self, $request) = @_;
+  my $log = new Log::In 150, "$request->{'list'}, $request->{'setting'}";
+  my (@groups, @tmp, $i, $join, $mess, $ok, $global_only);
 
-  return (0, "Unable to initialize list $list.\n")
-    unless $self->_make_list($list);
+  return (0, "Unable to initialize list $request->{'list'}.\n")
+    unless $self->_make_list($request->{'list'});
 
-  if (!defined $passwd) {
+  if (!defined $request->{'password'}) {
     return (0, "No password was supplied.\n");
   }
 
-  $user = new Mj::Addr($user);
-  ($ok, $mess) = $user->valid;
+  ($ok, $mess) = $request->{'user'}->valid;
   if (!$ok) {
-    return (0, "$user is invalid\n$mess");
+    return (0, "$request->{'user'} is invalid\n$mess");
   }
 
-  @groups = $self->config_get_groups($var);
+  @groups = $self->config_get_groups($request->{'setting'});
   if (!@groups) {
-    return (0, "Unknown variable \"$var\".\n");
+    return (0, "Unknown variable \"$request->{'setting'}\".\n");
   }
   $global_only = 1;
-  if ($self->config_get_mutable($var)) {
+  if ($self->config_get_mutable($request->{'setting'})) {
     $global_only = 0;
   }
   
   # Validate passwd
   for $i (@groups) {
-    $ok = $self->validate_passwd($user, $passwd, 
-				 $list, "config_\U$i", $global_only);
+    $ok = $self->validate_passwd($request->{'user'}, 
+                                 $request->{'password'}, 
+				 $request->{'list'}, 
+                                 "config_\U$i", $global_only);
     last if $ok > 0;
   }
   unless ($ok > 0) {
-    $ok = $self->validate_passwd($user, $passwd, 
-				 $list, "config_$var", $global_only);
+    $ok = $self->validate_passwd($request->{'user'}, 
+                                 $request->{'password'}, 
+				 $request->{'list'}, 
+                                 "config_$request->{'setting'}", $global_only);
   }
   unless ($ok > 0) {
-    return (0, "Password does not authorize $user to alter $var.\n");
+    return (0, "Password does not authorize $request->{'user'} to alter $request->{'setting'}.\n");
   }
 
   # Untaint the stuff going in here.  The security implications: this
@@ -1225,19 +1256,36 @@ sub list_config_set {
   # untainted for free.  This this untainting only lets us make use
   # of a variable setting in the same session that sets it without
   # failing.
-  for ($i = 0; $i < @_; $i++) {
-    $_[$i] =~ /(.*)/;
-    $_[$i] = $1;
+  for ($i = 0; $i < @{$request->{'value'}}; $i++) {
+    $request->{'value'}->[$i] =~ /(.*)/;
+    $request->{'value'}->[$i] = $1;
   }
-  
+
+  $self->_list_set_config($request->{'list'}, $request->{'sublist'});
+  @tmp = @{$request->{'value'}}; 
+  if ($request->{'mode'} =~ /append/) {
+    $join = $self->config_get_isarray($request->{'setting'});
+    unless ($join) {
+      return (0, "Appending values to the $request->{'setting'} setting is not possible.\n");
+    }
+    @tmp = $self->_list_config_get($request->{'list'}, $request->{'setting'}, 1);
+    if ($join == 2) {
+      # Add a blank line separator.
+      push @tmp, "";
+    } 
+    push @tmp, @{$request->{'value'}};
+  }
+   
   # Get possible error value and print it here, for error checking.
-  ($ok, $mess) = $self->_list_config_set($list, $var, @_);
-  $self->_list_config_unlock($list);
+  ($ok, $mess) = $self->_list_config_set($request->{'list'}, $request->{'setting'}, 
+                                         @tmp);
+  $self->_list_config_unlock($request->{'list'});
+  $self->_list_set_config($request->{'list'}, 'MAIN');
   if (!$ok) {
-    return (0, "Error parsing $var:\n$mess");
+    return (0, "Error parsing $request->{'setting'}:\n$mess");
   }
   elsif ($mess) {
-    return (1, "Warnings parsing $var:\n$mess");
+    return (1, "Warnings parsing $request->{'setting'}:\n$mess");
   }
   else {
     return 1;
@@ -1251,10 +1299,13 @@ default.
 
 =cut
 sub list_config_set_to_default {
-  my ($self, $user, $passwd, $list, $var) = @_;
+  my ($self, $user, $passwd, $list, $sublist, $var) = @_;
   my (@groups, @out, $ok, $mess, $level);
+
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
+  return (0, "Unable to access configuration file $list:$sublist")
+    unless $self->{'lists'}{$list}->valid_config($sublist);
   
   if (!defined $passwd) {
     return (0, "No password was supplied.\n");
@@ -1278,8 +1329,10 @@ sub list_config_set_to_default {
     @out = (0, "Password does not authorize $user to alter $var.\n");
   }
   else {
+    $self->_list_set_config($list, $sublist);
     @out = $self->{'lists'}{$list}->config_set_to_default($var);
     $self->_list_config_unlock($list);
+    $self->_list_set_config($list, 'MAIN');
   }
   @out;
 }
@@ -1379,6 +1432,14 @@ sub _list_config_unlock {
   $self->{'lists'}{$list}->config_unlock(@_);
 }
 
+sub _list_set_config {
+  my $self = shift;
+  my $list = shift;
+
+  return unless $self->_make_list($list);
+  $self->{'lists'}{$list}->set_config(@_);
+}
+
 =head2 config_get_allowed, config_get_comment, config_get_intro,
 config_get_isarray, config_get_isauto, config_get_groups,
 config_get_type, config_get_visible
@@ -1456,9 +1517,15 @@ sub config_get_visible {
 sub config_get_whence {
   my $self = shift;
   my $list = shift;
+  my $sublist = shift;
   my $var  = shift;
+  my ($source);
+
   return unless $self->_make_list($list);
-  $self->{'lists'}{$list}->config_get_whence($var);
+  return unless $self->_list_set_config($list, $sublist);
+  $source = $self->{'lists'}{$list}->config_get_whence($var);
+  return unless $self->_list_set_config($list, 'MAIN');
+  $source;
 }
 
 sub config_get_mutable {
@@ -1505,8 +1572,9 @@ returns no variables, there are none visible to the supplied password.
 
 =cut
 sub config_get_vars {
-  my ($self, $user, $passwd, $list, $var) = @_;
+  my ($self, $user, $passwd, $list, $sublist, $var) = @_;
   my (@groups, @out, $hidden, $i, $error, $lvar, $ok);
+  $sublist ||= 'MAIN';
 
   $::log->in(100, "$list, $var");
 
@@ -1516,7 +1584,10 @@ sub config_get_vars {
 
   return unless $self->_make_list($list);
 
-  if ($var eq 'ALL') {
+  if ($sublist ne 'MAIN') {
+    $ok = 1;
+  }
+  elsif ($var eq 'ALL') {
     $ok = $self->validate_passwd($user, $passwd, $list, "config_ALL");
   }
 
@@ -1538,7 +1609,7 @@ sub config_get_vars {
     }
   }
 
-  $hidden = ($ok > 0 or $list =~ /^DEFAULT/) ? 1 : 0; 
+  $hidden = ($ok > 0) ? 1 : 0; 
   @out = $self->{'lists'}{$list}->config_get_vars($var, $hidden,
                                                   ($list eq 'GLOBAL'));
   $::log->out(($ok>0)?"validated":"not validated");
@@ -3085,6 +3156,7 @@ sub configdef {
       $self->list_config_set_to_default($request->{'user'}, 
                                         $request->{'password'},
                                         $request->{'list'}, 
+                                        $request->{'sublist'}, 
                                         $var);
     push @out, $ok, [$mess, $var];
   }
@@ -3100,9 +3172,7 @@ sub configset {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}, $request->{'setting'}";
 
-  $self->list_config_set($request->{'user'}, $request->{'password'}, 
-                         $request->{'list'}, $request->{'setting'}, 
-                         @{$request->{'value'}});
+  $self->list_config_set($request);
 }
 
 =head2 configshow
@@ -3129,7 +3199,8 @@ sub configshow {
   for $group (@{$request->{'groups'}}) {
     # This expands groups and checks visibility and existence of variables
     @vars = $self->config_get_vars($request->{'user'}, $request->{'password'}, 
-                                   $request->{'list'}, $group);
+                                   $request->{'list'}, $request->{'sublist'},
+                                   $group);
     unless (@vars) {
       push @out, [0, "**** No visible variables matching $group", $group, ''];
     }
@@ -3150,13 +3221,14 @@ sub configshow {
     # Process the options
     $comment = '';
     if ($request->{'mode'} !~ /nocomments/) {
-      $comment = $self->config_get_intro($request->{'list'}, $var) .
-        $self->config_get_comment($var);
-      $whence = $self->config_get_whence($request->{'list'}, $var);
+      $whence = $self->config_get_whence($request->{'list'}, 
+                                         $request->{'sublist'}, $var);
       if (defined $whence and $whence ne 'MAIN') {
         next if ($request->{'mode'} =~ /declared/);
-        $comment .= "This value was determined by the $whence settings.\n";
+        $comment = "This value was determined by the $whence settings.\n";
       }
+      $comment = $self->config_get_intro($request->{'list'}, $var) .
+        $self->config_get_comment($var) . $comment;
       if ($auto == 2) {
         $comment .= "A global password is required to change this value.\n";
       }
@@ -3166,7 +3238,8 @@ sub configshow {
       # Process as an array
       $tag = Majordomo::unique2();
       for ($self->list_config_get($request->{'user'}, $request->{'password'}, 
-                                  $request->{'list'}, $var, 1))
+                                  $request->{'list'}, $request->{'sublist'},
+                                  $var, 1))
       {
         push (@hereargs, "$_\n") if defined $_;
       }
@@ -3174,8 +3247,9 @@ sub configshow {
     }
     else {
       # Process as a simple variable
-      $val = $self->list_config_get($request->{'user'}, $request->{'password'}, 
-                                    $request->{'list'}, $var, 1);
+      ($val) = $self->list_config_get($request->{'user'}, $request->{'password'}, 
+                                    $request->{'list'}, $request->{'sublist'},
+                                    $var, 1);
       push @out, [$auto, $comment, $var, $val];
     }
   }
@@ -3443,22 +3517,6 @@ sub _createlist {
     $self->_make_list($list);
     $self->_list_config_set($list, 'owners', "$owner");
     $self->_list_config_set($list, 'master_password', $pw); 
-#    if ($templates) {
-#      @tmp = split ',' , $templates;
-#      $sublists = $self->get_templates('DEFAULT');
-#      return (0, "No templates are available.\n")
-#        unless (ref $sublists and keys %$sublists);
-#      for $file (@tmp) {
-#        unless (exists $sublists->{$file}) {
-#          $mess = "Invalid template \"$file\".  Valid templates include:\n";
-#          for $dom (sort keys %$sublists) {
-#            $mess .= "$dom\n$sublists->{$dom}\n";
-#          }
-#          return (0, $mess);
-#        }
-#      }
-#      $self->_list_config_set($list, 'templates', [@tmp]);
-#    }
     $self->_list_config_unlock($list);
 
     unless ($list eq 'GLOBAL' or $list eq 'DEFAULT' or $mode =~ /noarchive/) {
@@ -3653,7 +3711,9 @@ sub lists {
   }
 
   for $list ($self->get_all_lists($request->{'user'}, 
-                                  $request->{'password'}, $request->{'regexp'})) {
+                                  $request->{'password'}, 
+                                  $request->{'regexp'})
+            ) {
     @lines = $self->_list_config_get($list, 'description_long');
     $cat   = $self->_list_config_get($list, 'category');;
     $desc  = '';
@@ -3688,7 +3748,7 @@ sub lists {
     # and other administrative details
     # XXX Use config_get_vars with user and password to allow
     # restrictions on the data.
-    if ($request->{'mode'} =~ /aux/) {
+    if ($request->{'mode'} =~ /full/) {
       $data->{'owner'}    = $self->_list_config_get($list, 'whoami_owner');
       $data->{'address'}  = $self->_list_config_get($list, 'whoami');
       $data->{'subs'}     = $self->{'lists'}{$list}->count_subs;
@@ -3729,7 +3789,26 @@ sub lists {
                    };
       }
     }  
-    
+    if ($request->{'mode'} =~ /config/) {
+      $self->{'lists'}{$list}->_fill_config;
+      for $sublist (keys %{$self->{'lists'}{$list}->{'templates'}}) {
+        @lines = $self->list_config_get($request->{'user'},
+                                       $request->{'password'},
+                                       $list, $sublist, 'comments', 1);
+        $count = 1;
+        for (@lines) {
+          $desc .= "$_\n";
+          $count++;
+          last if $limit && $count > $limit;
+        }
+
+        push @out, { 'list'        => "$list:$sublist", 
+                     'category'    => 'template', 
+                     'description' => $desc, 
+                     'flags'       => '',
+                   };
+      } 
+    } 
   }
 
   return (1, @out);
@@ -4175,13 +4254,19 @@ sub report_chunk {
   my ($self, $request) = @_;
   my $log = new Log::In 500, 
      "$request->{'list'}, $request->{'user'}, $request->{'action'}";
-  my (@data, @out, $count, $line, $bounce, $trigger);
+  my (%status, @data, @out, $count, $line, $bounce, $trigger);
   my @actions = split /\s*,\s*/, $request->{'action'};
   unless (@actions) {
     $actions[0] = 'ALL';
   }
   $bounce  = grep { $_ eq 'bounce' } @actions;
   $trigger = grep { $_ eq 'trigger' } @actions;
+  $status{1} = 1 if ($request->{'mode'} =~ /succeed/);
+  $status{0} = 1 if ($request->{'mode'} =~ /fail/);
+  $status{-1} = 1 if ($request->{'mode'} =~ /stall/);
+  unless (keys %status) {
+    $status{1} = $status{0} = $status{-1} = 1;
+  }
 
   $request->{'begin'} ||= 0;
   $request->{'end'} ||= time;
@@ -4205,6 +4290,7 @@ sub report_chunk {
                  or $request->{'list'} eq 'ALL');
     next if ($data[1] eq 'bounce'  and ! $bounce);
     next if ($data[1] eq 'trigger' and ! $trigger);
+    next unless (exists $status{$data[6]});
     next unless ($actions[0] eq 'ALL' or grep {$_ eq $data[1]} @actions);
     push @out, [@data];
     $count++;  last if ($count >= $request->{'chunksize'});
@@ -4219,12 +4305,6 @@ sub report_done {
      "$request->{'list'}, $request->{'user'}, $request->{'action'}";
   return unless $self->{'report_fh'};
   undef $self->{'report_fh'};
-  # Return complete list of auxiliary lists if in "summary" mode.
-  if ($request->{'mode'} =~ /summary/) {
-    return (1, '') unless $self->_make_list($request->{'list'});
-    return (1, '') unless $self->{'lists'}{$request->{'list'}}->_fill_aux;
-    return (1, sort keys %{$self->{'lists'}{$request->{'list'}}->{'sublists'}});
-  }
   (1, '');
 }
 
