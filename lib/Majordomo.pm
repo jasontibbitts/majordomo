@@ -350,6 +350,8 @@ sub dispatch {
   $request->{'list'}     ||= 'GLOBAL';
   $request->{'mode'}     ||= '';
   $request->{'mode'}       = lc $request->{'mode'};
+  $request->{'mode'}       =~ /([a-z-]+)/; 
+  $request->{'mode'}       =~ $1;
   $request->{'password'} ||= '';
   $request->{'user'}     ||= 'unknown@anonymous';
   $request->{'victim'}   ||= '';
