@@ -14,11 +14,11 @@ configset GLOBAL addr_allow_comments_after_route = 1
 $INCLUDE-config/addr_allow_comments_after_route
 
 Ceci est toujours légal :
-   Joe Blow <joe@blow.com>
+   Joe Blow <joe@example.com>
 
 Cela est uniquement accepté si "addr_allow_comments_after_route" est
 actif :
-   <joe@blow.com> Joe Blow
+   <joe@example.com> Joe Blow
 
 
 Référez vous aussi à :
