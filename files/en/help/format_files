@@ -320,6 +320,7 @@ found.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
 
+
 login
 -----
 (wwwadm, wwwusr)  This file displays an HTML form that allows
@@ -392,12 +393,14 @@ a mailing list.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COUNT, ERROR, TOKENDATA, USER)
 
+
 showtokens_all
 --------------
 (text, wwwadm)  This file displays data for a all tokens when
 tokens for "ALL" lists are shown.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COUNT, ERROR, TOKENDATA, USER)
+
 
 showtokens_all_data
 -------------------
@@ -407,6 +410,7 @@ tokens for "ALL" lists are shown.
 (standard plus ADATE, ATYPE, CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, 
  DATE, ERROR, LIST, SIZE, TOKEN, TYPE, USER)
 
+
 showtokens_data
 ---------------
 (text, wwwadm)  This file displays data for a single token.
@@ -414,12 +418,14 @@ showtokens_data
 (standard plus ADATE, ATYPE, CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND,
  DATE, ERROR, LIST, SIZE, TOKEN, TYPE, USER)
 
+
 showtokens_error
 ----------------
 (text, wwwadm)  This file displays an error message if the showtokens
 command fails.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
 
 showtokens_foot
 ---------------
@@ -429,6 +435,7 @@ for more than one list to be displayed at one time.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
 
+
 showtokens_head
 ---------------
 (wwwadm)  This file displays supplementary information at the top
@@ -437,11 +444,60 @@ for more than one list to be displayed at one time.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
 
+
 showtokens_none
 ---------------
 (text, wwwadm)  This file displays a message that no tokens were found.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+tokeninfo_attachment
+--------------------
+(text, wwwadm, wwwconfirm)  This file displays summary information
+about any message body part which is not plain text, a container type
+(such as multipart/mixed) or an image.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+tokeninfo_container
+--------------
+(text, wwwadm, wwwconfirm)  This file displays summary information 
+about a message body part which is a container type (such as
+multipart/related).
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+tokeninfo_delete
+----------------
+(text, wwwadm, wwwconfirm)  This file indicates that a message body
+part has been removed.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+tokeninfo_edit_foot
+-------------------
+(text, wwwadm, wwwconfirm)  This file displays the closing tags to
+allow a message body part or its headers to be edited and replaced.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+tokeninfo_edit_head
+-------------------
+(text, wwwadm, wwwconfirm)  This file displays a command line or HTML
+form that allows a message body part or its headers to be edited and
+replaced.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
 
 
 tokeninfo_error
@@ -460,6 +516,16 @@ at the bottom of the output.
 (standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
  DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
 
+
+tokeninfo_foot_post
+-------------------
+(text, wwwadm, wwwconfirm)  This file displays supplementary information 
+at the end of a posted message. 
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
 tokeninfo_head
 --------------
 (text, wwwadm, wwwconfirm)  This file displays supplementary information 
@@ -468,12 +534,69 @@ at the top of the output.
 (standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
  DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
 
+
+tokeninfo_head_post
+-------------------
+(text, wwwadm, wwwconfirm)  This file displays supplementary information 
+at the top of a posted message.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+tokeninfo_header
+----------------
+(text, wwwadm, wwwconfirm)  This file displays basic message headers,
+such as From, Subject, To, Cc, and Date.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+tokeninfo_image
+---------------
+(text, wwwadm, wwwconfirm)  This file displays summary information about
+an image attachment to a posted message.  In the WWW interfaces, the 
+image is displayed inline.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+tokeninfo_nosession
+-------------------
+(text, wwwadm, wwwconfirm)  This file displays basic information about
+a stalled command or posted message.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+tokeninfo_remind
+----------------
+(text, wwwadm, wwwconfirm)  This file indicates that a token reminder
+has been sent to a particular e-mail address.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+tokeninfo_replace
+-----------------
+(text, wwwadm, wwwconfirm)  This file indicates that the contents of
+part of a posted message have been changed.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
 welcome
 -------
 (wwwadm, wwwconfirm, wwwusr)  This file displays basic instructions 
 for the use of each WWW interface.
 
 (standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, CMDPASS, USER)
+
 
 who
 ---
