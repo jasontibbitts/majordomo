@@ -4,38 +4,19 @@
   <input type=hidden name=domain value="$DOMAIN">
   <input type=hidden name=user value="$USER">
   <input type=hidden name=passw type=password value="$PASSWORD">
-  <input size=36 name=extra>
-  <input type=submit name=func value="alias">
-  <input type=submit name=func value="changeaddr">
-  <input type=submit name=func value="password-gen">
-  <input type=submit name=func value="unregister"><br>
-
-To add an $HELP:ALIAS (another e-mail address from which
-you send messages), or to change addresses, type your new address into the box
-and press the <b>alias</b> or <b>$HELP:CHANGEADDR</b> button.   
-Majordomo may send a message to your new address asking for confirmation.
 
 <p>
-To change your $HELP:PASSWORD, leave the box empty and press the 
-<b>password-gen</b> button.
-Majordomo will create a new password and mail it to you. 
-You will need to sign in again, using your new password, if
-you wish to make any other changes to your subscriptions.
-
-<p>
-To $HELP:UNREGISTER, leave the box empty and press the <b>unregister</b>
-button.  All of your subscriptions and aliases will be removed, and
-your password will be invalidated.
-
-<p>
-To change settings, select the checkbox next to each list
-you wish to change, choose the settings you want, then press 
+The following table lists all of the subscriptions for
+$USER
+at $SITE.
+To change settings, press the checkbox next to the name of each 
+list you wish to change, choose the settings you want, then press 
 the $HELP:SET button.  The settings are described at the bottom 
 of this page.
 
 <p>
-To $HELP:UNSUBSCRIBE, select the checkbox next to each list
-you wish to leave, then press the <b>unsubscribe</b> button.
+To $HELP:UNSUBSCRIBE, press the checkbox next to the name of
+each list you wish to leave, then press the <b>unsubscribe</b> button.
 
 <p>
   <input type=submit name=func value="set">

@@ -3,7 +3,7 @@
   <td colspan=4><input type=checkbox name=list value=$LIST>$LIST
   <td colspan=9>
     <select name="$LIST;delivery">
-      <option $SELECTED value="$CLASSES">$CLASS_DESCRIPTIONS ($CLASSES)
+      <option value="$CLASSES" $SELECTED>$CLASS_DESCRIPTIONS
     </select>
 <tr>
   <td align=center>$CHECKBOX

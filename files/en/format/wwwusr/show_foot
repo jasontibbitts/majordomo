@@ -1,13 +1,34 @@
 <!-- Majordomo show_foot format file -->
-</table></form>
-
-$USER was registered on $REGTIME
-<p>
-Aliases for $USER: 
-<table>
 <tr>
-  <td>?ALIASES
+  <td colspan=13>$USER was registered on $REGTIME
+<tr><td colspan=13>Alias: ?ALIASES
 </table>
+
+<p>
+To add an $HELP:ALIAS (another e-mail address from which
+you send messages), or to change addresses, type your new address into
+the <b>New address</b> box
+and press the <b>alias</b> or <b>$HELP:CHANGEADDR</b> button.
+Majordomo may send a message to your new address asking for
+confirmation.<br>
+New address:
+  <input size=36 name=extra>
+  <input type=submit name=func value="alias">
+  <input type=submit name=func value="changeaddr">
+
+<p>
+To change your $HELP:PASSWORD, press the <b>password-gen</b> button.
+Majordomo will create a new password and mail it to you.
+You will need to sign in again, using your new password, if
+you wish to make any other changes to your subscriptions.<br>
+  <input type=submit name=func value="password-gen">
+
+<p>
+To $HELP:UNREGISTER, leave the box empty and press the <b>unregister</b>
+button.  All of your subscriptions and aliases will be removed, and
+your password will be invalidated.<br>
+  <input type=submit name=func value="unregister">
+</form>
 
 <h4 align=center>What do the settings mean?</h4>
 <dl>
