@@ -25,9 +25,26 @@ Top of the list
   that we can minimize config file access time (because defaults must be
   parsed).
 
+! Resend: Get rid of specific message checks and instead have four basic
+   functions:
+     header checks
+     non-multipart body checks
+     part tree traversal
+     multipart body checks
+
+   The idea is to recurse the part tree and read through each body
+   part only once.  Right now the checksum routines do it, the taboo
+   routines do it and the mime checking routines do it, all
+   separately.  (It might be possible to also do the approval trimming
+   in with this, too, but it would be more difficult.)
+
 ! Message size limits
   Header line length limits
   Quoted text limits
+
+- Put sessions somewhere other than the GLOBAL filespace; nobody ever needs
+  remote access and the database lookup when opening a new session is too
+  slow.
 
 - Implement rejection (and perhaps acceptance) messages for tokens, and add
   a box to type them in to the web interface.
@@ -41,19 +58,6 @@ Top of the list
   body, or if one can't be figured out, it should use ISO-8859-1.
 
 ! Implement separate user-readable and owner-readable bounce reasons.
-
-! Resend: Get rid of specific message checks and instead have four basic
-   functions:
-     header checks
-     non-multipart body checks
-     part tree traversal
-     multipart body checks
-
-   The idea is to recurse the part tree and read through each body
-   part only once.  Right now the checksum routines do it, the taboo
-   routines do it and the mime checking routines do it, all
-   separately.  (It might be possible to also do the approval trimming
-   in with this, too, but it would be more difficult.)
 
 ! Format: finish rewriting the following
     filesync

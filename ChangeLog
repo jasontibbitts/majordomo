@@ -1,4 +1,14 @@
+Thu Apr  9 17:32:25 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Config.pm (new): It's 'mtime', not 'timestamp'.
+
 Wed Apr  8 01:21:20 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* Makefile.PL (have_vers): Fix problem with not bombing on bad
+ 	modules when version 0 is wanted.
+
+	* lib/Mj/Access.pm (list_access_check): Fix invalid password
+ 	error.
 
 	* lib/Mj/Token.pm (consult): Fix expiry and reminder substitution
  	strings.

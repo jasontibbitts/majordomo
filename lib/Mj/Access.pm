@@ -344,7 +344,7 @@ sub list_access_check {
     $args{'password_valid'} =
       $self->validate_passwd($requester, $passwd, $auth,
 			     $interface, $list, $request);
-    return (0, 'Invalid password.\n') unless $args{'password_valid'};
+    return (0, "Invalid password.\n") unless $args{'password_valid'};
   }
   
   # If we got a good password _and_ it overrides access restrictions,

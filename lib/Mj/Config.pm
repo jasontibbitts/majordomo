@@ -187,7 +187,7 @@ sub new {
   $self->{'file_header'}    = \$Mj::Config::file_header;
   $self->{'default_string'} = \$Mj::Config::default_string;
   $self->{'locked'}         = 0;
-  $self->{'timestamp'}      = 0;
+  $self->{'mtime'}          = 0;
   $::log->out;
   $self;
 }
