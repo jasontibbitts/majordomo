@@ -441,10 +441,11 @@ sub _post {
     ($file,
      undef,
      {
-      'from'    => $user,
-      'quoted'  => $avars{quoted_lines},
-      'refs'    => join(',',@refs),
-      'subject' => $subject,
+      'body_lines' => $avars{lines},
+      'from'       => $user,
+      'quoted'     => $avars{quoted_lines},
+      'refs'       => join(',',@refs),
+      'subject'    => $subject,
      },
     );
 

@@ -40,8 +40,8 @@ use Mj::File;
 use Mj::Log;
 use vars qw(@index_fields);
 
-@index_fields = qw(byte bytes line lines quoted split date from subject
-		   refs);
+@index_fields = qw(byte bytes line lines body_lines quoted split date from
+		   subject refs);
 
 1;   
 __END__
@@ -199,7 +199,10 @@ sub add {
   $data->{line} = $self->{archives}{$sub}{lines}+1;
 
   # Instantiate the index
-  $self->{'indices'}{$arc} = new Mj::SimpleDB "$dir/.index/.I$arc", \@index_fields;
+  unless ($self->{'indices'}{$arc}) {
+    $self->{'indices'}{$arc} = new Mj::SimpleDB("$dir/.index/.I$arc",
+						\@index_fields);
+  }
 
   # Generate and append the mbox separator if necessary
   if ($sender) {
@@ -266,29 +269,39 @@ sub get_message {
   my $self = shift;
   my $msg  = shift;
   my $log = new Log::In 150, "$msg";
-  my ($cache, $file);
+  my ($arc, $data, $dir);
 
-  # Figure out appropriate index file
-  ($file) = $msg =~ m!([^/]+)/(.*)!;
-  $idx = "$self->{dir}/.index/.I$file";
+  # Figure out appropriate index database and message number
+  ($arc, $msg) = $msg =~ m!([^/]+)/(.*)!;
+  $dir = $self->{dir};
+  $idx = "$dir/.index/.I$arc";
 
-  # If cached data, look at end to see if what we want is contained within.
-  $cache = $self->{icache}{$file};
-  if (@$cache && _msgnum($msg) < $cache->[$#{$cache}]{msgnum}) {
-
-    # If so, binary search for it.
-    
+  # Open the database
+  unless ($self->{'indices'}{$arc}) {
+    $self->{'indices'}{$arc} = new Mj::SimpleDB("$dir/.index/.I$arc",
+						\@index_fields);
   }
-  # Otherwise, open index file, seek to where we left off (if we've looked
-  # here before, iterate until we hit the right message number, pushing
-  # data into cache.
+  
+  # Look up the data for the message
+  $data = $self->{'indices'}{$arc}->lookup($msg);
+  return unless $data;
 
-  # Open FH on appropriate archive file
+  # Open FH on appropriate split
+  if (length($data->{split})) {
+    $fh = new Mj::File "$dir/$arc.$data->{split}";
+  }
+  else {
+    $fh = new Mj::File "$dir/$arc";
+  }
 
   # Seek to byte offset
+  $fh->seek($data->{byte});
+
+  # Stuff handle
+  $self->{get_handle} = $fh;
 
   # Return
-
+  $data;
 }
 
 =head2 get_line(file, line)
@@ -298,17 +311,9 @@ Starts the iterator on the message containing the given line from the given file
 =cut
 sub get_line {
 
-  # Figure out appropriate index file
+  # Call find_line;
 
-  # Iterate until we hit the right line (msg_line <= line, msg_line +
-  # total_lines > line)
-
-  # Open FH on appropaiate archive file
-
-  # Seek to byte offset
-
-  # Return
-
+  # Call get_message;
 }
 
 =head2 get_byte(file, byte)
@@ -317,12 +322,18 @@ Starts the iterator on the message containing the given byte.
 
 =head2 get_chunk(size)
 
-This reads a chunk of size lines (or until the end of the message) from the
-selected message.
+This reads a chunk of size bytes from the selected message.  The caller
+should be sure not to read past the end of the message into the next one.
 
 =cut
 sub get_chunk {
+  my $self = shift;
+  my $size = shift;
+  my $log  = new Log::In 200, "$size";
+  my $chunk;
 
+  $self->{get_handle}->sysread($chunk, $size);
+  $chunk;
 }
 
 =head2 get_done
@@ -331,7 +342,8 @@ Closes the iterator.
 
 =cut
 sub get_done {
-
+  my $self = shift;
+  undef $self->{get_handle};
 }
 
 =head2 find_line
