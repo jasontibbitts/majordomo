@@ -3882,7 +3882,7 @@ sub compile_pattern {
   my %sh = ('?'=>'.', '*'=>'.*', '['=>'[', ']'=>']');
 
   return (1, '', '') unless $str;
-  return (1, '', '//') if ($str eq 'ALL');
+  return (1, '', '/^/') if ($str eq 'ALL');
 
   # Extract leading and trailing characters and the pattern; remove
   # whitespace

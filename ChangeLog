@@ -1,3 +1,9 @@
+2004-11-22  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm:  (compile_pattern)  Change the 'ALL'
+	pattern to work around a bug for the empty pattern (//).
+	Thanks to Dean Collins.
+
 2004-11-09  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (who_chunk)  Fix MSGNO substitution.
