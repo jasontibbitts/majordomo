@@ -30,7 +30,6 @@ MSGCOUNT substitution for completeness.
 
 Better Queue Handling
 ---------------------
-
 If a message causes Majordomo to crash, it remains in the queue and will
 continue to cause crashes.  Thus it is a good idea to rename queue files so
 they don't get rerun.  However, in the case of system crashes/random
@@ -285,8 +284,8 @@ length limits.
 Automatic backup and recovery of subscriber databases
 -----------------------------------------------------
 The who-export command could be executed periodically to save the
-subscriber list and settings for a mailing list.  This could
-also be done incrementally.
+subscriber list and settings for a mailing list.  This could also be
+done incrementally.
 
 
 Display subscription statistics
@@ -299,8 +298,7 @@ changed over time.
 
 Virtual User Table support for Postfix
 --------------------------------------
-The current virtual user table support assumes that the MTA is
-Sendmail.  
+The current virtual user table support assumes that the MTA is Sendmail.  
 
 
 Better tmpdir and debug support
@@ -313,15 +311,8 @@ to the WWW interfaces also.
 
 Simplify the wwwadm list configuration
 --------------------------------------
-Make "help" and "configdef" links.  Remove the requirement to check
-a box of each setting to be changed.  Limit the "config" descriptions
-to one paragraph per setting.  Complete the assignment of settings
-to wizard levels.
-
-
-Record all bounces in the bounce database
------------------------------------------
-Subscriber database locking when a bounce arrives can be a bottleneck.
+Remove the requirement to check a box of each setting to be changed.
+Complete the assignment of settings to wizard levels.
 
 
 Display a summary of list categories
@@ -360,19 +351,13 @@ this problem.  It would make the continuation of sessions more
 convenient.
 
 
-Add token tracking support
---------------------------
-Using the report command, it should be possible to track the lifetime
-of confirmation tokens more clearly.  As an extension, it might be
-possible to salvage portions of a corrupted token database based
-upon the log.
-
-
-Allow domain info to be changed
--------------------------------
-Currently, the "make domain" command will fail if an existing domain
-is specified.  It should be possible to use the command to change the
-information for an existing domain.
+Eliminate redundant response messages
+-------------------------------------
+In some cases, a person who issues a majordomo command will receive two
+response messages when only one is necessary.  For example, when someone
+posts a message to the LIST-subscribe address, and confirmation is
+required, both a confirmation message and a result message are sent
+back.
 
 
 =======================
