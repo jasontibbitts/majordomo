@@ -1,0 +1,189 @@
+Directory Structure of an Installed Majordomo System
+====================================================
+
+There are two possibly disjoint directory tries whose locations are
+determined at install time.  One tree holds the executables and libraries
+(the "code tree") whose structure largely is determined by the Perl
+installation system.  The other holds the domains, lists, configuration
+files, etc. (the "data tree").
+
+
+Layout of the code tree:
+
+  installation-defined root
+  |         
+  +-- bin  (executables)
+  |   |
+  |   +-- mj_shell   (shell interface)
+  |   |
+  |   +-- .mj_shell  (actual script) *
+  |   |
+  |   +-- (etc)
+  |
+  |
+  +-- lib  (library files)
+  |
+  +-- man  (manual pages for Majordomo executables and modules)
+  |
+  +-- majordomo.crontab (a sample crontab file)
+
+
+ *) If the setuid wrappers were built, the actual scripts will have a
+    period prepended to their names.  Otherwise the script itself will be
+    setuid.  The scripts which are wrapped/made setuid will differ
+    depending on which MTA the system is running under.
+
+
+Layout of the data tree:
+
+This assumes a Majordomo system serving the imaginary domain "dom.ain".
+
+  installation-defined root
+  |
+  +-- ALIASES  (alias files for Sendmail)
+  |   |
+  |   +-- mj-alias-dom.ain    (the Majordomo-generated alias file)
+  |   |
+  |   +-- mj-alial-dom.ain.db (the Sendmail-generated database file)
+  |   |
+  |   (so on for additional domains)
+  |
+  |
+  +-- LIB  (domain-specific Perl code) 
+  |   |
+  |   +-- cf_defs_dom.ain.pl  (configuration defaults for dom.ain)
+  |   |
+  |   (so on for additional domains)
+  |
+  |
+  +-- SITE  (data shared between all domains)
+  |   |
+  |   +-- config.pl  (installation-wide configuration data)
+  |   |
+  |   +-- files  (stock response files)
+  |       |
+  |       +-- INDEX.pl  (Extended file information)
+  |       |
+  |       +-- en  (English files)
+  |       |   |
+  |       |   +-- ack_denial (default message sent for denials)
+  |       |   |
+  |       |   +-- confirm    (default message send for confirmations)
+  |       |   |
+  |       |   (and so on for other response files)
+  |       |   |
+  |       |   +-- config  (configuration variable descriptions)
+  |       |   |   |
+  |       |   |   +-- access_rules (description of access_rules variable)
+  |       |   |   |
+  |       |   |   +-- digests      (description of digests variable)
+  |       |   |   |
+  |       |   |   (etc.  There are over 100 varables)
+  |       |   |   
+  |       |   |
+  |       |   +-- help  (help files)
+  |       |       |
+  |       |       +-- topics              (list of all help topice)
+  |       |       |
+  |       |       +-- patterns            (help on patterns and regexps)
+  |       |       |
+  |       |       +-- admin_configuration (help for administrative commands)
+  |       |       |
+  |       |       (etc.  There are many help files)
+  |       |
+  |       |
+  |       +-- de  (German files)
+  |       |   |
+  |       |   (a duplication of the 'en' tree)
+  |       |   |
+  |       |   +-- informal (informal German files, as a subdirectory)
+  |       |       |
+  |       |       (a duplication of the 'en' tree)
+  |       |
+  |       |
+  |       (repeat for each additional translation)
+  |
+  |
+  +-- dom.ain  (directory holding lists for this domain)
+  |   |
+  |   +-- GLOBAL (non-list-specific configuration for dom.ain)
+  |   |   |
+  |   |   +-- _config     (configuration)
+  |   |   |
+  |   |   +-- _log        (log of all actions)
+  |   |   |
+  |   |   +-- _regster.#  (database holding registrations) *
+  |   |   |
+  |   |   +-- _tokens.#   (database holding outstanding confirmation tokens)
+  |   |   |
+  |   |   +-- files  (directory holding accessible files)
+  |   |   |   |
+  |   |   |   +-- samplefile   (a file)
+  |   |   |   |
+  |   |   |   +-- .samplefile  (extended information about samplefile) **
+  |   |   |   |
+  |   |   |   +-- public   (directory holding publicly accessible files)
+  |   |   |   |
+  |   |   |   +-- spool    (directory holding messages awaiting confirmation)
+  |   |   |   |   |
+  |   |   |   |   +-- 9719-E36D-8021   (a spooled message)
+  |   |   |   |   |
+  |   |   |   |   +-- .9719-E36D-8021  (extended information about the message)
+  |   |   |   |
+  |   |   |   |
+  |   |   |   (other files placed here override te SITE files)
+  |   |   |
+  |   |   |
+  |   |   +-- sessions  (directory holding session information) %
+  |   |       |
+  |   |       +-- 7e5d32a1c7469af7999ecab19b424cf0  (a session file)
+  |   |
+  |   |
+  |   +-- listname  (directory holding a list)
+  |   |   |
+  |   |   +-- _config  (configuration data)
+  |   |   |
+  |   |   +-- _digests (information about messages awaiting digestification)
+  |   |   |
+  |   |   +-- _dup_id.#   (duplicate message ID database)
+  |   |   |
+  |   |   +-- _dup_sum.#  (duplicate checksum database)
+  |   |   |
+  |   |   +-- _dup_partial.#  (duplicate partial checksum database)
+  |   |   |
+  |   |   +-- _subscribers.#  (database holding list subscribers)
+  |   |   |
+  |   |   +-- files (directory holding list files)
+  |   |       |
+  |   |       +-- public  (publicly accessible files
+  |   |       |   |
+  |   |       |   +-- archive (default location for archives)
+  |   |       |       |
+  |   |       |       +--listname.199905  (an archive file in mbox format)
+  |   |       |       |
+  |   |       |       +-- .index  (directory holding indices)
+  |   |       |           |
+  |   |       |           +-- Clistname.199905 (file holding message and line counts)
+  |   |       |           |
+  |   |       |           +-- Ilistname.199905.T (index database)
+  |   |       |
+  |   |       |
+  |   |       (other files placed here override the GLOBAL files)
+  |   |
+  |   |
+  |   (other lists duplicate the structure of 'listname')
+  |   
+  |   
+  (other domains duplicate the structure of 'dom.ain')
+
+
+ *) For databases, the final letter indicates the backend.  Some backends
+    may require additional files or not use files at all.
+
+ **) Dotfiles hold a description and MIME typing info.  They are not
+     required to exist; default information is used if they do not.
+
+ %) Majordomo saves information about every transaction (message headers,
+    CGI environment, etc) in session files.  Sessions expire after some
+    configurable time.
+

@@ -33,8 +33,16 @@ $quiet = $ENV{QUIET};
 $| = 1;
 
 # List of script files to be installed.
-@sidscripts = (qw(mj_resend mj_shell mj_email mj_confirm));
+@sidscripts = (qw(mj_resend mj_shell mj_confirm));
 @scripts = (qw(mj_trigger));
+
+if ($config->{mta} eq 'sendmail') {
+  push @sidscripts, 'mj_email';
+}
+else {
+  push @scripts, 'mj_email';
+}
+
 
 $msg2 = <<EOM;
 
@@ -74,7 +82,6 @@ do_site_config();
 if (!$skip && (!$ask || get_bool($msg2))) {
   for my $i (@{$config->{'domains'}}) {
     do_default_config($i);
-#    do_config($i);
   }
 }
 

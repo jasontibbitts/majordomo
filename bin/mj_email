@@ -61,9 +61,12 @@ $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb"; # Needed for Syslog to get hostname.
 # -r - run as resend; -l _required_.
 # -t - specify directory containing domains (arg)
 # -v - specify debug verbosity (arg), default 50.
-# -Q - figure out addresses from $ENV{LOCAL} (for qmail)
+# -Q - figure out addresses from $ENV{DEFAULT} (for qmail) or use
+#      $ENV{LOCAL} if $ENV{DEFAULT} does not exist
 # -S - when done, exit 99 instead of 0 (for qmail)
-getopts('d:l:moqQrSt:v:', \%opts);
+# -T - for qmail versions prior to 1.03, trim this string from $ENV{LOCAL}.
+
+getopts('d:l:moqQrSt:T:v:', \%opts);
 
 # Deal with -Q option
 do_qmail() if $opts{'Q'};
@@ -437,11 +440,23 @@ sub parse_commands {
 }
 
 
-# look in $ENV{LOCAL} which tells us the local-part of the address we're
+# Look in $ENV{DEFAULT} which tells us the local-part of the address we're
 # being run at, and fake the other options.  Expect that we were called
 # with -d giving us the correct domain, so we don't have to fake that.
+# Use $ENV{LOCAL} if $ENV{DEFAULT} does not exist.
 sub do_qmail {
-  my $addr = lc($ENV{LOCAL});
+  my $addr;
+  if(exists $ENV{DEFAULT}) {
+    $addr = lc($ENV{DEFAULT});
+  }
+  else {
+    $addr = lc($ENV{LOCAL});
+  }
+  if ($opts{T}) {
+    $addr =~ s/^$opts{T}//;
+    $addr =~ s/^-//;
+  }
+
   my($list, $fun);
 
   # First look at majordomo addresses

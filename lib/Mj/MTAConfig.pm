@@ -84,17 +84,6 @@ information, we really have nothing to do here.
 =cut
 sub qmail {
   return 1;
-  
-#   my %args = @_;
-#   my $dom = $args{domain};
-
-#   if($args{regenerate}) {
-#     return Mj::MTAConfig::Qmail::regen_aliases(%args);
-#   }
-#   elsif($args{'delete'}) {
-#     return Mj::MTAConfig::Qmail::del_alias(%args);
-#   }
-#   Mj::MTAConfig::Qmail::add_alias(%args);
 }
 
 package Mj::MTAConfig::Sendmail;

@@ -13,7 +13,7 @@ BEGIN {
 
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
-my $config_version = 3;
+my $config_version = 4;
 my(@SIDSCRIPTS, @SCRIPTS, @EXES);
 
 # MakeMaker has begun to displease me
@@ -69,13 +69,13 @@ unless (check_syslog() &&
 my $config = configure();
 
 # Now we can set these up based on what we got form configure.
-if ($config->{mta} eq 'qmail') {
-  @SIDSCRIPTS = qw(mj_shell mj_confirm);
-  @SCRIPTS = qw(mj_email mj_trigger);
-}
-else {
+if ($config->{mta} eq 'sendmail') {
   @SIDSCRIPTS = qw(mj_email mj_shell mj_confirm);
   @SCRIPTS = qw(mj_trigger);
+}
+else {
+  @SIDSCRIPTS = qw(mj_shell mj_confirm);
+  @SCRIPTS = qw(mj_email mj_trigger);
 }
 @EXES = map {"./bin/$_"} @SIDSCRIPTS, @SCRIPTS;
 

@@ -1,10 +1,26 @@
+Wed Mar 17 00:23:39 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* Makefile.PL: Bump $config_version.
+
+	* setup/ask_qmail.pl (ask_qmail): Ask for location of qmail
+ 	binaries.
+
+	* postinstall: Conditionalize on 'mta' the scripts that are made
+ 	setuid.
+
+Mon Mar 15 23:17:02 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_email (do_qmail): If passed "-T string", trim "string"
+ 	from the address we get form $ENV{LOCAL}.  Trim a leading dash if
+ 	one is present.
+
 Sat Mar 13 15:57:11 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* postinstall: No need to call do_config; there's nothing left to
- 	configure.
+	configure.
 
 	* setup/setup_func.pl (create_dirs_dom): Also make the appropriate
- 	dotfiles.
+	dotfiles.
 
 	* lib/Mj/FileSpace.pm (_legal_file_name): Files with leading dots
  	aren't legal (to eliminate potential nasty problem with dotfiles).

@@ -35,7 +35,17 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
-qmail support.
+F'ter stuff:
+ Since _add_fters is the only copy operation in the normasl path, overload
+   it to do proposed elimination of various body lines (rename to
+   _munge_body).
+ Add /^-/ intelligence to embed newlines in a string_2darray.
+
+ If fronter/footer contains only FILE-some/file/path then pull in that file
+  to use as the fronter/footer and use its MIME data for the attachment
+  info (i.e. enable easy HTML attachment footers)
+
+ Need a variable to always attach fronters/footers.
 
 Move all aliases into one file, and all vut entries into one file, to make
   sendmail configuration easier.
