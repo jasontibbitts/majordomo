@@ -169,7 +169,7 @@ sub archive {
   elsif ($request->{'mode'} =~ /summary/) {
     for $i (@msgs) {
       ($mess, $data) = @$i;
-      eprintf($out, $type, "%-18s %5d messages, %5d lines, %5d kB\n",
+      eprintf($out, $type, "%-18s %5d messages, %5d lines, %5d kilobytes\n",
               $mess, $data->{'msgs'}, $data->{'lines'}, 
               int($data->{'bytes'}/1024));
     }
@@ -896,7 +896,7 @@ sub password {
     print $out &indicate("$str\n", $ok, 1);
   }
   else {
-    eprint($out, $type, "Password not set.\n");
+    eprint($out, $type, &indicate("Password not set.\n", $ok));
   }
   if ($mess) {
     eprint($out, $type, &indicate($mess, $ok));
