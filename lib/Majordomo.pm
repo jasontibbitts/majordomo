@@ -114,18 +114,19 @@ Returns a list of domains served by Majordomo at a site.
 =cut
 sub domains {
   my $topdir = shift;
-  my (@domains);
+  my (@domains, $fh);
   
   return unless (-r "$topdir/ALIASES/mj-domains");
 
-  open DOM, "< $topdir/ALIASES/mj-domains" or return;
+  $fh = gensym();
+  open ($fh, "< $topdir/ALIASES/mj-domains") or return;
   
-  while (<DOM>) {
+  while (<$fh>) {
     chomp $_;
     push @domains, $_ if (defined ($_) and -d "$topdir/$_/GLOBAL");
   }
 
-  close DOM;
+  close $fh;
   @domains;
 }
 
@@ -667,7 +668,8 @@ sub get_all_lists {
   for $list (keys %{$self->{'lists'}}) {
     next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
     if ($regexp) {
-      eval ("use Mj::Util qw(re_match)");
+      require Mj::Util;
+      import Mj::Util qw(re_match);
       next unless re_match($regexp, $list);
     }
 
@@ -935,16 +937,19 @@ sub substitute_vars_format {
 
   # HELP substitution hack
   if ($self->{'interface'} =~ /^www/) {
+    $i = $self->_global_config_get('www_help_window');
+    $j = $i ? ' target="mj2help"' : '';
     $helpurl = 
-      q(<a href="$CGIURL?$CGIDATA&list=$LIST&func=help&extra=%s">%s</a>);
+      q(<a href="$CGIURL?$CGIDATA&list=$LIST&func=help&extra=%s"%s>%s</a>);
   }
   else {
     $helpurl = '%s';
+    $j = '';
   }
 
   # Make initial substitution for HELP:TOPIC
   while ($str =~ /([^\\]|^)\$HELP:([A-Z_]+)/) {
-    $line = $1 . sprintf($helpurl, lc $2, lc $2);
+    $line = $1 . sprintf($helpurl, lc $2, $j, lc $2);
     $str =~ s/([^\\]|^)\$HELP:([A-Z_]+)/$line/;
   }
 
@@ -1614,7 +1619,7 @@ sub list_config_get {
   return unless $self->_list_set_config($list, $sublist);
 
   # Find the level of access required to see a variable.
-  $level = $self->config_get_visible($var); 
+  $level = $self->config_get_visible($list, $var); 
 
   # Anyone can see it if it is visible or part of a DEFAULT template.
   if ($level == 0) {
@@ -1671,7 +1676,7 @@ sub list_config_set {
     return (0, $self->format_error('unknown_setting', $request->{'list'}, 
                                    'SETTING' => $request->{'setting'}));
   }
-  $level = $self->config_get_mutable($request->{'setting'});
+  $level = $self->config_get_mutable($request->{'list'}, $request->{'setting'});
   
   # Validate passwd
   for $i (@groups) {
@@ -1834,7 +1839,7 @@ sub list_config_set_to_default {
     return (0, $self->format_error('unknown_setting', $request->{'list'}, 
                                    'SETTING' => $request->{'setting'}));
   }
-  $level = $self->config_get_mutable($var);
+  $level = $self->config_get_mutable($list, $var);
 
   $user = new Mj::Addr($user);
   ($ok, $mess) = $user->valid;
@@ -2138,8 +2143,10 @@ sub config_get_type {
 
 sub config_get_visible {
   my $self = shift;
+  my $list = shift;
   my $var  = shift;
-  $self->{'lists'}{'GLOBAL'}->config_get_visible($var);
+  return unless $self->_make_list($list);
+  $self->{'lists'}{$list}->config_get_visible($var);
 }
 
 sub config_get_whence {
@@ -2158,8 +2165,11 @@ sub config_get_whence {
 
 sub config_get_mutable {
   my $self = shift;
+  my $list = shift;
   my $var  = shift;
-  $self->{'lists'}{'GLOBAL'}->config_get_mutable($var);
+
+  return unless $self->_make_list($list);
+  $self->{'lists'}{$list}->config_get_mutable($var);
 }
 
 =head2 config_get_default(user, passwd, list, variable)
@@ -3896,7 +3906,7 @@ sub configshow {
   }
 
   for $var (sort keys %all_vars) {
-    $level = $self->config_get_mutable($var);
+    $level = $self->config_get_mutable($request->{'list'}, $var);
     $auto = $self->config_get_isauto($var);
     # Process the options
     $comment = '';
@@ -4149,7 +4159,7 @@ sub _createlist {
     return (0, "Unable to open subscriber list for $list.\n")
       unless $self->{'lists'}{$list}->get_start('MAIN');
 
-    if ($self->{'lists'}{$list}->get_chunk(1)) {
+    if ($self->{'lists'}{$list}->get_chunk('MAIN', 1)) {
       $self->{'lists'}{$list}->get_done('MAIN');
       return (0, "All addresses must be unsubscribed before destruction.\n");
     }
@@ -5074,38 +5084,74 @@ Display statistics about logged actions for one or more lists.
 sub report_start {
   my ($self, $request) = @_;
   my $log = new Log::In 50, 
-     "$request->{'list'}, $request->{'user'}, $request->{'action'}";
-  my ($mess, $ok);
+     "$request->{'list'}, $request->{'user'}";
+  my ($action, $mess, $ok);
+
+  unless (ref ($request->{'requests'}) eq 'ARRAY' and
+          scalar(@{$request->{'requests'}}) > 0) 
+  {
+    $request->{'requests'} = ['ALL : all'];
+  }
+  $request->{'action'} = join '\002', @{$request->{'requests'}};
 
   ($ok, $mess) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     return ($ok, $mess);
   }
+
   $self->_report($request->{'list'}, $request->{'user'}, $request->{'user'}, 
-              $request->{'mode'}, $request->{'cmdline'}, $request->{'action'},
-              '', $request->{'date'});
+              $request->{'mode'}, $request->{'cmdline'}, $request->{'date'},
+              $request->{'action'});
 }
 
 use Mj::Archive qw(_secs_start _secs_end);
 use Mj::Util qw(str_to_time);
 use IO::File;
+use Mj::Config;
 sub _report {
-  my ($self, $list, $requ, $victim, $mode, $cmdline, $action, $d, $date) = @_;
+  my ($self, $list, $requ, $victim, $mode, $cmdline, $date, $action) = @_;
   my $log = new Log::In 35, "$list, $action";
-  my (@actions, @legal, $begin, $end, $file, $span);
+  my (@table, @tmp, @tmp2, $begin, $end, $file, $scope, $span, $tmp);
 
-  if (defined $action) {
-    @actions = split /\s*,\s*/, $action;
-    @legal = command_list();
-    push @legal, ('badtoken', 'bounce', 'consult', 'connect', 'parse', 'ALL');
-    for $action (@actions) {
-      unless (grep {$_ eq $action} @legal) {
-        return (0, "Action $action is unknown.\n");
+  $scope = {};
+
+  # Determine which actions are specified to be reported by the
+  # "inform" configuration setting.  A request for "ALL" lists will
+  # use the GLOBAL inform setting.
+  if ($mode =~ /inform/) {
+    $tmp = $self->_list_config_get($list, 'inform');
+    if ($tmp) {
+      for $i (keys %$tmp) {
+        for $j (keys %{$tmp->{$i}}) {
+          if ($tmp->{$i}{$j} & 1) {
+            $scope->{$i}{$j} = 1;
+          }
+        }
       }
     }
   }
-
+  else {
+    @tmp = split '\002', $action;
+    $j = 'report';
+    # Hack the requested actions into a table that resembles
+    # the "inform" configuration setting.
+    for ($i = 0; $i < scalar(@tmp); $i++) {
+      ($req, $res) = split /\s*[:|]\s*/, $tmp[$i], 2;
+      $res ||= 'all';
+      @tmp2 = split /[\s,]+/, $req;
+      for $tmp (@tmp2) {
+        push @table, join (' | ', ($tmp, $res, $j));
+      }
+    }
+    @tmp = Mj::Config::parse_inform('', \@table, 'report_command');
+    if (! $tmp[0]) {
+      return (0, $tmp[1]);
+    }
+    $scope = $tmp[$#tmp];
+  }
+  $self->{'report_scope'} = $scope;
+ 
   $begin = 0; $end = time;
 
   if (length $date) {
@@ -5132,7 +5178,7 @@ sub _report {
 
   $file = "$self->{'ldir'}/GLOBAL/_log";
   
-  $self->{'report_fh'} = new IO::File $file;
+  $self->{'report_fh'} = new IO::File "< $file";
   unless ($self->{'report_fh'}) {
     return (0, "Cannot access the log.\n");
   }
@@ -5142,29 +5188,22 @@ sub _report {
 sub report_chunk {
   my ($self, $request) = @_;
   my $log = new Log::In 500, 
-     "$request->{'list'}, $request->{'user'}, $request->{'action'}";
-  my (%status, @data, @out, $count, $line, $bounce, $trigger);
-  my @actions = split /\s*,\s*/, $request->{'action'};
-  unless (@actions) {
-    $actions[0] = 'ALL';
-  }
-  $bounce  = grep { $_ eq 'bounce' } @actions;
-  $trigger = grep { $_ eq 'trigger' } @actions;
-  $status{1} = 1 if ($request->{'mode'} =~ /succeed/);
-  $status{0} = 1 if ($request->{'mode'} =~ /fail/);
-  $status{-1} = 1 if ($request->{'mode'} =~ /stall/);
-  unless (keys %status) {
-    $status{1} = $status{0} = $status{-1} = 1;
-  }
+     "$request->{'list'}, $request->{'user'}";
+  my (@data, @out, $count, $line, $scope);
+
+  return (0, "The log file is unopened.\n") 
+    unless (defined $self->{'report_fh'});
+
+  return (0, "Invalid chunk size given.\n")
+    unless ($request->{'chunksize'} > 0);
+
+  return (0, "Unable to determine what to report") 
+    unless (defined $self->{'report_scope'});
 
   $request->{'begin'} ||= 0;
   $request->{'end'} ||= time;
   $request->{'chunksize'} ||= 1;
-  return (0, "Invalid chunk size given.\n")
-    unless ($request->{'chunksize'} > 0);
-  return (0, "Unable to read data.\n") 
-    unless ($self->{'report_fh'});
-
+  $scope = $self->{'report_scope'};
   $count = 0;
 
   while (1) { 
@@ -5177,10 +5216,8 @@ sub report_chunk {
                  and $data[9] <= $request->{'end'});
     next unless ($data[0] eq $request->{'list'} 
                  or $request->{'list'} eq 'ALL');
-    next if ($data[1] eq 'bounce'  and ! $bounce);
-    next if ($data[1] eq 'trigger' and ! $trigger);
-    next unless (exists $status{$data[6]});
-    next unless ($actions[0] eq 'ALL' or grep {$_ eq $data[1]} @actions);
+    next unless (exists ($scope->{'ALL'}{$data[6]}) or 
+                 exists ($scope->{$data[1]}{$data[6]}));
     push @out, [@data];
     $count++;  last if ($count >= $request->{'chunksize'});
   }
@@ -5191,7 +5228,8 @@ sub report_chunk {
 sub report_done {
   my ($self, $request) = @_;
   my $log = new Log::In 50, 
-     "$request->{'list'}, $request->{'user'}, $request->{'action'}";
+     "$request->{'list'}, $request->{'user'}";
+  undef $self->{'report_scope'};
   return unless $self->{'report_fh'};
   undef $self->{'report_fh'};
   (1, '');
