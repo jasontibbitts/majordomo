@@ -1558,7 +1558,7 @@ sub _ck_theader {
   local ($text);
 
   $code = {};
-  # $listaddr = $self->_list_config_get($list, 'whoami');
+  $listaddr = $self->_list_config_get($list, 'whoami');
 
   for $i ('GLOBAL', $list) {
     for $j ('admin_headers', 'taboo_headers', 'noarchive_headers') {
