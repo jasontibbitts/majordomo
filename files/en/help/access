@@ -30,6 +30,10 @@ deny, reply="Request denied.  Your address has been blacklisted."
 /joe\@nowhere.com/i OR /jane\@somewhere.com/i
 ENDTAG
 
+Majordomo determines the author's address under any circumstances,
+including when sending messages to the list owners, so access to
+any feature can be limited by access_rules.
+
 
 See Also:
    help post      (for the special case of restricting who can post msgs)

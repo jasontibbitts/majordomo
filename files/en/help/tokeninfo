@@ -21,13 +21,18 @@ the action.
 If the request requires the approval of the person who made the
 request, the token is called a "confirm" token.  If someone 
 else must approve the request, the token is called a "consult"
-token.
+token. If the action has been delayed (see "help default" and
+"help configset access_rules") the token is called a "delayed token"
+and some action will be taken when the delay is over UNLESS the
+token is explicitly accepted or rejected first.
 
 Anyone who is aware of the existence of a token can use the "tokeninfo"
-command to see the request that is stalled.  They can then use the
-"accept" or "reject" command to approve or deny the request.
-Most of the data that the "tokeninfo" command displays is also
-available through the "sessioninfo" command.
+command to see the request that is stalled. This is a potential security
+risk, since a password may have been used with the command, so keep
+the tokens securely private! Anyone with the token string can then
+use the "accept" or "reject" command to approve or deny the request.
+Most of the data that the "tokeninfo" command displays is also available
+through the "sessioninfo" command.
 
 If "full" mode is used, and a token refers to a posted message,
 the full message will be shown in the results.  Otherwise, 

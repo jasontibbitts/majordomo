@@ -117,10 +117,18 @@ Deleting a message causes the index and count files to be updated
 automatically, so "archive-sync" is not needed after "archive-delete".
 
 The archive-sync command takes one argument, which must be the
-date of a particular archive file.  For example,
+date of a particular archive file or a Majordomo pattern matching
+one or more archive files (see "help patterns").  For example,
   archive-sync mj2-dev 200005
 would synchronize the May 2000 archive index and counts with the
-messages themselves. Any message not containing an X-Archive-Number
+messages themselves. Alternately, if you have a bunch of files
+to process at once:
+  archive-sync mj2-dev /19991?/
+would synchronize the October, November, and December 1999 archives.
+All archive file names must begin with the list name, and the list
+name should not be included in the pattern.
+
+When using archive-sync, any message without an X-Archive-Number 
 header will be given a new number, one greater than the highest
 number in the archive, and a new header.  Any archive number that
 does not correspond to the archive in question will be replaced by
@@ -140,6 +148,7 @@ See Also:
    help configset archive_index  (to restrict indexing of these files)
    help get   (which may be used in some cases to retrieve archives)
    help index (which may be used to show which archives are available)
+   help patterns (for majordomo patterns and regular expressions)
    help put   (which is used to create the archive directory)
    help times (for how to specify time stamps)
 

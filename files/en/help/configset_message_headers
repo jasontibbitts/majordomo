@@ -43,6 +43,10 @@ as an additional safety precaution. This is a good place to include
 an evaluated variable for the list name (so filters can always figure
 out which list the post came from) and perhaps a sequence number.
 
+Whenever a post is accepted, it is re-mailed to the list 
+address with an Approved: header included.  Any existing
+Delivered-To headers are removed to reduce the chance of a bounce.
+
 For regular lists, there are other header fields that can be added
 with different variables available. See "help configset reply_to"
 and "help configset sender" for additional information. You normally

@@ -26,6 +26,10 @@ ENDTAG
 Headers appearing in this list will be removed from the messages
 before being passed on to the recipients or placed into the archive.
 
+Whenever a post is accepted, it is re-mailed to the list 
+address with an Approved: header included.  Any existing
+Delivered-To headers are removed to reduce the chance of a bounce.
+
 
 See Also:
    help configset purge_received (for how to remove a special header)
