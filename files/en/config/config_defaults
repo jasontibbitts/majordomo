@@ -1,0 +1,4 @@
+The config_defaults setting is a list of configuration templates.
+The templates must already exist and be available through the 
+DEFAULT pseudo-list.  If any settings conflict, templates that are
+higher in the list will take precedence.

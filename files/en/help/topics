@@ -190,6 +190,7 @@ These help files describe configuration settings:
    help configset_bounce_probe_pattern
    help configset_bounce_rules
    help configset_category
+   help configset_config_defaults
    help configset_default_class
    help configset_default_flags
    help configset_delete_headers
