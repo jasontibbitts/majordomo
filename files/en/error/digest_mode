@@ -1,0 +1,9 @@
+The following digests are supported by the $LIST list:
+  $DIGESTS:-20 $DIGEST_DESCRIPTIONS
+
+The digest command should be issued with one of the following
+command modes:
+  $MODES
+
+Please use the "help digest" command to learn more about these
+command modes.
