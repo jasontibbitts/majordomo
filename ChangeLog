@@ -1,3 +1,23 @@
+2005-02-26  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (dispatch)  Account for the possibility
+	of a failed "owner" event.
+
+	* lib/Mj/Access.pm:  (_a_mailfile)  Take pains to prevent
+	a mail loop of the whoami_owner address with itself.
+	(_d_owner)  Messages to the list owners are now subject to 
+	the access rules.
+
+	* lib/Mj/CommandProps.pm:  Messages to the list owners are
+	now subject to the access rules.
+
+	* lib/Mj/Inform.pm:  (_inform_owner)  Take pains to prevent
+	a mail loop of the whoami_owner address with itself.
+
+	* lib/Mj/MailOut.pm:  (owner_done)  Apply the access rules
+	to messages sent to the list owners which were not handled
+	by the bounce parser.
+
 2005-01-31  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (connect)  Give a reasonable value

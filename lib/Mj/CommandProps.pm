@@ -181,6 +181,7 @@ my %commands =
    # specialized interfaces)
    'owner' => 
    {
+    'parser'   => [qw(list global)],
     'dispatch' => {'top' => 1, 
                    'iter' => 1, 
                    'noaddr' => 1,
@@ -189,6 +190,21 @@ my %commands =
 			       'nobounce' => 1,
 			      },
                   },
+    'access'   => {
+                   'default' => 'special',
+                   'legal'   => {
+                                 %reg_legal,
+                                 'block' => 'integer',
+                                },
+                   'actions' =>{
+                                'allow'     =>1,
+                                'deny'      =>1,
+                                'mailfile'  =>1,
+                                'reason'    =>1,
+                                'reply'     =>1,
+                                'replyfile' =>1,
+                              },
+                },
    },
    'trigger' => 
    {
