@@ -54,3 +54,39 @@ configset DEFAULT:personal message_headers <<GHIJ
 To: $MSGRCPT
 GHIJ
 
+# DEFAULT:rfc2369
+# Add headers for core mail list commands, as specified in the
+# IETF RFC 2369.
+
+configset DEFAULT:rfc2369 comments <<KLMN
+The RFC 2369 template adds the following
+headers to posted messages:
+
+List-Archive
+List-Help
+List-Owner
+List-Post
+List-Subscribe
+List-Unsubscribe
+
+Use the following command to apply to see
+the settings of this template:
+
+configshow-merge-append DEFAULT:rfc2369 LISTNAME
+
+(substitute the name of your mailing list
+for LISTNAME)
+
+The archive_url setting should also be changed
+to reflect the location of the list archives.
+KLMN
+
+configset DEFAULT:rfc2369 message_headers <<OPQR
+List-Archive: <$ARCURL>
+List-Help: <mailto:$MJ?body=help>
+List-Owner: <mailto:$OWNER>
+List-Post: <mailto:$WHOAMI>
+List-Subscribe: <mailto:$MJ?body=sub%20$LIST>
+List-Unsubscribe: <mailto:$MJ?body=unsub%20$LIST>
+OPQR
+
