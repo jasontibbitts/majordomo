@@ -1573,9 +1573,9 @@ for a particular mailing list has been exceeded.
 
 who
 ---
-(text, wwwadm)  This file displays the address and other data for one 
-subscription to a mailing list.  This file is not displayed if
-the export command mode is used.
+(text, wwwadm, wwwconfirm)  This file displays the address and other
+data for one subscription to a mailing list.  This file is not displayed
+if the export command mode is used.
 
 (standard plus CLASSDESC, CGIDATA, CGIURL, CHUNKSIZE, CLASS, CLASS_DESCRIPTIONS, 
  CLASS_SELECTED, CLASSDESC, CLASSES, CMDPASS, FLAGS, FLAGDESC, FULLADDR, 
@@ -1585,8 +1585,8 @@ the export command mode is used.
 
 who_error
 ---------
-(text, wwwadm)  This file displays an error message if the who
-command stalls or fails.
+(text, wwwadm, wwwconfirm)  This file displays an error message if the
+who command stalls or fails.
 
 (standard plus CGIDATA, CGIURL, ERROR, CMDPASS, MODE, PATTERN, REMOVE, 
  START, USER)
@@ -1594,27 +1594,27 @@ command stalls or fails.
 
 who_foot
 --------
-(text, wwwadm)  This file displays supplementary information at the top
-of the output.  This file is not displayed if the alias, export, or
-short command mode is used.
+(text, wwwadm, wwwconfirm)  This file displays supplementary information
+at the top of the output.  This file is not displayed if the alias,
+export, or short command mode is used.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
 
 
 who_head
 --------
-(text, wwwadm)  This file displays supplementary information at the top
-of the output.  This file is not displayed if the alias, export, or
-short command mode is used.
+(text, wwwadm, wwwconfirm)  This file displays supplementary information
+at the top of the output.  This file is not displayed if the alias,
+export, or short command mode is used.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
 
 
 who_registry
 ------------
-(text, wwwadm)  This file displays data for one registry entry.
-It is used only for the GLOBAL pseudo-list.  This file is not displayed
-if the alias or export command mode is used.
+(text, wwwadm, wwwconfirm)  This file displays data for one registry
+entry.  It is used only for the GLOBAL pseudo-list.  This file is not
+displayed if the alias or export command mode is used.
 
 (standard plus CANON, CGIDATA, CGIURL, CMDPASS, FULLADDR, LASTCHANGE, LISTS,
  MODE, PATTERN, QSADDR, REMOVE, START, STRIPADDR, USER and others)
@@ -1622,20 +1622,40 @@ if the alias or export command mode is used.
 
 who_registry_foot
 -----------------
-(text, wwwadm)  This file displays supplementary information at the
-bottom of the output.  It is used only for the GLOBAL pseudo-list.  
-This file is not displayed if the alias, export, or short command mode is used.
+(text, wwwadm, wwwconfirm)  This file displays supplementary information
+at the bottom of the output.  It is used only for the GLOBAL
+pseudo-list.  This file is not displayed if the alias, export, or short
+command mode is used.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
+
+
+who_registry_summary
+--------------------
+(text, wwwadm, wwwconfirm)  This file displays a table of mailing 
+lists and the number of subscribers in each list.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, LISTS, MODE, PATTERN, REMOVE, 
+ START, SUBS, TOTAL, USER)
 
 
 who_registry_head
 -----------------
-(text, wwwadm)  This file displays supplementary information at the
-top of the output.  It is used only for the GLOBAL pseudo-list.  
-This file is not displayed if the alias, export, or short command mode is used.
+(text, wwwadm, wwwconfirm)  This file displays supplementary information
+at the top of the output.  It is used only for the GLOBAL pseudo-list.
+This file is not displayed if the alias, export, or short command mode
+is used.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
+
+
+who_summary
+-----------
+(text, wwwadm, wwwconfirm)  This file displays a table of delivery
+classes and the number of subscribers in each class.
+
+(standard plus CGIDATA, CGIURL, CLASS, CMDPASS, MODE, PATTERN, REMOVE, 
+ START, SUBS, TOTAL, USER)
 
 
 See Also:

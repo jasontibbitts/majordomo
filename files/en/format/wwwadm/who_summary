@@ -1,0 +1,111 @@
+<!-- Majordomo who_summary format file -->
+<h4 align="center">Subscription Summary</h4>
+<table border>
+
+<tr>
+  <th>Delivery Class
+  <th>Subscribers
+</tr>
+
+<tr><td> $CLASS <td align="right"> $SUBS </tr>
+
+<tr><td> TOTAL <td align="right"> $TOTAL </tr>
+
+</table>
+
+<h4 align="center">Search the Subscriber List</h4>
+
+<ol>
+  <li>Type a search pattern into the <b>Search pattern</b> box. (Please see
+      the $HELP:PATTERNS help document to learn how to write
+      a search pattern.)</li>
+  <li>Type the number of addresses you wish to view at
+      one time into the <b>Addresses per page</b> box.
+      To see every address on one page, leave the box empty.</li>
+  <li>Choose the kind of result you want to see from the
+      <b>Show</b> menu.</li>
+  <li>Press the <b>search</b> button.</li>
+</ol>
+
+<form method="POST" action="$CGIURL">
+  <input name="list" type="hidden" value="$LIST">
+  <input name="passw" type="hidden" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+
+Search pattern: <input name="pattern" size="35" value="ALL"><br>
+Addresses per page:
+  <input name="chunksize" size="5" value="$CHUNKSIZE"><br>
+
+Show:
+  <select name="func">
+    <option value="who-enhanced" selected>
+    Full details about each subscriber
+
+    <option value="who-short">
+    Only the e-mail address of each subscriber
+
+    <option value="who-enhanced-bounce">
+    Only subscribers with bounces (delivery problems)
+  </select><br>
+
+  <input type="submit" value="search">
+
+</form>
+
+<h4 align="center">Add or Remove Subscribers</h4>
+
+<ol>
+  <li>Choose one of the four add/remove methods by pressing the
+      appropriate button.</li>
+  <li>Type addresses into the box, one address per line.</li>
+  <li>If addresses are being added, choose the personal settings
+      for these addresses with the delivery class menu and
+      setting buttons.  (See the $HELP:SET help document for more
+      details on the delivery class and other settings.)</li>
+  <li>Press the <b>add or remove subscribers</b> button.</li>
+</ol>
+
+<form method="POST" action="$CGIURL">
+  <input name="list" type="hidden" value="$LIST">
+  <input name="passw" type="hidden" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  
+  <input type="radio" name="func" value="subscribe-set-welcome" checked> 
+  Add subscribers to the $LIST mailing list.
+  Send a welcome message. <br>
+
+  <input type="radio" name="func" value="subscribe-set-nowelcome"> 
+  Add subscribers to the $LIST mailing list.
+  <b>Do not</b> send a welcome message.<br>
+
+  <input type="radio" name="func" value="unsubscribe-farewell"> 
+  Remove subscribers from the $LIST mailing list.
+  Send a farewell message. <br>
+
+  <input type="radio" name="func" value="unsubscribe-nofarewell"> 
+  Remove subscribers from the $LIST mailing list.
+  <b>Do not</b> send a farewell message. <br>
+
+  <textarea name="victims" rows="8" cols="70">
+  </textarea>
+
+  <p>
+
+Settings for new subscribers:
+  <table>
+  <tr>
+    <td><small>$SETTINGS</small></td>
+  </tr>
+  <tr>
+    <td align="center"><input name=setting type=checkbox value="$SETTINGS" $SETTING_CHECKED></td>
+  </tr>
+  </table>
+
+  Delivery class: 
+  <select name="setting">
+    <option value="$CLASSES" $CLASS_SELECTED>$CLASSES: $CLASS_DESCRIPTIONS</small>
+  </select>
+
+  <input type="submit" value="add or remove subscribers">
+</form>
+

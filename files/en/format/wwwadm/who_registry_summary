@@ -1,0 +1,77 @@
+<!-- Majordomo who_registry_summary format file -->
+
+<h4 align="center">Search the Registry</h4>
+
+<ol>
+  <li>Type a search pattern into the <b>Search pattern</b> box. 
+      (Please see the $HELP:PATTERNS 
+      help document to learn how to write a search pattern.)
+  </li>
+  <li>Type the number of addresses you wish to view at
+      one time into the <b>Addresses per page</b> box.
+  </li>
+
+  <li>Press the <b>search</b> button.</li>
+</ol>
+
+<form method="POST" action="$CGIURL">
+
+  <input name="list" type="hidden" value="$LIST">
+  <input name="passw" type="hidden" value="$CMDPASS">
+  <input name="user" type="hidden" value="$USER">
+  <input name="func" type="hidden" value="who-enhanced">
+
+  Search pattern: <input name="pattern" value="."><br>
+
+  Addresses per page:
+    <input name="chunksize" size="10" value="$CHUNKSIZE">
+
+  <input type="submit" value="search">
+
+</form>
+
+<h4 align="center">Register or Unregister Addresses</h4>
+
+<ol>
+  <li>Choose one of the three add/remove methods by pressing the
+      appropriate button.</li>
+  <li>Type e-mail addresses into the box, one address per line.</li>
+  <li>Press the <b>register or unregister addresses</b> button.</li>
+</ol>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  
+  <input type="radio" name="func" value="register-welcome" checked> 
+  Add addresses to the registry.
+  Send a welcome message to each address. <br>
+
+  <input type="radio" name="func" value="register-nowelcome"> 
+  Add addresses to the registry.
+  <b>Do not</b> send a welcome message to each address.<br>
+
+  <input type="radio" name="func" value="unregister"> 
+  Remove addresses from the registry.
+
+  <textarea name="victims" rows="8" cols="70">
+  </textarea>
+
+  <input type="submit" value="register or unregister addresses">
+</form>
+
+<h4 align="center">Subscription Summary</h4>
+
+<table border>
+<tr>
+  <th>Mailing List
+  <th>Subscribers
+</tr>
+
+<tr><td> $LISTS <td align="right"> $SUBS </tr>
+
+<tr><td> TOTAL <td align="right"> $TOTAL </tr>
+
+</table>
+
