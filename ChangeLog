@@ -1,3 +1,9 @@
+2000-05-21  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Bf/Parser.pm (parse_exim): Parse exim bounces.
+	(parse): Call parse_exim.
+	(parse_yahoo): Tweak parsing a bit.
+
 2000-05-20  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Bf/Parser.pm (parse): Call parse_yahoo.

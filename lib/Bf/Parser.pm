@@ -77,8 +77,8 @@ sub parse {
   # Try to identify the bounce by parsing it
   $data = {};
   $ok or ($ok = parse_dsn($ent, $data));
+  $ok or ($ok = parse_exim($ent, $data));
   $ok or ($ok = parse_yahoo($ent, $data));
-# $ok or ($ok = parse_exim($ent, $data));
 
 
   # Look for useful bits in the To: header (assuming we even have one)
@@ -244,11 +244,78 @@ sub parse_dsn {
   return 1;
 }
 
+=head2 parse_exim
+
+Attempts to parse the bounces issued by the Exim MTA.  These bounces come
+from Mailer-Daemon and look like the following:
+
+This message was created automatically by mail delivery software.
+
+A message that you sent could not be delivered to one or more of its
+recipients. The following address(es) failed:
+
+  asdfasd@lists.math.uh.edu:
+    unknown local-part "asdfasd" in domain "lists.math.uh.edu"
+  hurl@lists.math.uh.edu:
+    unknown local-part "hurl" in domain "lists.math.uh.edu"
+
+------ This is a copy of the message, including all the headers. ------
+
+followed by the entire message.
+
+=cut
+
+sub parse_exim {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $line, $ok);
+
+  return 0 if $ent->parts;
+  $ok = 0;
+  $bh = $ent->bodyhandle->open('r');
+
+  # We eat the message until we see the trademark Exim bounce line
+  while (1) {
+    $line = $bh->getline;
+    return 0 unless defined $line;
+    chomp $line;
+    next if $line =~ /^\s*$/;
+    last if (lc($line) eq 
+	     'this message was created automatically by mail delivery software.');
+  }
+
+  # We've just seen the line, so we know we have an Exim-format bounce.
+  # Eat stuff until we see an address:
+  while (1) {
+    $line = $bh->getline;
+    chomp $line;
+
+    # Stop before we get into the bounced message
+    return $ok if $line =~ /^-/;
+
+    # Ignore lines that don't look like indented addresses followed by
+    # colons
+    next unless $line =~ /  (.+@.+):$\s*$/;
+    
+    # We have an address;
+    $data->{$1}{'status'} = 'failure';
+
+    # The next line holds the diagnostic, indented a bit
+    $line = $bh->getline;
+    chomp $line; $line =~ s/^\s*//;
+    $data->{$1}{'diag'} = $line;
+  }
+
+  # Should never get here.
+  $ok;
+}
+
 =head2 parse_yahoo
 
 Attempts to parse the bounces issued by Yahoo as of 2000.05.20.
 
-These bounces come from MAILER_DAEMON@yahoo.com, have a subject of "failure
+These bounces come from MAILER-DAEMON@yahoo.com, have a subject of "failure
 delivery" and have a body looking like:
 
 Message from  yahoo.com.
@@ -270,7 +337,7 @@ sub parse_yahoo {
   my $data = shift;
   my (%ok_from, %ok_subj, $bh, $line, $ok);
 
-  %ok_from = {'mailer_daemon\@yahoo.com' => 1};
+  %ok_from = {'mailer-daemon\@yahoo.com' => 1};
   %ok_subj = {'failure delivery'         => 1};
   $ok = 0;
 
@@ -278,16 +345,28 @@ sub parse_yahoo {
   # bounce
   return 0 unless $ok_from{lc($ent->head->get('from'))};
   return 0 unless $ok_subj{lc($ent->head->get('subject'))};
+  return 0 if $ent->parts; # Must be able to open the body
 
   # Now run through the body.  We look for an address in brackets and, on
   # the next line, the diagnostic.  We assume that we've failed; I don't
   # believe that yahoo ever issues warnings.
   $bh = $ent->bodyhandle->open('r');
+  return 0 unless $bh;
   while (defined($line = $bh->getline)) {
+    chomp $line;
+
+    # Bail if we're getting into the bounced message
+    return $ok if lc($line) eq '--- original message follows.';
+
+    # If we have an address...
     if ($line =~ /<(.*)>:/) {
-      $data->{$1}{'status'} = 'failure';
-      $data->{$1}{'diag'}   = $bh->getline;
       $ok = 1;
+      $data->{$1}{'status'} = 'failure';
+
+      # The next line holds the diagnostic
+      $line = $bh->getline;
+      chomp($line);
+      $data->{$1}{'diag'} = $line;
     }
   }
   $ok;
