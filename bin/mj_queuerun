@@ -277,9 +277,6 @@ sub run_queue {
 	      $::log->message(0, 'info', "Tried $trycount times to process $file.");
 	    }
 
-            $::log->message(10, 'info', 
-                      "$pri1/$dom/$pri2/$func/$msg processed at " . time);
-
             # OK, have something to process.  Lazily create a Majordomo object
             # for the domain we're processing.
             unless (defined $mj) {
@@ -291,6 +288,9 @@ sub run_queue {
               if ($opts{'v'} > $debug1) {$debug1 = $opts{'v'}};
               $::log->set_level($debug1) unless $emerg_log;
             }
+
+            $::log->message(10, 'info', 
+              "Processing $pri1/$dom/$pri2/$func/$msg at " . time);
 
             # If we're at the Majordom address, just parse commands
             if ($func eq 'majordomo') {

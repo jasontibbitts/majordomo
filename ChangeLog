@@ -1,3 +1,16 @@
+2001-10-02  Michael Yount <csf@moscow.com>
+
+	* bin/mj_queuerun:  Log the file being processed after the
+	debugging level has been determined.
+
+	* lib/Mj/BounceHandler.pm:  (handle_bounce_token)  Bugfix:
+	Do not call inform() or send notices if the token is missing
+	from the database.
+
+	* lib/Mj/Format.pm:  (accept)  Bugfix:  always use the 
+	"text" type to format the results from the accepted command.
+	Thanks to Roger Klorese.
+
 2001-09-27  Michael Yount <csf@moscow.com>
 
 	* Makefile.PL:  Work around MakeMaker bug by using '$(PREFIX)'
@@ -19,7 +32,7 @@
 	* lib/Mj/CommandProps.pm:  Support the "blind_copy" access
 	variable for the post command.
 
-	* lib/Mj/Format.pm:  (report)  Spell out "kilobytes."
+	* lib/Mj/Format.pm:  (archive)  Spell out "kilobytes."
 	(password)  Format error message consistently.
 
 	* lib/Mj/Resend.pm:  (post)  Supply a default subject if
