@@ -14,41 +14,26 @@ canonical form.
 The following information is kept about a subscriber (dates in normal time
 format, seconds since epoch):
 
-  Stripped address (the address to which mail should be sent)
-  Complete address (including comments)
-  Subscription time
-  Time of last change
-  Class of article reception (single, digest(interval), on hold)
-  Flags
-  Bounce data (???)
-  XXX More to come
+  The primary key is a canonical e-mail address.
+  stripaddr  - Stripped address (the address to which mail should be sent)
+  fulladdr   - Complete address (including comments)
+  subtime    - Subscription time
+  changetime - Time of last change
+  class      - Delivery class (all, each, digest, nomail, unique)
+  classarg   - Digest name or vacation return time
+  classarg2  - Digest type or old class for timed vacations
+  flags      - Settings (eliminatecc, replyto, etc.)
+  groups     - Subtopic or subgroup memberships (unused except by the
+               who-owners command)
+  expire     - Subscription expiration time (unused)
+  remind     - Expiration reminder flag (unused)
+  id         - Unused
+  bounce     - Information about delivery failures
+  diagnostic - A description of the reason for the last delivery failure
 
-Reception classes are (not chiseled in stone):
-  each             - each message as it is posted
-  digest-name-type - the named digest, received as the given type (test,
-                     MIME, etc.)
-  all              - user receives everything, digests, single messages,
-                     etc. This is intended for list owners who might want
-                     to see everything that does out.
-  nomail           - the user doesn''t receive any mail at all.
-  unique           - each unduplicated message.  Duplicates are messages
-                     with identical IDs or body checksums that have 
-                     already been distributed by Majordomo to the same
-                     address.
+See "help set" and "help who" for more information about delivery
+classes, flags, and flag abbreviations.
 
-Flags is a string of flags.  These could be made into normal fields, but
-large numbers of fields incur a time penalty.  So stuffed here are bits of
-info that the core might want to know about a subscriber but which will
-never be the targets of a full search.  This includes:
-
-  ack (A)            - the user receives notice that the message has
-    been successfully delivered?
-  selfcopy (S)       - the user receives a copy of their own message.
-  CC elimination (C) - the user will _not_ receive a copy from the server
-    if the user appears in the To: or CC headers.
-  hideaddress (H)    - the user''s address will not appear in unapproved
-    who requests.
-  
 You can add one or more subscribers to the SubscriberList, remove one or
 more subscribers, iterate over the list of just the subscribers (like
 scalar each) or iterate over the subscribers and their data (like each; you
@@ -96,7 +81,7 @@ sub compare {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2003 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
