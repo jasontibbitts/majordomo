@@ -45,9 +45,10 @@ sub handle_bounce {
   $parser->output_dir($self->_global_config_get('tmpdir'));
   $parser->output_prefix("mjo");
 
-  $fh = new IO::File "$file";
+  $fh = gensym();
+  open ($fh, "< $file");
   $ent = $parser->read($fh);
-  $fh->close;
+  close $fh;
 
   # Extract information from the envelope, if any, and parse the bounce.
   $whoami = $self->_global_config_get('whoami');
@@ -431,6 +432,7 @@ normal action for bouncing tokens).
 sub handle_bounce_removal {
   my $self = shift;
   my %args = @_;
+  my ($time) = $::log->elapsed;
 
   if (!$args{subbed}) {
     return "  Cannot remove addresses which are not subscribed.\n";
@@ -446,7 +448,14 @@ sub handle_bounce_removal {
 			  'automatic removal',
 			  'MAIN',
 			 );
-    # XXX Call inform here
+
+    $self->inform($args{list}, 'unsubscribe',
+                  qq("Automatic Bounce Processor" <$args{'sender'}>),
+                  $args{'user'}, "unsubscribe $args{'list'} $args{'user'}",
+                  $self->{'interface'}, $ok, 0, 0, 
+                  qq(The bounce_rules setting says "remove-noprobe"),
+                  $::log->elapsed - $time);
+
     if ($ok) {
       return "  User was removed.\n";
     }
@@ -459,7 +468,9 @@ sub handle_bounce_removal {
 
 sub _gen_bounce_message {
   my ($user, $args, $params, $actions) = @_;
+  my $acts = join ',', @$actions;
   my $mess = '';
+
   $mess .= "  User:        $user\n";
   $mess .= "  Subscribed:  " .($args->{subscribed}?'yes':'no')."\n";
   $mess .= "  Status:      $params->{status}\n";
@@ -475,7 +486,7 @@ sub _gen_bounce_message {
   $mess .= "    Percentage of messages bounced: $args->{bouncedpct}\n"
     if $args->{bouncedpct} && $args->{numbered} >= 5;
 
-  $mess .= "  Bounce rules said: @$actions.\n";
+  $mess .= "  Bounce rules said: $acts.\n";
 
   $mess;
 }
