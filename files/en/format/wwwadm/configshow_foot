@@ -1,15 +1,21 @@
 <!-- Majordomo configshow_foot format file -->
-</table>
+</dl>
+  <input type=submit name=func value="configdef">
+  <input type=submit name=func value="configset">
+  <input type=submit name=func value="help">
 </form>
-<h4 align=center>Configuration categories</h4>
-The configuration settings fall into several categories.
-For your convenience, they are presented here.  Press
-the check boxes next to one or more categories, then 
-press the <b>configshow</b> button at the bottom.
+
+<h4 align=center>Configuration Categories</h4>
+
+The configuration settings are arranged into several categories.
+Press the check boxes next to one or more category names, then 
+press one of the <b>configshow</b> buttons.
+
 <form method=POST action="$CGIURL">
-<input type=hidden name=domain value="$DOMAIN">
-List: <input name=list value="$LIST">
-Password: <input type=password size=14 name=passw value="$PASSWORD">
+  <input type=hidden name=domain value="$DOMAIN">
+  <input type=hidden name=list  value="$LIST">
+  <input type=hidden name=passw value="$PASSWORD">
+  <input type=submit name=func value="configshow">
 
 <dl>
   <dt><input type=checkbox name=extra value="ACCESS">Access

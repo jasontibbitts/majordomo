@@ -1,16 +1,25 @@
 <!-- Majordomo configshow_head format file -->
-<h4 align=center>Configuration Settings for the $LIST list</h4>
-It is possible to change, or receive help for, more than
-one setting, in the following way. 
-<ol>
-<li>Press the checkbox above the <b>configset</b> 
-button for each of the settings you wish to change or study. 
-<li>Make changes to each of the values you wish to change.
-<li>Press any one of the <b>configset</b>, <b>configdef</b>,
-or <b>help</b> buttons.
-</ol>
+<h4 align=center>Configuration Settings</h4>
+
+<ul>
+  <li>Press the checkbox next to the name of each setting 
+      you wish to change or study. 
+  <li>To see the help pages for the settings you chose, press
+      the <b>help</b> button.
+  <li>To reset the settings you chose to their default values,
+      press the <b>configdef</b> button.
+  <li>To change the values of the settings you chose, modify the
+      values, then press the <b>configset</b> button.
+  <li>There are five levels of administrative passwords.  Changing
+      a setting requires a certain level or higher.  See the 
+      $HELP:ADMIN_PASSWORDS help page for more details.
+</ul>
+
 <form method=POST action="$CGIURL">
-<input type=hidden name=domain value="$DOMAIN">
-<input type=hidden name=list value="$LIST">
-<input type=hidden name=passw value="$PASSWORD">
-<table border>
+  <input type=hidden name=domain value="$DOMAIN">
+  <input type=hidden name=list value="$LIST">
+  <input type=hidden name=passw value="$PASSWORD">
+  <input type=submit name=func value="configdef">
+  <input type=submit name=func value="configset">
+  <input type=submit name=func value="help">
+<dl>

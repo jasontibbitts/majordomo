@@ -1,16 +1,16 @@
 <!-- Majordomo configshow_category format file -->
-<h3 align=center>configuration categories</h3>
-The configuration settings fall into several categories.
-For your convenience, they are presented here.  Press
-the check boxes next to one or more categories, then 
-press the $HELP:CONFIGSHOW button to
-view or change the current settings.
+
+<h4 align=center>Configuration Categories</h4>
+
+The configuration settings are arranged into several categories.
+Press the check boxes next to one or more category names, then 
+press one of the <b>configshow</b> buttons.
 
 <form method=POST action="$CGIURL">
-<input type=hidden name=domain value="$DOMAIN">
-Mailing List: <input name=list value="$LIST">
-Password: <input type=password size=15 name=passw value="$PASSWORD">
-<input type=submit name=func value="configshow">
+  <input type=hidden name=domain value="$DOMAIN">
+  <input type=hidden name=list  value="$LIST">
+  <input type=hidden name=passw value="$PASSWORD">
+  <input type=submit name=func value="configshow">
 
 <dl>
   <dt><input type=checkbox name=extra value="ACCESS">Access
@@ -29,8 +29,7 @@ Password: <input type=password size=15 name=passw value="$PASSWORD">
   of posted messages.
 
   <dt><input type=checkbox name=extra value="LISTS">Lists
-  <dd>Settings related to the output of the $HELP:LISTS
-      command.
+  <dd>Settings related to the output of the <b>lists</b> command.
 
   <dt><input type=checkbox name=extra value="MISCELLANY">Miscellany
   <dd>Settings that do not fit one of the other categories.
@@ -41,15 +40,14 @@ Password: <input type=password size=15 name=passw value="$PASSWORD">
   the addresses of the moderators.
 
   <dt><input type=checkbox name=extra value="PASSWORD">Password
-  <dd>Settings that relate to both administrative and personal
-  $HELP:PASSWORDs.
+  <dd>The master_password and passwords settings.
 
   <dt><input type=checkbox name=extra value="REPLY">Reply
-  <dd>Settings that determine whether or not acknowledgement notices are sent;
-  where to find the files that contain the acknowledgement reply messages, 
-  and the language of the replies.
+  <dd>Settings that determine whether or not notices are sent,
+  the files that contain the reply messages, and the language of the
+  notices.
 </dl>
 
 <input type=submit name=func value="configshow">
 </form>
- 
+

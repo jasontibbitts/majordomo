@@ -1,13 +1,11 @@
 <!-- Majordomo configshow_array format file -->
-<tr><td>
-<input type=checkbox name=extra value="$VARIABLE"><br>
-<input type=submit name=func value="configset"><br>
-<input type=submit name=func value="configdef"><br>
-<input type=submit name=func value="help"><br>
-<td>
-<pre>?COMMENT</pre>
-A level $LEVEL password is required to change this value.
-<textarea cols=70 rows=$LINES name="$VARIABLE">
+<dt>
+  <input type=checkbox name=extra value="$SETTING">$SETTING
+  (level $LEVEL)
+
+<dd>
+  <pre>?COMMENT</pre>
+<textarea cols=70 rows=$LINES name="$SETTING">
 ?VALUE
 </textarea><br>
 

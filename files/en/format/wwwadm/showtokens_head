@@ -1,14 +1,24 @@
 <!-- Majordomo showtokens_head format file -->
+<ul>
+  <li>Choose one or more requests from the following list by pressing
+      the checkbox on the left.
+  <li>Press <b>tokeninfo-full</b> to display a summary of each chosen request,
+      including the bodies of any <b>post</b>ed messages.
+  <li>Press <b>tokeninfo</b> to display a summary of each chosen request.
+  <li>Press <b>accept</b> to approve each chosen request.
+  <li>Press <b>accept-archive</b> to approve each chosen request.  <b>Post</b>ed
+      messages will be stored in the list archive, but will not be distributed
+      to the subscribers.
+  <li>Press <b>reject</b> to disallow each chosen request.
+</ul>
+
 <form method=POST action="$CGIURL">
-<input type=submit name=func value="tokeninfo-full">
-<input type=submit name=func value="tokeninfo">
-<input type=submit name=func value="accept">
-<input type=submit name=func value="accept-archive">
-<input type=submit name=func value="reject">
-<input type=hidden name=domain value="$DOMAIN">
-<input type=hidden name=list value="$LIST">
-<input type=hidden name=passw value="$PASSWORD">
-<br>
-Choose one or more requests from the following list,
-then press one of the buttons.
+  <input type=submit name=func value="tokeninfo-full">
+  <input type=submit name=func value="tokeninfo">
+  <input type=submit name=func value="accept">
+  <input type=submit name=func value="accept-archive">
+  <input type=submit name=func value="reject">
+  <input type=hidden name=domain value="$DOMAIN">
+  <input type=hidden name=list value="$LIST">
+  <input type=hidden name=passw value="$PASSWORD">
 
