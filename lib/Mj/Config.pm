@@ -1144,9 +1144,9 @@ sub parse_access_rules {
   my $var  = shift;
   my $log  = new Log::In 150;
 
-  my (%rules, @at, @raw, @tmp, $action, $check_aux, $check_main, $code,
-      $count, $data, $error, $evars, $i, $j, $k, $l, $ok, $part, $rule,
-      $table, $tmp, $tmp2, $warn);
+  my (%rules, @at, @tmp, $action, $check_aux, $check_main, $code, $count,
+      $data, $error, $evars, $i, $j, $k, $l, $m, $n, $ok, $part, $rule,
+      $table, $taboo, $tmp, $tmp2, $warn);
 
   # %$data will contain our output hash
   $data = {};
@@ -1201,7 +1201,7 @@ sub parse_access_rules {
 	unless (rules_action($i, $tmp)) {
 	  @tmp = rules_actions($i);
 	  return (0, "\nIllegal action: $action->[$j].\nLegal actions for '$i' are:\n".
-		  join(' ',sort(@tmp)));
+		  join("\n",sort(@tmp)));
 	}
 	if ($tmp2) {
 	  for $k (action_files($tmp, $tmp2)) {
@@ -1214,27 +1214,22 @@ sub parse_access_rules {
 	}
       }
 
-      # Grab extra variables from admin_ and taboo_ for post command.  This
-      # is somewhat of a hack, because we pull out the raw value and parse
-      # the table ourselves.  So if the format is ever changed in the parse
-      # routines, it needs to change here as well.
-      use Data::Dumper;
+      # Grab extra variables from admin_ and taboo_ (and their global
+      # counterparts) for the post request.
       $evars = {};
       if ($i eq 'post') {
 	for $k ('admin_', 'taboo_') {
-	  @raw = $self->get("${k}body", 1);
-	  for $l (@raw) {
-	    $l =~ /^(\!?)(.*?)\s*(\d*)((,([+-]?\d+)?)(,(\w+))?)?\s*$/;
-	    if (defined $8 && length $8) {
-	      $evars->{"$k$8"} = 1;
+	  for $l ('body', 'headers') {
+	    $taboo = $self->get("$k$l");
+	    for $m (keys %{$taboo->{'classes'}}) {
+	      $evars->{"$k$m"} = 1;
 	    }
-	  }
-	  @raw = $self->get("${k}headers", 1);
-	  for $l (@raw) {
-	    $l =~ /^(\!?)(.*?)\s*([+-]?\d+)?(,(\w+))?$/;
-	    if (defined $5 && length $5) {
-	      $evars->{"$k$5"} = 1;
+
+	    $taboo = &{$self->{'callbacks'}{'mj._global_config_get'}}("$k$l");
+	    for $m (keys %{$taboo->{'classes'}}) {
+	      $evars->{"global_$k$m"} = 1;
 	    }
+
 	  }
 	}
 	warn Dumper $evars;
@@ -2017,6 +2012,7 @@ sub parse_taboo_body {
 
   # Start
   $data->{'code'} = "my \@out = ();\n";
+  $data->{'classes'} = {};
 
   for $j (@$arr) {
     # Format: !/match/i 10,20,blah
@@ -2024,6 +2020,7 @@ sub parse_taboo_body {
       $j =~ /^(\!?)(.*?)\s*(\d*)((,([+-]?\d+)?)(,(\w+))?)?\s*$/;
     $sev = 10 unless defined $sev && length $sev;
     $class ||= 'body';
+    $data->{'classes'}{$class} = 1;
 
     # Compile the pattern
     ($ok, $err, $re) = compile_pattern($pat, 1);
@@ -2091,12 +2088,13 @@ sub parse_taboo_headers {
 
   $data = {};
   $data->{'inv'} = [];
-
+  $data->{'classes'} = {};
   $data->{'code'} = "my \@out = ();\n";
   for $j (@$arr) {
     ($inv, $pat, $sev, undef, $class) = $j =~ /^(\!?)(.*?)\s*([+-]?\d+)?(,(\w+))?$/;
     $sev = 10 unless defined $sev;
     $class ||= 'header';
+    $data->{'classes'}{$class} = 1;
 
     # Compile the pattern
     ($ok, $err, $re) = compile_pattern($pat, 1);
@@ -2970,11 +2968,11 @@ sub _compile_rule {
 #$var =~ /(global_)?(admin_|taboo_)\w+/))
 	  {
 	    @tmp = rules_vars($request);
-	    $e .= "Illegal variable for $request: $var.\nLegal variables are:\n".
-	      join("\n", sort(@tmp));
-	    if ($request eq 'post') {
-	      $e .= "\nPlus these variables currently defined in admin and taboo rules:\n".
-		join("\n", sort (keys %$evars));
+	    $e .= "Illegal variable for $request: $var.\nLegal variables are:\n  ".
+	      join("\n  ", sort(@tmp));
+	    if ($request eq 'post' && scalar(keys(%$evars))) {
+	      $e .= "\nPlus these variables currently defined in admin and taboo rules:\n  ".
+		join("\n  ", sort (keys(%$evars)));
 	    }
 	    last;
 	  }

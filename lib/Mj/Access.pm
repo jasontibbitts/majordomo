@@ -553,16 +553,16 @@ sub list_access_check {
 	($func, $arg) = split(/[=-]/,$i,2);
 	if ($func eq 'set') {
 	  # Set a variable.
-      if ($arg and rules_var($request, $arg)) {
-        $args{$arg} ||= 1;
-      }
+	  if ($arg and rules_var($request, $arg)) {
+	    $args{$arg} ||= 1;
+	  }
 	  next ACTION;
 	}
 	elsif ($func eq 'unset') {
 	  # Unset a variable.
-      if ($arg and rules_var($request, $arg)) {
-        $args{$arg} = 0;
-      }
+	  if ($arg and rules_var($request, $arg)) {
+	    $args{$arg} = 0;
+	  }
 	  next ACTION;
 	}
     elsif ($func eq 'reason') {

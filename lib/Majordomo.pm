@@ -2206,6 +2206,8 @@ sub _make_list {
 		 {
 		  'mj.list_file_get' => 
 		  sub { $self->_list_file_get(@_) },
+		  'mj._global_config_get' =>
+		  sub {$self->_global_config_get(@_) },
 		 },
 		);
   return unless $tmp;
@@ -3548,6 +3550,7 @@ sub _set {
   }
   @out;
 }
+
 =head2 show(..., mode,, address)
 
 Perform the show command.  This retrieves a pile of information about an

@@ -1,4 +1,21 @@
+2000-05-03  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Access.pm (list_access_check): Reindent slightly.
+
+	* lib/Mj/Config.pm (parse_access_rules): Just use the stored class
+	info that parse_taboo_* create instead of parsing the variables
+	ourselves.
+	Extract data from global variables as well.	
+
 2000-05-02  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_taboo_body): Store all of the classes
+	defined by any of the rules.
+	(parse_taboo_headers): Ditto.
+
+	* lib/Majordomo.pm (_make_list): Add a callback for
+	_global_config_get, so global variables can be extracted internal
+	to the list configuration.
 
 	* lib/Mj/Config.pm (parse_access_rules): Extract the classes
         defined in taboo and admin rules and pass them into _compile_rule
