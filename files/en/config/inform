@@ -1,29 +1,7 @@
 This controls just what actions the list owner will be informed of and
 what will be logged.  The format of each line is:
-
-request | status | actions
-
-where request is subscribe, lists, post, etc., status is a comma
-separated list of:
-
-  succeed: perform the actions if the request succees.
-  fail:    perform the actions if the request fails.
-  stall:   perform the actions if the request is stalled.
-  all:     always perform the actions
-
-and actions is a comma separated list of:
-
-  ignore: completelu ignore the request
-  report: log the request for later reposting
-  inform: inform the owner immediately
-
-ignore overrides the others.
-report is not yet implemented.
-
-If a request is not specified, the default behavior for subscribe and
-unsubscribe is to inform on success, report otherwise.  The default
-behavior for all other requests is to report always.  This
-approximates the 1.9x behavior.
-
-Note that all actions are logged; this only affects which actions are
-deemed important enough to send mail about and which will be reported.
+  request | status | actions
+where request is any Mj2 command (like subscribe, lists, post, etc.),
+status is a comma separated list of "succeed, fail, stall, all", and
+actions is a comma separated list of "ignore, report, inform". The full
+syntax is described in "help configset inform".

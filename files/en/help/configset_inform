@@ -23,25 +23,32 @@ ENDTAG
 
 This controls just what actions the list owner will be informed of and
 what will be logged.  The format of each line is:
+  request | status | actions
+where request is any Mj2 command (like subscribe, lists, post, etc.),
+status is a comma separated list of "succeed, fail, stall, all", and
+actions is a comma separated list of "ignore, report, inform". The full
+syntax is described in "help configset inform".
 
-request | status | actions
+1. The request field can be any command that Majordomo knows how to
+process. In addition, you can use "post" as a "request" item even
+though it is not actually a Majordomo command. A complete list of all
+"request"s can be retrieved by sending these two commands to $MJ
+   help commands
+   help admin commands
+or just send
+   help topics
+and ignore all the configset sub-options.
 
-where request is subscribe, lists, post, etc., status is a comma
-separated list of:
-
+2. The status field is a comma separated list of these results:
   succeed: perform the actions if the request succees.
   fail:    perform the actions if the request fails.
   stall:   perform the actions if the request is stalled.
   all:     always perform the actions
 
-and actions is a comma separated list of:
-
-  ignore: completelu ignore the request
-  report: log the request for later reposting
-  inform: inform the owner immediately
-
-ignore overrides the others.
-report is not yet implemented.
+3. The actions field is a comma separated list of what to do:
+  ignore: completelu ignore the request (overrides the others!)
+  report: log the request for later reposting (not implemented)
+  inform: inform the owner immediately (via email)
 
 If a request is not specified, the default behavior for subscribe and
 unsubscribe is to inform on success, report otherwise.  The default
@@ -57,22 +64,12 @@ what will be logged (the log file is probably in the /tmp or /var/mj
 or a similar directory - see "help configset tmpdir" for how
 to change or set this directory).
 
-Every command that Majordomo knows how to process can be the target
-of an inform command. In addition, you can use "post" as a "request"
-item even though it is not a Majordomo command.
-
-A complete list of all "request"s can be retrieved by sending these
-two commands to $MJ
-   help commands
-   help admin commands
-or just send
-   help topics
-and ignore all the configset sub-options.
-
 Note that the "inform" command can apply to the GLOBAL pseudo-list or
 an actual listname, based on which "request" you want to observe. Some
 requests don't make sense for the GLOBAL list (like "post"), while
 others don't make sense for a real list (like "help").
+
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ
