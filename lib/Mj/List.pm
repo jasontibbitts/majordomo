@@ -84,36 +84,40 @@ that is used to hold information about an existing list.
 =cut
 sub new {
   my $type  = shift;
-  my $name  = shift;
-  my $ldir  = shift;
-  my $sdirs = shift;
-  my $back  = shift;
+  my %args  = @_;
+  
   my $class = ref($type) || $type;
-  my $log   = new Log::In 150, "$ldir, $name, $back";
+  my $log   = new Log::In 150, "$args{'dir'}, $args{'name'}, $args{'backend'}";
 
   my ($subfile);
 
   my $self = {};
   bless $self, $class;
 
-  $self->{name}     = $name;
-  $self->{sdirs}    = $sdirs;
-  $self->{ldir}     = $ldir;
-  $self->{backend}  = $back;
   $self->{auxlists} = {};
-
+  $self->{backend}  = $args{backend};
+  $self->{callbacks}= $args{callbacks};
+  $self->{ldir}     = $args{dir};
+  $self->{name}     = $args{name};
+  $self->{sdirs}    = 1; # Obsolete goody
+    
   $subfile = $self->_file_path("_subscribers");
 
   # XXX This should probably be delayed
-  unless ($name eq "GLOBAL") {
-    $self->{subs} = new Mj::SubscriberList $subfile, $back;
+  unless ($args{name} eq 'GLOBAL') {
+    $self->{subs} = new Mj::SubscriberList $subfile, $args{'backend'};
   }
 
-  $self->{'config'} = new Mj::Config $name, $ldir, $sdirs;
-
+  $self->{'config'} = new Mj::Config
+    (
+     list      => $args{'name'},
+     dir       => $args{'dir'},
+     callbacks => $args{'callbacks'},
+    );
+  
   # We have to figure out our database backend for ourselves if we're
   # creating the GLOBAL list, since it couldn't be passed to us.
-  if ($name eq 'GLOBAL') {
+  if ($args{name} eq 'GLOBAL') {
     $self->{backend} = $self->config_get('database_backend');
   }
   $self;

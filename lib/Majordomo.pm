@@ -966,7 +966,7 @@ sub list_config_set {
     @out = (0, "Error parsing $var:\n$mess");
   }
   else {
-    @out = (1);;
+    @out = (1, "Warnings parsing $var:\n$mess");
   }
   $self->inform($list, 'config_set', $user, $user, "configset $list $var",
 		$int, $out[0], !!$passwd+0, 0);
@@ -2144,7 +2144,15 @@ sub _make_list {
   return if $list eq 'ALL';
   unless ($self->{'lists'}{$list}) {
     $self->{'lists'}{$list} =
-      new Mj::List($list, $self->{ldir}, $self->{sdirs}, $self->{backend});
+      new Mj::List(name      => $list,
+		   dir       => $self->{ldir},
+		   backend   => $self->{backend},
+		   callbacks =>
+		   {
+		    'mj.list_file_get' => 
+		    sub { $self->_list_config_get(@_) },
+		   },
+		  );
   }
   1;
 }

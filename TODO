@@ -37,12 +37,6 @@ Top of the list
 
 Warnings for nonexistant files specified in access_rules:
 
-  How to check for files?  Through a callback.
-  How to pass callbacks?  In a hash, keys named after the callback.
-
-   mj.list_file_get
-
-  
 
 Real database for storing duplicate message-IDs and checksums.  These are
 OK to trash, so they are the ideal place to experiment.

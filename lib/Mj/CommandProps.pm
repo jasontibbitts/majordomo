@@ -8,32 +8,33 @@ require Exporter;
 @EXPORT_OK = qw(access_def command_legal command_prop
 		commands_matching function_prop function_legal
 		rules_request rules_requests rules_var rules_vars
-		rules_action rules_actions);
+		rules_action rules_actions action_files);
 %EXPORT_TAGS = ('command'  => [qw(command_legal command_prop
 				  commands_matching)],
 		'function' => [qw(function_legal function_prop)],
 		'rules'    => [qw(rules_request rules_requests rules_var
 				  rules_vars rules_action
-				  rules_actions)],
+				  rules_actions action_files)],
 		'access'   => [qw(access_def)],
        );
 use strict;
 
-# Some simplifying data for the access_rules info
-my %reg_actions =
-  ('allow'           => 1,
-   'confirm'         => 1,
-   'consult'         => 1,
-   'confirm_consult' => 1,
-   'default'         => 1,
-   'deny'            => 1,
-   'forward'         => 1,
+# All supported actions, plus some additional information used for syntax
+# checking
+my %actions =
+  ('allow'           => {files => [],},
+   'confirm'         => {files => [0],},
+   'consult'         => {files => [0],},
+   'confirm_consult' => {files => [0,1],},
+   'default'         => {files => [],},
+   'deny'            => {files => [],},
+   'forward'         => {files => [],},
 #  'log'             => 1,
-   'mailfile'        => 1,
-   'reply'           => 1,
-   'replyfile'       => 1,
-   'set'             => 1,
-   'unset'           => 1,
+   'mailfile'        => {files => [0],},
+   'reply'           => {files => [],},
+   'replyfile'       => {files => [0],},
+#  'set'             => 1,
+#  'unset'           => 1,
   );
 
 my %reg_legal =
@@ -86,7 +87,7 @@ my %commands =
     'access'   => {
 		   'default' => 'allow',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
 
@@ -130,7 +131,7 @@ my %commands =
     'access'   => {
 		   'default' => 'confirm',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'archive' =>
@@ -140,7 +141,7 @@ my %commands =
     'access'   => {
 		   'default' => 'allow',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'auxadd' =>
@@ -150,7 +151,7 @@ my %commands =
     'access'   => {
 		   'default' => 'deny',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'auxremove' =>
@@ -160,7 +161,7 @@ my %commands =
     'access'   => {
 		   'default' => 'deny',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'auxwho' =>
@@ -170,7 +171,7 @@ my %commands =
     'access'   => {
 		   'default' => 'deny',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'createlist' =>
@@ -180,7 +181,7 @@ my %commands =
     'access'   => {
 		   'default' => 'deny',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'digest' =>
@@ -190,7 +191,7 @@ my %commands =
     'access'   => {
 		   'default' => 'deny',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'faq' =>
@@ -200,7 +201,7 @@ my %commands =
     'access'   => {
 		   'default' => 'access',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'get' =>
@@ -210,7 +211,7 @@ my %commands =
     'access'   => {
 		   'default' => 'access',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'help' =>
@@ -220,7 +221,7 @@ my %commands =
     'access'   => {
 		   'default' => 'allow',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'index' =>
@@ -230,7 +231,7 @@ my %commands =
     'access'   => {
 		   'default' => 'access',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'info' =>
@@ -240,7 +241,7 @@ my %commands =
     'access'   => {
 		   'default' => 'access',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'intro' =>
@@ -250,7 +251,7 @@ my %commands =
     'access'   => {
 		   'default' => 'access',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'lists' =>
@@ -260,7 +261,7 @@ my %commands =
     'access'   => {
 		   'default' => 'allow',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    # mkdigest is fake; it just calls digest-force, but aliases don't work
@@ -282,7 +283,7 @@ my %commands =
 				 'fulladdr'         => 3,
 				 'host'             => 3,
 				},
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'post' =>
@@ -320,7 +321,7 @@ my %commands =
 		    'fulladdr'                     => 3,
 		    'host'                         => 3,
 		   },
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'put' =>
@@ -330,7 +331,7 @@ my %commands =
     'access'   => {
 		   'default' => 'deny',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'register' =>
@@ -340,7 +341,7 @@ my %commands =
     'access'   => {
 		   'default' => 'confirm',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'reject' =>
@@ -356,7 +357,7 @@ my %commands =
     'access'   => {
 		   'default' => 'deny',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'sessioninfo' =>
@@ -372,7 +373,7 @@ my %commands =
     'access'   => {
 		   'default' => 'confirm',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'show' =>
@@ -382,7 +383,7 @@ my %commands =
     'access'   => {
 		   'default' => 'mismatch',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'showtokens' =>
@@ -392,7 +393,7 @@ my %commands =
     'access'   => {
 		   'default' => 'deny',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'subscribe' =>
@@ -410,7 +411,7 @@ my %commands =
 				 'fulladdr'       => 3,
 				 'host'           => 3,
 				},
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'tokeninfo' =>
@@ -426,7 +427,7 @@ my %commands =
     'access'   => {
 		   'default' => 'confirm',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'unregister' =>
@@ -436,7 +437,7 @@ my %commands =
     'access'   => {
 		   'default' => 'confirm',
 		   'legal'   =>\%reg_legal,
-		   'actions' =>\%reg_actions,
+		   'actions' =>\%actions,
 		  },
    },
    'unsubscribe' =>
@@ -446,7 +447,7 @@ my %commands =
     'access'   => {
 		   'default' => 'confirm',
 		   'legal'   =>\%reg_legal,
-		   'actions' =>\%reg_actions,
+		   'actions' =>\%actions,
 		  },
    },
    'which' =>
@@ -456,7 +457,7 @@ my %commands =
     'access'   => {
 		   'default' => 'access',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
    'who' =>
@@ -466,7 +467,7 @@ my %commands =
     'access'   => {
 		   'default' => 'access',
 		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
+		   'actions' => \%actions,
 		  },
    },
 #   'writeconfig'    => {'parser' => [qw(email shell list obsolete real)],
@@ -581,11 +582,14 @@ sub function_legal {
 }
 
 # --- functions for access_rules configuration
+
+# True if a request can legally appear in access_rules
 sub rules_request {
   my $req = shift;
   !!$commands{$req}{'access'};
 }
 
+# Return all requests that can be restricted by access_rules
 sub rules_requests {
   my(@out, $i);
   for $i (keys %commands) {
@@ -594,6 +598,10 @@ sub rules_requests {
   @out;
 }
 
+# If passed a type, return true if the given variable is legal for the
+# given request and has the given type.  Else return the type of the given
+# variable.  If the request is not valid or the variable is not valid for
+# the request, return false in any case
 sub rules_var {
   my $req  = shift;
   my $var  = shift;
@@ -606,6 +614,8 @@ sub rules_var {
   $commands{$req}{'access'}{'legal'}{$var};
 }
 
+# Return all legal variables for the given request.  If type is given,
+# restrict to variables of that type.
 sub rules_vars {
   my $req  = shift;
   my $type = shift;
@@ -622,18 +632,37 @@ sub rules_vars {
   ();
 }
 
+# True if the given action is legal for the given request.
 sub rules_action {
   my $req = shift;
   my $act = shift;
   $commands{$req}{'access'}{'actions'}{$act};
 }
 
+# Return all legal actions for the given request.
 sub rules_actions {
   my $req = shift;
   return keys %{$commands{$req}{'access'}{'actions'}}
     if rules_request($req);
   ();
 }
+
+# Given the argument string of an action, split it and return the arguments
+# which are filenames.
+sub action_files {
+  my $act = shift;
+  my $arg = shift;
+  my (@args, @out, $i);
+  
+  return unless $actions{$act};
+    
+  @args = split(/\s*,\s*/, $arg);
+  for $i (@{$actions{$act}{files}}) {
+    push @out, $args[$i];
+  }
+  @out;
+}
+
 
 # --- 
 sub access_def {

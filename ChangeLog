@@ -1,3 +1,27 @@
+Sat Jun 26 16:51:46 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (set): Return "error" string even if parse
+ 	succeeded; these will be warnings.
+
+	* lib/Majordomo.pm (list_config_set): Return warnings back to
+ 	caller.
+
+	* lib/Mj/Config.pm (parse_access_rules): New code to check for
+ 	existence of files specified in actions.  Call action_files and
+ 	make use of the mj.list_file_get callback.
+
+	* lib/Mj/List.pm (new): New calling semantics; take a hash.
+	Use new Mj::Config::new call semantics.
+
+	* lib/Majordomo.pm (_make_list): Use new Mj::List::new call
+ 	semantics.  Pass a callback to _list_file_get.
+
+	* lib/Mj/CommandProps.pm (action_files): New function: extract
+ 	which arguments from an actions arglist are filenames, so they can
+ 	be checked.
+	Rename %reg_actions to %actions.
+	Attach additional information to %actions.
+
 Thu Jun 24 00:13:23 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* bin/mj_email (parse_commands): Make use of unstripped address

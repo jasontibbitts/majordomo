@@ -103,8 +103,9 @@ knows where to find its files).
 sub new {
   my $type  = shift;
   my $class = ref($type) || $type;
-
-  my $list  = shift ||
+  my %args  = @_;
+  
+  my $list  = $args{'list'} or
     $::log->abort("Mj::Config::New called without list name");
 
   $::log->in(150, "$list");
@@ -113,8 +114,9 @@ sub new {
   bless $self, $class;
 
   $self->{'list'}           = $list;
-  $self->{'ldir'}           = shift;
-  $self->{'sdirs'}          = shift;
+  $self->{'ldir'}           = $args{'dir'};
+  $self->{'callbacks'}      = $args{'callbacks'};
+  $self->{'sdirs'}          = 1;
   $self->{'vars'}           = \%Mj::Config::vars;
   $self->{'file_header'}    = \$Mj::Config::file_header;
   $self->{'default_string'} = \$Mj::Config::default_string;
@@ -735,7 +737,7 @@ sub set {
     if $self->isparsed($var);
 
   $self->{'dirty'} = 1;
-  1;
+  (1, $error);
 }
 
 =head2 atomic_set(var, updatesub)
@@ -1091,7 +1093,7 @@ sub parse_access_rules {
   my $var  = shift;
   my $log  = new Log::In 150;
   my (%rules, @at, @tmp, $action, $check_aux, $check_main, $code, $data,
-      $error, $i, $j, $k, $ok, $part, $rule, $table, $tmp, $warn);
+      $error, $i, $j, $k, $ok, $part, $rule, $table, $tmp, $tmp2, $warn);
 
   # %$data will contain our output hash
   $data = {};
@@ -1137,15 +1139,26 @@ sub parse_access_rules {
     while (($action, $rule) = splice @{$rules{$i}}, 0, 2) {
 
       # Check validity of the action.
-      for ($k=0; $k<@{$action}; $k++) {
-	($tmp = $action->[$k]) =~ s/\=.*$//;
+      for ($j=0; $j<@{$action}; $j++) {
+
+	# Unpack action=arg,arg set
+	($tmp, $tmp2) = ($action->[$j] =~ /([^=]*)(?:=(.*))?/);
 	unless (rules_action($i, $tmp)) {
 	  @tmp = rules_actions($i);
 	  return (0, "\nIllegal action: $action->[$k].\nLegal actions for '$i' are:\n".
 		  join(' ',sort(@tmp)));
 	}
+	if ($tmp2) {
+	  for $k (action_files($tmp, $tmp2)) {
+	    ($file) =
+	      &{$self->{callbacks}{'mj.list_file_get'}}($self->{list}, $k);
+	    unless ($file) {
+	      $warn .= "  Req. $i, action $tmp: file '$k' could not found.\n";
+	    }      
+	  }
+	}
       }
-
+      
       # Compile the rule
       ($ok, $error, $part, $check_main, $check_aux) =
 	_compile_rule($i, $action, $rule);
