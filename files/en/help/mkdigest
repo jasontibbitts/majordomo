@@ -1,29 +1,15 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-mkdigest listname password
+mkdigest listname [digest]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a list at this site
-password, required, is the list or site password
+digest,   if specified, the the name of a digest.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This is a backwards compatibility command.  Under Mj1, you called
-  mkdigest listname password
-at intervals to push out digests.
-
-In Mj2, mkdigest just gets turned into 
-  approve password digest-force listname
-which causes all digests to be pushed for the named list.
-
-You must have list archives enabled to create digests.
-
+mkdigest is an alias for the digest command.
 
 See Also:
-   help configset archive_dir (to store archives in a non-default dir)
-   help configset_digests     (for how to configure digesting)
-   help digest  (for another way to force digests)
-   help put     (for how to create archive directory)
+   help admin_delivery
+   help configset_digests
+   help digest
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
-
-
+$INCLUDE-help/foot
