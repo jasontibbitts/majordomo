@@ -1,3 +1,28 @@
+2003-02-05  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  (surrender)  Add a domain parameter to make
+	reconnecting easier.
+
+	* lib/Majordomo.pm:  (archive_chunk, tokeninfo_chunk)  Clean
+	HTML message parts if "clean" mode is specified.
+	(_set)  Bugfix:  Change only one address for a pattern unless
+	allmatching mode is specified.
+
+	* lib/Mj/CommandProps.pm:  Add support for "clean" mode for
+	the archive and tokeninfo commands.
+
+	* lib/Mj/Format.pm:  (who)  Convert the nomail return time
+	into a readable date.
+
+	* lib/Mj/List.pm:  (add)  Use "each" as the default class
+	for sublists.
+
+	* lib/Mj/MIMEParser.pm:  (get_entity_structure)  Use "file"
+	instead of "path" for consistency.
+
+	* lib/Mj/Resend.pm:  Add error messages and XLANG markers.
+	(clean_text)  Rename _clean_text to reflect external use.
+
 2003-02-03  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/mj_cf_defs.pl: Change default who_access and which_access to

@@ -126,12 +126,12 @@ if ($domain =~ /([a-zA-Z0-9\.\-]+)/) {
   $domain = $1;
 }
 else {
-  &surrender($cgi, qq("$domain" is an invalid domain.));
+  &surrender($cgi, qq("$domain" is an invalid domain.), '');
 }
 
 #----- Make the Majordomo object -----#
 $mj = new Majordomo $::LISTDIR, $domain;
-&surrender($cgi, $mj) unless (ref $mj);
+&surrender($cgi, $mj, '') unless (ref $mj);
 
 #----- Generate the session information. -----#
 for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
@@ -161,7 +161,7 @@ else {
 ($ok, $mess) = $mj->connect('wwwusr', $sess, $user, $passw);
 
 unless ($ok) {
-  &surrender($cgi, $mess);
+  &surrender($cgi, $mess, $domain);
 }
 
 #----- Create a temporary password -----#
@@ -555,13 +555,16 @@ sub usage {
 }
 
 sub surrender {
-  my ($cgi, $message) = @_;
+  my ($cgi, $message, $domain) = @_;
   my $url = $cgi->script_name;
+  $domain ||= '';
 
   if ($message) {
     $::log->message(50, "info", $message);
     $message = Mj::Format::escape($message);
   }
+
+  $domain = Mj::Format::escape($domain);
 
   print $cgi->header(-expires => '+10s');
 
@@ -584,7 +587,7 @@ Press the <b>Sign In</b> button to receive further instructions.
 <form method="POST" action="$url">
   <input type="hidden" name="func" value="login">
   Domain:
-  <input name="domain" size="45">
+  <input name="domain" size="45" value="$domain">
   <input type="submit" value="Sign In">
 </form>
 </body></html>
