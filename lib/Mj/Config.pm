@@ -2237,9 +2237,8 @@ A nice aspect here is that because blank lines have historically been
 munged, we can make use of blank lines here and still be backwards
 compatible.
 
-XXX Need some way to protect blank lines from being split by the table
-parser.  The dash syntax probably works the best, but should it be
-done here or in the table parser?
+A blank line may be included in individual parts of the array
+by placing a hyphen on a line by itself.
 
 =cut
 sub parse_string_2darray {
@@ -2256,6 +2255,9 @@ sub parse_string_2darray {
 
   $out = [];
   for ($i=0;$i<@$table;$i++) {
+    for ($j = 0; $j < @{$table->[$i][0]}; $j++) {
+      $table->[$i][0]->[$j] =~ s/^-([\s-]|$)/$1/;
+    }
     push @$out, $table->[$i][0];
   }
 
