@@ -22,7 +22,7 @@ actually do some or all of the required configuration.
 package Mj::MTAConfig;
 use Mj::Log;
 use strict;
-use vars (qw(%header %supported));
+use vars (qw(%supported));
 
 %supported = (
 	      sendmail => 'sendmail',
@@ -30,15 +30,6 @@ use vars (qw(%header %supported));
 	      exim     => 'exim',
 	      postfix  => 'postfix',
 	     );
-
-%header = (
-	   'sendmail' => <<EOM,
-Please add (for createlist, if they are not already present)
-or remove (for createlist-destroy if they still exist) the
-following lines in your aliases file. You may have to run
-the "newaliases" command afterwards to enable these aliases.
-EOM
-	  );
 
 =head2 sendmail
 
