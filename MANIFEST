@@ -557,8 +557,6 @@ files/en/token_remind
 files/en/unknown_file
 files/en/welcome
 files/en/who_subscriber
-files/en/wwwadm_head
-files/en/wwwadm_help
 installbin
 lib/Bf/Sender.pm
 lib/Majordomo.pm
