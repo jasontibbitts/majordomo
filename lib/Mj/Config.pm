@@ -1331,9 +1331,11 @@ and returns any error message that routine generates.
 use Mj::Addr;
 sub parse_address {
   my $self = shift;
-  my $str  = shift;
+  my $str  = shift || '';
   my $var  = shift;
   my $log  = new Log::In 150, "$var, $str";
+
+  return (1, '', '') unless $str;
 
   # We try to tack on a hostname if one isn't given
   unless ($str =~ /\@/) {
