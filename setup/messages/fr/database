@@ -1,0 +1,11 @@
+Stockage en bases de données
+
+Quelle gestionnaire de bases de données est ce que Majordomo devra
+utiliser pour stocker ses informations ?
+
+Majordomo stocke les liste de ses abonnés, les informations
+d'enregistrement, les statistiques de messages, et bien d'autres types
+d'informations dans des bases de données. Le gestionnaire de bases de
+données ne peut pas être facilement modifié après que le logiciel ai
+été installé et utilisé.
+

@@ -1,0 +1,13 @@
+Parametrage de la gestion de emails
+
+Majordomo doit il maintenir la table des utilisateurs virtuels ?
+
+Majordomo peut aussi maintenir automatiquement la table des
+utilisateurs virtuels pour vous permettre de gérer plusieurs domaines
+virtuels plus facilement. Si vous répondez "yes", ces fichiers seront
+générés automatiquement, et les alias seront créés de manière
+appropriée. Vous aurez toujours à effectuer certaines modifications à
+la main (référez vous à README.$MTA), mais cela sera uniquement
+fait une seule fois. Après, vous pourrez ajouter des listes sans avoir
+à ajouter des paramètres de configuration à votre MTA.
+

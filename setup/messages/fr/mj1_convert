@@ -1,0 +1,11 @@
+Configuration du domaine "$DOMAIN"
+
+Avez vous des listes Majordomo 1.x à convertir ?
+
+Vous pouvez convertir vos anciennes listes Majordomo 1 vers le nouveau
+format en utilisant le script "convertlist.pl". Même si c'est
+optionnel, répondre à ces petites questions à propos de votre
+installation de Majordomo 1 peut rendre le processus de conversion
+plus facile. Référez vous au fichier d'aide README.CONVERSION pour
+plus de détails.
+

@@ -1,0 +1,8 @@
+Configuration du domaine "$DOMAIN"
+
+Ou sont stockés les listes Majordomo 1.x ?
+
+Entrer le chemin complet contenant les listes Majordomo 1.
+Vous pouvez laisser cette valeur vide, et la spécifier plus tard en
+utilisant l'option -o de "convertlist.pl".
+

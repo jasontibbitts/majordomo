@@ -1,0 +1,15 @@
+Configuration de sécurité de base (setuid)
+
+Les wrappers setuid doivent ils être installés ?
+
+Certains programmes Majordomo doivent être exécutés en tant que
+majordomo ($UID), quelque soit la personne qui l'exécute. Les
+programmes Majordomo peuvent être installés setuid uniquement si le
+système et Perl le supportent. Si ce n'est pas le cas, plusieurs petit
+wrappers peuvent être compilés qui prendront en charge les besoins
+setuid de Majordomo.
+
+Si vous n'êtes pas sur de la réponse à cette question, répondez
+"yes".
+Vous ne perdrez pas de fonctionnalités à utiliser les wrappers.
+

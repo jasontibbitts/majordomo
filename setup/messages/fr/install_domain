@@ -1,0 +1,11 @@
+Configuration du domaine "$DOMAIN"
+
+Désirez vous créer ce domaine maintenant ?
+
+Si vous répondez "yes", vous aurez besoin des droits suffisants pour
+créer les répertoires et mettre à jour les informations de
+configuration de ce domaine.
+
+Si vous répondez "no", les réponses a vos questions seront
+sauvegardées et quelqu'un pourra installer le domaine plus tard.
+

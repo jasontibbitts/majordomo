@@ -1,0 +1,7 @@
+Configuration du domaine "$DOMAIN".
+
+Quel est le chemin complet du répertoire qmail pour ce domaine ?
+
+Majordomo créera les fichiers de configuration appropriés pour dans ce
+répertoire.
+

@@ -1,0 +1,16 @@
+---------------------------------------------------------------------------
+Le "router" suivant doit être placé dans la section "Routers" de votre
+fichier de configuration d'Exim :
+
+majordomo_aliases_$DOMAIN:
+    driver = redirect
+    domains = $WHEREAMI
+    data = ${lookup{$local_part}lsearch{$LISTS_DIR/ALIASES/mj-alias-$DOMAIN}}
+    local_part_suffix = "$SEPARATOR*"
+    local_part_suffix_optional
+    pipe_transport = address_pipe
+    retry_use_local_part
+    user = $UID
+
+---------------------------------------------------------------------------
+

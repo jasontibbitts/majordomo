@@ -1,0 +1,6 @@
+Parametrage de la gestion de emails
+
+Combien de processus de traitement de queue voulez vous exécuter en
+même temps ? Ils seront créés si besoin, mais pas tous en même temps,
+et le nombre spécifié ici ne sera pas dépassé.
+

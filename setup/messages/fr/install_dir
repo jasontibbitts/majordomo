@@ -1,0 +1,11 @@
+Emplacement de stockage
+
+Ou est ce que les librairies, programmes et documentations de Majordomo
+seront stockés ?
+
+Majordomo créera automatiquement le répertoire et les sous répertoires
+si nécessaire.
+
+Les listes de votre site n'ont pas besoin d'être situés sous ce
+répertoire.
+

@@ -1,0 +1,15 @@
+
+Maintenant, vous devriez exécuter les commandes suivantes :
+  make         (attendez vous à plein de warnings à propos de coupures
+		à 8 caractères)
+  make test    (rapportez tous les problèmes à mj2-dev@csf.colorado.edu)
+  make install (en général en tant que root, répondez aux questions
+		qui vous sont présentées)
+
+Après que le logiciel soit installé, sauvegardez votre copie de
+.mj_config, qui contient vos réponses aux questions de configuration.
+
+Enfin, lisez le fichier d'aide destiné aux administrateurs de domaines
+avec la commande :
+  $INSTALL_DIR/bin/mj_shell -P help admin_domain
+

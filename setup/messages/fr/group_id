@@ -1,0 +1,18 @@
+Configuration de sécurité de base (group)
+
+Quel est le nom ou le numéro du groupe majordomo ?
+
+Les fichiers et répertoires créés lors de l'étape finale de
+l'installation appartiendront à ce groupe.
+
+Lorsque vous lancez la commande "make install" pour installer le
+logiciel, vous devrez avoir les privilèges suffisant pour modifier les
+droits des fichiers et des répertoires pour ce groupe.
+
+Le groupe que vous spécifiez doit déjà exister.
+
+Vous semblez être dans le groupe "$GROUP" avec comme gid "$GID".
+
+Quel est le groupe que majordomo utilisera ?
+Entrez soit le gid soit le nom du groupe.
+

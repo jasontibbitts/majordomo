@@ -1,0 +1,16 @@
+Qu'est ce que votre MTA utilise comme séparateur de boites mail ?
+
+Majordomo a besoin de savoir comment il peut ajouter des informations
+additionnelles qui ne seront pas interprétées à la partie locale de
+l'adresse. C'est généralement une option de votre MTA.
+
+Par exemple, si le séparateur est '+', les messages envoyés à
+'foo+bar' seront envoyés à l'utilisateur "foo". Si c'est le '-', alors,
+un message envoyé à 'foo-bar' sera envoyé à "foo".
+
+Majordomo utilise cette fonctionnalité pour attacher des données à
+propos des messages et du destinataire de l'enveloppe SMTP. Lorsqu'un
+envoie échoue, Majordomo utilise ces données supplémentaires pour
+identifier les adresses email qui posent problème avec plus de
+précision.
+

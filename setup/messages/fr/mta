@@ -1,0 +1,17 @@
+Parametrage de la gestion de emails
+
+Quel serveur de mail donnera ses mails à Majordomo ?
+
+Majordomo a besoin de connaître quel MTA est utilisé sur ce serveur,
+pour créer les alias de mails et suggérer des modifications de
+configuration.
+
+Pour l'instant, les MTA suivants sont supportés :
+  exim
+  postfix
+  qmail
+  sendmail
+
+Si votre système utilise zmailer, entrez "sendmail".
+Autrement, entrez "none" si votre MTA n'est pas supporté.
+

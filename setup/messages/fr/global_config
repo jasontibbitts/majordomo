@@ -1,0 +1,10 @@
+L'installation peut configurer certaines choses de base en utilisant
+les questions auxquelles vous avez répondu avant que l'installation ne
+commence.
+
+Si vous ne faites pas cela, le reste de l'installation peut mal se
+passer, puisque le mot de passe global à besoin d'être mis pour que ce
+programme fasse des modifications de configuration.
+
+Voulez vous continuer avec la configuration globale ?
+

@@ -1,0 +1,13 @@
+Impossible de modifier les permissions vers "$MODE"
+pour le fichier ou répertoire "$FILE".
+
+**** $ERROR
+
+Vous avez trois possibilités :
+  * arrêter le processus de configuration.
+  * ignorer le problème et continuer.
+  * afficher les commandes shell à exécuter pour réparer ce problème
+    et continuer. (Ces commandes devront être exécutées en tant que
+    root ou un autre utilisateur qui a les privilèges suffisants.)
+
+Que voulez vous faire ensuite ?

@@ -1,0 +1,14 @@
+Emplacement de stockage
+
+Ou est ce que Majordomo peut mettre des fichiers temporaires de
+manière sure ?
+
+Majordomo a besoin fréquemment de sauvegarder des fichiers dans un
+dossier privé. Pour le maximum de sécurité, ce devrait être un dossier
+qui n'est accessible qu'à Majordomo. En d'autre termes, ça ne doit pas
+être le répertoire "/tmp", dans lequel tout le monde a le droit
+d'écrire.
+
+Le processus d'installation va créer ce répertoire si il n'existe pas,
+mais ne modifiera pas ses permissions.
+

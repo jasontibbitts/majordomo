@@ -1,0 +1,20 @@
+Configuration de sécurité de base (user)
+
+Quel est le nom ou le numéro de l'utilisateur majordomo ?
+
+Les fichiers et répertoires créés par la dernière étape de
+l'installation appartiendront à cet utilisateur, et les travaux "cron"
+pour les compilations et autres tâches périodiques devront être lancés
+par cet utilisateur.
+
+Lorsque vous lancez la commande "make install" pour installer le
+logiciel, vous devrez avoir les privilèges suffisant pour modifier les
+droits des fichiers et des répertoires pour cet utilisateur.
+
+L'utilisateur que vous spécifiez doit déjà exister.
+
+Vous semblez être "$USER", avec comme uid "$UID".
+
+Quel est l'utilisateur que majordomo utilisera ?
+Entrez soit l'uid soit le nom de l'utilisateur.
+

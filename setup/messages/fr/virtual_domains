@@ -1,0 +1,20 @@
+Domaines Virtuels
+
+Quels domaines est ce que cette installation de Majordomo gérera ?
+
+Majordomo 2 support les domaines virtuels, ou une machine gère
+plusieurs jeux de listes. Vous pouvez nommer ces jeux de listes de la
+manière que vous désirez, mais il est de coutume de les appeler par le
+nom du domaine qu'ils servent.
+
+Si vous avez trop de domaines à lister ici, vous pouvez les ajouter
+plus tard en exécutant la commande "make domain". Consultez le fichier
+README pour plus d'informations. Si vous ne désirez pas utiliser de
+domaines virtuels, appuyez simplement sur la touche Entrée.
+
+Les noms de domaines contiennent une combinaison de lettres, chiffres,
+points et tirets. Les autres caractères sont invalides.
+
+Entrez un domaine à la fois, ou une ligne vide à la fin. Entrez un
+espace pour supprimer la valeur par défaut.
+
