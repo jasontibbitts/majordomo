@@ -94,7 +94,7 @@ sub add {
   $self->{digest}->add_part($ent);
 
   # Generate the index entry;
-  $self->{index} .=
+  $self->{'index'} .=
     &{$self->{indexfn}}('mime', $args{msg}, $args{data}, $ent);
 
   return $ent;
@@ -113,7 +113,7 @@ sub done {
   $index = build MIME::Entity
     (Type        => 'text/plain',
      Desctiption => 'Index',
-     Data        => $self->{index},
+     Data        => $self->{'index'},
     );
   $self->{top}->add_part($index);
   $self->{top}->add_part($self->{digest});

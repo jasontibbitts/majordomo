@@ -43,10 +43,10 @@ sub new {
   my $self = {};
   bless $self, $class;
 
-  $self->{indexfn} = $args{indexfn};
-  $self->{count} = 0;
-  $self->{index} = $args{index_header} || '';
-  $self->{subject} = $args{subject} || '';
+  $self->{'indexfn'} = $args{'indexfn'};
+  $self->{'count'} = 0;
+  $self->{'index'} = $args{'index_header'} || '';
+  $self->{'subject'} = $args{'subject'} || '';
   $self;
 }
 
@@ -57,7 +57,7 @@ The entity must be purged so that the necessary tempfiles are released.
 =cut
 sub DESTROY {
   my $self = shift;
-  $self->{top}->purge;
+  $self->{'top'}->purge;
 }
 
 =head2 add
@@ -75,7 +75,7 @@ sub add {
   $self->{count}++;
   
   # Generate the index entry;
-  $self->{index} .= &{$self->{indexfn}}('index', $args{msg}, $args{data});
+  $self->{'index'} .= &{$self->{'indexfn'}}('index', $args{'msg'}, $args{'data'});
 }
 
 =head2 done
@@ -91,7 +91,7 @@ sub done {
   $self->{top} = build MIME::Entity
     (Type     => 'text/plain',
      Subject  => $self->{subject},
-     Data     => $self->{index},
+     Data     => $self->{'index'},
      Filename => undef,
      # More fields here
     );
