@@ -754,6 +754,7 @@ FINISH:
       ($mess,
        {
         $self->standard_subs($list),
+        'COMMAND' => $request,
         'CMDLINE' => $cmdline,
         'FULFILL' => scalar localtime (time + $args{'delay'}),
         'NOTIFY'  => "$victim",
@@ -1202,6 +1203,7 @@ sub _a_mailfile {
   $subs = {
     $self->standard_subs($td->{'list'}),
     'CMDLINE' => $td->{'cmdline'},
+    'COMMAND' => $td->{'command'},
     'FULFILL' => scalar localtime (time + $args->{'delay'}),
     'NOTIFY'  => "$td->{'victim'}",
     'REASONS' => $args->{'reasons'},

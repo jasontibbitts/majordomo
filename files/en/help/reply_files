@@ -272,7 +272,8 @@ This file is sent at the start of a confirm_consult approval process,
 when the request has not been confirmed by the victim nor approved
 by the list moderators.  It indicates that the request requires confirmation.
 
-(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+(standard plus CMDLINE, COMMAND, FULFILL, NOTIFY, REASONS, REQUESTER, 
+ VICTIM)
 
 
 repl_confirm
@@ -281,7 +282,8 @@ This file is sent when the access rules require that a request
 be confirmed by the person whom it affects.  It indicates whose
 approval is needed.
 
-(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+(standard plus CMDLINE, COMMAND, FULFILL, NOTIFY, REASONS, REQUESTER, 
+ VICTIM)
 
 
 repl_confirm_req
@@ -290,7 +292,8 @@ This file is sent when the access rules require that a request be
 confirmed by the person who made the request.  It indicates whose
 approval is needed.
 
-(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+(standard plus CMDLINE, COMMAND, FULFILL, NOTIFY, REASONS, REQUESTER, 
+ VICTIM)
 
 
 repl_confirm2
@@ -299,7 +302,8 @@ This file indicates that the access rules require confirmation from
 both the originator and the person whom a Majordomo command affects.
 It indicates the e-mail addresses of both people.
 
-(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+(standard plus CMDLINE, COMMAND, FULFILL, NOTIFY, REASONS, REQUESTER, 
+ VICTIM)
 
 
 repl_consult
@@ -307,7 +311,8 @@ repl_consult
 This file is sent when the access rules require that a request
 be approved by the moderators of a mailing list.
 
-(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+(standard plus CMDLINE, COMMAND, FULFILL, NOTIFY, REASONS, REQUESTER, 
+ VICTIM)
 
 
 repl_delay
@@ -315,7 +320,8 @@ repl_delay
 This file is sent a Majordomo command is delayed (see "help delay"
 for an explanation of how commands are delayed).
 
-(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+(standard plus CMDLINE, COMMAND, FULFILL, NOTIFY, REASONS, REQUESTER, 
+ VICTIM)
 
 
 repl_deny
@@ -323,7 +329,8 @@ repl_deny
 This file is sent when a Majordomo command is denied by the access
 rules.
 
-(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+(standard plus CMDLINE, COMMAND, FULFILL, NOTIFY, REASONS, REQUESTER, 
+ VICTIM)
 
 
 repl_forward
@@ -333,7 +340,8 @@ forwarded to a different e-mail address, usually another site
 (see "help configset_access_rules" for an explanation of how
 forwarding works).
 
-(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+(standard plus CMDLINE, COMMAND, FULFILL, NOTIFY, REASONS, REQUESTER, 
+ VICTIM)
 
 
 repl_fulfill
@@ -342,8 +350,8 @@ This file is sent when a request is fulfilled automatically after
 it was delayed for some period of time (see "help delay" for an
 explanation of how commands are delayed).
 
-
-(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+(standard plus CMDLINE, COMMAND, FULFILL, NOTIFY, REASONS, REQUESTER, 
+ VICTIM)
 
 
 request_response
@@ -360,7 +368,8 @@ subscribe_to_self
 This error message is displayed when an attempt is made to subscribe a
 mailing list's address to that same mailing list.
 
-(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+(standard plus CMDLINE, COMMAND, FULFILL, NOTIFY, REASONS, REQUESTER, 
+ VICTIM)
 
 
 token_bounce
