@@ -362,7 +362,6 @@ Mj::Parser::parse_args ($request, $extra, '')
 
 #----- If access fails, prompt for a password -----#
 if (! length($passw) and $commands{$func}->[0] == -1) {
-  $request->{'victim'} ||= $request->{'user'};
   ($ok, $str) = $mj->list_access_check($request, 'nostall' => 1);
   unless ($ok) {
     $subs->{'LIST'} = Mj::Format::escape($lists[0]);
