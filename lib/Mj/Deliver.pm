@@ -38,6 +38,8 @@ once.
 package Mj::Deliver;
 use strict;
 use Mj::Log;
+use Mj::RegList;
+use Mj::SubscriberList;
 use Safe;
 use Mj::Deliver::Dest;
 use Mj::Deliver::Sorter;
@@ -69,7 +71,6 @@ This routine takes the following named arguments:
   regexp  - regular expression matching addresses to probe
   buckets - total number of different probe groups
   bucket  - the group to probe
-  probeall- do a _complete_ probe
 
 listref is a list object (not the name of a list).  Only the iterator
 methods get_start, get_done and get_matching_chunk are required but the
@@ -124,27 +125,28 @@ use Bf::Sender;
 sub deliver {
   my (%args) = @_;
   my $log  = new Log::In 150;
+  my ($db);
+
+  use Data::Dumper; 
+  $log->message(150, 'info', "Delivery variables:  " . Dumper \%args);
 
   my (@data, $addr, $canon, $classes, $datref, $dests, $eclass, $error, $i,
-      $j, $matcher, $ok, $probeit, $probes );
+      $j, $matcher, $ok, $probeit, $probes);
 
   my $rules   = $args{rules};
-  my $list    = $args{list};
-  my $sublist = $args{sublist} || 'MAIN';
 
   # Allocate destinations and probers and do some other setup stuff
   ($classes, $dests, $probes) = _setup($rules, %args);
 
-  $matcher = sub {
-    shift;
-    return 1 if $classes->{(shift)->{class}};
-    0;
-  };
+  if ($args{'dbtype'} eq 'registry') {
+    $db = new Mj::RegList (
+                                  'backend' => $args{'backend'},
+                                  'domain'  => $args{'domain'},
+                                  'file'    => $args{'dbfile'},
+                                  'list'    => $args{'list'},
+                                  'listdir' => $args{'listdir'},
+                                 );
 
-  return (0, "Unknown subscriber list name \"$args{'sublist'}\".") 
-    unless ($sublist = $list->valid_aux($sublist));
-
-  if ($list->{'name'} eq 'GLOBAL') {
     $matcher = sub {
       shift;
       my ($data) = shift;
@@ -153,22 +155,54 @@ sub deliver {
       0;
     };
   }  
+  elsif ($args{'dbtype'} eq 'sublist') {
+    $db = new Mj::SubscriberList (
+                                  'backend' => $args{'backend'},
+                                  'domain'  => $args{'domain'},
+                                  'file'    => $args{'dbfile'},
+                                  'list'    => $args{'list'},
+                                  'listdir' => $args{'listdir'},
+                                 );
+
+    $matcher = sub {
+      shift;
+      return 1 if $classes->{(shift)->{class}};
+      0;
+    };
+  }
+  # no database is needed
+  elsif ($args{'dbtype'} eq 'none') {
+    return (0, "No addresses supplied.") unless $args{'addresses'};
+    for $addr (@{$args{'addresses'}}) {
+      for ($i=0; $i<@$rules; $i++) {
+	if (Majordomo::_re_match($rules->[$i]{'re'}, $addr->{'strip'})) {
+          $dests->{'all'}[$i]->add($addr->{'strip'}, $addr->{'canon'});
+          last;
+        }
+      }
+    }
+    return (1, '');
+  }
+  else {
+    return (0, "Unrecognized database type.");
+  }
+    
  
-  ($ok, $error) = $list->get_start($sublist);
+  ($ok, $error) = $db->get_start;
   return ($ok, $error) unless $ok;
 
   while (1) {
-    @data = $list->get_matching_chunk($sublist, $args{chunk}, $matcher);
+    @data = $db->get_matching($args{chunk}, $matcher);
     last unless @data;
 
     # Add each address to the appropriate destination.
   ADDR:
     while (($canon, $datref) = splice(@data, 0, 2)) {
-      if ($sublist ne 'MAIN' or $list->{'name'} ne 'GLOBAL') {
-        $eclass = _eclass($datref);
+      if ($args{'dbtype'} eq 'registry') {
+        $eclass = length $datref->{'lists'} ? "each" : "nomail";
       }
       else {
-        $eclass = length $datref->{'lists'} ? "each" : "nomail";
+        $eclass = _eclass($datref);
       }
 
       # If you're in 'all', you get everything and are never excluded.
@@ -180,16 +214,17 @@ sub deliver {
       }
 
       $addr = $datref->{'stripaddr'};
+
       # Do we probe?
       $probeit =
-	($args{probe} &&
-	 ($args{probeall}   ||
-	  $datref->{bounce} ||
+	 ($args{regexp} eq 'ALL'  ||
+	  (exists $datref->{bounce} and length $datref->{bounce}) ||
 	  ($args{regexp} && Majordomo::_re_match($args{regexp}, $addr)) ||
-	  (defined $args{bucket} &&
-	   $args{bucket} == (unpack("%16C*", $addr) % $args{buckets})
-	  )));
+	  (defined $args{bucket} && $args{buckets} > 0 &&
+	   $args{bucket} == (unpack("%16C*", $addr) % $args{buckets}))
+	 );
 
+      # Find the delivery rule that applies to this address
       for ($i=0; $i<@$rules; $i++) {
 	if (Majordomo::_re_match($rules->[$i]{'re'}, $addr)) {
 	  if ($probeit) {
@@ -219,7 +254,7 @@ sub deliver {
   }
 
   # Close the iterator.
-  return $list->get_done($sublist);
+  return $db->get_done;
 
   # Rely on destruction to flush the destinations
 }
@@ -238,8 +273,8 @@ sub _setup {
 
   # Deal with extended sender manipulation if requested
   if ($args{manip}) {
-    $args{sender} = Bf::Sender::M_regular_sender($args{sender}, $args{sendsep},
-						 $args{seqnum});
+    $args{sender} = Bf::Sender::any_regular_sender($args{sender}, $args{sendsep},
+                                                   $args{seqnum});
   }
 
   # Move the sender into the rules; this makes the calling sequence a bit
@@ -257,7 +292,7 @@ sub _setup {
     # If we're doing any normal delivery (i.e. we're not probing or we're
     # doing incremental or regexp probing), allocate the destinations; if
     # we're sorting, allocate sorters instead
-    if (!$args{'probe'} || defined($args{'bucket'}) || $args{'regexp'}) {
+    if ($args{'regexp'} ne 'ALL' and $args{'buckets'} != 1) {
       for ($j=0; $j<@{$rules}; $j++) {
 	if (exists $rules->[$j]{'data'}{'sort'}) {
 	  $dests->{$i}[$j] =
@@ -286,7 +321,7 @@ sub _setup {
     }
 
     # If we're probing, allocate a separate set of destinations for the probes
-    if ($args{probe}) {
+    if ($args{'dbtype'} eq 'sublist' or $args{'regexp'} or $args{'buckets'} > 0) {
       for ($j=0; $j<@{$rules}; $j++) {
 	$probes->{$i}[$j] =
 	  new Mj::Deliver::Prober($rules->[$j]{'data'},
