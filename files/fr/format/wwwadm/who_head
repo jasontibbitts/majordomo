@@ -4,7 +4,7 @@
 <p>
 Pour supprimer des abonnés de la liste, cochez la case le
 concernant.  Pour supprimer les adresses sans rien dire, cliquez le
-bouton $HEAD:UNSUBSCRIBE. Pour envoyer un message d'adieu, cliquez sur
+bouton $HELP:UNSUBSCRIBE. Pour envoyer un message d'adieu, cliquez sur
 le bouton <b>unsubscribe-farewell</b> a la place.
 </p>
 
