@@ -1,48 +1,42 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-which[-pattern][-regex] searchstring
+which [pattern]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
--pattern, if specified, makes searchstring a pattern (see "help patterns")
--regex,   if specified, makes searchstring a pattern (see "help patterns")
-searchstring, required, is an email address fragment you wish to find
+pattern, if specified, will be matched against e-mail addresses
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "which" command returns all subscribers to all lists that have
-the "searchstring" you specified as part of their email address, if
-you are authorized to review the subscribers (not the real names that
-may be in comment fields, just the simple email addresses).
+The which command will search all of the lists at this domain for
+subscribers whose e-mail addresses match the pattern on the command
+line.  If no pattern is supplied, the subscriber databases will be
+searched for the address of the person who made the command.
 
-Each list owner may decide who is authorized to use this command,
-and you will receive an error message if you have been refused access.
+If a pattern is supplied, it must follow the rules for patterns
+described in the "help patterns" document.  By default, a
+case-insensitive substring search will be performed.  The search only
+takes the actual e-mail address into consideration; comments in
+addresses, such as a subscriber's full name, will not be searched.
 
-If the "pattern" command mode is used, "searchstring" is interpreted as a
-Majordomo matching pattern. Review the "help patterns" file carefully.
-Patterns can be very simple or full-blown Perl regular expressions.
+By default, anyone who uses the which command without a site or domain
+administrative password will be limited to one match per mailing list.
+Because of this limitation, you should choose a search pattern that is
+as specific as possible.
 
-Without the "pattern" mode, "searchstring" is matched literally
-with no interpretation of special characters. Matching is case sensitive.
-
-The "pattern" and "regex" command modes are identical.
-
-This command can return a huge amount of data, so be as specific as possible
-when choosing the string to search for. Matches may be case sensitive,
-so if "Joe" does not match, try "joe" instead.
-
-Anyone who uses this command without the site password will be limited
-to one match per mailing list, unless the list owner(s) and/or the site
-administrator have configured "access_rules" to allow more than the
-default of a single match.
-
-Since "which" is a global command, attempting to use it with a password
-that is specific to one mailing list will result in an "Invalid
+Because "which" is a global command, attempting to use it with a
+password that is specific to one mailing list will result in an "Invalid
 password" error.
 
+The administrators of a mailing list can increase the default number of
+matches allowed with the access_rules configuration setting.  See 
+"help configset_access_rules" for more details.
+
+
 See Also:
-   help access_variables 
+   help admin_passwords
    help admin_subscribers
-   help configset_access_rules (to restrict use of which)
-   help configset_which_access (to restrict use of which)
-   help patterns (for simple and complex regular expressions)
+   help configset_access_rules (to restrict use of the which command)
+   help configset_which_access (to restrict use of the which command)
+   help patterns
+   help set
    help show     (for information about a particular subscriber)
-   help who      (for all subscribers to a particular list)
+   help who      (to search the subscribers of a particular list)
 
 $INCLUDE-help/foot
