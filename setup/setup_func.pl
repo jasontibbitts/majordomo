@@ -224,6 +224,32 @@ sub do_site_config {
   print ".ok.\n" unless $quiet;
 }
 
+# Run commands to create configuration templates.
+sub install_config_templates {
+  my ($config, $domain) = @_;
+  my (@args, $pw, $tmp);
+
+  $pw = $config->{'site_password'};
+  unless ($pw) {
+    $pw = get_str($msg4);
+    $config->{'site_password'} = $pw;
+  }
+
+  open(TMP, ">&STDOUT");
+  open(STDOUT, ">/dev/null");
+  @args = ("$config->{'install_dir'}/bin/mj_shell", '-u', 
+           'mj2_install@example.com', '-d', $domain, '-p',
+           $pw, '-F', 'setup/config_commands');
+
+  if (system(@args)) {
+    die "Error executing $args[0], $?";
+  }
+
+  close STDOUT;
+  open(STDOUT, ">&TMP");
+}
+
+
 # Copy all of the stock response files into their site-wide directory
 sub install_response_files {
   my ($gid, $uid);

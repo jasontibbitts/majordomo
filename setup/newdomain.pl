@@ -67,6 +67,7 @@ while (1) {
              );
 
   do_default_config($newdomain);
+  install_config_templates($config, $newdomain);
 
   # Give some basic MTA configuration
   mta_append($newdomain);

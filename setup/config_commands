@@ -1,0 +1,44 @@
+# This file contains commands that are run by the postinstall script.
+# They create configuration templates for the DEFAULT list to 
+# solve common problems related to list configuration.
+
+# DEFAULT:personal:  Place the address of the recipient in the To header.
+#   Add a footer that explains how to unsubscribe.
+
+configset DEFAULT:personal comments <<LLL
+  The "personal" template is used to cause a separate copy of
+  each message posted to a mailing list to each subscriber.
+  The address of the subscriber will appear in the "To:" header,
+  and the "Reply-To:" header will contain the list's address.
+
+  To apply these settings to a mailing list, use the command
+    configshow-merge-append DEFAULT:personal YOURLIST
+  (substituting the name of your mailing list for YOURLIST.)
+  The append mode is necessary because the default delete_headers
+  setting contains existing values.
+
+  Because a separate copy of the message is posted to each 
+  recipient, these settings may strain your mail server.  Use
+  with caution.
+LLL
+
+configset DEFAULT:personal bounce_probe_frequency = 1
+configset DEFAULT:personal override_reply_to = 1
+configset DEFAULT:personal reply_to = $WHOAMI
+
+configset DEFAULT:personal message_footer <<ABCD
+---
+To leave the $LIST list, write to $MJ.
+In the body of the message, put only this command:
+  unsubscribe $LIST $MSGRCPT
+ABCD
+
+configset DEFAULT:personal delete_headers <<DEFG
+To
+Cc
+DEFG
+
+configset DEFAULT:personal message_headers <<GHIJ
+To: $MSGRCPT
+GHIJ
+
