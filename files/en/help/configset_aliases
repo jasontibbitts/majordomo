@@ -1,0 +1,58 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname aliases = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : ORQ
+Data Type     : string
+Variable Group: mtaconfig
+Password Notes: Visible only with password. Set with global password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname aliases = OSU
+
+
+A string containing the aliases that will be made available
+for this list.  After this value has been changed, the
+createlist-regen command must be run to recreate the aliases.
+  A    An alias for each auxiliary list.
+  M    LIST-moderator
+  O    LIST-owner
+  R    LIST
+  Q    LIST-request
+  S    LIST-subscribe
+  U    LIST-unsubscribe
+Currently, O R and Q are mandatory.
+
+This configuration does not determine the address pointed to by the
+aliases, it simply causes the aliases to be generated for your MTA.
+Flexibility motivated this configuration setting. For example, if
+the owners and moderators are identical, there is no need for an
+additional "-moderator" alias.
+
+Some addresses, like -owner and -moderator, can be set in the list
+configurations.
+
+The -subscribe and -unsubscribe addresses cause commands to be
+generated and sent to the server address as if the user had typed
+the command instead of just sending mail to the special address.
+
+What happens to email sent to -request depends upon the (GLOBAL)
+request_answer setting and  (list-specific) request_response file.  
+  request_answer       result
+  --------------       -----------------------------------------
+  majordomo            message is parsed for commands (default)
+  owner                message is forwarded to the list owners
+  anything else        the request_response file is sent back.
+
+
+See Also:
+   help configset moderator
+   help configset moderators
+   help configset owners
+   help configset request_answer
+   help configset whoami
+   help configset whoami_owner
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

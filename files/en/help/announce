@@ -1,0 +1,49 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+announce listname filename
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site
+filename, required, is the file to distribute
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Distribute a file to one
+or more classes of subscribers.  Each message is
+sent as a probe, with the recipient in the To: header.
+This could be used for periodic reminders, or
+announcements that need to reach 'digest' and 'nomail'
+subscribers immediately.
+
+Finally, to accommodate periodic reminders, the announce command
+allows a file to be sent individually to some or all classes
+of subscribers to a (full, not auxiliary) mailing list.
+The command looks something like this:
+  announce listname faq
+
+Along with the announce command goes a special substitution
+in the delivery module.  Any unescaped occurrence of
+\$MSGRCPT will be replaced by the address of the recipient.
+One way this could be used is to add a footer to the
+end of each message:
+
+ You are subscribed to the mj2-dev list as \$MSGRCPT.
+
+The tradeoff is that this feature is only available
+when probing.  It will slow the speed of delivery.
+
+The announce command uses \$MSGRCPT to change the To:
+header of the announcement, so it contains the address
+of the recipient instead of the address of the list.
+The announce command also lets you choose which class
+of recipients receives the announcement.  For instance,
+
+  announce-nomail listname /expiration
+
+could be used to send a notice about expiring inactive
+subscriptions to all people with postponed subscriptions.
+
+
+See Also:
+   help configset access_rules_variables (set/test for this command)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

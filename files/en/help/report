@@ -1,0 +1,37 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+report listname
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Iterated command.  Obtain raw or summarized
+data for recent log entries for a mailing list.
+The data can be constrained by action or by date.
+
+This command
+  report LISTNAME ALL,owner 24h
+will show the entries for the last day.  Use ALL as the list
+name to get entries for all of the lists.
+
+For instance,
+  report nectarine ALL 12h
+would list all log entries for the nectarine list over the 
+last 12 hours (excepting owner and trigger actions).
+  report-summary nectarine ALL 12h
+would give a summary of actions that appears like this:
+
+Activity for nectarine from 2000-08-03 02:53 to 2000-08-03 14:53
+
+     Command: Total  (Succeed/Stall/Fail)
+    announce:    7   (   6/   0/   1)
+         faq:    1   (   1/   0/   0)
+      report:    2   (   1/   0/   1)
+         who:    1   (   1/   0/   0)
+
+
+See Also:
+   help configset access_rules_variables (set/test for this command)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
