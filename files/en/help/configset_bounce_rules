@@ -29,7 +29,7 @@ Currently there are three basic actions; inform is the default:
 
   ignore - do nothing; do not send a bounce notice to the owners and
            perform no action on the list of subscribers.  (Statistics are
-           still genrated as appropriate.)
+           still generated as appropriate.)
   inform - send a bounce notice to the owners, but leave the bouncing user
            on the list.
   remove - send a bounce notice to the owners, and remove the user from the
@@ -50,11 +50,12 @@ the probing test message to verify that the user is indeed bouncing.
 The remove-noprobe-consult action is also valid; it causes the owners to be
 consulted but no probing test message to be sent to the bouncing user.
 
-Finally, the -quiet mode (i.e. remove-consult-quiet, remove-noprobe-quiet,
-remove-noprobe-consult-quiet) suppresses the bounce notice that is sent.
-The owners will still see a consultation token if one was requested, and
-will still receive notice that the bouncing user has been unsubscribed from
-the list if that happens.
+Finally, "quiet" mode (i.e., remove-consult-quiet, remove-noprobe-quiet,
+remove-noprobe-consult-quiet) will prevent the bounce notice from being
+sent to the list owners.  The owners will still receive a consultation
+token if "consult" mode is used.  If the bouncing user is unsubscribed,
+the owners will still receive an "inform" notice, subject to the inform
+configuration setting.
 
 The bounce message is sent to the e-mail addresses in the bounce_recipients
 configuration setting, or to the list owners if that setting is empty.  
@@ -174,5 +175,6 @@ See Also:
    help configset_bounce_probe_frequency
    help configset_bounce_probe_pattern
    help configset_bounce_recipients
+   help configset_inform
 
 $INCLUDE-help/foot
