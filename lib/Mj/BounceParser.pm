@@ -232,6 +232,7 @@ sub parse_compuserve {
   # Compuserve only sends single-part bounces
   return if $ent->parts;
 
+  return unless (defined $ent->bodyhandle);
   $bh = $ent->bodyhandle->open('r');
   return unless $bh;
 
@@ -279,6 +280,7 @@ sub parse_compuserve2 {
   return if $ent->parts;
 
   # The first non-blank line must contain the "greeting"
+  return unless (defined $ent->bodyhandle);
   $bh = $ent->bodyhandle->open('r');
   return unless $bh;
   while (defined($line = $bh->getline)) {
@@ -360,6 +362,7 @@ sub parse_dsn {
   # about the message, the following groups contain information about each
   # bouncing address in the DSN.  The standard doesn't seem to allow
   # continuation lines, so this is pretty simple.
+  return unless (defined $ent->parts(1)->bodyhandle);
   $fh = $ent->parts(1)->bodyhandle->open('r');
 
  REC:
@@ -408,6 +411,7 @@ sub parse_dsn {
   for ($i = 0; $i < @status; $i++) {
     next unless (exists $status[$i]->{'final-recipient'}
                  or exists $status[$i]->{'original-recipient'});
+    # Add validity test.
     if ($status[$i]->{'original-recipient'}) {
       $user = $status[$i]->{'original-recipient'};
     }
@@ -499,13 +503,16 @@ sub parse_exchange {
 	# Jeez; forget it.
 	return;
       }
+      return unless (defined $ent->parts(0)->parts(0)->bodyhandle);
       $bh = $ent->parts(0)->parts(0)->bodyhandle->open('r');
     }
     else {
+      return unless (defined $ent->parts(0)->bodyhandle);
       $bh = $ent->parts(0)->bodyhandle->open('r');
     }
   }
   else {
+    return unless (defined $ent->bodyhandle);
     $bh = $ent->bodyhandle->open('r');
   }
 
@@ -594,6 +601,7 @@ sub parse_exim {
   }
 
   return $ok if $ent->parts;
+  return $ok unless (defined $ent->bodyhandle);
   $bh = $ent->bodyhandle->open('r');
 
   # We eat the message until we see the trademark Exim bounce line
@@ -687,6 +695,7 @@ sub parse_lotus {
   return if $ent->parts;
 
   # The first non-blank line must contain the greeting
+  return unless (defined $ent->bodyhandle);
   $bh = $ent->bodyhandle->open('r');
   return unless $bh;
   while (1) {
@@ -739,6 +748,7 @@ sub parse_mms {
   return if $ent->parts(0)->parts;
 
   # The first non-blank line must contain the greeting
+  return unless (defined $ent->parts(0)->bodyhandle);
   $bh = $ent->parts(0)->bodyhandle->open('r');
   return unless $bh;
 
@@ -797,6 +807,7 @@ sub parse_msn {
   return if $ent->parts(0)->parts;
 
   # The first non-blank line must contain the greeting
+  return unless (defined $ent->parts(0)->bodyhandle);
   $bh = $ent->parts(0)->bodyhandle->open('r');
   return unless $bh;
 
@@ -854,6 +865,7 @@ sub parse_postfix {
   return unless $ent->parts;
   return if $ent->parts(0)->parts;
 
+  return unless (defined $ent->parts(0)->bodyhandle);
   $bh = $ent->parts(0)->bodyhandle->open('r');
   return 0 unless $bh;
 
@@ -932,6 +944,7 @@ sub parse_postoffice {
   return unless $ent->parts;
   return if $ent->parts(0)->parts;
 
+  return unless (defined $ent->parts(0)->bodyhandle);
   $bh = $ent->parts(0)->bodyhandle->open('r');
   return unless $bh;
 
@@ -1013,6 +1026,7 @@ sub parse_qmail {
   return if $ent->parts;
 
   # The first non-blank line must contain the qmail or yahoo greeting.
+  return unless (defined $ent->bodyhandle);
   $bh = $ent->bodyhandle->open('r');
   return unless $bh;
   while (defined($line = $bh->getline)) {
@@ -1086,6 +1100,7 @@ sub parse_sendmail {
   my ($bh, $line, $ok, $user);
 
   return if $ent->parts;
+  return unless (defined $ent->bodyhandle);
   $bh = $ent->bodyhandle->open('r');
   return unless $bh;
 
@@ -1134,6 +1149,7 @@ sub parse_smtp32 {
   return unless $xmailer && $xmailer =~ /SMTP32/i;
 
   return if $ent->parts;
+  return unless (defined $ent->bodyhandle);
   $bh = $ent->bodyhandle->open('r');
   return unless $bh;
 
@@ -1175,6 +1191,7 @@ sub parse_softswitch {
 
   return if $ent->parts;
 
+  return unless (defined $ent->bodyhandle);
   $bh = $ent->bodyhandle->open('r');
   return unless $bh;
 
@@ -1202,6 +1219,8 @@ sub parse_softswitch {
     $diag .= ' ' if $diag;
     $diag .= $line;
   }
+
+  return unless (defined $user and length $user);
   $data->{$user}{'status'} = 'failure';
   $data->{$user}{'diag'}   = $diag;
 
@@ -1251,9 +1270,11 @@ sub check_dsn_diags {
       return 0;
     }
 
+    return unless (defined $ent->parts(0)->bodyhandle);
     $fh = $ent->parts(0)->bodyhandle->open('r');
   }
   else {
+    return unless (defined $ent->bodyhandle);
     $fh = $ent->bodyhandle->open('r');
   }
 
@@ -1383,6 +1404,7 @@ sub check_dsn_netscape {
     return;
   }
 
+  return unless (defined $ent->parts(0)->bodyhandle);
   $fh = $ent->parts(0)->bodyhandle->open('r');
   $format5=0;
  LINE:

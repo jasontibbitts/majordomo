@@ -1,3 +1,8 @@
+2004-06-26  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/BounceParser.pm:  Add various sanity checks.
+	Thanks to SRE.
+
 2004-06-22  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_rekey)  Bugfix:  Take bookkeeping
