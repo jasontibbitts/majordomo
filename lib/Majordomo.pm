@@ -6807,7 +6807,12 @@ sub unregister {
 sub _unregister {
   my($self, $list, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, "$vict";
-  my(@out, @removed, @aliases, $data, $key, $l, $tmp);
+  my(@out, @removed, @aliases, $data, $key, $l, $over, $tmp);
+
+  # Since we call inform() ourselves, we must decide whether to
+  # override logging or owner information.  We can assume that the
+  # dispatch function has already checked the appropriate passwords.
+  $over=0; $over=1 if $mode =~ /noinform/; $over=2 if $mode =~ /nolog/;
 
   if ($mode =~ /regex|pattern/) {
     $tmp = 'regex';
@@ -6831,9 +6836,10 @@ sub _unregister {
       next unless $self->_make_list($l);
       $tmp = $::log->elapsed;
       $self->{'lists'}{$l}->remove('', $key);
+
       # Log the removal of the subscription.
-      $self->inform($l, 'unsubscribe', $requ, $key, $cmd, 
-                    $self->{'interface'}, 1, '', 0, '', 
+      $self->inform($l, 'unsubscribe', $requ, $key, $cmd,
+                    $self->{'interface'}, 1, '', $over, '',
                     $::log->elapsed - $tmp);
     }
     @aliases = $self->_alias_reverse_lookup($key, 1);
