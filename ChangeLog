@@ -1,3 +1,8 @@
+2003-09-18  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Addr.pm:  (new)  Bugfix:  Unfold the address
+	before parsing it.  Thanks to David Miller.
+
 2003-09-14  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm:  (_compile_rule)  Bugfix:  A sublist

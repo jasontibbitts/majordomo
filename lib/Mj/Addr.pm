@@ -171,6 +171,10 @@ sub new {
   return $val if (ref ($val) eq 'Mj::Addr');
   return unless (defined $val);
 
+  # Unfold by removing only the CRLF.
+  # (This is consistent with RFC 2822.)
+  $val =~ s/\r?\n(\s)/$1/gs;
+
   # Untaint
   $val =~ /(.*)/; $val = $1 || "";
   # Avoid database overlaps.
@@ -1318,8 +1322,8 @@ sub _validate {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2002, 2003 Jason Tibbitts for The Majordomo 
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
