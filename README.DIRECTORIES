@@ -97,7 +97,7 @@ This assumes a Majordomo system serving the imaginary domain "dom.ain".
   |       |   |   |
   |       |   |   +-- digests      (description of digests variable)
   |       |   |   |
-  |       |   |   (etc.  There are over 100 varables)
+  |       |   |   (etc.  There are over 100 configuration settings)
   |       |   |   
   |       |   |
   |       |   +-- help  (help files)
@@ -127,13 +127,17 @@ This assumes a Majordomo system serving the imaginary domain "dom.ain".
   |   |
   |   +-- GLOBAL (non-list-specific configuration for dom.ain)
   |   |   |
+  |   |   +-- C_install   (default configuration values)
+  |   |   |
   |   |   +-- _config     (configuration)
   |   |   |
   |   |   +-- _log        (log of all actions)
   |   |   |
-  |   |   +-- _regster.#  (database holding registrations) *
+  |   |   +-- _parser.#   (database of e-mail command failures) *
   |   |   |
-  |   |   +-- _tokens.#   (database holding outstanding confirmation tokens)
+  |   |   +-- _register.# (database holding registrations) *
+  |   |   |
+  |   |   +-- _tokens.#   (database holding confirmation tokens) *
   |   |   |
   |   |   +-- files  (directory holding accessible files)
   |   |   |   |
@@ -143,34 +147,41 @@ This assumes a Majordomo system serving the imaginary domain "dom.ain".
   |   |   |   |
   |   |   |   +-- public   (directory holding publicly accessible files)
   |   |   |   |
-  |   |   |   +-- spool    (directory holding messages awaiting confirmation)
-  |   |   |   |   |
-  |   |   |   |   +-- 9719-E36D-8021   (a spooled message)
-  |   |   |   |   |
-  |   |   |   |   +-- .9719-E36D-8021  (extended information about the message)
-  |   |   |   |
   |   |   |   |
   |   |   |   (other files placed here override te SITE files)
   |   |   |
   |   |   |
   |   |   +-- sessions  (directory holding session information) %
+  |   |   |   |
+  |   |   |   +-- 7e
+  |   |   |       |
+  |   |   |       +-- 5d
+  |   |   |           |
+  |   |   |           +-- 7e5d32a1c7469af7999ecab19b424cf0f5b38995 (session file)
+  |   |   |
+  |   |   +-- spool (directory holding messages awaiting confirmation)
   |   |       |
-  |   |       +-- 7e5d32a1c7469af7999ecab19b424cf0  (a session file)
+  |   |       +-- 9719-E36D-8021 (a posted message)
+  |   |       
   |   |
   |   |
   |   +-- listname  (directory holding a list)
   |   |   |
-  |   |   +-- _config  (configuration data)
+  |   |   +-- _bounce.#  (database holding error message statistics) *
+  |   |   |
+  |   |   +-- _config  (configuration data) *
   |   |   |
   |   |   +-- _digests (information about messages awaiting digestification)
   |   |   |
-  |   |   +-- _dup_id.#   (duplicate message ID database)
+  |   |   +-- _dup_id.#   (duplicate message ID database) *
   |   |   |
-  |   |   +-- _dup_sum.#  (duplicate checksum database)
+  |   |   +-- _dup_sum.#  (duplicate checksum database) *
   |   |   |
-  |   |   +-- _dup_partial.#  (duplicate partial checksum database)
+  |   |   +-- _dup_partial.#  (duplicate partial checksum database) *
   |   |   |
-  |   |   +-- _subscribers.#  (database holding list subscribers)
+  |   |   +-- _posts.#  (database holding posted message statistics) *
+  |   |   |
+  |   |   +-- _subscribers.#  (database holding list subscribers) *
   |   |   |
   |   |   +-- files (directory holding list files)
   |   |       |
@@ -182,7 +193,7 @@ This assumes a Majordomo system serving the imaginary domain "dom.ain".
   |   |       |       |
   |   |       |       +-- .index  (directory holding indices)
   |   |       |           |
-  |   |       |           +-- Clistname.199905 (file holding message and line counts)
+  |   |       |           +-- Clistname.199905 (file with message and line counts)
   |   |       |           |
   |   |       |           +-- Ilistname.199905.T (index database)
   |   |       |
