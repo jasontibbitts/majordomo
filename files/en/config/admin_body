@@ -1,4 +1,2 @@
-If any line of the body matches one of these regexps, then the message
-will be bounced (sent to the list owner) for review.
-
-Full syntax is described in "help configset admin_body".
+If any line of the body of a posted message matches one of these patterns, 
+the message will be sent to the list moderators for review.

@@ -1,5 +1,9 @@
-Triggers are actions that occur periodically.  Each trigger consists 
-of a name and a set of times during which the trigger is issued.  
-The name and times are separated by vertical bars ('|') or colons, as in:
+Triggers are actions that occur periodically, as often as once per hour.  
+They are used to remove expired data and complete delayed requests.
+
+Each trigger consists of a name and a set of times during which the trigger 
+is issued.  The name and times are separated by vertical bars ('|') or colons, 
+as in:
   session  | monday(6,12,18), thursday(8)
-Full syntax and possible names are described in "help configset triggers".
+
+See "help times" for a description of the times syntax.

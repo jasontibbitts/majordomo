@@ -12,5 +12,3 @@ enables you to choose which addresses go to which sets of hosts.
 The remaining lines (up until the next blank) should consist of
 various parameters which affect delivery. Parameters can be backup,
 hosts, maxaddrs, maxdomains, minseparate, numbatches, sort.
-
-Full syntax is described in "help configset delivery_rules".

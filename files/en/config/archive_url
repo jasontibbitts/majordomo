@@ -1,5 +1,8 @@
-The URL at which public list archives are made accessible.
+The Uniform Resource Locator (URL) at which public list archives may be found.
+If the archives are available through some means other than the Majordomo
+server, such as a WWW page or FTP directory, this setting should be changed
+to reflect that location.
 
-The URL can be used in variable substitution if the ARCURL variable
-is added to message headers (see "help configset message_headers"),
-to support RFC 2369. It is also used by the WWW interface (mj_wwwusr).
+This location is displayed by the lists-full command.  It may also be used
+in the message_headers configuration setting (see "help message_headers"
+and "help configset_variables" for details.)
