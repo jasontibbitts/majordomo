@@ -1138,16 +1138,20 @@ This rekeys all auxiliary lists associated with a list.
 =cut
 sub aux_rekey_all {
   my $self = shift;
-  my (@values, $count, $i, $unsub, $unreg);
+  my (@values, $changed, $count, $i, $unsub, $unreg);
+
+  $count = $changed = 0;
+  $unsub = {};
+  $unreg = {};
 
   $self->_fill_aux;
   for $i (keys %{$self->{'sublists'}}) {
     @values = $self->aux_rekey($i, @_);
     if ($i eq 'MAIN') {
-      ($count, $unsub, $unreg) = @values;
+      ($count, $unsub, $unreg, $changed) = @values;
     }
   }
-  ($count, $unsub, $unreg);
+  ($count, $unsub, $unreg, $changed);
 }
 
 =head2 aux_rekey(name, registry)
@@ -1160,63 +1164,85 @@ sub aux_rekey {
   my $name = shift;
   my $reg = shift;
   my $chunksize = shift;
-  my (%regent, %unreg, @subs, $count);
+  my $dry = shift;
+  my $log = new Log::In 250, "$self->{'name'}, $name, $dry";
+  my (%regent, %unreg, @subs, $changed, $count, $sub);
 
-  $count = 0;
+  $count = $changed = 0;
   %regent = ();
   %unreg = ();
 
+  # Skip rekeying for sublists if verification was requested.
+  return if (ref $reg and $name ne 'MAIN');
+
+  # If a registry reference was provided, verify the existing keys
+  # against the keys in the registry.
   if (ref $reg and $name eq 'MAIN') {
     if ($reg->get_start) {
       while (1) {
-        @subs = $reg->get_matching_quick_regexp($chunksize, 
-                                               'lists',
-                                               "/\\b$self->{'name'}(\\002|\\Z)/");
+        @subs = $reg->get_matching_quick_regexp(
+                  $chunksize, 'lists',
+                  "/(^|\\002)$self->{'name'}(\\002|\\Z)/"
+                );
         last unless @subs;
         @regent{@subs} = ();
       }
       $reg->get_done;
     }
-  }
-  
-  my $sub =
-    sub {
-      my $key  = shift;
-      my $data = shift;
-      my (@out, $addr, $newkey, $changekey);
 
-      # Allocate an Mj::Addr object from the canonical address.
-      $addr = new Mj::Addr($key);
-      return (1, 0, undef) unless $addr;
-      # return (1, 0, undef) unless $addr->valid;
-      $newkey = $addr->xform;
-      $changekey = ($newkey ne $key or (! $data->{'class'}));
+    $sub = 
+      sub {
+        my $key  = shift;
+        my $data = shift;
 
-      # Enable transition from old AddressList to new SubscriberList
-      $data->{'subtime'}  ||= $data->{'changetime'};
-      $data->{'fulladdr'} ||= $data->{'stripaddr'};
-      $data->{'class'}    ||= 'each';
-      $data->{'flags'}    ||= $self->get_flags('default_flags');
-
-      if (ref $reg and $name eq 'MAIN') {
-        if (exists $regent{$newkey}) {
-          delete $regent{$newkey};
-          $count++;
+        if (exists $regent{$key}) {
+          delete $regent{$key};
         }
         else {
-          $unreg{$newkey}++;
+          $unreg{$key}++;
         }
-      }
-      else {
-        $count++; 
-      }
+        $count++;
 
-      return ($changekey, $data, $newkey);
-    };
+        return (0, 0, 0);
+      };
+    $changed = scalar(keys(%unreg)) + scalar(keys(%regent));
+  }
+
+  else { 
+    $sub = 
+      sub {
+        my $key  = shift;
+        my $data = shift;
+        my (@out, $addr, $newkey, $changekey);
+
+        # Allocate an Mj::Addr object from the canonical address.
+        $addr = new Mj::Addr($key);
+        return (1, 0, undef) unless $addr;
+        # return (1, 0, undef) unless $addr->isvalid;
+        $newkey = $addr->xform;
+        if ($newkey ne $key or (! $data->{'class'})) {
+          $changekey = $dry ? 0 : 1;
+          $changed++;
+        }
+        else {
+          $changekey = 0;
+        }
+
+        # Enable transition from old AddressList to new SubscriberList
+        $data->{'subtime'}  ||= $data->{'changetime'};
+        $data->{'fulladdr'} ||= $data->{'stripaddr'};
+        $data->{'class'}    ||= 'each';
+        $data->{'flags'}    ||= $self->get_flags('default_flags');
+
+        $count++; 
+
+        return ($changekey, $data, $newkey);
+      };
+  }
 
   $self->_make_aux($name);
   $self->{'sublists'}{$name}->mogrify($sub);
-  return ($count, \%regent, \%unreg);
+  return ($count, \%regent, \%unreg, $changed);
 }
 
 
