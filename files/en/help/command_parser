@@ -5,7 +5,9 @@ The parser is the part of Majordomo that extracts commands from e-mail messages.
 do much more.
 
 If a message consists of multiple parts, Majordomo will only process
-commands in the first body part, and only if it is a text/plain body part.
+commands in the first body part, and only if it is a text/plain 
+or text/html body part.  HTML markup is removed from text/html parts
+before the commands are processed.
 
 Lines beginning with '#' are considered to be comments, and are ignored.  
 
