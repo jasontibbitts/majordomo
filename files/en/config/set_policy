@@ -1,0 +1,9 @@
+One of three values: open, closed, auto; plus an optional modifier:
+'+confirm'.  Open allows people to change their list settings,
+but attempts to subscribe addresses diferent than where the request is
+coming from will require approval.  Auto allows anybody to change
+anyone's settings to the list without maintainer approval.  Closed 
+requires maintainer approval for all set requests to the list.  Adding
+'+confirm', (i.e. 'open+confirm') will cause majordomo to send a reply
+back to the subscriber which includes a token.  The subscriber 
+must then reply with 'accept' for the command to succeed.

@@ -18,6 +18,7 @@ $Mj::Config::default_string = q(
 {
  'faq_access'           => "list",
  'get_access'           => "list",
+ 'archive_access'       => "list",
  'index_access'         => "open",
  'who_access'           => "open",
  'which_access'         => "open",
@@ -54,6 +55,7 @@ $Mj::Config::default_string = q(
  'digests'              => [],
  'digest_index_format'  => 'subject',
  'digest_issues'        => [],
+ 'set_policy'           => "open+confirm",
  'subscribe_policy'     => "open+confirm",
  'unsubscribe_policy'   => "open",
  'mungedomain'          => 0,

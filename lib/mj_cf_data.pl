@@ -53,6 +53,16 @@ EOC
     'global' => 1,
     'mutable'=> 1,
    },
+   'archive_access' => 
+   {
+    'type'   => 'enum',
+    'values' => [qw(open closed list)],
+    'groups' => [qw(access majordomo)],
+    'visible'=> 0,
+    'local'  => 1,
+    'global' => 0,
+    'mutable'=> 1,
+   },
    'index_access' =>
    {
     'type'   => 'enum',
@@ -263,6 +273,16 @@ EOC
     'local'  => 1,
     'mutable'=> 1,
    },
+   'set_policy' =>
+   {
+    'type'   => 'enum',
+    'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm)],
+    'groups' => [qw(majordomo access subscribe)],
+    'visible'=> 0,
+    'global' => 1,
+    'local'  => 1,
+    'mutable'=> 1,
+   },
    'subscribe_policy' =>
    {
     'type'   => 'enum',
@@ -275,7 +295,7 @@ EOC
    'unsubscribe_policy' =>
    {
     'type'   => 'enum',
-    'values' => [qw(open closed auto)],
+    'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm)],
     'groups' => [qw(majordomo access subscribe)],
     'local'  => 1,
     'visible'=> 0,

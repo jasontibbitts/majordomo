@@ -116,6 +116,7 @@ files/en/config/advertise
 files/en/config/advertise_subscribed
 files/en/config/allowed_classes
 files/en/config/allowed_flags
+files/en/config/archive_access
 files/en/config/archive_dir
 files/en/config/archive_size
 files/en/config/archive_split
@@ -185,6 +186,7 @@ files/en/config/save_denial_checksums
 files/en/config/sender
 files/en/config/sequence_number
 files/en/config/session_lifetime
+files/en/config/set_policy
 files/en/config/signature_separator
 files/en/config/site_name
 files/en/config/subject_prefix
