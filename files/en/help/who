@@ -1,17 +1,18 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-who[-short][-enhanced][-export][-bounce] listname [pattern]
-who[-short][-enhanced][-export][-bounce][-alias] GLOBAL   [pattern]
+who[-short][-enhanced][-export][-bounce][-summary] listname [pattern]
+who[-short][-enhanced][-export][-bounce][-alias][-summary] GLOBAL [pattern]
 who-common[-short][-enhanced][-export][-bounce] listname listname [pattern]
 who-owners GLOBAL
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or the word "GLOBAL")
--enhanced, if specified, displays flags and mail mode for each subscriber
--short,    if specified, produces just a simple list of email addresses
--export,   if specified, produces commands needed to recreate the list
+-alias,    if specified, produces commands needed to recreate the alias database
 -bounce,   if specified, shows only addresses with bounces
 -common,   if specified, shows addresses that appear on both lists
--alias,    if specified, produces commands needed to recreate the alias database
--owners,   if specified, shows the addresses of list owners and their lists.
+-enhanced, if specified, displays personal settings each subscriber
+-export,   if specified, produces commands needed to recreate the list
+-owners,   if specified, shows the addresses of list owners and their lists
+-short,    if specified, displays a simple list of email addresses
+-summary,  if specified, displays a statistical summary of subscriptions
 pattern,   if specified, is an address matching string
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -23,7 +24,7 @@ If a "pattern" is supplied, only addresses which match the pattern will be
 listed. Please see "help patterns" for an introduction to Majordomo 
 patterns.
 
-If a "pattern" is not supplied, all subscribers are listed.
+If a "pattern" is not supplied, all subscribers will be listed.
 
 The "short" command mode will cause only the names and addresses of the
 subscribers to be displayed, without any extra formatting.
@@ -87,6 +88,14 @@ particular list:
   who-common-enhanced GLOBAL LISTNAME
 (A valid mailing list name should be substituted for LISTNAME.)
 
+The "who-summary" command will display a summary of statistics.  For
+the GLOBAL pseudo-list, the number of subscribers of each mailing list
+that has subscribers will be displayed.  In addition, the number of
+registered addresses with no subscriptions will be displayed for the
+(fictitious) "NONE" list.  In the context of a single list, the number
+of subscribers in each delivery class will be displayed (see "help set"
+for a description of delivery classes.)
+
 The "who-owners GLOBAL" command will display the addresses of all list
 owners within a domain, and a list of the mailing lists maintained by
 each list owner.  The GLOBAL:owners auxiliary list is automatically
@@ -97,9 +106,24 @@ List owners can also view addresses in collections called "auxiliary
 subscriber lists" (see "help auxiliary_list" for more details.)
 
 The "short" command mode can be used for administrative changes in a pipe. 
-For example, the following command:
-  mj_shell -p pass who-short listname | mj_shell -p pass -f - set listname ackimportant
+For example, the following shell command:
+
+  mj_shell -p PASSWORD who-short LISTNAME \
+  | mj_shell -p PASSWORD -f - set LISTNAME eliminatecc
+
 can be used to alter the subscription options of all list subscribers.
+(This shell command has the same effect as the following Majordomo command:
+
+  approve PASSWORD set-pattern-allmatching LISTNAME eliminatecc ALL
+
+In these commands, substitute an administrative password for PASSWORD
+and the name of a mailing list for LISTNAME.  See "help set" and 
+"help mj_shell" for more details.)
+
+If the who command is accessible to list members or to the public, 
+individual list members can hide their addresses and names from other
+list members or the public.  See the descriptions of the "hideall"
+and "hideaddress" flags in the "help set" document for more details.
 
 
 See Also:
