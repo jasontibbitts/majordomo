@@ -36,9 +36,9 @@ If the "hide" command mode is used, the message will be marked as
 to the message.  This will help to keep anyone without administrative
 access from seeing the message in a public archive.
 
-If the "intact" command mode is used, any attachment rules that would
+If the "intact" command mode is used, any attachment filters that would
 alter the contents of the message will not be applied.  See
-"help configset_attachment_rules" for more details on how the message
+"help configset_attachment_filters" for more details on how the message
 contents can be altered.
 
 The post command enables a Majordomo list to be run without doing any
@@ -72,8 +72,10 @@ See Also:
    help admin_delivery
    help admin_moderate
    help auxiliary_list
-   help configset_access_rules           (to restrict access to any command)
-   help configset_aliases                (to allow direct posting on sublists)
+   help configset_access_rules (to restrict access to any command)
+   help configset_aliases  (to allow direct posting on sublists)
+   help configset_attachment_filters
+   help configset_attachment_rules
    help variables (for a list of all possible variables and what they mean)
 
 $INCLUDE-help/foot
