@@ -34,24 +34,18 @@ if ($debug) {
 
 # Grab counts
 opendir(DIR, "t/bounces") or die "Can't find bounces: $!";
-$count = 0;
-while(defined($file = readdir(DIR))) {
-  $count++ if $file =~ /^\d+$/;
-}
+@tests = sort {$a <=> $b} (grep(/^\d+$/, readdir(DIR)));
+closedir(DIR);
 
 # Tell the test suite how many tests we have
-print "1..$count\n";
+print "1..".scalar(@tests)."\n";
 
 $parser = new MIME::Parser;
 $parser->output_dir('/tmp');
 
-rewinddir(DIR);
-
 $count = 1;
 BOUNCE:
-while(defined($file = readdir(DIR))) {
-  next unless $file =~ /^\d+$/;
-
+for $file (@tests) {
   # Read the description file
   unless (open(DESC, "t/bounces/$file.desc")) {
     print "not ok $count (couldn't find description file: $!)\n";
