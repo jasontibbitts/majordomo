@@ -1721,9 +1721,10 @@ sub who {
     
     last unless $ok > 0;
     for $i (@lines) {
+      $count++;
       next unless (ref ($i) eq 'HASH');
 
-      #----- Hard-coded formatting for who-export and who-alias -----#
+      #----- Hard-coded formatting for who, who-export, and who-alias -----#
       if ($request->{'mode'} =~ /export/ &&
              $request->{'list'} eq 'GLOBAL' &&
              $request->{'sublist'} eq 'MAIN') {
@@ -1749,8 +1750,12 @@ sub who {
         eprint($out, $type, "$line\n");
         next;
       }
+      elsif ($request->{'mode'} !~ /bounce|enhanced/) {
+        eprint($out, $type, "  $i->{'fulladdr'}\n");
+        next;
+      }
 
-      #----- Flexible formatting for who and who-enhanced -----#
+      #----- Flexible formatting for who-bounce and who-enhanced -----#
       for $j (keys %$i) {
         if ($request->{'mode'} =~ /enhanced/) {
           $subs->{uc $j} = $i->{$j};
@@ -1763,8 +1768,6 @@ sub who {
       $subs->{'FULLADDR'} = escape($i->{'fulladdr'}, $type);
       $subs->{'LASTCHANGE'} = '';
     
-      $count++;
-
       if ($request->{'mode'} =~ /enhanced/) {
         if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
           $fullclass = $i->{'class'};
@@ -1772,7 +1775,7 @@ sub who {
           $fullclass .= "-" . $i->{'classarg2'} if ($i->{'classarg2'});
           $subs->{'CLASS'} = $fullclass;
         }
-        $subs->{'LISTS'} =~ s/\002/ /g if (exists $subs->{'LISTS'});
+        $subs->{'LISTS'} =~ s/\002/ /g  if (exists $subs->{'LISTS'});
         if ($i->{'changetime'}) {
           @time = localtime($i->{'changetime'});
           $subs->{'LASTCHANGE'} = 
@@ -1783,51 +1786,36 @@ sub who {
         }
 
         # Special substitutions for WWW interfaces.
-        $subs->{'CLASSES'}            = [];
-        $subs->{'CLASS_DESCRIPTIONS'} = [];
-        $subs->{'CLASS_SELECTED'}     = [];
-        $subs->{'SETTINGS'}           = [];
-        $subs->{'SETTING_CHECKBOX'}    = [];
-        $subs->{'SETTING_CHECKED'}    = [];
-        $subs->{'SETTING_SELECTED'}   = [];
+        if ($type ne 'text') {
+          $subs->{'CLASS_SELECTED'}     = [];
+          $subs->{'SETTING_CHECKED'}    = [];
+          $subs->{'SETTING_SELECTED'}   = [];
 
-        for ($j = 0; $j < @{$settings->{'flags'}}; $j++) {
-          $flag = $settings->{'flags'}[$j]->{'name'};
-          push @{$subs->{'SETTINGS'}}, $flag;
-          # Is this setting set?
-          $str = $settings->{'flags'}[$j]->{'abbrev'};
-          if ($i->{'flags'} =~ /$str/) {
-            push @{$subs->{'SETTING_CHECKBOX'}}, 
-              qq(<input type=checkbox name="$i->{'stripaddr'}" value="$flag" checked>);
-            push @{$subs->{'SETTING_CHECKED'}}, 'checked';
-            push @{$subs->{'SETTING_SELECTED'}}, 'selected';
-          }
-          else {
-            push @{$subs->{'SETTING_CHECKBOX'}}, 
-              qq(<input type=checkbox name="$i->{'stripaddr'}" value="$flag">);
-            push @{$subs->{'SETTING_CHECKED'}}, '';
-            push @{$subs->{'SETTING_SELECTED'}}, '';
-          }
-        }
-        for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
-          last if ($request->{'list'} eq 'GLOBAL' and 
-                   $request->{'sublist'} eq 'MAIN');
-          $flag = $settings->{'classes'}[$j]->{'name'};
-          if ($flag eq $i->{'class'} or 
-              $flag eq "$i->{'class'}-$i->{'classarg'}") 
-          {
-            $str = 'selected';
-          }
-          else {
-            $str = '';
+          for ($j = 0; $j < @{$settings->{'flags'}}; $j++) {
+            $str = $settings->{'flags'}[$j]->{'abbrev'};
+            if ($i->{'flags'} =~ /$str/) {
+              push @{$subs->{'SETTING_CHECKED'}}, 'checked';
+              push @{$subs->{'SETTING_SELECTED'}}, 'selected';
+            }
+            else {
+              push @{$subs->{'SETTING_CHECKED'}}, '';
+              push @{$subs->{'SETTING_SELECTED'}}, '';
+            }
           }
 
-          if ($settings->{'classes'}[$j]->{'allow'} or $type eq 'wwwadm') {
-            push @{$subs->{'CLASSES'}}, $flag;
-            push @{$subs->{'CLASS_SELECTED'}}, $str;
-            push @{$subs->{'CLASS_DESCRIPTIONS'}}, 
-                 $settings->{'classes'}[$j]->{'desc'};
-          }
+          for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
+            last if ($request->{'list'} eq 'GLOBAL' and 
+                     $request->{'sublist'} eq 'MAIN');
+            $flag = $settings->{'classes'}[$j]->{'name'};
+            if ($flag eq $i->{'class'} or 
+                $flag eq "$i->{'class'}-$i->{'classarg'}") 
+            {
+              push @{$subs->{'CLASS_SELECTED'}}, 'selected';
+            }
+            else {
+              push @{$subs->{'CLASS_SELECTED'}}, '';
+            }
+          }    
         }    
       }
 
@@ -1836,7 +1824,7 @@ sub who {
       $subs->{'BOUNCE_NUMBERS'} = ''; 
       $subs->{'BOUNCE_WEEK'} = ''; 
 
-      if ($request->{'mode'} =~ /bounces/ && exists $i->{'bouncestats'}) {
+      if ($request->{'mode'} =~ /bounce/ && exists $i->{'bouncestats'}) {
         $subs->{'BOUNCE_DIAGNOSTIC'} = escape($i->{'diagnostic'}, $type);
         $subs->{'BOUNCE_WEEK'} = $i->{'bouncestats'}->{'week'};
         $subs->{'BOUNCE_MONTH'} = $i->{'bouncestats'}->{'month'};
