@@ -2,6 +2,7 @@
 who[-short][-enhanced][-export][-bounce] listname [pattern]
 who[-short][-enhanced][-export][-bounce][-alias] GLOBAL   [pattern]
 who-common[-short][-enhanced][-export][-bounce] listname listname [pattern]
+who-owners GLOBAL
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or the word "GLOBAL")
 -enhanced, if specified, displays flags and mail mode for each subscriber
@@ -10,6 +11,7 @@ listname, required, is an email list at this site (or the word "GLOBAL")
 -bounce,   if specified, shows only addresses with bounces
 -common,   if specified, shows addresses that appear on both lists
 -alias,    if specified, produces commands needed to recreate the alias database
+-owners,   if specified, shows the addresses of list owners and their lists.
 pattern,   if specified, is an address matching string
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -19,7 +21,11 @@ decide who is authorized, and you will receive an error message if
 you have been refused access.
 
 If "GLOBAL" is used as the list name, the registry information is
-returned instead of information from a specific list.
+returned instead of information from a specific list.  There are
+two exceptions to this rule.  If a sublist is named, subscriber
+data for the sublist are shown.  If the "owners" command mode is
+used, the addresses are taken from the "owners" configuration
+setting for each mailing list, instead of the registry.
 
 If "pattern" is not supplied, all subscribers are listed.
 
@@ -65,21 +71,29 @@ the two lists.  This feature is useful for viewing the registration
 data for people subscribed to a particular list:
   who-common-enhanced GLOBAL listname
 
+The "who-owners GLOBAL" command will display the addresses of
+all list owners within a domain, and a list of the mailing lists
+maintained by each list owner.  The GLOBAL:owners auxiliary list
+is automatically updated by this command.  Once this occurs, a
+site or domain manager can contact every list owner with the 
+announce command.
+
 List owners can also view addresses in collections called "auxiliary 
 subscriber lists" (see "help auxiliary_list" for more details.)
 
 
 See Also:
-   help alias    (not revealed by "who-export")
+   help alias    (creates the aliases shown by the "who-alias" command)
+   help announce (to mail a file to all members of an auxiliary list)
    help auxiliary_list (which is used to manage a set of addresses)
+   help configset_access_rules (to restrict use of the who command)
+   help configset_access_rules_variables (set/test for this command)
+   help configset_bounce_max_age (to force bounces to expire)
+   help configset_who_access   (to restrict use of who)
    help patterns (for simple and complex regular expressions)
    help set      (for details on subscription flags and classes)
    help show     (for information about a given subscriber)
    help which    (for all lists a given subscriber is on)
-   help configset access_rules (to restrict use of who)
-   help configset access_rules_variables (set/test for this command)
-   help configset bounce_max_age (to force bounces to expire)
-   help configset who_access   (to restrict use of who)
 
 For a list of all help topics send this one-line message
    help topics
