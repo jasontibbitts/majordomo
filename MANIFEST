@@ -3586,6 +3586,7 @@ files/fr/help/.newinfo
 files/fr/help/.newintro
 files/fr/help/.overview
 files/fr/help/.owner
+files/fr/help/.patterns
 files/fr/help/.quit
 files/fr/help/.remove
 files/fr/help/.request_response
@@ -3702,6 +3703,7 @@ files/fr/help/newinfo
 files/fr/help/newintro
 files/fr/help/overview
 files/fr/help/owner
+files/fr/help/patterns
 files/fr/help/quit
 files/fr/help/remove
 files/fr/help/request_response
