@@ -1,6 +1,4 @@
 # Nipped from MakeMaker.
-use Term::ReadKey;
-
 sub prompt ($;$) {
   sep();
   my($mess,$def)=@_;
