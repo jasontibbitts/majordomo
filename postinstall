@@ -95,6 +95,8 @@ $msg1 = <<EOM;
 
 Majordomo stores its lists in a hiearachy of directories.  These can be
  created for you now.  The various list files will be created as needed.
+ If you do not answer yes, and the necessary directories do not already
+ exist, the rest of the installation will fail.
 
 Create directories?
 EOM
