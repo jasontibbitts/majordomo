@@ -137,7 +137,11 @@ if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
       exit 0;
     }
     # Child...
-    exec "$::BINDIR/mj_queueserv $opts{'v'}";
+    close STDOUT unless -t STDOUT;
+    close STDERR unless -t STDOUT;
+    close STDIN  unless -t STDOUT;
+    exec "$::BINDIR/mj_queueserv", "$opts{'v'}";
+    die "Couldn't exec $::BINDIR/mj_queueserv: $!";
   }
 }
 
@@ -224,11 +228,17 @@ sub do_qmail {
   $fun eq 'request' and $opts{'q'} = 1;
 }
 
+# Make a directory safely.  Note that it's OK to fail because the directory
+# already exists; some other enqueue program may be creating it at the same
+# time as us.
 sub smkdir {
   my $dir  = shift;
   my $mode = shift;
   unless (-d $dir) {
-    mkdir $dir, $mode or die "Can't make $dir, $!";
+    $ok = mkdir $dir, $mode;
+    unless ($ok) {
+      die "Can't mkdir $dir: $!" if $! !~ /exists/;
+    }
   }
 }
 

@@ -365,7 +365,7 @@ sub consult {
     $subject = "$token : CONSULT $list";
     if ($arg2) {
       ($tmp = $arg2) =~ s/\002/\n /g;
-      $subject .= "\n $arg2";
+      $subject .= "\n $tmp";
     }
     $ent = build MIME::Entity
       (

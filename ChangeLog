@@ -1,5 +1,19 @@
 Sun Apr 18 00:31:30 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* bin/mj_queuerun (run_queue): Better debug info.
+
+	* bin/mj_enqueue (smkdir): Don't die if we can't make the
+ 	directory because it exists.
+
+	Close handles before exec'ing mj_queueserv if they're not
+ 	connected to a terminal.
+
+	* setup/ask_queueing.pl (ask_queueing): Fix dumb cut-n-paste
+ 	error.
+
+	* lib/Mj/Token.pm (consult): Small bug fix: put split reasons in
+ 	Subject:.
+
 	* bin/mj_queueserv: Change the name of the socket.
 
 	* bin/mj_queuerun (run_queue): Move destruction of Majordomo

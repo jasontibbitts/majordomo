@@ -126,7 +126,7 @@ while (1) {
     next;
   }
   unless (defined $line && length $line) {
-    $::log->message(50, 'info', "Read undef or empty line? $nfound, $rout, $wout, $eout");
+    $::log->message(50, 'info', "Read undef or empty line; server must have died.");
     last;
   }
   out('Running queue');
@@ -237,9 +237,12 @@ sub run_queue {
 
 	    # If we're at the Majordom address, just parse commands
 	    if ($func eq 'majordomo') {
+	      $log->message(50, 'info', 'Processing commands');
 	      debug_to('majord');
 	      parse_commands($mj);
 	      debug_to('queuerun');
+	      unlink $file;
+	      close MSG;
 	      next;
 	    }
 
@@ -255,6 +258,7 @@ sub run_queue {
 	    # Perform the appropriate function
 	    # If at list address, resend.
 	    if ($func eq 'list' || $func eq 'resend') {
+	      $log->message(50, 'info', 'Posting message');
 	      debug_to('resend');
 	      resend($mj, $list);
 	      debug_to('queuerun');
@@ -266,16 +270,19 @@ sub run_queue {
 	      $request_ans = $mj->global_config_get(undef, undef, undef, 'queuerun',
 						    'request_answer');
 	      if ($request_ans eq 'majordomo') {
+		$log->message(50, 'info', 'Processing commands');
 		debug_to('majord');
 		parse_commands($mj, $list);
 		debug_to('queuerun');
 	      }
 	      elsif ($request_ans eq 'owner') {
+		$log->message(50, 'info', 'Forwarding to owner');
 		debug_to('owner');
 		forward_to_owner($mj, $list);
 		debug_to('queuerun');
 	      }
 	      else {
+		$log->message(50, 'info', 'Responding with file');
 		debug_to('request');
 		respond_with_file($mj, $list);
 		debug_to('queuerun');
@@ -287,6 +294,7 @@ sub run_queue {
 	    elsif ($func eq 'owner') {
 	      # forward to owner; if -l is present, forward to that list else assume
 	      # we're majordomo-owner.
+	      $log->message(50, 'info', 'Forwarding to owner');
 	      debug_to('owner');
 	      forward_to_owner($mj, $list || 'GLOBAL');
 	      debug_to('queuerun');

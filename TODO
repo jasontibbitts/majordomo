@@ -45,6 +45,8 @@ Queueing:
 
 Allow mj_email/mj_euqueue to be setuid under qmail, if the user wants it.
 
+Make sure cached configurations don't persist past config file changes.
+
 Add option to set umask of generated alias files.
 
 Don't show the user variables that they can't change.  (Make their values

@@ -19,7 +19,7 @@ before they exit?
   inactivity.
 EOM
   $def = $config->{'queue_timeout'} || 120;
-  $config->{'qmail_path'} = get_str($msg, $def);
+  $config->{'queue_timeout'} = get_str($msg, $def);
 }
 
 =head1 COPYRIGHT
