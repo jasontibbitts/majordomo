@@ -2,7 +2,7 @@
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Improve domain checking.
 	Check the URL path, CGI parameters, and HTTP_HOST, in that order.
-	Add "Expires" header (set to 5 minutes in the future) to avoid
+	Add "Expires" header (set to 10 seconds in the future) to avoid
 	caching.  Thanks to Peter Ajamian and David Miller for the 
 	suggestions.  Fix set command bug in mj_wwwusr.  Add a "Sign Out"
 	button to mj_wwwadm and mj_wwwusr, which invalidates the 

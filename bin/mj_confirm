@@ -72,7 +72,7 @@ $::log->startup_time();
 
 # Start up the page and parse the URL
 $cgi = new CGI;
-print $cgi->header(-expires => '+5m');
+print $cgi->header(-expires => '+10s');
 
 $ptoken = $cgi->param('t');
 $action = $cgi->param('a') || 'welcome';
