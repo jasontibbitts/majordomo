@@ -4608,7 +4608,7 @@ sub _who {
   $listing = [];
   $sublist ||= '';
 
-  if ($list eq 'GLOBAL' or $list eq 'DEFAULT') {
+  if (($list eq 'GLOBAL' or $list eq 'DEFAULT') and (! length $sublist)) {
     $self->{'reg'}->get_start;
     if ($mode =~ /enhanced/) {
       ($tmpl) = $self->_list_file_get('GLOBAL', 'who_registry');
@@ -4647,20 +4647,20 @@ sub who_chunk {
   my $log = new Log::In 100, "$request->{'list'}, $request->{'regexp'}, $chunksize";
   my (@chunk, @out, @tmp, $addr, $i, $j, $strip);
 
+  if (length $request->{'auxlist'}) {
+    @chunk = $self->{'lists'}{$request->{'list'}}->aux_get_chunk(
+               $request->{'auxlist'}, $chunksize);
+  }
   # who for DEFAULT returns nothing
-  if ($request->{'list'} eq 'DEFAULT') {
+  elsif ($request->{'list'} eq 'DEFAULT') {
     return (0, "The DEFAULT list never has subscribers");
   }
   # who for GLOBAL will search the registry
-  if ($request->{'list'} eq 'GLOBAL') {
+  elsif ($request->{'list'} eq 'GLOBAL') {
     @tmp = $self->{'reg'}->get($chunksize);
     while ((undef, $i) = splice(@tmp, 0, 2)) {
       push @chunk, $i;
     }
-  }
-  elsif (length $request->{'auxlist'}) {
-    @chunk = $self->{'lists'}{$request->{'list'}}->aux_get_chunk(
-               $request->{'auxlist'}, $chunksize);
   }
   else {
     @chunk = $self->{'lists'}{$request->{'list'}}->get_chunk($chunksize);
@@ -4737,11 +4737,11 @@ sub who_done {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
 
-  if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT') {
-    $self->{'reg'}->get_done;
-  }
-  elsif (length $request->{'auxlist'}) {
+  if (length $request->{'auxlist'}) {
     $self->{'lists'}{$request->{'list'}}->aux_get_done($request->{'auxlist'});
+  }
+  elsif ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT') {
+    $self->{'reg'}->get_done;
   }
   else {
     $self->{'lists'}{$request->{'list'}}->get_done;
