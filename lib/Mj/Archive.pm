@@ -743,7 +743,7 @@ Returns a count of messages and a hash with data for each message.
 
 =cut
 use Mj::FileRepl;
-use Mj::MIMEParser;
+use Mj::MIMEParser qw(collect_data);
 sub _sync_msgs {
   my ($self, $file, $tmpdir, $split, $count, $qp) = @_;
   my $log = new Log::In 250, $file;
@@ -794,7 +794,7 @@ sub _sync_msgs {
           $count++;
         }
         $arcnum =~ m#/(\d+)$#; $num = $1;
-        $data = Mj::MIMEParser::collect_data($entity, $qp);
+        $data = collect_data($entity, $qp);
 
         # Parsing may have modified the message.
         # Save it to a temporary file and collect statistics.
