@@ -1333,7 +1333,7 @@ sub index {
 sub lists {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my (%lists, $basic_format, $cat_format, $category, $count, $data, 
-      $desc, $digests, $flags, $gsubs, $i, $legend, $list, 
+      $desc, $digests, $flags, $foot, $gsubs, $head, $i, $legend, $list, 
       $site, $str, $subs, $tmp);
   my $log = new Log::In 29, $type;
   $count = 0;
@@ -1365,19 +1365,23 @@ sub lists {
   }
   
   if (@lists) {
+    if ($request->{'mode'} =~ /full/ and $request->{'mode'} !~ /config/) { 
+      $basic_format = $mj->format_get_string($type, 'lists_full', $request->{'list'});
+      $head = 'lists_full_head';
+      $foot = 'lists_full_foot';
+    }
+    else {
+      $basic_format = $mj->format_get_string($type, 'lists', $request->{'list'});
+      $head = 'lists_head';
+      $foot = 'lists_foot';
+    }
+
     unless ($request->{'mode'} =~ /compact|tiny/) {
-      $tmp = $mj->format_get_string($type, 'lists_head', $request->{'list'});
+      $tmp = $mj->format_get_string($type, $head, $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $gsubs);
       print $out "$str\n";
     }
  
-    if ($request->{'mode'} =~ /full/ and $request->{'mode'} !~ /config/) { 
-      $basic_format = $mj->format_get_string($type, 'lists_full', $request->{'list'});
-    }
-    else {
-      $basic_format = $mj->format_get_string($type, 'lists', $request->{'list'});
-    }
-
     $cat_format = $mj->format_get_string($type, 'lists_category', $request->{'list'});
 
     while (@lists) {
@@ -1447,7 +1451,7 @@ sub lists {
             %{$gsubs},
             'COUNT' => $count,
           };
-  $tmp = $mj->format_get_string($type, 'lists_foot', $request->{'list'});
+  $tmp = $mj->format_get_string($type, $foot, $request->{'list'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
@@ -2335,7 +2339,7 @@ sub show {
         }
 
         # Is this setting allowed?
-        if ($settings->{'flags'}[$j]->{'allow'} or $type eq 'wwwadm') {
+        if ($settings->{'flags'}[$j]->{'allow'}) {
           $tmp = "<input name=\"$i;$flag\" type=\"checkbox\" $str>";
         }
         else {
