@@ -93,11 +93,10 @@ might be clearer to someone who has not been informed about the effect
 of the limit.  Alternatively, the "calendar day" abbreviation can be
 used to count messages since midnight, "3/1cd" in the previous example.
 
-There is a "post" trigger to expire data from the "posts" database.
-The post data has a lifetime twice that of the dup_lifetime setting, at
-the moment, so make sure your frequency time spans no longer than twice the
-duplicate message database lifespan.  By default, this time period is
-56 days.
+There is a "post" trigger to expire data from the "posts" database.  The
+number of days that statistics are kept is determined by the
+post_lifetime configuration setting.  By default, this time period is 60
+days.
 
 It is possible to use comments before, between, and after the individual
 rules.  Comments are lines that begin with a '#'.  You can use comments
@@ -110,8 +109,10 @@ See Also:
    help admin_moderate
    help configset_access_rules
    help configset_dup_lifetime
+   help configset_inactive_lifetime
    help configset_latchkey_lifetime
    help configset_log_lifetime
+   help configset_post_lifetime
    help configset_session_lifetime
    help configset_token_lifetime
    help configset_triggers
