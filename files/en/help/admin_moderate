@@ -314,7 +314,7 @@ body part that is empty.  To turn off the body checks, use the following
 rule in the access_rules setting:
 
 post
-unset=(dup_checksum,dup_partial_checksum)
+unset=dup_checksum, unset=dup_partial_checksum
 ALL
 
 
