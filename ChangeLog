@@ -1,3 +1,9 @@
+2002-05-05  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Deliver/Dest.pm (flush): When generating a bounce for an
+	address that timed out, include a useful error message instead of
+	printing a blank and generating some undef warnings.
+
 2002-05-04  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Lock.pm: Use Time::HiRes if available.

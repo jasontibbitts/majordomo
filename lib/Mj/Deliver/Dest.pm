@@ -550,7 +550,12 @@ EOM
 
       for (@tmp) {
         print $fh "  $_->[0]:\n";
-        print $fh "    $_->[1] $_->[2]\n";
+	if ($_->[1]) {
+	  print $fh "    $_->[1] $_->[2]\n";
+	}
+	else {
+	  print $fh "    554 Connection timed out\n";
+	}
       }
       print $fh "-- Original message omitted --\n";
       close($fh)
