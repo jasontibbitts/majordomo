@@ -6,11 +6,11 @@ require Exporter;
 @ISA = qw(Exporter);
 
 @EXPORT_OK = qw(access_def command_legal command_prop
-		commands_matching function_prop function_legal
+		commands_matching command_list function_prop function_legal
 		rules_request rules_requests rules_var rules_vars
 		rules_action rules_actions action_files action_terminal);
 %EXPORT_TAGS = ('command'  => [qw(command_legal command_prop
-				  commands_matching)],
+				  commands_matching command_list)],
 		'function' => [qw(function_legal function_prop)],
 		'rules'    => [qw(rules_request rules_requests rules_var
 				  rules_vars rules_action
@@ -509,9 +509,10 @@ my %aliases =
 # if necessary.
 sub command_legal {
   my $command = lc(shift);
-
-  return $command if $commands{$command}{'parser'};
-  return $aliases{$command} if defined $aliases{$command};
+  return $command
+    if( exists($commands{$command}) && $commands{$command}{'parser'} );
+  return $aliases{$command}
+    if( defined $aliases{$command} );
   return undef;
 }
 
@@ -564,6 +565,13 @@ sub commands_matching {
     @out = @tmp;
   }
   @out;
+}
+
+# This returns a list of all commands and aliases.
+# beware! the first returned string is ".", for which no help file exists
+# and which may kill some mail tools if echoed to a message on a separate line
+sub command_list {
+  return(sort keys(%commands), keys(%aliases));
 }
 
 # --- Functions for the core
