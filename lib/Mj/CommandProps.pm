@@ -619,9 +619,13 @@ my %commands =
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
+                                   
+                   'arguments' => {'setting' => {'type'    => 'SCALAR',
+                                                 'include' => 'set' },
+                                   'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',
-                   'tokendata' => {'victim' => 'victims'}
+                   'tokendata' => {'victim' => 'victims',
+                                   'arg1' => 'setting'}
                   },
     'access'   => {
                    'default' => 'policy',
