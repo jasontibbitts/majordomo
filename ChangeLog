@@ -1,3 +1,16 @@
+Fri Nov 20 22:37:38 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_email (connect_and_parse): Send the user along with the
+ 	connect request; if the result is not favorable, exit gracefully
+ 	and quietly.
+
+	* lib/Majordomo.pm (connect): Take a user (default to anonymous)
+ 	and return the stripped version if the caller wants it.  If the
+ 	passed address is not legal, return 'undef' for a session ID.
+
+	* bin/mj_email (connect_no_parse): Send an anonymous user along
+ 	with the connect request.
+
 Tue Nov 17 00:06:34 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Config.pm (compile_pattern): Add shell-like patterns.

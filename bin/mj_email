@@ -242,7 +242,7 @@ sub connect_no_parse {
 
   while (defined($i = <STDIN>)) {
     if ($i =~ /^\n/) {
-      $mj->connect($int, $sess);
+      $mj->connect($int, $sess, 'unknown@anonymous');
       $sess .= $i;
       last;
     }
@@ -255,7 +255,7 @@ sub connect_no_parse {
 # The MIME entity, unfolded header and user/reply address will be returned.
 sub connect_and_parse {
   my ($mj, $int) = @_;
-  my($entity, $head, $mime_parser, $ok, $user, $uuser);
+  my($entity, $head, $mime_parser, $ok, $user, $suser);
 
   $::log->in(85, undef, "info", "Seting MIME parser properties");
   $mime_parser = new Mj::MIMEParser;
@@ -271,9 +271,6 @@ sub connect_and_parse {
   $entity = $mime_parser->read(\*STDIN);
   $::log->out;
   
-  # Connect
-  $mj->connect($int, $entity->head->as_string);
-  
   # Get the header.
   $::log->in(80, undef, "info", "Parsing the header");
   $head = $entity->head;
@@ -283,13 +280,28 @@ sub connect_and_parse {
   $user = $head->get('reply-to') || $head->get('from') ||
       $head->get('apparently-from');
   chomp $user;
+
+
+  # Connect; gives back the stripped user
+  ($ok, $suser) = $mj->connect($int, $entity->head->as_string, $user);
+
+  # Connect can now fail: 0: try again later, undef: bomb with error, > 0:
+  # connection ID
+
+  # If it failed, just clean up and exit.  Should probably tell the owner.
+  unless (defined($ok)) {
+    $entity->purge;
+    exit 0;
+#    $::log->abort("Connect failed: $suser");
+  }
+  
 #   ($ok, $user, undef) = $mj->addr_validate($uuser);
 #   unless ($ok) {
 #     # We can't get the stripped address, so we can't reply
 #     # We should send something to the owner or something
 #     $::log->abort("Invalid return address: $uuser, $user");
 #   }
-  ($entity, $head, $user);
+  ($entity, $head, $suser);
 }
 
 # Parse commands in the subject here; we do this early to get the debug log
@@ -325,7 +337,7 @@ sub parse_commands {
 
   $::log->message(35, "info", "Message from $user.");
   
-  # Need to bail if we're talking to outselves, either here (it's convenient)
+  # Need to bail if we're talking to ourselves, either here (it's convenient)
   # or when checking access.
   
   if ($mj->global_config_get(undef, undef, undef, 'email', 'return_subject') &&

@@ -212,8 +212,14 @@ sub connect {
   my $self = shift;
   my $int  = shift;
   my $sess = shift;
-  my $log = new Log::In 50, "$int";
-  my ($path, $id, $ok);
+  my $user = shift || 'unknown@anonymous';
+  my $log = new Log::In 50, "$int, $user";
+  my ($err, $id, $ok, $path);
+
+  $user = new Mj::Addr($user);
+  ($ok, $err) = $user->valid;
+
+  return (undef, $err) unless $ok;
 
   # Generate a session ID; hash the session, the time and the PID
   $id = MD5->hexhash($sess.scalar(localtime).$$);
@@ -232,7 +238,7 @@ sub connect {
   $self->{sessionfh}->print("Source: $int\n\n");
   $self->{sessionfh}->print("$sess\n");
 
-  return $id;
+  return wantarray ? ($id, $user->strip) : $id;
 }
 
 =head2 dispatch(function, user, passwd, auth, interface, mode, cmdline, list, victim, ...)

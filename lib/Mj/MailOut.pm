@@ -39,12 +39,23 @@ sub mail_message {
   my $file   = shift;
   my @addrs  = @_;
   my $log = new Log::In 30, "$file, $addrs[0]";
-  
+  my (@a, $i);
+
+  # Make sure all addresses are stripped before mailing.  If we were given
+  # no legal addresses, do nothing.
+  for $i (@addrs) {
+    $i = new Mj::Addr($i);
+    next unless $i->isvalid;
+    next if     $i->isanon;
+    push @a, $i->strip;
+  }
+  return unless @a;
+
   my $env = new Mj::Deliver::Envelope
     'sender' => $sender,
     'file'   => $file,
     'host'   => 'localhost',
-    'addrs'  => \@addrs;
+    'addrs'  => \@a;
 
   unless ($env) {
     $::log->abort("Failed to build envelope for mailing.")

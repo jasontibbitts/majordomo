@@ -884,3 +884,5 @@ Always allocating address objects for every core call costs for iterators;
  invent some handle method instead so we can cache state between calls.
 If processing a command yields an invalid address error and following line
  does not hold a legal command, join the two lines and try again.
+Export information from the registration database to .htaccess files, so
+ owners can restrict access to web archives or whatever.
