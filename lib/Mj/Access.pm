@@ -313,22 +313,23 @@ use Mail::Header;
 use Safe;
 sub check_headers {
   my ($self, $sd) = @_;
-  my (%inv, @headers, @inv, @matches, $class, $code, $data, $head, $i,
-      $inv, $j, $k, $l, $match, $reasons, $rule, $safe, $sev);
+  my (%inv, @headers, @inv, @matches, $avars, $class, $code, $data, 
+      $from, $head, $i, $inv, $j, $k, $l, $match, $reasons, $rule, $safe, $sev);
   my $log = new Log::In 200;
   local ($text);
 
-  return unless $sd;
+  return (0, $self->format_error('no_headers', 'GLOBAL')) unless $sd;
   @headers = split /\n/, $sd;
   $head = new Mail::Header \@headers;
-  return unless $head;
+  return (0, $self->format_error('no_headers', 'GLOBAL')) unless $head;
 
   $code = {};
-  $reasons = '';
+  $avars = { 'reasons' => [] };
+
   $data = $self->_global_config_get('block_headers');
-  # XLANG
-  return (0, 'No patterns were provided by the block_headers setting.')
-    unless (ref $data eq 'HASH');
+  unless (ref $data eq 'HASH') {
+    return (1, $avars);
+  }
   push @inv, @{$data->{'inv'}};
   $code = $data->{'code'};
 
@@ -363,12 +364,12 @@ sub check_headers {
 
         # An inverted match; remove it from the list
         if ($inv) {
-          delete $inv{"$k\t$l\t$rule\t$sev\t$class"};
+          delete $inv{"GLOBAL\tblock_headers\t$rule\t$sev\t$class"};
         }
         else {
-          # XLANG
-          $reasons .= "block_headers matched \"" .
-                      substr($match, 0, 100) .  "\"\n";
+          $self->describe_taboo($reasons, $avars, 'GLOBAL',
+                                'block_headers', $rule, $match, undef,
+                                $sev, $class, 0);
         }
       }
     }
@@ -376,11 +377,13 @@ sub check_headers {
   # Now complain about missed inverted matches
   for $i (keys %inv) {
     ($k, $l, $rule, $sev, $class) = split('\t', $i);
-    # XLANG
-    $reasons .= "block_headers failed to match $rule\n";
+    $self->describe_taboo($reasons, $avars, $k, $l, $rule,
+                            undef, undef, $sev, $class, 1);
+         
   }
-  return (0, $reasons) if $reasons;
-  (1, '');
+
+  $avars->{'reasons'} = $reasons;
+  (1, $avars);
 }
 
 =head2 *_access_check(..., request, arghash)
@@ -1056,7 +1059,7 @@ sub _a_forward {
     if ($avars{'sublist'} ne '') {
       $whoami .=  "-$avars{'sublist'}";
     }
-    $whoami .=  '@' . $self->_list_config_get($td->{'list'}, 'whereami');
+    $whoami .=  '@' . $self->_global_config_get('whereami');
   }
 
   if (lc $whoami eq lc $arg) {
@@ -1437,6 +1440,18 @@ sub _a_default {
   return $self->$action(@_);
 }
 
+sub _d_access {
+  my ($self, $arg, $td, $args) = @_;
+  my $log = new Log::In 150;
+  shift @_;
+
+  if (exists $args->{'block'} and $args->{'block'}) {
+    return $self->_a_deny(@_);
+  }
+
+  $self->_a_allow(@_);
+}
+
 #
 # Normally the default would be to allow, but we must first check the
 # noadvertise and advertise configuration settings.  
@@ -1490,10 +1505,10 @@ sub _d_post {
 
   @consult_vars =
     qw(bad_approval body_length_exceeded dup_msg_id dup_checksum
-       dup_partial_checksum global_taboo_body global_taboo_header
-       invalid_from limit_lower limit_soft max_header_length_exceeded
-       mime_consult mime_header_length_exceeded post_block taboo_body
-       taboo_header total_header_length_exceeded);
+       dup_partial_checksum invalid_from limit_lower limit_soft 
+       max_header_length_exceeded mime_consult 
+       mime_header_length_exceeded post_block taboo 
+       total_header_length_exceeded);
 
   @deny_vars = qw(limit_hard mime_deny);
 
@@ -1611,6 +1626,83 @@ sub _d_tokeninfo {
   }
   
   return $self->_a_allow(@_);
+}
+
+=head2 describe_taboo (reasons, access_variables)
+
+This method converts the results from a taboo pattern match
+to a readable description and adds the description of the match 
+to a list of reasons.  The severity score for a match
+is added to the relevant access variable.
+
+=cut
+sub describe_taboo {
+  my $self    = shift;
+  my $reasons = shift;
+  my $avars   = shift;
+  my ($list, $var, $rule, $match, $line, $sev, $class, $inv) = @_;
+  my $log = new Log::In 300, "$list, $var, $class";
+  my ($name, $reason, $trunc, $type);
+
+  # Make sure messages are pretty
+  $match =~ s/\s+$// if defined $match;
+
+  # Remove ^A characters, the token database field separator.
+  $match =~ s/\001//g if defined $match;
+
+  # Chomp the match down to something manageable, so we don't get
+  # hideously long strings in bounce messages.  Include a bit more 
+  # than the length of a standard line.
+  $trunc = '';
+  if (defined($match) && length($match) > 100) {
+    $match = substr($match, 0, 100);
+    $trunc = '...';
+  }
+
+  # Build match type and set the appropriate access variable
+  if ($list eq 'GLOBAL' and $var !~ /^block_/) {
+    $type = 'global_';
+  }
+
+  if ($var =~ /^([a-z]+)_/i) {
+    $name = $1;
+  }
+  else {
+    $name = $var;
+  }
+
+  $type .= "${name}_${class}";
+  $avars->{$type} += $sev;
+
+  # Unless the class name is all capital letters, add an
+  # explanation to the list of reasons.
+  unless ($class eq uc($class)) {
+    $type =~ s/\_/ /g; # underscores to spaces
+    if ($inv) {
+      $reason = $self->format_error('taboo_inverted', $list, 
+                                    'TYPE' => uc($type),
+                                    'PATTERN' => $rule);
+    }
+    elsif ($line) {
+      $reason = $self->format_error('taboo_body', $list, 
+                                    'TYPE'     => uc($type),
+                                    'PATTERN'  => $rule,
+                                    'LOCATION' => "$match$trunc",
+                                    'LINE'     => $line);
+    }
+    else {
+      $reason = $self->format_error('taboo_header', $list, 
+                                    'TYPE'     => uc($type),
+                                    'PATTERN'  => $rule,
+                                    'LOCATION' => "$match$trunc");
+    }
+    push @$reasons, $reason;
+
+    # Change the combined match score for this category.
+    $avars->{$name} += $sev;
+  }
+
+  1;
 }
 
 =head1 COPYRIGHT
