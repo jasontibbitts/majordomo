@@ -193,11 +193,11 @@ sub post {
   # extensive information about the message here so we can do some more.
   $subs = {LIST     => $list,
 	   HEADERS  => $ent->head->stringify,
-	   SUBJECT  => $ent->head->get('subject') || '(none)',
+	   SUBJECT  => ($ent->head->get('subject') || '(none)'),
 	   VERSION  => $Majordomo::VERSION,
 	   MJ       => $self->_global_config_get('whoami'),
 	   MJOWNER  => $self->_global_config_get('whoami_owner'),
-	   SITE     => $self->_global_config_get('site'),
+	   SITE     => $self->_global_config_get('site_name'),
 	   WHEREAMI => $self->_global_config_get('whereami'),
 	  };
 
@@ -411,7 +411,7 @@ sub _post {
 	   WHEREAMI => $whereami,
 	   MJ       => $self->_global_config_get('whoami'),
 	   MJOWNER  => $self->_global_config_get('whoami_owner'),
-	   SITE     => $self->_global_config_get('site'),
+	   SITE     => $self->_global_config_get('site_name'),
 	  };
 
   # Add headers

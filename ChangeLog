@@ -1,3 +1,7 @@
+Sat Feb 27 14:44:15 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (post, _post): Fix typos; site -> site_name.
+
 Fri Feb 26 17:38:38 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/MailOut.pm (welcome): $MJ instead of $MAJORDOMO.
