@@ -52,10 +52,16 @@ Mailing list FAQ
 faq.txt
 END
 
+It is possible to use comments before, between, and after the individual
+rules, but not within rules.  Comments are lines that begin with a '#'.
+You can use comments as a reminder of what a file does or why
+it was chosen, but comments have no impact on how the setting works.
+
 
 See Also:
    help put               (for how to store files in the list's file space)
    help configset filedir (for where the list's file space is)
+   help configset welcome (determines if welcome messages are sent)
    help variables         (for a list of all possible variables and what they mean)
 
 For a list of all help topics send this one-line message
