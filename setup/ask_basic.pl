@@ -224,9 +224,12 @@ What Mail Transfer Agent will be feeding mail to Majordomo?
 EOM
 
   $def = ($config->{'mta'} ||
+          (-x '/var/qmail/bin/qmail-inject' && 'qmail')    ||
+          (-x '/usr/sbin/qmail-inject'      && 'qmail')    ||
+          # Sendmail goes last because most MTAs have some sendmail-like
+          # wrapper there
           (-x '/usr/lib/sendmail'           && 'sendmail') ||
           (-x '/usr/sbin/sendmail'          && 'sendmail') ||
-          (-x '/var/qmail/bin/qmail-inject' && 'qmail')    ||
           'none'
          );
   $config->{'mta'} = get_enum($msg, $def, [qw(none sendmail qmail)]);

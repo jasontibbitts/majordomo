@@ -3,15 +3,16 @@ This is a skeleton document containing what the author knows about qmail
 corrections.
 
 qmail supports two (perhaps more?) methods of routing mail to Majordomo for
-a particular domain.  Majordomo can go in the .qmail-default file (the
-simplest, preferred method) or you can make several .qmail files for each
-list and place them in the proper directory.  Majordomo supports the former
-method automatically.
+a particular domain.  A call to Majordomo can go in the .qmail-default file
+(the simplest, preferred method) or you can make several .qmail files for
+each list and place them in the proper directory.  Majordomo supports the
+former method automatically.
 
 Majordomo receives messages via a single mj_email command.  When given the
 -Q option, mj_email examines the contents of the LOCAL environment variable
 and figures out what it should be doing.  If it sees that the address is
-bound for some Majordomo-run address is does the appropriate processing and does one of two things:
+bound for some Majordomo-run address is does the appropriate processing and
+does one of two things:
 
   if the -S option was given, it will 'exit 99' to stop processing of further
   lines in the .qmail-default file
@@ -21,6 +22,13 @@ bound for some Majordomo-run address is does the appropriate processing and does
 
 The -S option may make it possible for Majordomo to coexist with other
 programs that make use of the -default mechanism.
+
+So, for the virtual domain example.com, placing the following in the
+.qmail-default directory:
+
+  |/path/to/mj_email -Q -d example.com
+
+is sufficient to enable Majordomo.
 
 
 About automatic configuration:
