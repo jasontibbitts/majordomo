@@ -1104,6 +1104,9 @@ sub _describe_taboo {
   # Make sure messages are pretty
   $match =~ s/\s+$// if defined $match;
 
+  # Remove ^A characters, the token database field separator. 
+  $match =~ s/\001//g if defined $match;
+
   # Build match type and set the appropriate access variable
   if ($list eq 'GLOBAL') {
     $type .= "global_";
