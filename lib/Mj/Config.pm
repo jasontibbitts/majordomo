@@ -1984,7 +1984,7 @@ sub parse_limits {
   my $log  = new Log::In 150, "$var";
   my ($ok, $part, $regex, $stat, $whole);
 
-  my ($table, $err) = parse_table('fsmm', $arr);
+  my ($table, $err) = parse_table('fspp', $arr);
 
   return (0, "Error parsing table: $err.")
     if $err;
@@ -2006,9 +2006,9 @@ sub parse_limits {
     # Parse soft limit conditions
     for (my $j = 0; $j < @{$table->[$i][1]}; $j++) {
       $stat = $table->[$i][1]->[$j];
-      if ($stat =~ m#(\d+)/(\d+[ymwdh])*([ymwdh])$#) {
+      if ($stat =~ m#(\d+)/([\dymwdh]*)([ymwdh])$#) {
         $part = $1;
-        $whole = Mj::List::_str_to_time(($2 || 1) . $3);
+        $whole = Mj::List::_str_to_time(($2 || 1) . $3) - time;
         return (0, "Unable to parse time span $stat.") unless ($whole > 0);
         push @{$out[$i]->{'soft'}}, ['t', $part, $whole];
       }
