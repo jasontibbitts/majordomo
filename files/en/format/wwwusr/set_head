@@ -4,8 +4,13 @@
   <input type="hidden" name="passw" value="$CMDPASS">
 
 <p>
-Once you have changed your personal settings,
-press the <b>set</b> button to make the changes permanent.<br>
+  Each of your subscriptions has a delivery class and 13 personal
+  settings.  Details about the delivery class and each setting appear
+  below.  If you change the class or the settings, press the <b>set</b>
+  button to make the changes permanent.
+</p>
+
+<p>
   <input type="submit" name="func" value="set">
 </p>
-<p>
+
