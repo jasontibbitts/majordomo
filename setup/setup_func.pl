@@ -296,6 +296,8 @@ sub set_script_perms {
 sub suggest_crontab {
   return <<"EOM";
 
+# Remove old lock files
+30 0 * * * $config->{'install_dir'}/bin/mj_trigger -t lock
 # Hourly trigger
 20 * * * * $config->{'install_dir'}/bin/mj_trigger -t hourly
 EOM
