@@ -3601,7 +3601,8 @@ sub lists {
   $self->_reg_lookup($request->{'user'});
 
   if ($request->{'regexp'}) {
-    ($ok, $mess, $request->{'regexp'}) = Mj::Config::compile_pattern($request->{'regexp'}, 0);
+    ($ok, $mess, $request->{'regexp'}) 
+      = Mj::Config::compile_pattern($request->{'regexp'}, 0, "isubstring");
     return ($ok, $mess) unless $ok;
   }
 
@@ -5068,7 +5069,8 @@ sub who_start {
   $base = $request->{'command'}; $base =~ s/_start//i;
 
   if ($request->{'regexp'}) {
-    ($ok, $error, $request->{'regexp'}) = Mj::Config::compile_pattern($request->{'regexp'}, 0);
+    ($ok, $error, $request->{'regexp'}) 
+      = Mj::Config::compile_pattern($request->{'regexp'}, 0, "isubstring");
     return ($ok, $error) unless $ok;
   }
 

@@ -2844,16 +2844,19 @@ sub compile_pattern {
   # Extract leading and trailing characters and the pattern; remove
   # whitespace
   ($id1, $pat, $id2, $mod) = $str =~ /^\s*      # Leading whitespace
-                                       ([\/\"\%\_]) # Opening delimiter
-                                       (.*)     # The pattern
-                                       ([\/\"\%\_]) # Closing delimiter
-                                       ([ix]+)?  # Allosed modifiers
-                                       \s*$     # Trailing whitespacce
+                                      (?:
+                                       ([\/\"\%]?) # Opening delimiter
+                                       (.*)      # The pattern
+                                       (\1)      # Closing delimiter
+                                       ([ix]+)?  # Allowed modifiers
+                                       |         # or nothing
+                                      )
+                                       \s*$     # Trailing whitespace
 				     /x;
 
   # Handle case where there are no delimiters
   unless ($id1) {
-    if ($force =~ /i(.*)/) {
+    if ($force =~ /^i(.*)/) {
       $mod = 'i';
       $force = $1;
     }

@@ -1,3 +1,9 @@
+2000-08-23  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm (lists, who_start):  Treat a search
+	pattern not enclosed in delimiters to a case-insensitive
+	substring match.
+
 2000-08-21  Michael Yount <csf@moscow.com>
 
 	* files/en/config/archive_url:  New configuration
