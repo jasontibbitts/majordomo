@@ -84,7 +84,7 @@ a@example.com
 b@example.com
 ABC
 
-See "help here_document for more details.
+See "help here_document" for more details.
 
 
 It is only possible to unregister an invalid address using the
