@@ -2117,19 +2117,19 @@ sub parse_bounce_rules {
           }
         }
       }
+    }
 
-      # Compile the rule
-      ($ok, $error, $part, $check_aux, $check_time) =
-	$self->_compile_rule('_bounce', 'bounce_rules', $acts, {}, $rule, $i+1);
+    # Compile the rule
+    ($ok, $error, $part, $check_aux, $check_time) =
+      $self->_compile_rule('_bounce', 'bounce_rules', $acts, {}, $rule, $i+1);
 
-      # If the compilation failed, we return the error
-      return (0, "\nError compiling rule $i: $error")
-	unless $ok;
+    # If the compilation failed, we return the error
+    return (0, "\nError compiling rule $i: $error")
+      unless $ok;
 
-      $data->{'code'}        .= $part;
-      for $k (@{$check_aux}) {
-	$data->{'check_aux'}{$k} = 1;
-      }
+    $data->{'code'}        .= $part;
+    for $k (@{$check_aux}) {
+      $data->{'check_aux'}{$k} = 1;
     }
   }
 
