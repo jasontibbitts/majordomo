@@ -4713,6 +4713,7 @@ sub report_start {
 }
 
 use Mj::Archive qw(_secs_start _secs_end);
+use Mj::Util 'str_to_time';
 sub _report {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $action, $d, $date) = @_;
   my $log = new Log::In 35, "$list, $action";
@@ -4741,7 +4742,7 @@ sub _report {
         unless ($begin <= $end);
     }
     # 5m for last five months, 1d2h for last 26 hours
-    elsif ($span = Mj::List::_str_to_time($date)) {
+    elsif ($span = str_to_time($date)) {
       # _str_to_time returns current time + the difference.
       # Convert to current time - the difference.
       $begin = 2 * $end - $span;

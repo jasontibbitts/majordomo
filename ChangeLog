@@ -1,3 +1,28 @@
+2000-12-07  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_within_limits): 
+	* lib/Mj/List.pm (describe_class): 
+	* lib/Mj/Format.pm (digest):
+	Import time_to_str from Mj::Util and call it instead of
+	List::_time_to_str.
+
+	* lib/Majordomo.pm (_report): 
+	* lib/Mj/Parser.pm (parse_part): 
+	* lib/Mj/List.pm (make_setting): 
+	* lib/Mj/Config.pm (parse_limits): 
+	* lib/Mj/Archive.pm (expand_range): 
+	* lib/Mj/Access.pm (_a_delay):
+	Import str_to_time from Mj::Util and call it instead of
+	List::_str_to_time.
+
+	* lib/Mj/Util.pm: Add str_to_time, time_to_str, and
+	_str_to_time_dm, and export the first two.
+	(process_rule): Call str_to_time instead of
+	Mj::List::_str_to_time.
+
+	* lib/Mj/List.pm: Remove _str_to_time, _str_to_time_dm, and
+	_time_to_str.
+
 2000-12-07  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (dispatch)  Alter mode checking to

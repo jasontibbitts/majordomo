@@ -156,6 +156,7 @@ a hash containing additional data (currently reply_to, password, deflist,
 and token).
 
 =cut
+use Mj::Util 'str_to_time';
 sub parse_part {
   my $mj         = shift;
   my %args       = @_;
@@ -352,7 +353,7 @@ sub parse_part {
       elsif ($action eq 'delay') {
         if ($cmdargs) {
           my ($now) = time;
-          $delay = Mj::List::_str_to_time($cmdargs) || $now; 
+          $delay = str_to_time($cmdargs) || $now;
           $delay -= $now;
         }
         else {

@@ -1950,6 +1950,7 @@ the second set of conditions defines a "hard" limit (by default,
 the message will be denied).
 
 =cut
+use Mj::Util 'str_to_time';
 sub parse_limits {
   my $self = shift;
   my $arr  = shift;
@@ -1981,7 +1982,7 @@ sub parse_limits {
       $stat = $table->[$i][1]->[$j];
       if ($stat =~ m#(\d+)/([\dymwdh]*)([ymwdh])$#) {
         $part = $1;
-        $whole = Mj::List::_str_to_time(($2 || 1) . $3) - time;
+        $whole = str_to_time(($2 || 1) . $3) - time;
         return (0, "Unable to parse time span $stat.") unless ($whole > 0);
         push @{$out[$i]->{'soft'}}, ['t', $part, $whole];
       }

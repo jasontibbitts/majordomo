@@ -1294,6 +1294,7 @@ as a string.  This spares extraneous lookups when the data is known because
 of the expansion process.
 
 =cut
+use Mj::Util 'str_to_time';
 sub expand_range {
   my $self = shift;
   my $lim  = shift;
@@ -1322,12 +1323,12 @@ sub expand_range {
     # Deal with "mowdhm" format
     if ($i =~ /^\d[\dmwdh]*[mwdh]$/) {
       $j = time;
-      $i = 2 * $j - Mj::List::_str_to_time($i);
+      $i = 2 * $j - str_to_time($i);
       next unless $i;
       push @out, $self->expand_date($i, $j, '');
       next;
     }
-      
+
     # Do we have a count, a date or a message?
     ($a1, $m1) = $self->_parse_archive_arg($i);
     if (!$a1 && !$m1) {

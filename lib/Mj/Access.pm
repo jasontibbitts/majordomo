@@ -906,6 +906,7 @@ sub _a_consult {
 }
 
 # Accepts a filename and a delay
+use Mj::Util 'str_to_time';
 sub _a_delay {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150, "$td->{'command'}, $arg";
@@ -913,7 +914,7 @@ sub _a_delay {
 
   ($file, $arg) = split (/\s*,\s*/, $arg || "");
   if ($arg) {
-    $delay = Mj::List::_str_to_time($arg) - time;
+    $delay = str_to_time($arg) - time;
     if ($delay > 0) {
       $td->{'delay'} = $delay;
       # For the result message

@@ -862,6 +862,7 @@ variable.  Returns 1 for a hard limit, -1 for a soft limit,
 and 0 for no limit.
 
 =cut
+use Mj::Util 'time_to_str';
 sub _within_limits {
   my ($self, $list, $data, $soft, $hard) = @_;
   my ($cond, $count, $seqno, $time);
@@ -877,7 +878,7 @@ sub _within_limits {
         if ($data->{$msg} > $time) {
           $count++;
           return (1, sprintf "More than %d messages posted in %s",
-                  $cond->[1], Mj::List::_time_to_str($cond->[2], 1))
+                  $cond->[1], time_to_str($cond->[2], 1))
                   if ($count >= $cond->[1]);
         }
       }
@@ -909,7 +910,7 @@ sub _within_limits {
         if ($data->{$msg} > $time) {
           $count++;
           return (-1, sprintf "More than %d messages posted in %s",
-                  $cond->[1], Mj::List::_time_to_str($cond->[2], 1))
+                  $cond->[1], time_to_str($cond->[2], 1))
                   if ($count >= $cond->[1]);
         }
       }

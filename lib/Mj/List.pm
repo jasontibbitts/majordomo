@@ -483,6 +483,7 @@ class arguments, and a new flag list which reflect the information present
 in the string.
 
 =cut
+use Mj::Util 'str_to_time';
 sub make_setting {
   my($self, $str, $flags, $class, $carg1, $carg2) = @_;
   $flags ||= '';
@@ -603,7 +604,7 @@ sub make_setting {
 	    $carg2 = join("\002", $class, $carg1, $carg2); 
 	  }
           if ($arg) {
-            $carg1 = _str_to_time($arg);
+            $carg1 = str_to_time($arg);
             return (0, "Invalid time $arg.\n") unless $carg1; # XLANG
           }
           else {
@@ -699,98 +700,98 @@ sub should_ack {
 }
 
 
-=head2 _str_to_time(string)
+#  =head2 _str_to_time(string)
 
-This converts a string to a number of seconds since 1970 began.
-(Mj::Util)
+#  This converts a string to a number of seconds since 1970 began.
+#  (Mj::Util)
 
-=cut
-sub _str_to_time {
-  my $arg = shift;
-  my $log = new Log::In 150, $arg;
-  my ($time) = 0;
+#  =cut
+#  sub _str_to_time {
+#    my $arg = shift;
+#    my $log = new Log::In 150, $arg;
+#    my ($time) = 0;
 
-  # Treat a plain number as a count of seconds.
-  if ($arg =~ /^(\d+)$/) {
-    return time + $arg;
-  }
+#    # Treat a plain number as a count of seconds.
+#    if ($arg =~ /^(\d+)$/) {
+#      return time + $arg;
+#    }
 
-  if ($arg =~ /(\d+)h(ours?)?/) {
-    $time += (3600 * $1);
-  }
-  if ($arg =~ /(\d+)d(ays?)?/) {
-    $time += (86400 * $1);
-  }
-  if ($arg =~ /(\d+)w(eeks?)?/) {
-    $time += (86400 * 7 * $1);
-  }
-  if ($arg =~ /(\d+)m(onths?)?/) {
-    $time += (86400 * 30 * $1);
-  }
-  if ($arg =~ /(\d+)y(ears?)?/) {
-    $time += (86400 * 365 * $1);
-  }
-  if ($time) {
-    $time += time;
-  }
-  else {
-    # We try calling Date::Manip::ParseDate
-    $time = _str_to_time_dm($arg);
-  }
-  $time;
-}
+#    if ($arg =~ /(\d+)h(ours?)?/) {
+#      $time += (3600 * $1);
+#    }
+#    if ($arg =~ /(\d+)d(ays?)?/) {
+#      $time += (86400 * $1);
+#    }
+#    if ($arg =~ /(\d+)w(eeks?)?/) {
+#      $time += (86400 * 7 * $1);
+#    }
+#    if ($arg =~ /(\d+)m(onths?)?/) {
+#      $time += (86400 * 30 * $1);
+#    }
+#    if ($arg =~ /(\d+)y(ears?)?/) {
+#      $time += (86400 * 365 * $1);
+#    }
+#    if ($time) {
+#      $time += time;
+#    }
+#    else {
+#      # We try calling Date::Manip::ParseDate
+#      $time = _str_to_time_dm($arg);
+#    }
+#    $time;
+#  }
 
-=head2 _str_to_time_dm(string)
+#  =head2 _str_to_time_dm(string)
 
-Calls Date::Manip to convert a string to a time; this is in a separate
-function because it takes forever to load up Date::Manip.  Autoloading is
-good.
-(Mj::Util)
+#  Calls Date::Manip to convert a string to a time; this is in a separate
+#  function because it takes forever to load up Date::Manip.  Autoloading is
+#  good.
+#  (Mj::Util)
 
-=cut
-use Date::Manip;
-sub _str_to_time_dm {
-  my $arg = shift;
-  $Date::Manip::PersonalCnf="";
-  return UnixDate(ParseDate($arg),"%s");
-}
+#  =cut
+#  use Date::Manip;
+#  sub _str_to_time_dm {
+#    my $arg = shift;
+#    $Date::Manip::PersonalCnf="";
+#    return UnixDate(ParseDate($arg),"%s");
+#  }
 
-=head2 _time_to_str(time)
+#  =head2 _time_to_str(time)
 
-Converts a time in seconds to an abbreviation. 
-For example, a time of 90000 seconds
-would produce a string "1d1h" (for one day, one hour).
-(Mj::Util)
+#  Converts a time in seconds to an abbreviation. 
+#  For example, a time of 90000 seconds
+#  would produce a string "1d1h" (for one day, one hour).
+#  (Mj::Util)
 
-=cut
-sub _time_to_str {
-  my $arg = shift;
-  my $long = shift || 0;
-  return $long ? "0 hours" : "0h" unless ($arg and $arg > 0);
-  my ($i, $out);
-  $out = '';
+#  =cut
+#  sub _time_to_str {
+#    my $arg = shift;
+#    my $long = shift || 0;
+#    return $long ? "0 hours" : "0h" unless ($arg and $arg > 0);
+#    my ($i, $out);
+#    $out = '';
 
-  $i = int($arg / (7 * 86400));
-  $arg %= (7 * 86400);
-  $out .= $long ? ($i > 1)? "$i weeks " : "1 week " : "${i}w" if $i;
-  $i = int($arg / 86400);
-  $arg %= (86400);
-  $out .= $long ? ($i > 1)? "$i days " : "1 day " : "${i}d" if $i;
-  $i = int(($arg + 1800) / 3600);
-  $arg %= (3600);
-  $out .= $long ? ($i > 1)? "$i hours" : "1 hour" : "${i}h" if $i;
-  unless ($out) {
-    if ($long) {
-      $i = int(($arg + 30) / 60);
-      $out = ($i > 1)? "$i minutes" : "1 minute";
-    }
-    else {
-      $out = "0h";
-    }
-  }
+#    $i = int($arg / (7 * 86400));
+#    $arg %= (7 * 86400);
+#    $out .= $long ? ($i > 1)? "$i weeks " : "1 week " : "${i}w" if $i;
+#    $i = int($arg / 86400);
+#    $arg %= (86400);
+#    $out .= $long ? ($i > 1)? "$i days " : "1 day " : "${i}d" if $i;
+#    $i = int(($arg + 1800) / 3600);
+#    $arg %= (3600);
+#    $out .= $long ? ($i > 1)? "$i hours" : "1 hour" : "${i}h" if $i;
+#    unless ($out) {
+#      if ($long) {
+#        $i = int(($arg + 30) / 60);
+#        $out = ($i > 1)? "$i minutes" : "1 minute";
+#      }
+#      else {
+#        $out = "0h";
+#      }
+#    }
    
-  $out;
-}
+#    $out;
+#  }
 
 =head2 default_class
 
@@ -929,6 +930,7 @@ If as_setting is true, the description returned is in the form taken by the
 set command.
 
 =cut
+use Mj::Util 'time_to_str';
 sub describe_class {
   my $self  = shift;
   my $class = shift;
@@ -955,7 +957,7 @@ sub describe_class {
     # nomail setting
     if ($arg1) {
       if ($as_setting) {
-        return sprintf "$class-%s", _time_to_str($arg1 - time);
+        return sprintf "$class-%s", time_to_str($arg1 - time);
       }
       else { 
         $time = gmtime($arg1);
@@ -967,7 +969,7 @@ sub describe_class {
   return $classes{$class}->[2];
 }
 
-=head2 get_setting_data() 
+=head2 get_setting_data()
 
 Return a hashref containing complete data about settings:
   name, description, availability, abbreviations, defaults

@@ -16,7 +16,7 @@ package Mj::Util;
 use Mj::Log;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(process_rule);
+@EXPORT_OK = qw(process_rule str_to_time time_to_str);
 
 #use AutoLoader 'AUTOLOAD';
 
@@ -106,7 +106,7 @@ sub process_rule {
 	if ($arg and ($ok = rules_var($params{request}, $arg))) {
 	  if ($value and $arg eq 'delay') {
 	    my ($time) = time;
-	    $args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
+	    $args{'delay'} = str_to_time($value) || $time + 1;
 	    $args{'delay'} -= $time;
 	  }
 	  elsif ($value and $ok > 1) {
@@ -147,4 +147,97 @@ sub process_rule {
     $params{'args'}->{$i} = $args{$i};
   }
   @final_actions;
+}
+
+=head2 str_to_time(string)
+
+This converts a string to a number of seconds since 1970 began.
+
+=cut
+sub str_to_time {
+  my $arg = shift;
+  my $log = new Log::In 150, $arg;
+  my ($time) = 0;
+
+  # Treat a plain number as a count of seconds.
+  if ($arg =~ /^(\d+)$/) {
+    return time + $arg;
+  }
+
+  if ($arg =~ /(\d+)h(ours?)?/) {
+    $time += (3600 * $1);
+  }
+  if ($arg =~ /(\d+)d(ays?)?/) {
+    $time += (86400 * $1);
+  }
+  if ($arg =~ /(\d+)w(eeks?)?/) {
+    $time += (86400 * 7 * $1);
+  }
+  if ($arg =~ /(\d+)m(onths?)?/) {
+    $time += (86400 * 30 * $1);
+  }
+  if ($arg =~ /(\d+)y(ears?)?/) {
+    $time += (86400 * 365 * $1);
+  }
+  if ($time) {
+    $time += time;
+  }
+  else {
+    # We try calling Date::Manip::ParseDate
+    $time = _str_to_time_dm($arg);
+  }
+  $time;
+}
+
+=head2 _str_to_time_dm(string)
+
+Calls Date::Manip to convert a string to a time; this is in a separate
+function because it takes forever to load up Date::Manip.  Autoloading is
+good.
+
+This not exported; str_to_time calls it as a fallback when its simple
+methods don't work.
+
+=cut
+use Date::Manip;
+sub _str_to_time_dm {
+  my $arg = shift;
+  $Date::Manip::PersonalCnf="";
+  return UnixDate(ParseDate($arg),"%s");
+}
+
+=head2 time_to_str(time)
+
+Converts a time in seconds to an abbreviation.
+For example, a time of 90000 seconds
+would produce a string "1d1h" (for one day, one hour).
+
+=cut
+sub time_to_str {
+  my $arg = shift;
+  my $long = shift || 0;
+  return $long ? "0 hours" : "0h" unless ($arg and $arg > 0);
+  my ($i, $out);
+  $out = '';
+
+  $i = int($arg / (7 * 86400));
+  $arg %= (7 * 86400);
+  $out .= $long ? ($i > 1)? "$i weeks " : "1 week " : "${i}w" if $i;
+  $i = int($arg / 86400);
+  $arg %= (86400);
+  $out .= $long ? ($i > 1)? "$i days " : "1 day " : "${i}d" if $i;
+  $i = int(($arg + 1800) / 3600);
+  $arg %= (3600);
+  $out .= $long ? ($i > 1)? "$i hours" : "1 hour" : "${i}h" if $i;
+  unless ($out) {
+    if ($long) {
+      $i = int(($arg + 30) / 60);
+      $out = ($i > 1)? "$i minutes" : "1 minute";
+    }
+    else {
+      $out = "0h";
+    }
+  }
+
+  $out;
 }
