@@ -1,3 +1,33 @@
+2003-05-29  Michael Yount <csf@moscow.com>
+
+	* bin/mj_email, mj_queuerun:  (connect_and_parse)  Discard the
+	message instead of forwarding it if the connection fails.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200305290.
+	(connect)  Integrate the block_headers setting with the
+	access_rules setting.
+
+	* lib/Mj/Access.pm:  (check_headers)  Integrate the
+	block_headers setting with the access_rules setting.
+	(_d_access)  Deny connections if one of the block_headers
+	patterns matched.
+	(_d_post)  Consult the owners if any non-capitalized taboo
+	pattern matched.
+	(describe_taboo)  Rename Mj::Resend::_describe_taboo and
+	add error file support.
+
+	* lib/Mj/CommandProps.pm:  Add "block" variable for
+	the "access" command and the "reason" action for the
+	"access" and "advertise" commands.
+
+	* lib/Mj/Config.pm:  (parse_access_rules, _compile_rule)  
+	Add support for "block" variables from the block_headers 
+	setting.
+
+	* lib/Mj/Resend.pm:  (_ck_tbody_line)  Make this function
+	a method to allow error file support.
+	(_describe_taboo)  Relocate to Mj::Access::describe_taboo.
+
 2003-05-27  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Archive.pm:  (add_start)  Add workaround for

@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200301180";
+$VERSION = "0.1200305290";
 $unique = 'AAA';
 
 use strict;
@@ -286,7 +286,7 @@ sub connect {
   my $addr = shift || 'unknown@anonymous';
   my $pw   = shift || '';
   my $log = new Log::In 50, "$int, $addr";
-  my ($dir1, $dir2, $err, $expire, $id, $loc, $ok, $path, $pdata, 
+  my ($avars, $dir1, $dir2, $err, $expire, $id, $loc, $ok, $path, $pdata, 
       $req, $sfile, $tmp, $user);
 
   $user = new Mj::Addr($addr);
@@ -378,6 +378,15 @@ sub connect {
   print {$self->{sessionfh}} "PID:    $$\n\n";
   print {$self->{sessionfh}} "$sess\n";
 
+  if ($int =~ /^email/ or $int eq 'request') {
+    ($ok, $err) = $self->check_headers($sess);
+    $avars = $err if ($ok);
+  }
+  else {
+    $ok = 1;
+    $avars = { 'reasons' => [] };
+  }
+
   # Now check if the client has access.  (Didn't do it earlier because we
   # want to save the session data first.)
   $req = {
@@ -387,12 +396,10 @@ sub connect {
           'user'    => $user,
          };
 
-  ($ok, $err) = $self->global_access_check($req);
-
-  # Access check succeeded; now try the block_headers variable if applicable.
-  if ($ok > 0 and ($int =~ /^email/ or $int eq 'request')) {
-    ($ok, $err) = $self->check_headers($sess);
+  if ($ok) {
+    ($ok, $err) = $self->global_access_check($req, %$avars);
   }
+
   # If the access check failed we tell the client to sod off.  Clearing the
   # sessionid prevents further actions.
   unless ($ok > 0) {
@@ -1840,6 +1847,7 @@ sub s_expire {
   }
 
   $dh = new DirHandle $dir;
+  return unless (defined $dh);
 
   while (defined($i = $dh->read)) {
     next if $i eq '.' or $i eq '..';
