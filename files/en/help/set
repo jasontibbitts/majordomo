@@ -134,6 +134,7 @@ a separate section.
       (ackdeny, ackpost, ackreject, ackstall, ackall, ackimportant, noack)
   Copies of your own posts (selfcopy)
   Visibility to the "who" command (hideall, hideaddress, nohide, showall)
+  Visibility of your messages in a public archive (hidepost)
   Avoid courtesy copies (eliminatecc)
   Add a Subject header prefix (prefix)
   Add a Reply-to header (replyto)
@@ -338,6 +339,25 @@ addition to the actual address.  For example, the address
 has the comment "Joe Blow".  The "hideaddress" setting will leave any
 comments visible to the "who" command.
 
+            Visibility of your messages in a public archive
+
+The "hidepost" setting determines whether or not messages that you post
+to a mailing list are stored permanently in a public archive:
+     hidepost   - Your messages will not be stored permanently.
+     nohidepost - Your messages may be stored permanently, at the
+                  discretion of the list owners.
+
+Example:
+To keep your messages private, use the following command:
+  set LISTNAME hidepost
+
+Turning on this setting will keep any future messages that you post from
+being displayed by the archive command.  It is usually possible to prevent
+selected messages from being archived if you add one of the following
+two headers to a message when you post it:
+  X-no-archive: yes
+  Restrict: no-external-archive
+
 
                          Avoid courtesy copies
 
@@ -443,13 +463,23 @@ $post_block
 ...would cause all messages from subscribers with the postblock flag set
 to be discarded.  One weakness of the postblock flag is that it may be
 cleared if a subscriber unsubscribes from the list and then
-resubscribes.
+resubscribes.  
+
+Similarly, the hidepost flag will cause the $hide_post access variable to be
+set.  Both of these flags can also apply to posts from people who are not
+subscribed to the mailing list (see "help configset_nonmember_flags" and 
+"help access_variables" for more details.)
 
 The default settings for new subscribers are determined by the list owners 
 (see "help configset_default_class" and "help configset_default_flags".)
 
 The acknowledgement settings also apply to people who are not subscribed
-to a mailing list (see "help configset_nonmember_flags".)  
+to a mailing list (see "help configset_nonmember_flags" for more details.)  
+
+Like posts affected by the "hidepost" setting, some messages may not be 
+archived if the body or headers of a message match one or more patterns 
+(see "help configset_noarchive_body" and "help configset_noarchive_headers" 
+for more details).
 
 The list owners can also prohibit subscribers from changing some or all 
 of their personal settings (see "help configset_allowed_classes", 
@@ -472,13 +502,13 @@ message when an acknowledgement is sent for a posted message.
 See Also:
    help access_variables
    help configset_access_rules     (to restrict or allow access to 'set' changes)
-   help configset ack_attach_original (attaches post to error message if stalled)
-   help configset allowed_flags    (restricts subscribers ability to set flags)
-   help configset allowed_classes  (restricts subscribers ability to set digest)
-   help configset default_class    (sets per-list defaults before subscribing)
-   help configset default_flags    (sets per-list defaults before subscribing)
-   help configset dup_lifetime     (can bypass duplicate post checking)
-   help configset nonmember_flags  
+   help configset_ack_attach_original (attaches post to error message if stalled)
+   help configset_allowed_flags    (restricts subscribers ability to set flags)
+   help configset_allowed_classes  (restricts subscribers ability to set digest)
+   help configset_default_class    (sets per-list defaults before subscribing)
+   help configset_default_flags    (sets per-list defaults before subscribing)
+   help configset_dup_lifetime     (can bypass duplicate post checking)
+   help configset_nonmember_flags  
    help configshow                 (for how to get a list of availabel digests)
    help show      (displays all of the current settings for one subscriber)
    help subscribe (to choose the comment that appears with your address)
