@@ -173,8 +173,8 @@ sub address {
   my $addr = shift;
   my $deferred = shift;
   my $failed = shift;
-  my $log = new Log::In 150, "$addr";
-  my ($code, $good, $i, $mess, $val, $j, $recip);
+  my $log = new Log::In 150;
+  my ($code, $i, $j, $k, $mess, $recip, $val);
   
   unless (ref $addr) {
     $addr = [$addr];
@@ -187,16 +187,14 @@ sub address {
     $self->{'rcpt'} = $addr->[0];
   }
 
-  $good = 0;
-
   unless ($self->{'initialized'}) {
     return 0 unless $self->init;
   }
 
-
   # $i counts the RCPT TO commands that have been sent
   # $j counts the responses that have been received
   for ($i = 0, $j = 0 ; $j < scalar (@{$addr}) ; ) {
+    $log->message(150, 'info', "Sent: $i Received: $j");
     if ($i < scalar (@{$addr})) {
       $recip = ${$addr}[$i];
       ($val, $code, $mess) = $self->{'smtp'}->RCPT($recip);
@@ -204,16 +202,24 @@ sub address {
     else {
       # All of the RCPT TO commands have been sent.
       # Wait for a response to arrive.
+      $log->message(150, 'info', "Awaiting response for $addr->[$j]");
       ($val, $code, $mess) = 
         $self->{'smtp'}->getresp(1, 5);
     }
       
-    # If we got a bad error, defer processing the address until all
+    # Pipelining with no response.  Increment the RCPT count.
+    if ( (! defined $val ) and 
+         $self->{'smtp'}->{'pipelining'} and
+         $i < scalar(@{$addr})
+       )
+    {
+      $i++;
+    }
+    # Unrecoverable 4xx or 5xx error, or response timeout:  
+    # defer processing the address until all
     # other addresses have been handled.  If the address was already
     # deferred, move it into the failed list.
-    if ($val == 0 or (! defined $val
-                      and (not $self-{'smtp'}->{'pipelining'} 
-                           or $i >= scalar (@{$addr})))) {
+    elsif ((! defined $val) or $val == 0) {
       $log->message(150, 'info', "Address ${$addr}[$j] failed during RCPT TO.");
       my ($badaddr) = splice @{$addr}, $j, 1;
       if (grep {$_->[0] eq $badaddr} @{$deferred}) {
@@ -224,32 +230,62 @@ sub address {
       }
       return 0;
     }
-
     # 452 return code: too many recipients or lack of disk space.
-    if ($val == -2) {
+    elsif ($val == -2) {
+
       # Checkpoint; discard responses.
-      for ( ; $i > $j ; $i-- ) {
-        $self->{'smtp'}->getresp(1, 5);
+      for ($k = $j + 1 ; $i > $j + 1 ; $i--, $k++ ) {
+        $log->message(150, 'info', "Discarding response for $addr->[$k]");
+        $log->message(150, 'info', "Sent: $i Received: $j");
+
+        ($val, $code, $mess) = 
+          $self->{'smtp'}->getresp(1, 15);
+
+        # No response--splice out the stalled address and start over.
+        if (! defined $val) {
+          my ($badaddr) = splice @{$addr}, $k, 1;
+          if (grep {$_->[0] eq $badaddr} @{$deferred}) {
+            push @{$failed}, [$badaddr, $code, $mess];
+          }
+          else {
+            push @{$deferred}, [$badaddr, $code, $mess];
+          }
+          return 0;
+        }
       }
-      # We can't send any more RCPTs, so we send ourselves and start over.
+
+      # We can't send any more RCPTs, so send using the accepted
+      # recipients and reinitialize.
       if ($self->{'addressed'}) {
+        for ($j-- ; $j >= 0 ; $j-- ) {
+          splice @{$addr}, $j, 1;
+        }
+        $i = $j = 0;
         $self->send;
       }
       else {
         ($val, $code, $mess) = $self->{'smtp'}->RSET;
         $self->{'initialized'} = 0;
+        $i = $j;
+
+        # splice out the address to avoid a loop.
+        my ($badaddr) = splice @{$addr}, $j, 1;
+        if (grep {$_->[0] eq $badaddr} @{$deferred}) {
+          push @{$failed}, [$badaddr, $code, $mess];
+        }
+        else {
+          push @{$deferred}, [$badaddr, $code, $mess];
+        }
       }
       # A new MAIL FROM will be required if send() succeeded.
       unless ($self->{'initialized'}) {
         return 0 unless $self->init;
       }
-      # backtrack 
-      $recip = ${$addr}[$i];
-      ($val, $code, $mess) = $self->{'smtp'}->RCPT($recip);
     }
+
     # 450 return code: mailbox busy; try again at the end of the delivery.
     # 450 is returned by some MTAs if a DNS lookup timed out.
-    if ($code == 450) {
+    elsif ($code == 450) {
       my ($badaddr) = splice @{$addr}, $j, 1;
       if (grep {$_->[0] eq $badaddr} @{$deferred}) {
         push @{$failed}, [$badaddr, $code, $mess];
@@ -258,19 +294,24 @@ sub address {
         push @{$deferred}, [$badaddr, $code, $mess];
       }
     }
-    # Any other non-fatal error (550 551 553 451) should be reported.
+    # Any other non-fatal error (550 551 552 553 451) should be reported.
     elsif ($val == -1) {
       my ($badaddr) = splice @{$addr}, $j, 1;
       push @{$failed}, [$badaddr, $code, $mess];
     }
-
-    if ($val > 0) {
-      $i++;
+    # Success
+    else {
+      $i++ if ($i < scalar(@{$addr}));
       $j++; 
       $self->{'addressed'} = 1;
     }
+
+    # Compensate for spliced addresses if all recipients have been sent.
+    if ($i > scalar(@{$addr})) {
+      $i = scalar(@{$addr});
+    }
   }
-     
+
   return $self->{'addressed'} ? 1 : -1;
 }
 
