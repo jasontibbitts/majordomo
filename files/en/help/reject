@@ -1,58 +1,143 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 reject[-quiet] [token] [comment]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-token,   if specified, is the magic number sent to you by Majordomo
-comment, if specified, is passed from the owner to the subscriber
+token,   if specified, is a temporary password
+comment, if specified, gives a reason the confirmation was rejected
 -quiet,  if specified, turns off acknowledgements and notifications
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The 'reject' command tells Majordomo to disallow or cancel some requested
-action. Note that the token can be returned from the address which made
-the request, or from another address! If you did not make the request, be
-sure you follow up with whoever did after accepting or rejecting the token.
+The reject command tells Majordomo to disallow a Majordomo command or
+posted message that requires confirmation.  
 
-Some commands will require your confirmation before their actions will be
-taken; this can help protect you from mischief by preventing others from
-submitting commands in your name.  In such a case, a 'token' will be
-mailed to you for approval. (For example, joe@nowhere.com tries to
-subscribe mary@elsewhere.com to an email list - perhaps Joe is doing
-Mary a favor, or perhaps he's being malicious... either way, Mary gets
-a token so she can accept or reject the subscription before it happens.)
+Some Majordomo commands require confirmation before their actions will
+be taken; this can help protect you from mischief by preventing others
+from submitting commands in your name.  Majordomo will email a
+confirmation notice to the person affected by the command.  For example,
+if joe@example.com tries to subscribe mary@example.net to a mailing list
+- perhaps Joe is doing Mary a favor, or perhaps he's being malicious -
+the confirmation notice is sent to mary@example.net.  If Mary does not
+want to subscribe to the list, she can use the reject command to refuse
+the subscription.
 
-A token is also called a magic number, because you are getting an email
-message with a long number in the subject line. That number is remembered
-by Majordomo. When you send the number back Majordomo knows it has reached
-you because the number acts like a one-time-only password.
+When Majordomo sends a confirmation notice, it randomly chooses a
+temporary password, called a "token," that identifies the command that
+requires confirmation.  The token usually appears in the Subject header
+of the confirmation message.  If the following command is sent to
+$MJ:
 
-If the token is omitted from the command, the Subject: header will be
-searched for one; rejecting a token therefore usually requires only that
-you hit "reply" on your mailer and type the word "reject".
+  reject
 
-Once Majordomo receives your rejection, the stalled command will be
-cancelled immediately instead of timing out or continuing to wait for
-confirmation. The results will be returned in a response message. When the
-token is rejected, notification of the rejection will be sent to the site
-owner, the list owner, and the "victim" of the rejection unless the
-"-quiet" option is specified.
+Majordomo will look in the Subject header of the message for the token.
+If the token is not present in the Subject header, it must be included
+on the command line, for example:
 
-If you do not accept or reject the token, Majordomo eventually "times out"
-based on site or list settings. Waiting too long is the same as rejecting.
-Majordomo will try to remind you that it is about to give up before
-timing out. The list owner or site administrator sets the number of days
-for token reminders and expirations.
+  reject DC1B-78A3-09BF 
 
-Site administrators should refer to "help configset access_rules" for
-ways to change the message which asks for accept/reject tokens.
 
-The "comment" string is only used for "consult" tokens, and only if
-the action was acknowledged.  In the case of a rejection, the victim
-must have the "ackall" flag set to receive an acknowledgement.
+Once a token is rejected, the command it represents is discarded, and
+the token immediately stops being valid.  Rejecting the same token more
+than once will usually result in an error.
+
+When a token is rejected, a notice may be emailed to the person affected
+by the command (Mary in the previous example).  Notices may also be sent
+to the list and domain administrators.   These notices contain all of
+the information that Majordomo recorded about the command, to help the
+people affected to investigate if the command was issued maliciously.
+To prevent any notices from being sent, use "quiet" mode, for example:
+
+  reject-quiet AB19-8294-FF3D
+
+
+If you reject a token, you can include a brief explanation of your
+reasons on the command line, which will be included in the notice, for
+example:
+
+  reject 9801-DC89-7741  I didn't ask to be subscribed to this list.
+
+
+                        Notes for administrators
+
+If a token is not accepted or rejected, one reminder notice will usually
+be sent after a few days.  Eventually, the token will expire, and the
+command will not be completed.  See "help configset_token_lifetime" and
+"help configset_token_remind" for more details.
+
+The following rules determine if, and to whom, notices are sent:
+
+  * If "quiet" mode is used, no notices are sent.
+
+  * If a "confirm" token is rejected, notices are sent to the list 
+    and domain administrators.  These addresses are taken from
+    whoami_owner configuration setting.  These notices are not sent
+    if the "nolog" or "noinform" command mode is used.
+
+  * If a "confirm" token is rejected, a notice is sent to the person
+    affected by the command that was rejected. (Mary would receive a
+    notice in our previous example.)
+
+  * If a non-"confirm" token is rejected, a notice is sent to the
+    person affected if the "ackreject" flag is set for that person.
+    See "help set" and "help configset_nonmember_flags" for more
+    information about the ackreject flag and other personal settings.
+
+By default, the contents of a notice that is sent to the person affected
+come from the "token_reject" file if a non-"consult" token is rejected,
+or from the "ack_rejection" file if a "consult" token is rejected.  The
+contents of a notice that is sent to an administrator come from the
+"token_reject_owner" file.  These files can be customized on a
+list-by-list basis.
+
+If a "consult" token is rejected by a list administrator, a file name
+from a mailing list's file space can be used to supply the notice.
+For example, if there is a "/off-topic" file in the file space of your
+mailing list, you could use the following command:
+
+  reject 843D-21FE-AC89 /off-topic
+
+to include the contents of the file in the rejection notice.
+
+All rejection notices can make use of substitution variables.  The
+substitutions supported include the standard substitutions, plus
+CMDLINE, COMMAND, DATE, MESSAGE, REJECTER, REQUESTER, SESSIONID, TOKEN,
+and VICTIM.  See "help variables" for more details on substitutions.
+
+See "help admin_documents" for an introduction to the file space and
+document customization.
+
+If a posted message is rejected, the original message may be attached to
+the rejection notice, as required by the ack_attach_original
+configuration setting.  See "help configset_ack_attach_original" for
+more information.
+
+More than one token can be rejected at once by using a here document,
+for example, the following command would reject three tokens:
+
+reject <<END
+23DC-1ADC-B339
+FA98-C340-0134
+B843-F128-95E0
+END
+
+See "help here_document" for an introduction to here documents.  Only
+tokens can be included in the here document.  Including explanations 
+in the here document will result in an error.
+
+The access_rules setting allows the confirmation message for a
+particular command to be customized.  See "help configset_access_rules"
+for more details.
+
 
 See Also:
    help accept      (the opposite action of "reject")
-   help access_variables (set and test in access_rules)
-   help configset_token_lifetime (site-wide or per-list expiration period)
-   help configset_token_remind   (site-wide or per-list reminder)
-   help showtokens  (for a list of unhandled requests)
+   help admin_documents
+   help admin_moderate
+   help configset_access_rules
+   help configset_ack_attach_original
+   help configset_token_lifetime
+   help configset_token_remind
+   help configset_whoami_owner
+   help here_document
+   help showtokens  (for a list of tokens awaiting approval)
+   help tokeninfo
 
 $INCLUDE-help/foot
