@@ -248,7 +248,7 @@ if (defined $extra[0]) {
 @hereargs = $cgi->param('hereargs');
 if (defined $hereargs[0]) {
   $subs->{'HEREARGS'} = [];
-  for $tmp (@extra) {
+  for $tmp (@hereargs) {
     next unless (defined $tmp and length $tmp);
     push @{$subs->{'HEREARGS'}}, Mj::Format::escape($tmp);
   }
@@ -257,7 +257,7 @@ if (defined $hereargs[0]) {
 @victims = $cgi->param('victims');
 if (defined $victims[0]) {
   $subs->{'VICTIMS'} = [];
-  for $tmp (@extra) {
+  for $tmp (@victims) {
     next unless (defined $tmp and length $tmp);
     push @{$subs->{'VICTIMS'}}, Mj::Format::escape($tmp);
   }
