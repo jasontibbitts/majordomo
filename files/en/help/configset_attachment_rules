@@ -12,98 +12,172 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname attachment_rules << ENDTAG
 text/plain | allow
-/.+/       | deny
+/.+/       | discard
 ENDTAG
 
+$INCLUDE-config/attachment_rules
 
-A table containing attachment rules, which describe how various MIME
-types are to be treated when they appear in messages sent to the list.
+Each message that is posted to a mailing list consists of one or more
+body parts.  Each body part has a particular type, sometimes called a
+"MIME type," which gives some indication about the contents of the part.
+For example, a body part containing a WWW document might have a
+"text/html" MIME type.  (MIME is an abbreviation for the name of the
+Internet standard for giving names to types) 
 
-A rule consists of a MIME type (or regular expression matching a MIME
-type) and a list of actions to perform when a message with this type
-or containing a part of this type passes through the list.  It looks
-something like this:
+Most plain text messages consist of one body part whose type is
+"text/plain".  When a message has more than one body part, the second
+and succeeding parts are usually called "attachments."  The
+"attachment_rules" setting is somewhat misnamed, because most rules apply
+to every body part, including the first part.
 
-mime/type | action=argument
+Each attachment rule occupies one line.  It is possible to place
+comments before, between, and after the individual rules, to indicate to
+other administrators what each rule is intended to accoomplish.
+Comments are lines that begin with a '#'.
 
-Some MIME types are:
+The attachment rules are used in two different situations.  When a
+posted message arrives, any rules with the "allow," "consult," or "deny"
+action are used to evaluate the contents of the message.  When a posted
+message is delivered, any rules with the "allow," "discard," or "format"
+action are used to alter the contents of the message.  
 
-text/plain, text/html, image/jpeg, video/mpeg
+The first rule that matches a particular body part takes precedence.
+For example, in the following two rules:
 
-Possible actions are:
+  text/html | consult
+  /^text/i  | deny
 
-  allow     - let the part pass
-  deny      - reject the entire message
-  discard   - remove the part from the message and pass the rest
-  consult   - send the entire message to the list owner for approval
-  (more are planned)
+any message that contains a "text/html" body part will cause the list
+moderators to be consulted; any message that contains another kind of
+text body part, for instance "text/plain" or "text/enriched," will cause
+the message to be denied.  Each part of a message body is examined
+separately.  If no rule matches, the part is allowed and not altered.
 
-allow and consult take an argument; if present, it should be a
-content-transfer-encoding.
-Majordomo will change the encoding of the
-part to match before it is sent.  Some valid encodings are "8bit",
-"base64", "quoted-printable", "x-uuencode" and "x-gzip64".  If an
-argument is not provided, the encoding will be left as is.  Due to the
-nature of MIME, be aware that the encoding can be changed at any
-machine that the message passes through, so the encoding you choose
-will not necessarily be the encoding that list members will see (and
-some may see different encodings than the others).
+The type on the left-hand side of an access rule can be an exact MIME
+type, or it can be a pattern that potentially matches many different
+MIME types (see "help patterns" for an explanation of how to write
+patterns).  For example, to discard all GIF images, use the following
+rule:
 
-Note that the first matching rule is the one that is used and types
-are by default allowed if no rule matches.  Deny and consult rules are
-applied first, and discard rules always apply, even for approved
-messages.
+  image/gif | discard
 
-Note also that deny and consult just set variables that can be checked
-in access_rules.  The default rule for posting normally takes care of
-these, but if you add any additional rules is is possible to override
-the checks made here.
+and to discard all images of any type, use this rule:
 
-A typical rule for this command looks like this:
-   mime/type | action=argument
+  /^image/i | discard
 
-The first field can be either an exact string (that is checked without regard
-to upper/lower case) or it can be a pattern (as defined by "help patterns").
+Exact MIME type matches are case-insensitive; for instance, "image/jpeg"
+and "Image/JPEG" are considered identical.
 
-Do not confuse this syntax with that of "access_rules"! The "action" may be
-set to "consult", but you can not specify a replyfile with "attachment_rules".
-You can, however, use these variables in "access_rules" to send a very precise
-message to the list owner or back to the poster whenever a match occurs:
-   \$mime_consult - true if any "consult" attachment_rules matched
-   \$mime_deny    - true if any "deny"    attachment_rules matched
-   \$mime         - true if either of \$mime_consult or \$mime_deny are true
 
-NOTE: As of 2/99, \$mime was not implemented.
+The consult, deny, and require actions
+--------------------------------------
+If the contents of a message call for both consult and deny actions,
+the deny action will take precedence.
 
-Pay close attention to the note above that says "discard" rules always apply.
-This can be used to delete portions of a message while letting the rest go
-out. Unlike "access_rules", all "attachment_rules" are processed each time...
-and a message which is trapped for a "consult" action will be processed
-again (for possible "discard") when it is delivered.
+By default, the consult action will cause a message to be sent to the
+moderators of a mailing list for approval, and the deny action will
+cause a message to be discarded entirely.  However, these default
+actions can be overridden using the access_rules configuration setting.
 
-In the context of MIME, all messages have a tree structure, with each node
-(including the root) having a type. Even if the message doesn't have any
-MIME-like headers, it still has a MIME type. That type is 'text/plain'.
+The following access variables will be set by consult and deny actions,
+and can be used in access rules for the "post" command:
+   \$mime_consult - true if any "consult" rule matched a body part
+   \$mime_deny    - true if any "deny"    rule matched a body part
+   \$mime         - true if either of \$mime_consult or \$mime_deny is true
+   \$mime_require - true if any "require" rule matched a body part
+
+The require action is useful for determining if a certain kind of body
+part is present in a message.  For example, the following rule:
+
+  /^text/i | require
+
+would cause the \$mime_require variable to be set if at least one text
+body part (such as text/plain, text/html, or text/enriched) is present
+in a message.  If you wish to prevent messages without a text body part
+from being posted to a mailing list, you could then use the following rule
+in the access_rules configuration setting:
+
+  post
+  deny, reason="Posted messages must have text in their bodies."
+  !$mime_require
+
+See "help configset_access_rules" for details on how to use these
+variables in access rules.
+
+
+The discard action
+------------------
+The discard action causes body parts to be discarded entirely,
+from every message posted to a mailing list.  For example, many messages
+have "multipart/alternative" bodies, with a "text/plain" part and a
+"text/html" part.  Because "text/html" parts can contain a malicious
+computer virus, list owners may want to use the following attachment
+rule to remove them:
+
+text/html | discard
+
+The discard action only applies to messages with more than one body
+part.  As a result, if someone posts a message that consists only of a
+"text/html" body part, the discard rule in the previous example will
+have no effect.  In the following example, both rules will have an
+effect, even though they both match the "text/html" MIME type:
+
+text/html | discard
+text/html | format
+
+The first rule will cause text/html parts in multi-part messages to be
+removed.  The second rule will cause text/html parts in single-part
+messages to have their HTML formatting removed.
+
+For each body part removed due to a discard action, an X-Content-Discarded
+header will be added to the message when it is delivered.
+
+
+The format action
+-----------------
+The format action alters message contents in two ways.  It removes
+hypertext markup tags from "text/html" or "text/enriched" body parts,
+and converts them into "text/plain" body parts.  It can also establish
+the position of the width of the resulting text; by default, the width
+of the text is 72 characters.  For example, to turn all rich text
+body parts into plain text, use the following rule:
+
+text/enriched | format
+
+To turn all HTML body parts into text with an 80 character width,
+use this rule:
+
+text/html | format=80
+
+For each body part changed due to a format action, an 
+X-Content-Reformatted header will be added to the message when it is 
+delivered.
+
+The reformatted text will be left-justified, regardless of its original
+placement.
+
+
+Unimplemented features
+----------------------
+The allow and consult actions take an argument which is intended to be a
+content-transfer-encoding.  Using a different encoding would cause the
+encoding to be changed.   Some valid encodings are "8bit", "base64",
+"quoted-printable", "x-uuencode" and "x-gzip64".  If an argument is not
+provided, the encoding will be left as is.  Due to the nature of MIME,
+be aware that the encoding can be changed at any machine that the
+message passes through, so the encoding you choose will not necessarily
+be the encoding that list members will see (and some may see different
+encodings than the others).  At present, this feature is unimplemented.
 
 The "attachment_rules" command doesn't trap raw uuencode or any other form
-of non-MIME attachment as of 2/99 - but it could, given patches. The original
-proposal encompassed uuencoded and MS-TNEF and other stuff but nobody has
-contributed the code. Feel free to do so! (By the way, using taboo_body or
-admin_body to look for the "begin" tag of uuencoded data may fail if there
-is a content-type header, because it is seen as part of MIME encoding, but
-refer to "help configset admin_body" for more information.)
+of non-MIME attachments. 
 
-Simplistic mail clients cannot view anything other than plain text, and
-while there ways to unpack attachments (like the "munpack" tool) it can
-be enough of a hassle to discourage some readers. To disable ALL MIME
-attachments, allowing only plain text, use this attachment_rule:
-   text/plain | allow
-   /.*/       | deny
-but be sure to use "access_rules" to let the poster know what happened.
 
-It is possible to use comments before, between, and after the individual
-rules, but not within rules.  Comments are lines that begin with a '#'.
+See Also:
+   help admin_delivery
+   help admin_moderate
+   help configset_access_rules
+   help configset_admin_body
+   help configset_taboo_body
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
