@@ -7954,6 +7954,16 @@ sub trigger {
     $elapsed = $::log->elapsed;
     ($ok, @data) = $self->r_expire;
     while (($addr, undef) = splice @data, 0, 2) {
+      $key = new Mj::Addr($addr);
+      $farewell = $self->_list_config_get('GLOBAL', 'farewell');
+      $farewell_table = $self->_list_config_get('GLOBAL', 'farewell_files');
+      if (defined $key and $farewell and defined $farewell_table) {
+        $self->welcome('GLOBAL', $key, $farewell_table,
+                       'PASSWORD' => '',
+                       'REGISTERED' => 0,
+                      );
+      }
+
       # Log the removal of the registration.
       $self->inform('GLOBAL', 'unregister', $request->{'user'},
                     $addr, "unregister $addr",
@@ -8030,6 +8040,7 @@ sub trigger {
             next unless $data;
             $self->welcome($list, $key, $farewell_table,
                            'PASSWORD' => $data->{'password'},
+                           'REGISTERED' => 1,
                           );
           }
         }
@@ -8235,7 +8246,8 @@ sub unregister {
 sub _unregister {
   my ($self, $list, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, "$vict";
-  my (@out, @removed, @aliases, $data, $key, $l, $over, $tmp);
+  my (@out, @removed, @aliases, $data, $fw, $fw_table, $gfw, 
+      $gfw_table, $key, $l, $over, $tmp);
 
   # Since we call inform() ourselves, we must decide whether to
   # override owner information.  We can assume that the
@@ -8259,6 +8271,11 @@ sub _unregister {
     return (0, "Cannot unregister $vict:  no matching addresses.");
   }
 
+  $gfw = $self->_list_config_get('GLOBAL', 'farewell');
+  $gfw_table = $self->_list_config_get('GLOBAL', 'farewell_files');
+  $gfw = 1 if $mode =~ /farewell/;
+  $gfw = 0 if $mode =~ /(nofarewell|quiet)/;
+
   while (($key, $data) = splice(@removed, 0, 2)) {
     $key = new Mj::Addr($key);
 
@@ -8267,6 +8284,21 @@ sub _unregister {
       next unless $self->_make_list($l);
       $tmp = $::log->elapsed;
       $self->{'lists'}{$l}->remove('', $key);
+
+      # Send a farewell message if necessary.
+      if (defined $key) {
+        $fw = $self->_list_config_get($l, 'farewell');
+        $fw = 1 if $mode =~ /farewell/;
+        $fw = 0 if $mode =~ /(nofarewell|quiet)/;
+        $fw_table = $self->_list_config_get($l, 'farewell_files');
+
+        if ($fw and defined $fw_table) {
+          $self->welcome($l, $key, $fw_table,
+                         'PASSWORD' => '',
+                         'REGISTERED' => 0,
+                        );
+        }
+      }
 
       # Log the removal of the subscription.
       $self->inform($l, 'unsubscribe', $requ, $key, $cmd,
@@ -8277,6 +8309,13 @@ sub _unregister {
     @aliases = $self->_alias_reverse_lookup($key, 1);
     for (@aliases) {
       $self->{'alias'}->remove('', $_);
+    }
+
+    if (defined $key and $gfw and defined $gfw_table) {
+      $self->welcome('GLOBAL', $key, $gfw_table,
+                     'PASSWORD' => '',
+                     'REGISTERED' => 0,
+                    );
     }
     push (@out, $data->{'fulladdr'});
   }
@@ -8389,6 +8428,7 @@ sub _unsubscribe {
       next unless $data;
       $ok = $self->welcome($list, $key, $farewell_table,
 			   'PASSWORD' => $data->{'password'},
+                           'REGISTERED' => 0,
 			  );
     }
   }
