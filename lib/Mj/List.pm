@@ -226,9 +226,10 @@ sub remove {
   my $mode = shift;
   my $addr = shift;
   my $sublist = shift || 'MAIN';
-  my ($a);
+  my ($a, $dbmode);
 
-  if ($mode =~ /regex/) {
+  if ($mode =~ /regex/ || $mode =~ /pattern/) {
+    $dbmode = "regex";
     $a = $addr;
   }
   else {
@@ -239,7 +240,7 @@ sub remove {
   return (0, "Unable to access subscriber list \"$sublist\".")
     unless $self->_make_aux($sublist);
 
-  $self->{'sublists'}{$sublist}->remove($mode, $a);
+  $self->{'sublists'}{$sublist}->remove($dbmode, $a);
 }
 
 =head2 is_subscriber(addr)

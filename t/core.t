@@ -1,50 +1,47 @@
 # Test Majordomo by calling core routines.
 $debug = 0;
-
-END {
-  system("/bin/rm -rf tmp.$$");
-}
+$tmpdir = "/tmp/mjtest.$$";
 
 use lib "blib/lib";
 use Carp qw(cluck);
 $SIG{__WARN__} = sub {cluck "--== $_[0]"};
 
-print "1..11\n";
+print "1..12\n";
 
 $| = 1;
 $counter = 1;
 
-# 1
+# 1 - Load the stashed configuration
 eval('$config = require ".mj_config"');
 $a = $config;
 undef $a;     # Quiet 'used only once' warning.
 ok(1, !$@);
 
 # Create the directory structure we need
-mkdir "tmp.$$", 0700 || die;
-mkdir "tmp.$$/locks", 0700 || die;
-mkdir "tmp.$$/SITE", 0700 || die;
-mkdir "tmp.$$/SITE/files", 0700 || die;
-mkdir "tmp.$$/SITE/files/en", 0700 || die;
-mkdir "tmp.$$/SITE/files/en/config", 0700 || die;
+mkdir "$tmpdir", 0700 || die;
+mkdir "$tmpdir/locks", 0700 || die;
+mkdir "$tmpdir/SITE", 0700 || die;
+mkdir "$tmpdir/SITE/files", 0700 || die;
+mkdir "$tmpdir/SITE/files/en", 0700 || die;
+mkdir "$tmpdir/SITE/files/en/config", 0700 || die;
 
-open FILE, ">tmp.$$/SITE/files/INDEX.pl";
+open FILE, ">$tmpdir/SITE/files/INDEX.pl";
 print FILE "\$files = {}; \$dirs = []; [\$files, \$dirs];\n";
 close FILE;
 
-open FILE, ">tmp.$$/SITE/files/en/config/whereami";
+open FILE, ">$tmpdir/SITE/files/en/config/whereami";
 print FILE "placeholder for whereami\n";
 close FILE;
 
 
-mkdir "tmp.$$/test", 0700 || die;
-mkdir "tmp.$$/test/GLOBAL", 0700 || die;
-mkdir "tmp.$$/test/DEFAULT", 0700 || die;
-mkdir "tmp.$$/test/GLOBAL/files", 0700 || die;
-mkdir "tmp.$$/test/GLOBAL/sessions", 0700 || die;
+mkdir "$tmpdir/test", 0700 || die;
+mkdir "$tmpdir/test/GLOBAL", 0700 || die;
+mkdir "$tmpdir/test/DEFAULT", 0700 || die;
+mkdir "$tmpdir/test/GLOBAL/files", 0700 || die;
+mkdir "$tmpdir/test/GLOBAL/sessions", 0700 || die;
 
 
-open SITE,">tmp.$$/SITE/config.pl";
+open SITE,">$tmpdir/SITE/config.pl";
 print SITE qq!
 \$VAR1 = {
           'mta'           => '$config->{mta}',
@@ -57,13 +54,13 @@ print SITE qq!
 close SITE;
 
 # Set up variables that need to be set; avoid warnings
-$::LOCKDIR = $::LOCKDIR = "tmp.$$/locks";
+$::LOCKDIR = $::LOCKDIR = "$tmpdir/locks";
 
-#1 - Load the module
+#2 - Load the module
 eval "require Majordomo";
 ok(1, !$@);
 
-#2 - Load the logging module
+#3 - Load the logging module
 eval "require Mj::Log";
 ok(1, !$@);
 
@@ -82,18 +79,17 @@ if ($debug) {
 	     );
 }
 
-#3 - Allocate a Majordomo object
-$mj = new Majordomo "tmp.$$", 'test';
+#4 - Allocate a Majordomo object
+$mj = new Majordomo "$tmpdir", 'test';
 ok(1, !!$mj);
 
-#4 - Connect to it
+#5 - Connect to it
 $ok = $mj->connect('testsuite', "Testing, pid $$\n");
 ok(1, !!$ok);
 
-#5 - Use the site password to set the domain's master password.  Screw it
+#6 - Use the site password to set the domain's master password.  Screw it
 #up once just to check.
-$request = {%proto,
-	    password => 'badpass',
+$request = {password => 'badpass',
 	    command  => 'configset',
 	    list     => 'GLOBAL',
 	    setting  => 'master_password',
@@ -103,21 +99,25 @@ $request = {%proto,
 $result = $mj->dispatch($request);
 ok(0, $result->[0]);
 
+#7 - Now use the proper password
 $request->{password} = 'hurl';
 $result = $mj->dispatch($request);
 ok(1, $result->[0]);
 
+#8 - Set whereami
 $request->{password} = 'gonzo';
 $request->{setting}  = 'whereami';
 $request->{value}    = ['example.com'];
 $result = $mj->dispatch($request);
 ok(1, $result->[0]);
 
+#9 - Make sure whereami got set
 $request->{command}  = 'configshow';
 $request->{groups}   = ['whereami'];
 $result = $mj->dispatch($request);
 ok('example.com', $result->[1][3]);
 
+#10 - Create a list
 $result = $mj->dispatch({user     => 'unknown@anonymous',
 			 password => 'gonzo',
 			 command  => 'createlist',
@@ -126,10 +126,12 @@ $result = $mj->dispatch({user     => 'unknown@anonymous',
 			 victims  => ['nobody@example.com']});
 ok(1, $result->[0]);
 
+#11 - Make sure the list was created
 $result = $mj->dispatch({user     => 'unknown@anonymous',
 			 command  => 'lists'});
 ok('bleeargh', $result->[1]{list});
 
+#12 - Set inform so we don't send any mail
 $result = $mj->dispatch({user     => 'unknown@anonymous',
 			 password => 'gonzo',
 			 command  => 'configset',
@@ -139,7 +141,13 @@ $result = $mj->dispatch({user     => 'unknown@anonymous',
 			 });
 ok(1, $result->[0]);
 
-$result = 
+# Shut things down and delete the temporary directory.  For some reason,
+# some systems refuse to delete the directory.  I think this may have
+# something to do with NFS.
+undef $mj;
+system("/bin/rm -rf $tmpdir");
+
+exit 0;
 
 sub ok {
   my $expected = shift;
@@ -201,10 +209,10 @@ ok($e, $r);
 
 sub run {
   if ($config->{'wrappers'}) {
-    $cmd = "$^X -T -I. -Iblib/lib blib/script/.mj_shell -Z --lockdir tmp.$$/locks -t tmp.$$ -d test " . shift;
+    $cmd = "$^X -T -I. -Iblib/lib blib/script/.mj_shell -Z --lockdir $tmpdir/locks -t $tmpdir -d test " . shift;
   }
   else {
-    $cmd = "$^X -T -I. -Iblib/lib blib/script/mj_shell -Z --lockdir tmp.$$/locks -t tmp.$$ -d test " . shift;
+    $cmd = "$^X -T -I. -Iblib/lib blib/script/mj_shell -Z --lockdir $tmpdir/locks -t $tmpdir -d test " . shift;
   }
   $cmd .= " -D"
     if (shift());
@@ -214,7 +222,7 @@ sub run {
 }
 
 END {
-  system("/bin/rm -rf tmp.$$");
+  system("/bin/rm -rf $tmpdir");
 }
 
 1;

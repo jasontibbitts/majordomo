@@ -1101,7 +1101,7 @@ sub _defaults {
   $self->{'source'}{'installation'}{'raw'} = 
     eval ${$self->{'default_string'}};
   if ($@) {
-    $::log->abort("Eval of config defaults failed: $@");
+    $::log->abort("Eval of config defaults failed: $@\nDefaults string is:\n${$self->{'default_string'}}");
   }
 
   delete $self->{'defaulting'};

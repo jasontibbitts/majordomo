@@ -1,3 +1,17 @@
+2000-10-19  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (_defaults): When an eval of the defaults
+	string fails, print it out.
+
+	* t/core.t: Clean up a bit.
+
+	* t/shell.t: Set some variables to allow non-internet-connected
+	hosts to run the tests.
+
+	* lib/Mj/List.pm (remove): Mode "pattern" is valid for
+	unsubscribe, but "regex" needs to be passed to the database
+	routines.
+
 2000-10-18  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm (_who):  Display aliasing commands
