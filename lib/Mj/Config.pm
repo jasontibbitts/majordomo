@@ -3149,7 +3149,7 @@ sub _str_to_clock {
   }
 
   # No putting it off; deal with weekdays
-  elsif ($arg =~ /^(m|tu|w|th|f)[dayonesuri]*\((.*)\)/) {
+  elsif ($arg =~ /^(su|m|tu|w|th|f|sa)[dayonesurit]*\((.*)\)/) {
     # mon(0-6, 12, 20-23)
     $flag = 'w';
     $day = $days{$1};
@@ -3170,7 +3170,7 @@ sub _str_to_clock {
       push @out, [$flag, $start, $end];
     }
   }
-  elsif ($arg =~ /^(m|tu|w|th|f)[dayonesuri]*/) {
+  elsif ($arg =~ /^(su|m|tu|w|th|f|sa)[dayonesurit]*/) {
     # just a day, no parenthesized times
     $flag  = 'w';
     $day   = $days{$1};
