@@ -9,6 +9,11 @@ Switch over one of my lists.  (How?  Manually maintain subscription
   list?  Put Mj2 at the normal address and forward requests to other
   lists to the old server?  (Hmmm.)
 
+Bugs?
+-----
+
+Messages with empty first part always checksum the same?
+
 Top of the list 
 ---------------
 
@@ -31,7 +36,7 @@ Top of the list
   t/db.t will need work; it should test everything that's available and
   skip the rest.
 
-  Modules to be used: Text, BerkDB, MySQL.
+  Modules to be used: Text, BerkeleyDB, MySQL.
 
 ! Finish archive interface.
 

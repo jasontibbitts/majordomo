@@ -1,3 +1,7 @@
+Sat May 23 01:19:23 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* misc/testsmtp (putline): Fix dumb typo.
+
 Fri May 15 15:37:53 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* postinstall (install_response_files): Hacks to allow source

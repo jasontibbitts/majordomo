@@ -34,7 +34,7 @@ $sock = new IO::Socket::INET
   # Change to other hostnames to test them
   PeerAddr => 'localhost',
   PeerPort => 25,
-  Protp    => 'tcp',
+  Proto    => 'tcp',
   Timeout  => 60;
 die "No socket" unless $sock;
 
