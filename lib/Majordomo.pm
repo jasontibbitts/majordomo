@@ -325,6 +325,7 @@ sub dispatch {
   $request->{'list'} ||= 'GLOBAL';
   $request->{'user'} ||= 'unknown@anonymous';
   $request->{'mode'} ||= '';
+  $request->{'mode'} = lc $request->{'mode'};
 
   my $log  = new Log::In $level, "$request->{'command'}, $request->{'user'}";
 
@@ -3142,7 +3143,8 @@ sub createlist {
     return (0, "Illegal list name: $request->{'newlist'}")
       unless $self->legal_list_name($request->{'newlist'});
   }
-  
+ 
+  $request->{'newlist'} = lc $request->{'newlist'}; 
   $self->_fill_lists;
 
   # Check the password XXX Think more about where the results are
@@ -3802,6 +3804,13 @@ sub set {
 
   return (0, "The set command is not supported for the $request->{'list'} list.\n")
     if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT'); 
+
+  if ($request->{'setting'} =~ /(\w+)(-\S+)/) {
+    $request->{'setting'} = lc ($1) . $2;
+  }
+  else {
+    $request->{'setting'} = lc $request->{'setting'};
+  }
 
   ($ok, $mess) =
     $self->list_access_check($request->{'password'}, $request->{'auth'}, 
