@@ -79,8 +79,8 @@ delivered to a mailing list within the domain.  This allows subscribers
 to avoid cross-posted messages, using the "unique" delivery class
 (see "help set" for an explanation of delivery classes).
 
-The GLOBAL list shares (only) four configuration settings with all
-of the other mailing lists in the same domain.  These settings
+The GLOBAL list shares the values of (only) four configuration settings 
+with all of the other mailing lists in the same domain.  The four settings
 are admin_body, admin_headers, taboo_body, and taboo_headers.  These
 settings are combined with a mailing list's individual settings when
 Majordomo attempts to find prohibited content in posted messages.
