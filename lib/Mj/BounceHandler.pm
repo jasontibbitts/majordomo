@@ -55,6 +55,7 @@ sub handle_bounce {
   $whoami = $self->_global_config_get('whoami');
   $whoami =~ s/\@.*$//;
   $source = 'unknown@anonymous';
+  $addrs  = [];
 
   if (defined $ent) {
     chomp($source = $ent->head->get('from') ||
@@ -177,6 +178,7 @@ sub handle_bounce_message {
 
   # Now plow through the data from the parsers
   for $i (keys %$data) {
+    push @$addrs, $i;
     $tmp = $self->handle_bounce_user(%args,
 				     user   => $i,
 				     sender => $sender,
@@ -193,12 +195,11 @@ sub handle_bounce_message {
       else {
 	$subj  = "Bounce detected (list $list) from $i";
       }
-      push @$addrs, $i;
     }
   }
 
   # We can bail if we have nothing to inform the owner of
-  return [] unless @$addrs;
+  return $addrs unless (defined $subj);
 
   # Build a new message which includes the explanation from the bounce
   # parser and attach the original message.
