@@ -463,7 +463,10 @@ sub _post {
   $subject = $archead->get('subject') || ''; chomp $subject;
   $subject =~ /(.*)/; $subject = $1;
   # Convert the message date into a time value.
-  $date = $archead->get('date') || ''; chomp $date;
+  # Use the last Received header, or the Date header.
+  $date = (split /\s*;\s*/, ($arcent->head->get('received'))[-1])[-1] 
+          || $arcent->head->get('date');
+  chomp $date;
   $date = &str2time($date);
   $date = time unless ($date > 0 and $date < time);
   $date =~ /(\d+)/; $date = $1;
