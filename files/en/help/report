@@ -98,7 +98,78 @@ details.
 
 Log entries that are older than the number of days in the log_lifetime
 configuration setting are removed automatically.  Consequently, the
-report command is only useful for monitoring recent events.
+report command is only useful for monitoring recent events.  The 
+triggers configuration setting can be used to adjust the frequency with
+which old log entries are removed; by default, this happens daily.
+
+
+                            Special Events
+
+Several events which are recorded in the log do not have a
+corresponding Majordomo command.  Each of those events is described in
+this section.
+
+badtoken
+--------
+A GLOBAL "badtoken" failure is recorded when the accept command is used
+with a valid token identifier that does not currently exist in the token
+database.  This failure usually occurs when someone uses the accept
+command with a token that has recently expired or has been accepted or
+rejected by another person.  This error is only recorded if a token
+identifier in the correct format is used.  See "help showtokens" and
+"help tokeninfo" for an introduction to token identifiers.
+
+bounce
+------
+A "bounce" event is recorded when an e-mail message cannot be delivered
+to a subscriber of a mailing list or to someone who sent a Majordomo
+command to the server.
+
+connect
+-------
+A "connect" failure is recorded in the log when a message or command
+cannot be completed due to the configuration settings of the GLOBAL
+pseudo-list.  There are several situations in which this might occur:
+
+  * Someone sends an e-mail message containing commands to the Majordomo 
+    server, but the return address in the "From:" header of the message
+    is missing or contains an invalid address.
+
+  * Someone sends an e-mail message of any kind that is denied by
+    the GLOBAL access rules for the "access" action.
+
+  * Someone sends an e-mail message of any kind that contains a header
+    that is listed in the GLOBAL block_headers configuration setting.
+
+  * Someone attempts to access the web interface for list administrators
+    using invalid information (mailing list name, password, or e-mail
+    address).
+
+consult
+-------
+A "consult" event is recorded when a moderator of a mailing list uses
+the "accept" command to approve a posted message.  In the case of
+multiple moderators, it is helpful to distinguish "consult" actions from
+ordinary "accept" actions for the purpose of determining which moderator
+approved which message.
+
+expire
+------
+An "expire" event is recorded when a token identifier is removed
+automatically from the token database because its lifetime has expired.
+See "help configset_triggers" and "help token_lifetime" for more
+information about the expiration of tokens.
+
+newtoken
+--------
+A "newtoken" event is recorded whenever a command or posted message is
+held, awaiting someone's approval.
+
+parse
+-----
+A "parse" event is recorded when an e-mail message is processed for
+commands by the command parser, but no commands are found.
+
 
 See Also:
    help accept
@@ -106,7 +177,11 @@ See Also:
    help configset_access_rules (to limit access to this command)
    help configset_inform
    help configset_log_lifetime
+   help configset_token_lifetime
+   help configset_triggers
    help sessioninfo
+   help showtokens
    help times (for how to specify the report period)
+   help tokeninfo
 
 $INCLUDE-help/foot
