@@ -6134,6 +6134,14 @@ sub _show {
       }
     }
   }
+
+  # List ownerships
+  $out{'ownerships'} = [];
+  (undef, $data) = $self->{'lists'}{'GLOBAL'}->get_member($addr, 'owners');
+  if ($data) {
+    $out{'ownerships'} = [ split("\002", $data->{'groups'}) ];
+  }
+
   (1, \%out);
 }
 
