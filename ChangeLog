@@ -1,5 +1,8 @@
 Tue Feb 23 01:42:40 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/MTAConfig.pm (qmail): No work to do.  Comment out all
+ 	qmail specific code; it's not necessary.
+
 	* setup/ask_basic.pl (ask_basic, ask_qmail, ask_domain): More
  	qmail support tweaks.
 
