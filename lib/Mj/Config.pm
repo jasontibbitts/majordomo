@@ -1292,7 +1292,7 @@ sub parse_access_rules {
       $warn .= $error if $error;
 
       $data->{$i}{'code'}        .= $part;
-      $data->{$i}{'check_time'}[$count-1] = $check_time;
+      $data->{'check_time'}[$count-1] = $check_time;
       for $j (@{$check_aux}) {
 	$data->{$i}{'check_aux'}{$j} = 1;
       }
