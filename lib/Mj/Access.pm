@@ -1110,10 +1110,11 @@ sub _a_forward {
   }
 
   $self->mail_entity($mj_owner, $ent, $arg) if ($ent and $arg);
-  $ent->purge if $ent;
+
+  unlink $file;
 
   # The spool file for a posted message cannot be unlinked yet, 
-  # because it may be attached  to the reply message.
+  # because it may be attached to the reply message.
 
   return (-1, 'repl_forward');
 }
