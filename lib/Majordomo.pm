@@ -359,6 +359,7 @@ sub dispatch {
   ($base_fun = $request->{'command'}) =~ s/_(start|chunk|done)$//;
   $continued = 1 if $request->{'command'} =~ /_(chunk|done)/;
 
+  $request->{'cgiurl'}   ||= '';
   $request->{'delay'}    ||= 0;
   $request->{'list'}     ||= 'GLOBAL';
 
@@ -385,14 +386,15 @@ sub dispatch {
   }
 
 
-  if (command_prop($base_fun, 'list')) {
+  if (command_prop($base_fun, 'list') and 
+      $request->{'command'} !~ /_chunk$/) {
     ($l, $sl) = $self->valid_list($request->{'list'}, 
                                   command_prop($base_fun, 'all'),
                                   command_prop($base_fun, 'global'));
 
   }
   else {
-    ($l, $sl) = $self->valid_list($request->{'list'}, 0, 1);
+    ($l, $sl) = $self->valid_list($request->{'list'}, 1, 1);
   }
 
   return [0, "Illegal list: \"$request->{'list'}\".\n"]
@@ -823,7 +825,7 @@ sub substitute_vars_format {
   # HELP substitution hack
   if ($self->{'interface'} =~ /^www/) {
     $helpurl = 
-      q(<a href="$CGIURL?domain=$DOMAIN&user=$USER&passw=$PASSWORD&func=help&extra=%s">%s</a>);
+      q(<a href="$CGIURL?$CGIDATA&list=$LIST&func=help&extra=%s">%s</a>);
   }
   else {
     $helpurl = '%s';
@@ -2136,8 +2138,6 @@ sub help_start {
   my ($self, $request) = @_;
   my (@info, $file, $mess, $ok, $subs, $whoami, $wowner);
 
-  $request->{'list'} = 'GLOBAL';
-
   # convert, for example,
   #    "help configset access_rules" 
   # to "help configset_access_rules"
@@ -2302,8 +2302,6 @@ sub password {
   my ($self, $request) = @_;
   my ($ok, $mess, $minlength);
   my $log = new Log::In 30, "$request->{'victim'}, $request->{'mode'}";
-
-  $request->{'list'} = 'GLOBAL';
 
   $minlength = $self->_global_config_get('password_min_length');
   # Generate a password if necessary
@@ -3045,7 +3043,6 @@ sub accept {
   my $log = new Log::In 30, scalar(@{$request->{'tokens'}}) . " tokens";
   my ($comment, $elapsed, $token, $ttoken, @out);
 
-  $request->{'list'} = 'GLOBAL';
   $elapsed = 0;
   $elapsed = $request->{'time'}
     if (exists $request->{'time'});
@@ -3650,8 +3647,6 @@ sub changeaddr {
   my $log = new Log::In 30, "$request->{'victim'}, $request->{'user'}";
   my ($ok, $error);
   
-  $request->{'list'} = 'GLOBAL';
-
   ($ok, $error) = $self->global_access_check($request);
 
   unless ($ok > 0) {
@@ -3736,8 +3731,6 @@ use Mj::MTAConfig;
 sub createlist {
   my ($self, $request) = @_;
   my ($mess, $ok);
-
-  $request->{'list'} = 'GLOBAL';
 
   unless ($request->{'mode'} =~ /regen/) {
     return (0, "Must supply a list name.\n")
@@ -4086,8 +4079,6 @@ sub lists {
       $count, $data, $desc, $digests, $flags, $i, $limit, $list, 
       $expose, $mess, $ok, $sublist);
 
-  $request->{'list'} = 'GLOBAL';
-
   # Stuff the registration information to save lots of database lookups
   $self->_reg_lookup($request->{'user'});
 
@@ -4273,8 +4264,6 @@ sub reject {
   my (%file, $data, $desc, $ent, $file, $in, $inf, $inform, $line, $t, @out);
   my ($list_owner, $mj_addr, $mj_owner, $ok, $mess, $reason, $repl, $rfile);
   my ($sess, $site, $token, $victim);
-
-  $request->{'list'} = 'GLOBAL';
 
   return (0, "No token was supplied.\n")
     unless (scalar(@{$request->{'tokens'}}));
@@ -4464,7 +4453,6 @@ sub register {
   my $log = new Log::In  30, "$request->{'victim'}, $request->{'mode'}";
 
   $request->{'newpasswd'} ||= '';
-  $request->{'list'} = 'GLOBAL';
  
   # Do a list_access_check here for the address; subscribe if it succeeds.
   # The access mechanism will automatically generate failure notices and
@@ -4530,8 +4518,6 @@ sub rekey {
   my ($self, $request) = @_;
   my $log = new Log::In 30;
   
-  $request->{'list'} = 'GLOBAL';
-
   my ($ok, $error) = $self->global_access_check($request);
 
   unless ($ok > 0) {
@@ -5006,8 +4992,6 @@ sub show {
   my $log = new Log::In 30;
   my ($addr);
 
-  $request->{'list'} = 'GLOBAL';
-
   # We know each address is valid; the dispatcher took care of that for us.
   $addr = $request->{'victim'};
   ($ok, $error) = $self->global_access_check($request);
@@ -5469,8 +5453,6 @@ sub unregister {
   my $log = new Log::In 30, "$request->{'victim'}";
   my ($mismatch, $ok, $regexp, $error);
 
-  $request->{'list'} = 'GLOBAL';
-
   if ($request->{'mode'} =~ /regex|pattern/) {
     $mismatch = 0;
     $regexp   = 1;
@@ -5653,8 +5635,6 @@ sub which {
   my $log = new Log::In 30, "$request->{'regexp'}";
   my (@matches, $data, $err, $hits, $match, $max_hits, $max_list_hits,
       $mess, $ok, $total_hits, $list);
-
-  $request->{'list'} = 'GLOBAL';
 
   unless ($request->{'mode'} =~ /regex/) {
     # treat the pattern as a literal substring match
