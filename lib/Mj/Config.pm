@@ -2021,9 +2021,13 @@ sub parse_delivery_rules {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150;
-  my(@dr, $data, $err, $i, $ok, $re, $rule, $seen_all, $table);
+  my (@hk, @rk, $data, $err, $i, $j, $k, $mess, $ok, $re, $rule, 
+      $seen_all, $table);
 
   $data = [];
+
+  @rk = qw(backup hosts maxaddrs maxdomains minseparate numbatches sort);
+  @hk = qw(dsn esmtp onex pipelining port timeout);
 
   # Parse the table.  A single line field followed by a multiline field.
   ($table, $err) = parse_table('lx', $arr);
@@ -2044,9 +2048,59 @@ sub parse_delivery_rules {
 
     ($rule, $err) = parse_keyed(',', '=', '"', '(', ')', @{$table->[$i][1]});
 
-
     return (0, "Error parsing rule " . ($i+1) . ": $err")
       if $err;
+
+    for $j (keys %$rule) {
+      unless (grep { $_ eq $j } @rk) {
+        $mess  = "Error parsing rule " . ($i+1) . ":\n";
+        $mess .= qq(The "$j" feature is not valid.\nValid features include:\n  );
+        $mess .= join "\n  ", @rk;
+        return (0, $mess);
+      }
+      if ($j =~ /max|min|num/ and $rule->{$j} =~ /[^\d]/) {
+        $mess  = "Error parsing rule " . ($i+1) . ":\n";
+        $mess .= qq(The "$j" feature must have a numeric value.\n);
+        return (0, $mess);
+      }
+    }
+  
+    if (exists $rule->{'hosts'}) {
+      for $j (keys %{$rule->{'hosts'}}) {
+        for $k (keys %{$rule->{'hosts'}->{$j}}) {
+          unless (grep { $_ eq $k } @hk) {
+            $mess  = "Error parsing rule " . ($i+1) . " for host $j:\n";
+            $mess .= qq(The "$k" feature is not valid.\nValid features include:\n  );
+            $mess .= join "\n  ", @hk;
+          }
+          return (0, $mess);
+        }
+        if ($k eq 'timeout' and $rule->{$j}->{$k} =~ /[^\d.]/) {
+          $mess  = "Error parsing rule " . ($i+1) . " for host $j:\n";
+          $mess .= qq(The "$k" feature must have a numeric value.\n);
+          return (0, $mess);
+        }
+        elsif ($k eq 'port' and $rule->{$j}->{$k} =~ /[^\d]/) {
+          $mess  = "Error parsing rule " . ($i+1) . " for host $j:\n";
+          $mess .= qq(The "$k" feature must have a numeric value.\n);
+          return (0, $mess);
+        }
+      }
+    }
+      
+    if (exists $rule->{'backup'}) {
+      for $j (keys %{$rule->{'backup'}}) {
+        for $k (keys %{$rule->{'backup'}->{$j}}) {
+          unless (grep { $_ eq $k } @hk) {
+            $mess  = "Error parsing rule " . ($i+1) . " for host $j:\n";
+            $mess .= qq(The "$k" feature is not valid.\nValid features include:\n  );
+            $mess .= join "\n  ", @hk;
+          }
+          return (0, $mess);
+        }
+      }
+    }
+       
     $data->[$i]{'data'} = $rule;
 
     if ($table->[$i][0] eq 'ALL') {

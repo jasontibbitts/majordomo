@@ -1,3 +1,8 @@
+2001-10-30  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm:  (parse_delivery_rules)  Add validation
+	checks for parameter names and values.  Thanks to Marc Fournier.
+
 2001-10-29  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm:  Revise the appearance to resemble the
