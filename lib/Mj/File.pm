@@ -23,7 +23,7 @@ $VERSION = "1.0";
 
 =head1 Mj::File functions
 
-These functions implement the MJ::File class.
+These functions implement the Mj::File class.
 
 =head2 new
 
