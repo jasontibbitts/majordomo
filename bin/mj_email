@@ -19,7 +19,7 @@ BEGIN {
   die("Not running as UID $::UID") unless $> == $::UID;
   die("Not running as GID $::GID") unless $) == $::GID;
 
-  # Qyiet warning
+  # Quiet warning
   $::LOCKDIR;
 }
 
@@ -184,7 +184,7 @@ elsif ($opts{'o'} or $opts{'M'}) {
   
 # if at majordomo (-m) parse as normal
 elsif ($opts{'m'} or $opts{'c'}) {
-  parse_commands($mj, $opts{'c'});
+  parse_commands($mj, $opts{'c'}, $opts{'req'});
 }
 
 # else something's screwed; we already processed the resend case earlier
@@ -332,6 +332,8 @@ sub connect_no_parse {
     }
     $sess .= $i;
   }
+
+  $from =~ /(.*)/; $from = $1;
   ($sess, $from);
 }
 
@@ -340,9 +342,9 @@ sub connect_no_parse {
 # unstripped) will be returned.
 sub connect_and_parse {
   my ($mj, $int) = @_;
-  my($entity, $head, $mime_parser, $ok, $user, $suser);
+  my($entity, $head, $mime_parser, $ok, $user, $subject, $suser);
 
-  $::log->in(85, undef, "info", "Seting MIME parser properties");
+  $::log->in(85, undef, "info", "Setting MIME parser properties");
   $mime_parser = new Mj::MIMEParser;
   $mime_parser->output_to_core($mj->global_config_get(undef, undef, 
 						      "max_in_core"));
@@ -355,6 +357,8 @@ sub connect_and_parse {
   $entity = $mime_parser->read(\*STDIN);
   $::log->out;
 
+  return unless $entity;
+
   # Get the header.
   $::log->in(80, undef, "info", "Parsing the header");
   $head = $entity->head;
@@ -363,6 +367,17 @@ sub connect_and_parse {
 
   $user = $head->get('from') || $head->get('apparently-from');
   chomp $user;
+
+  unless ($user) {
+    $subject = $head->get('subject') || "no subject";
+    chomp $subject;
+    $head->replace('Subject', 
+                   "Majordomo error: no address found (was: $subject)");
+    $user = $mj->global_config_get(undef, undef, 'whoami_owner');
+    $mj->mail_entity('', $entity, $user);
+    $entity->purge;
+    return;
+  }
 
   # Connect; gives back the stripped user
   ($ok, $suser) = $mj->connect($int, $entity->head->as_string, $user);
@@ -383,7 +398,7 @@ sub connect_and_parse {
 # first two for quick confirmation token processing; the latter two for
 # bypassing failed "access" checks.
 sub parse_commands {
-  my ($mj, $deflist, $command) = @_;
+  my ($mj, $deflist, $command, $req) = @_;
   my (@entities, @events, $args, $commands, $data, $debug_file, $debug_log,
       $debug_reply, $entity, $fh, $file, $head, $i, $list, $mode, $ok,
       $repl, $request, $sender, $server, $sub_addin, $subject, $sub_start,
@@ -431,9 +446,7 @@ sub parse_commands {
   ($command, $mode) = split('-', $command, 2) if defined($command);
   $mode = '' unless defined $mode;
 
-  $command = command_legal($command);
-
-  if ($command) {
+  if (defined $command and command_legal($command)) {
     # Iterated commands are not yet considered.
     $request = {
 		'command'   => $command,
@@ -441,25 +454,24 @@ sub parse_commands {
 		'mode'      => $mode,
 		'password'  => '',
 		'user'      => $uuser,
-		%{$opts{req}},
-		};
+		%{$req},
+	       };
 
     $file = &Majordomo::tempname();
     $fh = gensym();
     if (open ($fh, ">$file")) {
-      no strict 'refs';
-      &{"Mj::Format::$command"}($mj, $fh, $fh, 'text', $request,
-                                $mj->dispatch($request));
+      call_format($command,
+                  $mj, $fh, $fh, 'text', $request,
+                  $mj->dispatch($request));
       close $fh;
     }
     else {
-      # XXX The command may or may not have been completed.
-      # exit 74;
-      return;
+      # The command was not issued; return EX_IOERR.
+      exit 74;
     }
     push @entities, build MIME::Entity
       (
-       'Path'        => "$file",
+       'Path'        => $file,
        '-To'         => $uuser,
       );
   }
@@ -472,6 +484,7 @@ sub parse_commands {
                                deflist    => $deflist,
                                token      => $token,
                               );
+
     # If the number of commands processed is 0, this could indicate
     # an autoresponder mail loop.  Record the sender's address in the 
     # parser database.  If more than three failures have occurred 
@@ -496,8 +509,8 @@ sub parse_commands {
         }
       }
     }
-
   }
+
   if ($debug_reply) {
     push @entities, build MIME::Entity
       (
@@ -528,9 +541,9 @@ sub parse_commands {
   }
 
   $head = $top->head;
-  $head->replace('to'      , $uuser);
-  $head->replace('subject' , "Majordomo results$sub_addin");
-  $head->replace('from'    , $mj->global_config_get(undef, undef, 'whoami_owner'));
+  $head->replace('to'     , $uuser);
+  $head->replace('subject', "Majordomo results$sub_addin");
+  $head->replace('from'   , $mj->global_config_get(undef, undef, 'whoami_owner'));
   $head->delete('reply-to');
   $repl = { $mj->standard_subs('GLOBAL') };
   for $i ($mj->global_config_get(undef, undef, 'message_headers')) {
@@ -562,6 +575,13 @@ sub parse_commands {
   1;
 }
 
+sub call_format {
+  my $command = shift;
+  require Mj::Format;
+
+  no strict 'refs';
+  &{"Mj::Format::$command"}(@_);
+}
 
 # Look in $ENV{DEFAULT} which tells us the local-part of the address we're
 # being run at, and fake the other options.  Expect that we were called
