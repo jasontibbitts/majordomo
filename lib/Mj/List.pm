@@ -99,7 +99,7 @@ sub new {
   my $self = {};
   bless $self, $class;
 
-  $self->{auxlists} = {};
+  $self->{sublists} = {};
   $self->{backend}  = $args{backend};
   $self->{callbacks}= $args{callbacks};
   $self->{ldir}     = $args{dir};
@@ -112,7 +112,8 @@ sub new {
 
   # XXX This should probably be delayed
   unless ($args{name} eq 'GLOBAL' or $args{name} eq 'DEFAULT') {
-    $self->{subs} = new Mj::SubscriberList $subfile, $args{'backend'};
+    $self->{sublists}{'MAIN'} = 
+      new Mj::SubscriberList $subfile, $args{'backend'};
   }
 
   $self->{'config'} = new Mj::Config
@@ -121,6 +122,7 @@ sub new {
      dir         => $args{'dir'},
      callbacks   => $args{'callbacks'},
      defaultdata => $args{'defaultdata'},
+     installdata => $args{'installdata'},
     );
 
   $self;
@@ -169,7 +171,7 @@ These functions operate on the subscriber list itself.
 
 =head2 add(mode, address, class, flags)
 
-Adds an address (which must be an Mj::Addr object) to the subscriber list.
+Adds an address (which must be an Mj::Addr object) to a subscriber list.
 The canonical form of the address is used for the database key, and the
 other subscriber data is computed and stored in a hash which is passed to
 SubscriberList::add.
@@ -187,6 +189,7 @@ sub add {
   my $class = shift;
   my $carg  = shift;
   my $carg2 = shift;
+  my $sublist = shift || 'MAIN';
   my (@out, $i, $ok, $data);
 
   $::log->in(120, "$mode, $addr");
@@ -205,7 +208,10 @@ sub add {
 	   'flags'     => $flags,
 	  };
 
-  @out = $self->{'subs'}->add($mode, $addr->canon, $data);
+  return (0, "Unable to access subscriber list $sublist")
+    unless $self->_make_aux($sublist);
+
+  @out = $self->{'sublists'}{$sublist}->add($mode, $addr->canon, $data);
   $::log->out;
   @out;
 }
@@ -219,6 +225,7 @@ sub remove {
   my $self = shift;
   my $mode = shift;
   my $addr = shift;
+  my $sublist = shift || 'MAIN';
   my ($a);
 
   if ($mode =~ /regex/) {
@@ -227,7 +234,12 @@ sub remove {
   else {
     $a = $addr->canon;
   }
-  $self->{'subs'}->remove($mode, $a);
+  return (0, "Nonexistent subscriber list \"$sublist\".")
+    unless $self->valid_aux($sublist);
+  return (0, "Unable to access subscriber list \"$sublist\".")
+    unless $self->_make_aux($sublist);
+
+  $self->{'sublists'}{$sublist}->remove($mode, $a);
 }
 
 =head2 is_subscriber(addr)
@@ -238,42 +250,43 @@ Returns the subscriber data if the address subscribes to the list.
 sub is_subscriber {
   my $self = shift;
   my $addr = shift;
-  my $sublist = shift || '';
+  my $sublist = shift || 'MAIN';
   my $log = new Log::In 170, "$self->{'name'}, $addr";
   my ($data, $ok, $out, $subs);
 
   return unless $addr->isvalid;
   return if $addr->isanon;
 
-  if ($sublist and ($sublist ne 'MAIN')) {
-    return $self->aux_is_member($sublist, $addr);
+  # If we have cached data within the addr, use it.
+  # Only the main subscriber list data is cached.
+  if ($sublist eq 'MAIN') {
+    $data = $addr->retrieve("$self->{name}-subs");
+    return $data if $data;
+
+    # Otherwise see if we have enough cached data to tell us whether they're
+    # subscribed or not, so we can save a database lookup
+    $subs = $addr->retrieve('subs');
+    if ($subs) {
+      if ($subs->{$self->{name}}) {
+        # We know they're a subscriber, so we can actually look up the data
+        $out = $self->{'sublists'}{$sublist}->lookup($addr->canon);
+        $addr->cache("$self->{name}-subs", $out);
+        $log->out('yes-fast');
+        return $out;
+      }
+      else {
+        $log->out('no-fast');
+        return;
+      }
+    }
   }
 
-  # If we have cached data within the addr, use it
-  $data = $addr->retrieve("$self->{name}-subs");
-  return $data if $data;
-
-  # Otherwise see if we have enough cached data to tell us whether they're
-  # subscribed or not, so we can save a database lookup
-  $subs = $addr->retrieve('subs');
-  if ($subs) {
-    if ($subs->{$self->{name}}) {
-      # We know they're a subscriber, so we can actually look up the data
-      $out = $self->{'subs'}->lookup($addr->canon);
-      $addr->cache("$self->{name}-subs", $out);
-      $log->out('yes-fast');
-      return $out;
-    }
-    else {
-      $log->out('no-fast');
-      return;
-    }
-  }
+  return unless $self->_make_aux($sublist);
 
   # We know nothing about the address so we do the lookup
-  $out = $self->{'subs'}->lookup($addr->canon);
+  $out = $self->{'sublists'}{$sublist}->lookup($addr->canon);
   if ($out) {
-    $addr->cache("$self->{name}-subs", $out);
+    $addr->cache("$self->{name}-subs", $out) if ($sublist eq 'MAIN');
     $log->out("yes");
     return $out;
   }
@@ -297,7 +310,7 @@ sub set {
   my $self = shift;
   my $addr = shift;
   my $oset = shift || '';
-  my $subl = shift || '';
+  my $subl = shift || 'MAIN';
   my $check= shift;
   my $force= shift;
   my $log  = new Log::In 150, "$addr, $oset";
@@ -363,29 +376,14 @@ sub set {
     }
   }
 
-  # Grab subscriber data
-  if ($subl eq '') {
-    $db = $self->{'subs'};
-    ($key, $data) = $self->get_member($addr);
-    unless ($data) {
-      $log->out("failed, nonmember");
-      # XLANG
-      return (0, "$addr is not subscribed to the $self->{'name'} list.\n"); 
-    }
-  }
-  else {
-    return (0, "Unknown auxiliary list name \"$subl\".") 
-      unless $self->valid_aux($subl);
-    $self->_make_aux($subl);
-    $key  = $addr->canon;
-    $db   = $self->{'auxlists'}{$subl};
-    $data = $db->lookup($key);
+  return (0, "Unknown auxiliary list name \"$subl\".") 
+    unless $self->valid_aux($subl);
+  ($key, $data) = $self->get_member($addr, $subl);
     
-    unless ($data) {
-      $log->out("failed, nonmember");
-      # XLANG
-      return (0, "$addr is not subscribed to the $self->{'name'}:$subl auxiliary list.\n"); 
-    }
+  unless ($data) {
+    $log->out("failed, nonmember");
+    # XLANG
+    return (0, "$addr is not subscribed to the $self->{'name'}:$subl auxiliary list.\n"); 
   }
 
   # If we were checking and didn't bail, we're done
@@ -407,7 +405,7 @@ sub set {
 			  $data->{'classarg'}, $data->{'classarg2'});
     return ($ok, $flags) unless $ok;
     return (0, "Digest mode is not supported by auxiliary lists.") 
-      if ($subl ne '' and $class eq 'digest');
+      if ($subl ne 'MAIN' and $class eq 'digest');
 
     # Issue partial digest if changing from 'digest' to 'each'
     if ($data->{'class'} eq 'digest' 
@@ -424,7 +422,7 @@ sub set {
        ($flags, $class, $carg1, $carg2);
   }
 
-  $db->replace("", $key, $data);
+  $self->{'sublists'}{$subl}->replace("", $key, $data);
   return (1, {flags  => $flags,
 	      class  => [$class, $carg1, $carg2],
               digest => $digest,
@@ -635,15 +633,14 @@ should cause an acknowledgement to be sent to the victim.
 
 =cut
 sub should_ack {
-  my ($self, $sublist, $victim, $flag) = @_;
+  my $self    = shift;
+  my $sublist = shift || 'MAIN';
+  my $victim  = shift; 
+  my $flag    = shift;
   my ($data);
 
-  if ($sublist) {
-    $data = $self->aux_get_member($sublist, $victim);
-  }
-  else {
-    $data = $self->get_member($victim);
-  }
+  $data = $self->get_member($victim, $sublist);
+
   unless (defined $data) {
     $data = {};
     $data->{'flags'} = $self->config_get('nonmember_flags');
@@ -659,6 +656,7 @@ sub should_ack {
 =head2 _str_to_time(string)
 
 This converts a string to a number of seconds since 1970 began.
+(Mj::Util)
 
 =cut
 sub _str_to_time {
@@ -701,6 +699,7 @@ sub _str_to_time {
 Calls Date::Manip to convert a string to a time; this is in a separate
 function because it takes forever to load up Date::Manip.  Autoloading is
 good.
+(Mj::Util)
 
 =cut
 use Date::Manip;
@@ -715,6 +714,7 @@ sub _str_to_time_dm {
 Converts a time in seconds to an abbreviation. 
 For example, a time of 90000 seconds
 would produce a string "1d1h" (for one day, one hour).
+(Mj::Util)
 
 =cut
 sub _time_to_str {
@@ -774,7 +774,7 @@ sub default_flags {
   return $self->config_get('default_flags');
 }
 
-=head2 flag_set(flag, address)
+=head2 flag_set(flag, address, sublist)
 
 Returns true if the address is a subscriber and has the given flag set.
 Don''t ask for flags in the off state (noprefix, etc.) because this will
@@ -788,6 +788,7 @@ sub flag_set {
   my $self = shift;
   my $flag = shift;
   my $addr = shift;
+  my $sublist = shift || 'MAIN';
   my $force= shift;
   my $log  = new Log::In 150, "$flag, $addr";
   $log->out('no');
@@ -795,17 +796,19 @@ sub flag_set {
   return unless $flags{$flag};
   return unless $addr->isvalid;
 
-  $flags = $addr->retrieve("$self->{name}-flags");
+  $flags = $addr->retrieve("$self->{name}-flags")
+    unless ($sublist eq 'MAIN');
 
-  if ($force || !defined($flags)) {
-    $data = $self->is_subscriber($addr);
+  if ($force || ! defined($flags)) {
+    $data = $self->is_subscriber($addr, $sublist);
     if ($data) {
       $flags = $data->{flags};
     }
     else {
       $flags = $self->config_get('nonmember_flags');
     }
-    $addr->cache("$self->{name}-flags", $flags);
+    $addr->cache("$self->{name}-flags", $flags)
+      unless defined $sublist;
   }
 
   return unless $flags =~ /$flags{$flag}[3]/;
@@ -825,6 +828,10 @@ sub describe_flags {
   my $setting = shift;
   my %nodesc  = reverse %noflags;
   my (%desc, @out, $i, $seen);
+
+  # XXX This routine is written as an object method.  It
+  # could be rewritten as a simple routine unless some
+  # list-specific data (such as language) can vary the output.
 
   for $i (keys %flags) {
     $desc{$flags{$i}->[3]} = $i if $flags{$i}->[3];
@@ -894,11 +901,17 @@ sub describe_class {
 
 =head2 get_start()
 
-Begin iterating over the list of subscribers.
+Begin iterating over a list of subscribers.
 
 =cut
 sub get_start {
-  shift->{'subs'}->get_start;
+  my $self    = shift;
+  my $sublist = shift || 'MAIN';
+  return (0, "Unable to access subscriber list $sublist")
+    unless $self->valid_aux($sublist);
+  return (0, "Unable to initialize subscriber list $sublist")
+    unless $self->_make_aux($sublist);
+  $self->{'sublists'}{$sublist}->get_start;
 }
 
 =head2 get_chunk(max_size)
@@ -907,10 +920,12 @@ Returns an array of subscriber data hashrefs of a certain maximum size.
 
 =cut
 sub get_chunk {
-  my $self = shift;
+  my $self    = shift;
+  my $sublist = shift || 'MAIN';
   my (@addrs, @out, $i);
 
-  @addrs = $self->{'subs'}->get(@_);
+  return unless (exists $self->{'sublists'}{$sublist});
+  @addrs = $self->{'sublists'}{$sublist}->get(@_);
   while ((undef, $i) = splice(@addrs, 0, 2)) {
     push @out, $i;
   }
@@ -924,8 +939,10 @@ Returns an array of (key, hashref) pairs of max_size size of subscribers
 
 =cut
 sub get_matching_chunk {
-  my $self = shift;
-  $self->{'subs'}->get_matching(@_);
+  my $self    = shift;
+  my $sublist = shift || 'MAIN';
+  return unless (exists $self->{'sublists'}{$sublist});
+  $self->{'sublists'}{$sublist}->get_matching(@_);
 }
 
 =head2 get_done()
@@ -934,7 +951,10 @@ Closes the iterator.
 
 =cut
 sub get_done {
-  shift->{'subs'}->get_done;
+  my $self    = shift;
+  my $sublist = shift || 'MAIN';
+  return unless (exists $self->{'sublists'}{$sublist});
+  $self->{'sublists'}{$sublist}->get_done;
 }
 
 =head2 search(string, mode)
@@ -949,14 +969,18 @@ This returns a list of (key, data) pairs.
 
 =cut
 sub search {
-  my $self   = shift;
-  my $string = shift;
-  my $mode   = shift;
+  my $self    = shift;
+  my $sublist = shift || 'MAIN';
+  my $string  = shift;
+  my $mode    = shift;
 
+  return unless (exists $self->{'sublists'}{$sublist});
   if ($mode =~ /regexp/) {
-    return ($self->{'subs'}->get_matching_regexp(1, 'fulladdr', $string))[0];
+    return ($self->{'sublists'}{$sublist}->get_matching_regexp(1, 
+                                             'fulladdr', $string))[0];
   }
-  return ($self->{'subs'}->get_matching_regexp(1, 'fulladdr', "\Q$string\E"))[0];
+  return ($self->{'sublists'}{$sublist}->get_matching_regexp(1, 
+                                           'fulladdr', "\Q$string\E"))[0];
 }
 
 =head2 get_member(address)
@@ -968,10 +992,13 @@ This will reset the list iterator.
 
 =cut
 sub get_member {
-  my $self = shift;
-  my $addr = shift;
+  my $self    = shift;
+  my $addr    = shift;
+  my $sublist = shift || 'MAIN';
   
-  return ($addr->canon, $self->{'subs'}->lookup($addr->canon));
+  return (0, "Unable to access subscriber list $sublist")
+    unless $self->_make_aux($sublist);
+  return ($addr->canon, $self->{'sublists'}{$sublist}->lookup($addr->canon));
 }
 
 =head2 count_subs {
@@ -980,29 +1007,21 @@ sub get_member {
 
 =cut
 sub count_subs {
-  my $self = shift;
-  my $sublist = shift;
-  my (@count, $db);
+  my $self    = shift;
+  my $sublist = shift || 'MAIN';
+  my (@count);
   my ($total) = 0;
  
-  if ($sublist) {
-    return unless $self->_make_aux($sublist);
-    $db = $self->{'auxlists'}{$sublist}; 
-  }
-  else {
-    $db = $self->{'subs'};
-  }
-   
-  return unless $db->get_start;
-  while (@count = $db->get_quick(1000)) {
+  return unless $self->get_start($sublist);
+  while (@count = $self->{'sublists'}{$sublist}->get_quick(1000)) {
     $total += scalar @count;
   }
-  $db->get_done;
+  $self->get_done($sublist);
   $total;
 }
 
 
-=head2 rekey()
+=head2 rekey(registry)
 
 This regenerates the keys for the databases from the stripped addresses in
 the event that the transformation rules change.
@@ -1010,205 +1029,29 @@ the event that the transformation rules change.
 =cut
 sub rekey {
   my $self = shift;
-  $self->subscriber_rekey 
-    unless ($self->{name} eq 'GLOBAL' or $self->{name} eq 'DEFAULT');
-  $self->aux_rekey_all;
+  $self->aux_rekey_all(@_);
 }
 
-sub subscriber_rekey {
-  my $self = shift;
-  my $sub =
-    sub {
-      my $key  = shift;
-      my $data = shift;
-      my (@out, $addr, $newkey, $changekey);
-
-      # Allocate an Mj::Addr object from stripaddr and transform it.  XXX
-      # Why not canon instead?
-      $addr = new Mj::Addr($data->{'stripaddr'});
-      $newkey = $addr->xform;
-      $changekey = ($newkey ne $key);
-      
-      return ($changekey, 0, $newkey);
-    };
-  $self->{'subs'}->mogrify($sub);
-}
-
-######################
-
-=head1 Auxiliary AddressList functions
-
-Thses operate on additional lists of addresses (implemented via the
-AddressList object) which are associated with the main list.  These list
-are intended to duplicate the function of the old restrict_post files, and
-be remotely modifiable, to boot.  They can be used to contain any list of
-addresses for any purpose, such as lists of banned addresses or what have
-you.  The extended access mechanism is expected to make extensive use of
-these.
-
-=head2 aux_add(file, mode, address)
-
-=cut
-sub aux_add {
-  my $self = shift;
-  my $name = shift;
-  my $mode = shift || '';
-  my $addr = shift;
-  my ($ok, $caddr, $data);
-
-  $data  =
-    {
-     'fulladdr'  => $addr->full,
-     'stripaddr' => $addr->strip,
-     'subtime'   => time,
-     # Changetime handled automatically
-     'class'     => 'each',
-     'classarg'  => '',
-     'classarg2' => '',
-     'flags'     => $self->default_flags,
-    };
-
-  $self->_make_aux($name);
-  ($ok, $data) = $self->{'auxlists'}{$name}->add($mode, $addr->canon, $data);
-  unless ($ok) {
-    return (0, "Address is already a member of $name as $data->{'stripaddr'}.\n"); # XLANG
-  }
-  return 1;
-}
-
-=head2 aux_remove(file, mode, address_list)
-
-Remove addresses from an auxiliary list.
-
-=cut
-sub aux_remove {
-  my $self = shift;
-  my $name = shift;
-  my $mode = shift;
-  my $addr = shift;
-  my $log = new Log::In 150, "$name, $mode, $addr";
-  my ($ok);
-
-  unless ($mode =~ /regex/) {
-    $addr = $addr->canon;
-  }
-
-  $self->_make_aux($name);
-  $self->{'auxlists'}{$name}->remove($mode, $addr);
-}
-
-=head2 aux_get_start(file)
-
-Begin iterating over the members of an auxiliary list.
-
-=cut
-sub aux_get_start {
-  my $self = shift;
-  my $name = shift;
-  
-  $self->_make_aux($name);
-  $self->{'auxlists'}{$name}->get_start;
-}
-
-=head2 aux_get_chunk(file, max_size)
-
-Returns an array of members of an auxiliary list of a certain maximum size.
-
-=cut
-sub aux_get_chunk {
-  my $self = shift;
-  my $name = shift;
-  my $size = shift;
-  my (@addrs, @out, $i);
-  
-  $self->_make_aux($name);
-  @addrs = $self->{'auxlists'}{$name}->get($size);
-  while ((undef, $i) = splice(@addrs, 0, 2)) {
-    push @out, $i;
-  }
-  return @out;
-}
-
-=head2 aux_get_done(file)
-
-Stop iterating over the members of an auxiliary list.
-
-=cut
-sub aux_get_done {
-  my $self = shift;
-  my $name = shift;
-  my $log  = new Log::In 150, $name;
-
-  $self->_make_aux($name);
-  $self->{'auxlists'}{$name}->get_done;
-}
-
-=head2 aux_get_matching
-
-Return a block of data.  The size of the block and the
-conditions for matching are determined by the arguments.
-
-=cut
-sub aux_get_matching {
-  my $self = shift;
-  my $name = shift;
-
-  $self->_make_aux($name);
-  $self->{'auxlists'}{$name}->get_matching(@_);
-}
-
-=head2 aux_get_member(sublist, address)
-
-Returns the unstringified data for a particular sublist member
-
-=cut
-sub aux_get_member {
-  my $self = shift;
-  my $name = shift;
-  my $addr = shift;
-  my ($saddr, $ok);
-
-  return unless $addr->isvalid;
-  return if $addr->isanon;
-
-  return unless $self->_make_aux($name);
-  return $self->{'auxlists'}{$name}->lookup($addr->canon);
-}
-
-=head2 aux_is_member(file, addr)
-
-This returns true if an address is a member of an auxiliary list.
-
-=cut
-sub aux_is_member {
-  my $self = shift;
-  my $name = shift;
-  my $addr = shift;
-  my ($saddr, $ok);
-
-  return 0 unless $addr->isvalid;
-  return 0 if $addr->isanon;
-
-  $self->_make_aux($name);
-  return $self->{'auxlists'}{$name}->lookup_quick($addr->canon);
-}
-
-=head2 aux_rekey_all()
+=head2 aux_rekey_all(registry)
 
 This rekeys all auxiliary lists associated with a list.
 
 =cut
 sub aux_rekey_all {
   my $self = shift;
-  my $i;
+  my (@values, $count, $i, $unsub, $unreg);
 
   $self->_fill_aux;
-  for $i (keys %{$self->{'auxlists'}}) {
-    $self->aux_rekey($i);
+  for $i (keys %{$self->{'sublists'}}) {
+    @values = $self->aux_rekey($i, @_);
+    if ($i eq 'MAIN') {
+      ($count, $unsub, $unreg) = @values;
+    }
   }
+  ($count, $unsub, $unreg);
 }
 
-=head2 aux_rekey(name)
+=head2 aux_rekey(name, registry)
 
 This rekeys a single auxiliary file.
 
@@ -1216,30 +1059,62 @@ This rekeys a single auxiliary file.
 sub aux_rekey {
   my $self = shift;
   my $name = shift;
+  my $reg = shift;
+  my $chunksize = shift;
+  my (%regent, %unreg, @subs, $count);
 
+  $count = 0;
+  %regent = ();
+  %unreg = ();
+
+  if ($name eq 'MAIN') {
+    if ($reg->get_start) {
+      while (1) {
+        @subs = $reg->get_matching_quick_regexp($chunksize, 
+                                               'lists',
+                                               "/\\b$self->{'name'}(\\002|\\Z)/");
+        last unless @subs;
+        @regent{@subs} = ();
+      }
+      $reg->get_done;
+    }
+  }
+  
   my $sub =
     sub {
       my $key  = shift;
       my $data = shift;
       my (@out, $addr, $newkey, $changekey);
 
-      # Allocate an Mj::Addr object from stripaddr and transform it.  XXX
-      # Why not canon instead?
-      $addr = new Mj::Addr($data->{'stripaddr'});
+      # Allocate an Mj::Addr object from the canonical address.
+      $addr = new Mj::Addr($key);
+      return (1, 0, undef) unless $addr;
+      # return (1, 0, undef) unless $addr->valid;
       $newkey = $addr->xform;
-      $changekey = ($newkey ne $key or (! exists $data->{'class'}));
+      $changekey = ($newkey ne $key or (! $data->{'class'}));
 
       # Enable transition from old AddressList to new SubscriberList
       $data->{'subtime'}  ||= $data->{'changetime'};
       $data->{'fulladdr'} ||= $data->{'stripaddr'};
       $data->{'class'}    ||= 'each';
       $data->{'flags'}    ||= $self->default_flags;
-      
+
+      if ($name eq 'MAIN') {
+        if (exists $regent{$newkey}) {
+          delete $regent{$newkey};
+          $count++;
+        }
+        else {
+          $unreg{$newkey}++;
+        }
+      }
+
       return ($changekey, $data, $newkey);
     };
 
   $self->_make_aux($name);
-  $self->{'auxlists'}{$name}->mogrify($sub);
+  $self->{'sublists'}{$name}->mogrify($sub);
+  return ($count, \%regent, \%unreg);
 }
 
 
@@ -1267,7 +1142,7 @@ sub _fill_aux {
 
   while (defined($file = readdir $dirh)) {
     if ($file =~ /^X(.*)\..*/) {
-      $self->{'auxlists'}{$1} = undef;
+      $self->{'sublists'}{$1} = undef;
     }
   }
   closedir($dirh);
@@ -1294,12 +1169,12 @@ sub moderators {
   my (@addr, @out, $i);
 
   $self->_fill_aux;
-  unless (defined $group and exists $self->{'auxlists'}{$group}) {
+  unless (defined $group and exists $self->{'sublists'}{$group}) {
     $group = 'moderators';
   }
-  if (exists $self->{'auxlists'}{$group}) {
-    return unless $self->aux_get_start($group);
-    while (@addr = $self->aux_get_chunk($group, 4)) {
+  if (exists $self->{'sublists'}{$group}) {
+    return unless $self->get_start($group);
+    while (@addr = $self->get_chunk($group, 4)) {
       for $i (@addr) {
         push @out, $i->{'stripaddr'} if ($i->{'class'} ne 'nomail');
       }
@@ -1641,21 +1516,18 @@ sub expire_subscriber_data {
   # If the list is configured to allow posting to 
   # auxiliary lists, the subscriber data for
   # them must be expired as well.
-  $ali = $self->config_get('aliases');
-  if ($ali =~ /A/) {
-    $self->_fill_aux;
-    for (keys %{$self->{'auxlists'}}) {
-      $self->_make_aux($_);
-      $self->{'auxlists'}{$_}->mogrify($mogrify);
-    }
+  $self->_fill_aux;
+  for (keys %{$self->{'sublists'}}) {
+    next unless $self->_make_aux($_);
+    $self->{'sublists'}{$_}->mogrify($mogrify);
   }     
-  $self->{subs}->mogrify($mogrify);
+  1;
 }
 
 
 =head2 _make_aux (private)
 
-This makes a SubscriberList object and stuff it into the List''s collection.
+This makes a SubscriberList object and stuffs it into the List''s collection.
 This must be called before any function which accesses the SubscriberList.
 
 =cut
@@ -1663,8 +1535,8 @@ sub _make_aux {
   my $self = shift;
   my $name = shift;
 
-  unless (defined $self->{'auxlists'}{$name}) {
-    $self->{'auxlists'}{$name} =
+  unless (defined $self->{'sublists'}{$name}) {
+    $self->{'sublists'}{$name} =
       new Mj::SubscriberList $self->_file_path("X$name"), $self->{backend};
   }
   1;
@@ -1680,7 +1552,7 @@ sub valid_aux {
   my $name = shift;
 
   $self->_fill_aux;
-  if (exists $self->{'auxlists'}{$name}) {
+  if (exists $self->{'sublists'}{$name}) {
     # Untaint
     $name =~ /(.*)/; $name = $1;
     return $name;
@@ -1997,7 +1869,7 @@ Builds a digest.
 use Mj::Digest::Build;
 sub digest_build {
   my $self = shift;
-  $self->_make_archive;
+  return unless $self->_make_archive;
   Mj::Digest::Build::build(@_, 'archive' => $self->{'archive'});
 }
 
@@ -2011,7 +1883,7 @@ which need to be sent out.
 =cut
 sub digest_add {
   my $self = shift;
-  $self->_make_digest;
+  return unless $self->_make_digest;
   $self->{digest}->add(@_);
 }
 
@@ -2024,7 +1896,7 @@ the same as digest_add.
 =cut
 sub digest_trigger {
   my $self = shift;
-  $self->_make_digest;
+  return unless $self->_make_digest;
   $self->{digest}->trigger(@_);
 }
 
@@ -2035,9 +1907,8 @@ Examine the current state of the digests without making any changes.
 =cut
 sub digest_examine {
   my $self = shift;
-  if ($self->_make_digest) {
-    $self->{digest}->examine(@_);
-  }
+  return unless $self->_make_digest;
+  $self->{digest}->examine(@_);
 }
 
 =head2 digest_incvol(inc, digests)
@@ -2202,7 +2073,7 @@ sub bounce_add {
     $data;
   };
 
-  $ok = $self->{subs}->replace('', $addr->canon, $repl);
+  $ok = $self->{'sublists'}{'MAIN'}->replace('', $addr->canon, $repl);
   return $self->_bounce_parse_data($bouncedata) if $ok;
   return;
 }
