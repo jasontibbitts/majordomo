@@ -1,11 +1,11 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-unsubscribe[-pattern][-regex][-allmatching] listname [address]
+unsubscribe[-pattern[-allmatching]][-farewell] listname [address]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 address,  if specified, is an email address current subscribed to listname
 listname, required, is the name of a list at this site
 -pattern, if specified, treats the address as a pattern (see "help patterns")
--regex,   if specified, treats the address as a pattern (see "help patterns")
 -allmatching, if specified, operates on every address that matches
+-farewell,   if specified, sends a "farewell" message to each address.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 By default, the "unsubscribe" command removes an "address" from the
@@ -27,23 +27,27 @@ may be written instead as:
 replacing "EmailAddress" with the address you want to remove from
 the list.
 
+A message may be sent to each address being removed acknowledging
+the removal of the subscription.  This "farewell" message will only
+be sent if the "-farewell" option is used.
+
 The unregister command will automatically remove an address from all lists at
 this site, or the unsubscribe command can be used to selectively remove
-an address from one list at a time. Even after the address has been
+an address from one list at a time.  Even after the address has been
 unsubscribed from all lists one at a time, it will still exist in the
 registration database unless "unregister" is used. 
 
-Without the "-regex" option, "address" is matched literally with
+Without the "-pattern" option, "address" is matched literally with
 no interpretation of special characters. Matching is case sensitive.
 
-If the "-regex" option is used, "address" is interpreted as a
+If the "-pattern" option is used, "address" is interpreted as a
 Majordomo matching pattern. Review the "help patterns" file carefully.
 Patterns can be very simple or full-blown Perl regular expressions.
-When -regex is used to unsubscribe addresses with wild cards, the
+When -pattern is used to unsubscribe addresses with wild cards, the
 list password is required and confirmations will not be requested.
 Without "-allmatching", only the first matching address is removed.
 
-If the "-allmatching" option is used with "-regex", then every
+If the "-allmatching" option is used with "-pattern", then every
 address that matches the pattern will be removed from the list.
 
 Each address has an original and a canonical form.  Usually these
@@ -51,14 +55,14 @@ addresses are the same, but if the original address (the one
 that was used to subscribe to a mailing list) is an alias for
 another address, the latter address is the canonical address.
 
-When the "-regex" option is used, the canonical addresses are 
+When the "-pattern" option is used, the canonical addresses are 
 compared to the pattern.  This may cause some surprising results
 when an original address that does not match the pattern is
 reported to have been unsubscribed.
 
-The "-regex" option always requires the list password, and does not
-apply patterns to list names.  The "-pattern" option is identical 
-to the "-regex" option.
+The "-pattern" option always requires the list password, and does not
+apply patterns to list names.  The "-regex" option is identical 
+to the "-pattern" option.
 
 List owners can unsubscribe more than one address or pattern from a 
 mailing list using a "here document" or "here file" (see "help commands" 
@@ -66,7 +70,7 @@ for a description of here files.)  For example, to remove the
 addresses a@example.com and b@example.com from a list, the owner
 could use the following command:
 
-unsubscribe LISTNAME <<ABC
+unsubscribe-farewell LISTNAME <<ABC
 a@example.com
 b@example.com
 ABC
