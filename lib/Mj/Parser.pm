@@ -629,7 +629,7 @@ sub parse_line {
       # doubled up         --> remove one dash
       # single dash        --> empty line
       # dash anything else --> don't change
-      $line =~ s/^-([\s-]|$)/$1/;
+      # $line =~ s/^-([\s-]|$)/$1/;
 
       # XXX ? # Here warn if this looks like a command followed by another TAG.
 
