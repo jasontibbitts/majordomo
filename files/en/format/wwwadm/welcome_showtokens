@@ -1,0 +1,132 @@
+<pre>?ERROR</pre>
+
+<h4 align="center">Introduction to Mailing List Moderation</h4>
+
+<p>
+
+Whenever someone posts a message to a mailing list, writes
+to the list owners for help, or sends a command (like
+<b>subscribe</b> or <b>who</b>) to the list server, we say
+that a <b>request</b> has been made.  A posted message is called
+a <b>post</b> request; a message to the list owners is called
+an <b>owner</b> request.
+
+</p>
+
+<p>
+
+Some requests succeed immediately, but others are delayed
+for a few hours or require someone's approval.  When this
+happens, Majordomo randomly chooses a unique 12-digit identifier,
+called a <b>token</b>, for that request.  Each token has a
+specific <b>type</b>, depending upon whose approval is required,
+as shown in the following table:
+
+<table border>
+<tr>
+  <th>Token Type
+  <th>Who Should Approve
+</tr>
+
+<tr>
+  <td>confirm
+  </td>
+  <td>The subscriber (Usually the person who made the request)
+  If you <b>accept</b> or <b>reject</b> a <b>confirm</b> token,
+  it may confuse the subscriber.
+  </td>
+</tr>
+
+<tr>
+  <td>consult
+  </td>
+  <td>The administrators (Usually determined by the 
+  $HELP:MODERATORS 
+  configuration setting.
+  </td>
+</tr>
+
+<tr>
+  <td>delay
+  </td>
+  <td>Nobody (The request will be completed automatically.)
+  </td>
+</tr>
+
+<tr>
+  <td>probe
+  </td>
+  <td>Nobody (The request will be completed automatically.)
+  </td>
+</tr>
+</table>
+
+Please see the $HELP:SHOWTOKENS page for detailed information about
+token types.
+
+</p>
+
+<p>
+
+Three commands are available to manage tokens and the requests
+they represent:
+
+<dl>
+  <dt>accept
+  <dd>The accept command approves the request.  Unless other
+  approvals are required, the request will be completed 
+  immediately.  The accept command has two important variations:
+  <ul>
+    <li>The <b>accept-hide</b> command will prevent a posted message
+    from appearing in a public archive of your mailing list.
+
+    <li>The <b>accept-archive</b> command will store a posted
+    message in the archive of your list, but the message will
+    not be distributed to the subscribers.
+  </ul>
+  See the
+  $HELP:ACCEPT
+  help page for more information.
+
+  <dt>reject
+  <dd>The reject command causes the request to be discarded.
+  The reject command has one important variation:
+  <ul>
+    <li>The <b>reject-quiet</b> command will prevent a notice from
+    being sent to the subscriber that the request has been rejected.
+  </ul>
+  See the
+  $HELP:REJECT
+  help page for more information.
+
+  <dt>tokeninfo
+  <dd>The tokeninfo command causes detailed information about the
+  request (the expiration date, how many approvals are required,
+  the contents of a posted message, and so on) to be displayed.
+  The tokeninfo command has one important variation:
+  <ul>
+    <li>The <b>tokeninfo-remind</b> command will cause a reminder
+    message to be sent to an e-mail address that you specify.
+    This feature is useful for sending confirmation instructions to
+    subscribers or moderators who deleted the original instructions.
+  </ul>
+  See the
+  $HELP:TOKENINFO
+  help page for more information.
+
+</dl>
+
+Each command is represented by a button at the top or bottom of the
+list of tokens.
+</p>
+
+<p>
+Once a token has been accepted or rejected and the request has
+been completed, the token will become invalid, because
+it is no longer useful.
+</p>
+
+<p>
+You can see all of the tokens for your list at any time by clicking the
+<b>Moderation</b> link at the top or bottom of the page.
+</p>

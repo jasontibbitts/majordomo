@@ -613,7 +613,6 @@ files/en/format/text/.show_head
 files/en/format/text/.show_none
 files/en/format/text/.showtokens
 files/en/format/text/.showtokens_all
-files/en/format/text/.showtokens_all_data
 files/en/format/text/.showtokens_data
 files/en/format/text/.showtokens_error
 files/en/format/text/.showtokens_none
@@ -707,7 +706,6 @@ files/en/format/text/show_head
 files/en/format/text/show_none
 files/en/format/text/showtokens
 files/en/format/text/showtokens_all
-files/en/format/text/showtokens_all_data
 files/en/format/text/showtokens_data
 files/en/format/text/showtokens_error
 files/en/format/text/showtokens_none
@@ -807,7 +805,6 @@ files/en/format/wwwadm/.show_head
 files/en/format/wwwadm/.show_none
 files/en/format/wwwadm/.showtokens
 files/en/format/wwwadm/.showtokens_all
-files/en/format/wwwadm/.showtokens_all_data
 files/en/format/wwwadm/.showtokens_data
 files/en/format/wwwadm/.showtokens_error
 files/en/format/wwwadm/.showtokens_foot
@@ -832,6 +829,7 @@ files/en/format/wwwadm/.tokeninfo_text_foot
 files/en/format/wwwadm/.tokeninfo_text_head
 files/en/format/wwwadm/.welcome
 files/en/format/wwwadm/.welcome_global
+files/en/format/wwwadm/.welcome_showtokens
 files/en/format/wwwadm/.who
 files/en/format/wwwadm/.who_error
 files/en/format/wwwadm/.who_foot
@@ -912,7 +910,6 @@ files/en/format/wwwadm/show_head
 files/en/format/wwwadm/show_none
 files/en/format/wwwadm/showtokens
 files/en/format/wwwadm/showtokens_all
-files/en/format/wwwadm/showtokens_all_data
 files/en/format/wwwadm/showtokens_data
 files/en/format/wwwadm/showtokens_error
 files/en/format/wwwadm/showtokens_foot
@@ -938,6 +935,7 @@ files/en/format/wwwadm/tokeninfo_text_foot
 files/en/format/wwwadm/tokeninfo_text_head
 files/en/format/wwwadm/welcome
 files/en/format/wwwadm/welcome_global
+files/en/format/wwwadm/welcome_showtokens
 files/en/format/wwwadm/who
 files/en/format/wwwadm/who_error
 files/en/format/wwwadm/who_foot
@@ -1000,7 +998,6 @@ files/en/format/wwwconfirm/.show_head
 files/en/format/wwwconfirm/.show_none
 files/en/format/wwwconfirm/.showtokens
 files/en/format/wwwconfirm/.showtokens_all
-files/en/format/wwwconfirm/.showtokens_all_data
 files/en/format/wwwconfirm/.showtokens_data
 files/en/format/wwwconfirm/.showtokens_error
 files/en/format/wwwconfirm/.showtokens_none
@@ -1084,7 +1081,6 @@ files/en/format/wwwconfirm/show_head
 files/en/format/wwwconfirm/show_none
 files/en/format/wwwconfirm/showtokens
 files/en/format/wwwconfirm/showtokens_all
-files/en/format/wwwconfirm/showtokens_all_data
 files/en/format/wwwconfirm/showtokens_data
 files/en/format/wwwconfirm/showtokens_error
 files/en/format/wwwconfirm/showtokens_none
