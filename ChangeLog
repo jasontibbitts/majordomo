@@ -1,3 +1,32 @@
+2000-08-24  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  Include digests when the details about
+	an individual list are shown.
+
+	* lib/Majordomo.pm: (lists) Include digest names and
+	descriptions in the data.
+	(_report) Allow more complicated time spans, e.g.,
+	2w3d4h for the last 2 weeks, 3 days, and 4 hours.
+	(Thanks to Dave Wolfe for the suggestion.)
+	(trigger) Add new trigger options for finer control.
+	The following abbreviations are available:
+	b (bounce) or v (vacation) ... expire bounce and vacation data.
+	c (checksum) ... expire duplicate checksum/id data.
+	da (daily) ... all of the other tasks, except digests.
+	di (digest) or h (hourly) ... issue digests.
+	l (log) ... expire old log entries.
+	s (session) ... expire old session data.
+	t (token) ... expire old tokens and temporary passwords.
+
+	* lib/Mj/BounceParser.pm (parse): Anchor matches at the
+	beginning of the envelope information.
+
+	* lib/Mj/Format.pm (lists):  Display digests in "aux" mode.
+
+	* lib/Mj/List.pm: (_time_to_str) New routine.  Convert a
+	time span abbreviation (such as 2w3d4h) to a count of seconds.
+	(describe_class) Deal with vacation spans correctly.
+
 2000-08-23  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm (lists, who_start):  Treat a search

@@ -440,7 +440,8 @@ sub index {
 
 sub lists {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my (%lists, %legend, $list, $category, $count, $data, $desc, $flags, $site);
+  my (%lists, %legend, $list, $category, $count, 
+      $data, $desc, $flags, $i, $site);
   select $out;
   $count = 0;
 
@@ -494,6 +495,13 @@ sub lists {
           eprintf($out, $type, "%sArchive URL: %s\n", ' ' x 27, 
                                $data->{'archive'} || "(none)") 
                                if (exists $data->{'archive'});
+          if (exists $data->{'digests'} and keys %{$data->{'digests'}}) {
+            eprintf($out, $type, "%sDigests:\n", ' ' x 27);
+            for $i (sort keys %{$data->{'digests'}}) {
+              eprintf($out, $type, "%s %s: %s\n", ' ' x 27, 
+                      $i, $data->{'digests'}->{$i});
+            }
+          }
         }
         eprint($out, $type, "\n") if $request->{'mode'} =~ /long|enhanced/;
       }
@@ -800,7 +808,7 @@ sub sessioninfo {
 sub set {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my ($change, @changes, $list, $ok);
+  my ($change, @changes, $list, $ok, $summary);
  
   @changes = @$result; 
   while (@changes) {
@@ -810,13 +818,15 @@ sub set {
         if (length $change->{'auxlist'}) {
           $list .= ":$change->{'auxlist'}";
         }
-        eprint($out,
-         $type,
-         &indicate("Current settings for $change->{'victim'}->{'full'} on \"$list\":\n"
-           .  "  Receiving $change->{'classdesc'}\n"
-           .  "  Flags:\n    "
-           .  join("\n    ", @{$change->{'flagdesc'}})
-           . "\n(see 'help set' for a full explanation)\n\n", $ok, 1)
+        $summary = <<EOM;
+Settings for $change->{'victim'}->{'full'} on "$list":
+  Receiving $change->{'classdesc'} %s
+  Flags:
+EOM
+        $summary = sprintf $summary, ($change->{'class'} eq 'digest') ?
+                   "(in $change->{'classarg2'} format)" : '';
+        $summary .=  "    " . join("\n    ", @{$change->{'flagdesc'}}) . "\n\n";
+        eprint($out, $type, &indicate($summary, $ok, 1)
         );
     }
     # deal with partial failure
@@ -824,6 +834,8 @@ sub set {
         eprint($out, $type, &indicate("$change\n", $ok, 1));
     }
   }
+  eprint($out, $type, 
+    "Use the 'help set' command for an explanation of the set command.\n");
 
   1;
 }
