@@ -70,6 +70,7 @@ use vars (qw($addr %alias %flags %noflags %classes %digest_types
   );
 
 
+# XLANG
 # Classes -> [realclass, takesargs, description]
 %classes =
   (
@@ -241,6 +242,7 @@ sub add {
   $data{'subtime'}   = time;
   # Changetime handled automatically
 
+  # XLANG
   return (0, "Unable to access subscriber list $sublist")
     unless $self->_make_aux($sublist);
 
@@ -271,9 +273,12 @@ sub update {
 
   my $log = new Log::In 120, "$mode, $addr";
 
+  # XLANG
   return (0, "No data supplied") unless ref $data;
+  # XLANG
   return (0, "No address supplied") unless ref $addr;
 
+  # XLANG
   return (0, "Unable to access subscriber list $sublist")
     unless $self->_make_aux($sublist);
 
@@ -304,8 +309,10 @@ sub remove {
     $a = $addr->canon;
   }
 
+  # XLANG
   return (0, "Nonexistent subscriber list \"$sublist\".")
     unless $self->valid_aux($sublist);
+  # XLANG
   return (0, "Unable to access subscriber list \"$sublist\".")
     unless $self->_make_aux($sublist);
 
@@ -469,6 +476,7 @@ sub set {
     }
   }
 
+  # XLANG
   return (0, "Unknown auxiliary list name \"$subl\".") 
     unless $self->valid_aux($subl);
   ($key, $data) = $self->get_member($addr, $subl);
@@ -547,6 +555,7 @@ sub make_setting {
   my $log   = new Log::In 150, "$str, $flags";
   my($arg, $dig, $i, $inv, $isflag, $rset, $set, $time, $type);
 
+  # XLANG
   return (0, 'No settings were provided') 
     unless (defined ($str) and $str =~ /\S/);
 
@@ -644,11 +653,13 @@ sub make_setting {
         # to the saved settings, if there were any; otherwise,
         # use the 'each' class.
 	if ($arg eq 'return') {
+          # XLANG
 	  return (0, "No saved settings to return to.\n")
 	    unless $carg2;
         }
 
 	if ($arg eq 'return' or $rset eq 'mail') {
+          # XLANG
 	  return (0, "Not currently in nomail mode.\n")
 	    unless $classes{$class}->[0] eq 'nomail';
 
@@ -682,6 +693,7 @@ sub make_setting {
       elsif ($rset eq 'digest') {
 	# Process the digest data and pick apart the class
 	$dig = $self->config_get('digests');
+        # XLANG
         return (0, "No digests have been configured for the $self->{'name'} list.\n")
           unless exists $dig->{'default_digest'};
 	if ($arg) {
@@ -1041,8 +1053,12 @@ Begin iterating over a list of subscribers.
 sub get_start {
   my $self    = shift;
   my $sublist = shift || 'MAIN';
+
+  # XLANG
   return (0, "Unable to access subscriber list $sublist")
     unless $self->valid_aux($sublist);
+
+  # XLANG
   return (0, "Unable to initialize subscriber list $sublist")
     unless $self->_make_aux($sublist);
   $self->{'sublists'}{$sublist}->get_start;
@@ -1131,7 +1147,8 @@ sub get_member {
   my $self    = shift;
   my $addr    = shift;
   my $sublist = shift || 'MAIN';
-  
+ 
+  # XLANG 
   return (0, "Unable to access subscriber list $sublist")
     unless $self->_make_aux($sublist);
   return ($addr->canon, $self->{'sublists'}{$sublist}->lookup($addr->canon));
@@ -1490,6 +1507,7 @@ sub check_dup {
   my $log  = new Log::In 150, $rec;
   my ($data, $ndata, $ok);
 
+  # XLANG
   return (0, "Unable to access duplicate database $type.\n")
     unless  $self->_make_dup($type);
 
@@ -2045,16 +2063,19 @@ sub rename_archive {
 
   # Stop if the archive directory does not exist.
   unless ($dir && -d $dir && -w $dir) {
+    # XLANG
     $log->message(120, 'info', "The directory $dir is inaccessible.");
     return;
   }
   unless (-d "$dir/.index" && -w "$dir/.index") {
+    # XLANG
     $log->message(120, 'info', "The directory $dir/.index is inaccessible.");
     return;
   }
 
   $dirh = gensym();
 
+  # XLANG
   opendir ($dirh, $dir) 
     or $::log->abort("Error opening directory $dir: $!");
 
@@ -2339,6 +2360,7 @@ sub archive_delete_msg {
   my $msg = shift;
   my ($arc, $data, $ok);
 
+  # XLANG
   return (0, "Unable to initialize archive.\n")
     unless $self->_make_archive;
 
@@ -2355,6 +2377,7 @@ sub archive_replace_msg {
   my $qp = $self->config_get('quote_pattern');
   my $owner = $self->config_get('whoami_owner');
 
+  # XLANG
   return (0, "Unable to initialize archive.\n")
     unless $self->_make_archive;
 
@@ -2371,6 +2394,7 @@ sub archive_find {
 
   return ($ok, $mess) unless $ok;
 
+  # XLANG
   return (0, "Unable to initialize archive.\n")
     unless $self->_make_archive;
 
@@ -2946,7 +2970,7 @@ sub expire_bounce_data {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-2000 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-2000, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
