@@ -183,7 +183,7 @@ sub post {
   $avars->{mime} = $avars->{mime_consult} || $avars->{mime_deny} || '';
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
     $avars->{admin} || $avars->{bad_approval} || $avars->{invalid_from} || '';
-  $avars->{'sublist'} = $request->{'sublist'};
+  $avars->{'sublist'} = $request->{'sublist'} || '';
   # Used to determine the archive.
   $avars->{'time'} = time;
 
