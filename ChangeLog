@@ -1,3 +1,15 @@
+2002-01-21  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* setup/ask_basic.pl (ask_basic): Ask for majordomo.cf location.
+
+	* postinstall: Add mj_setup.
+
+	* installbin: Add CONFFILE substitution.
+
+	* Makefile.PL: Bump config version.  Add mj_setup.
+
+	* bin/mj_setup: New file.
+
 2002-01-20  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* bin/mj_shell: Delay module loading until runtime.

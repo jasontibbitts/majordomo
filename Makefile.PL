@@ -13,7 +13,7 @@ BEGIN {
 
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
-my $config_version = 10;
+my $config_version = 11;
 my(@SIDSCRIPTS, @SCRIPTS, @EXES, $ok);
 use vars qw(%have);
 
@@ -82,11 +82,12 @@ my $config = configure();
 if ($config->{mta} eq 'sendmail') {
   @SIDSCRIPTS = qw(mj_email mj_enqueue mj_shell mj_confirm 
                    mj_shutdown mj_wwwadm mj_wwwusr);
-  @SCRIPTS = qw(mj_trigger mj_queueserv mj_queuerun);
+  @SCRIPTS = qw(mj_trigger mj_queueserv mj_queuerun mj_setup);
 }
 else {
   @SIDSCRIPTS = qw(mj_shell mj_confirm mj_shutdown mj_wwwadm mj_wwwusr);
-  @SCRIPTS = qw(mj_email mj_enqueue mj_trigger mj_queueserv mj_queuerun);
+  @SCRIPTS = qw(mj_email mj_enqueue mj_trigger mj_queueserv mj_queuerun
+                mj_setup);
 }
 @EXES = map {"./bin/$_"} @SIDSCRIPTS, @SCRIPTS;
 

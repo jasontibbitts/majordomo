@@ -35,6 +35,7 @@ bin/mj_email
 bin/mj_enqueue
 bin/mj_queuerun
 bin/mj_queueserv
+bin/mj_setup
 bin/mj_shell
 bin/mj_shutdown
 bin/mj_trigger

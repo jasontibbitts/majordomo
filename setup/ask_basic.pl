@@ -38,6 +38,19 @@ Your installation does not seem to be correct.
   # Get an existing executable without searching $PATH, force existing.
   $config->{startperl} = get_file($msg, $def, 1, 1, 0, 1);
 
+  #---- Ask for majordomo.cf location
+  $msg = <<EOM;
+Location of Configuration File (majordomo.cf)
+
+Where should Majordomo look for its system configuration file?
+ Majordomo keeps some settings in a system configuration file, generally
+  called majordomo.cf and generally located in /etc.
+
+Configuration file location?
+EOM
+  $def = $config->{majordomocf} || '/etc/majordomo.cf';
+  $config->{majordomocf} = get_file($msg, $def, 0, 0, 0, 0);
+
   #---- Ask for UID
   ($tmpnam,$tmppwd,$tmpuid,$tmpgid) = getpwnam($ENV{USER}) if(defined($ENV{USER}));
   $tmpnam = $tmpuid = 'unknown' if(!defined($tmpnam));

@@ -8,6 +8,17 @@ needed/problem really isn't a problem.
 Implemented, awaiting verification
 ==================================
 
+Using author statistics in the access rules
+-------------------------------------------
+The access rules should have the posted message statistics available
+for the author of a message, to allow rules such as "moderate messages
+from people who have posted fewer than five messages to the list
+previously."
+
+Additional user request: keep stats from beginning of day/week/month
+instead of last 1/7/30 days.
+
+
 Configurable Subject: headers for digests
 -----------------------------------------
 Add an optional third line to the digests setting specifying the format of
@@ -64,26 +75,26 @@ Also, the temporary directory (and probably several other variables) needs
 to be made part of the site config instead of a per-domain configurable.
 
 Things currently hardcoded in the scripts:
-  $::BINDIR
-  $::LIBDIR
-  $::LISTDIR
-  $::UMASK
-  $::TMPDIR
-  $::LOCKDIR
-  $::WTMPDIR
-  $::UID
-  $::GID
-  $::TIMEOUT
-  $::CONCURRENCY
-  $::SIG_CHLD_IGNORE
-  $::LOCK_EX
-  $::LOCK_NB
-  $::LOCK_UN
-  $::O_WRONLY
-  $::O_CREAT
-  $::O_EXCL
+  $::BINDIR   - OK to stay
+  $::LIBDIR   - OK to stay
+  $::LISTDIR  - move
+  $::UMASK    - move
+  $::TMPDIR   - move
+  $::LOCKDIR  - move
+  $::WTMPDIR  - move
+  $::UID      - OK
+  $::GID      - OK
+  $::TIMEOUT  - move
+  $::CONCURRENCY - move
+  $::SIG_CHLD_IGNORE - OK
+  $::LOCK_EX   - OK
+  $::LOCK_NB   - OK 
+  $::LOCK_UN   - OK
+  $::O_WRONLY  - OK
+  $::O_CREAT   - OK
+  $::O_EXCL    - OK
 
-Things currently in SITE/config.pl:
+Things currently in SITE/config.pl (all should move):
   cgi_bin
   install_dir
   mta_separator

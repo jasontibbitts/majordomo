@@ -34,7 +34,7 @@ $| = 1;
 
 # List of script files to be installed.
 @sidscripts = (qw(mj_resend mj_shell mj_confirm mj_shutdown mj_wwwadm mj_wwwusr));
-@scripts = (qw(mj_trigger mj_queueserv mj_queuerun));
+@scripts = (qw(mj_trigger mj_queueserv mj_queuerun mj_setup));
 
 if ($config->{mta} eq 'sendmail') {
   push @sidscripts, qw(mj_email mj_enqueue);

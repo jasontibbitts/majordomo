@@ -24,6 +24,7 @@ while (($src,$dst) = splice(@ARGV,0,2)) {
     open(DST,">$dst") || die "Cannot open $dst:$!";
     while (defined($line = <SRC>)) {
       $line =~ s/^#!\s*\S+/$start/;
+      $line =~ s!(^\$::CONFFILE\s*= ).*!$1\"$config->{'majordomocf'}\";!; 
       $line =~ s!(^  \$::BINDIR\s*= ).*!$1\"$config->{'install_dir'}/bin\";!;
       $line =~ s!(^  \$::LIBDIR\s*= ).*!$1\"$config->{'install_dir'}/lib\";!;
       $line =~ s!(^  \$::LISTDIR\s*= ).*!$1\"$config->{'lists_dir'}\";!;
