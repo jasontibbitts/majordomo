@@ -403,7 +403,7 @@ sub make_setting {
 
   # Split the string on commas; discard empties.  XXX This should probably
   # ignore commas within parentheses.
-  for $i (split("\s*,\s*", $str)) {
+  for $i (split (/\s*,\s*/, $str)) {
     next unless $i;
 
     # Deal with digest-(arg with spaces)
