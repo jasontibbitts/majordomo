@@ -604,7 +604,7 @@ sub _post {
     $k = gensym();
     open ($k, ">$tmp") or
       $::log->abort("Couldn't open archive output file, $!");
-    $arcent->print(\*FINAL);
+    $arcent->print($k);
     close ($k) 
       or $::log->abort("Unable to close file $tmp: $!");
 
