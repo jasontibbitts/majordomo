@@ -633,6 +633,7 @@ sub rekey {
   my ($ok, $mess) = @$result; 
   if ($ok>0) {
     eprint($out, $type, "Databases rekeyed.\n");
+    eprint($out, $type, &indicate($mess, $ok)) if $mess;
   }
   else {
     eprint($out, $type, "Databases not rekeyed.\n");

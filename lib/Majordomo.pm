@@ -3951,8 +3951,8 @@ sub rekey {
 
 sub _rekey {
   my($self, $d, $requ, $vict, $mode, $cmd) = @_;
-  my $log = new Log::In 35;
-  my ($list);
+  my $log = new Log::In 35, $mode;
+  my ($addr, $count, $data, $list, $mess, $pw, @chunk, @lists);
 
   # Do a rekey operation on the registration database
   my $sub =
@@ -3975,12 +3975,68 @@ sub _rekey {
 
   # loop over all lists
   $self->_fill_lists;
+  $mess = '';
   for $list (keys(%{$self->{lists}})) {
+    next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
     if ($self->_make_list($list)) {
       $self->{'lists'}{$list}->rekey;
+      if ($mode =~ /verify|repair/) {
+        $log->message(35, 'info', "Verifying $list");
+        $count = 0;
+        next unless $self->{'lists'}{$list}->get_start;
+        while (@chunk = $self->{'lists'}{$list}->get_chunk(1)) {
+          $data = $chunk[0];
+          unless ($addr = new Mj::Addr($data->{'fulladdr'})) {
+            $mess .= "Skipping address $data->{'fulladdr'}.\n";
+            next;
+          }
+          $data = $self->{'reg'}->lookup($addr->canon);
+          # Create a new registry entry if one was missing.
+          unless ($data) {
+            $mess .= "$addr is subscribed to $list but not registered.\n";
+            if ($mode =~ /repair/) {
+              $pw = Mj::Access::_gen_pw();
+              $data = {
+                 stripaddr => $addr->strip,
+                 fulladdr  => $addr->full,
+                 regtime   => time,
+                 language  => '',
+                 'lists'   => $list,
+                 flags     => '',
+                 bounce    => '',
+                 warnings  => '',
+                 data1     => '',
+                 data2     => '',
+                 data3     => '',
+                 data4     => '',
+                 data5     => '',
+                 password  => $pw,
+              };
+              $self->{'reg'}->add('', $addr->canon, $data);
+              # inform the subscriber that a new password was generated.
+              # "quiet" mode will cause a notice not to be sent.
+              $self->_password($list, $addr, $addr, $mode, $cmd, $pw);
+              $mess .= "Created new registry entry for $addr.\n";
+            }
+            next;
+          }
+          unless ($data->{'lists'} =~ /\b$list\b/) {
+            $mess .= "$addr is subscribed to $list; registry says otherwise.\n";
+            @lists = split("\002", $data->{'lists'});
+            push @lists, $list;
+            $data->{'lists'} = join("\002", @lists);
+            $self->{'reg'}->replace('', $addr->canon, $data);
+            next;
+          }
+          $count++;
+        }
+        $mess .= "$count addresses verified for the $list list.\n";
+        $self->{'lists'}{$list}->get_done;
+      }
     }
   }
-  return (1, '');
+
+  return (1, $mess);
 }
 
 =head2 report(..., $sessionid)
