@@ -85,8 +85,7 @@ $mj = new Majordomo $::LISTDIR, $domain;
 
 # $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwusr";
 # Use URL with which we were called.
-$cgiurl = sprintf "http://%s:%s%s", $ENV{'SERVER_NAME'},
-          $ENV{'SERVER_PORT'}, $ENV{'SCRIPT_NAME'}, $ENV{'PATH_INFO'};
+$cgiurl = sprintf "%s%s", $ENV{'SCRIPT_NAME'}, $ENV{'PATH_INFO'};
 
 $serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
 $pathinfo = '';
@@ -176,7 +175,7 @@ unless (exists $commands{$func}) {
 }
 # Make sure the list name is valid
 if ($list) {
-  unless ($list = $mj->valid_list($list, 0, 1)) {
+  unless (($list) = $mj->valid_list($list, 0, 1)) {
     $::log->message(50, "info",  "Invalid list $list in form data.");
     &surrender("Invalid list name: $list\n");
   }
@@ -660,8 +659,6 @@ sub usage {
   my $site = $mj->global_config_get(undef, undef, 'site_name');
   my $serveraddr = $mj->global_config_get(undef, undef, 'whoami');
   my $serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
-  my $usrcgi = sprintf "http://%s:%s/%s?domain=$domain", $ENV{'SERVER_NAME'},
-          $ENV{'SERVER_PORT'}, $ENV{'SCRIPT_NAME'}, $user;
 
   print <<EOM;
 <h2 align=center>Introduction</h2>

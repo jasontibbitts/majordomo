@@ -50,7 +50,7 @@ use Mj::Addr;
 my ($cgi, $cgiurl, $domain, $i, $mj, $ok, $mess, $serveradmin, $sess, $token);
 my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, @lists, $vict, $extra);
 my ($line, $st, $file, $fh, $cmdform, $localpart, $request, $req, @extra);
-my (%seen, @mlists, $otherlists, $subs, @hereargs);
+my (%seen, @mlists, @sublists, $otherlists, $subs, @hereargs);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -98,8 +98,7 @@ $serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
 
 # $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
 # Use the URL with which we were called
-$cgiurl = sprintf "http://%s:%s%s", $ENV{'SERVER_NAME'},
-          $ENV{'SERVER_PORT'}, $ENV{'SCRIPT_NAME'};
+$cgiurl = $ENV{'SCRIPT_NAME'};
 
 $pathinfo = 'GLOBAL';
 if (exists $ENV{'PATH_INFO'}) {
@@ -175,7 +174,8 @@ unless (command_legal($func)) {
 # Make sure the list names are valid
 for ($i = 0; $i < scalar(@lists); $i++) {
   if ($lists[$i] ne '') {
-    unless ($lists[$i] = $mj->valid_list($lists[$i], 1, 1)) {
+    unless (($lists[$i], $sublists[$i])
+             = $mj->valid_list($lists[$i], 1, 1)) {
       $mess = "Invalid list name: $lists[$i]";
       $::log->message(50, "info", $mess);
       &surrender($mess, $sess, $serveradmin, $file);
@@ -188,7 +188,7 @@ for ($i = 0; $i < scalar(@lists); $i++) {
 if ($func eq 'archive' or $func eq 'get') {
   $mode .= "-immediate";
 }
-elsif ($func eq 'auxwho' or $func eq 'who') {
+elsif ($func eq 'who') {
   $mode .= $mode? "-enhanced" : "enhanced";
 }
 elsif ($func eq 'configdef') {
@@ -213,18 +213,10 @@ elsif ($passw ne '') {
   }
 }
 
-if ($func eq 'auxadd' or $func eq 'auxremove') {
-  # The group and mail address must be specified in 'extra'
-  if ($extra !~ /\s/) {
-    $mess = "The $func command requires an auxiliary list name and an address.\n";
-    $::log->message(50, "info", $mess);
-    &surrender($mess, $sess, $serveradmin, $file);
-  }
-}
-
 $request = {
     'command'   => $func,
     'list'      => $lists[0],
+    'sublist'   => $sublists[0],
     'mode'      => $mode,
     'password'  => ($func =~ /help|which|lists/)? '' : $passw, 
     'user'      => $user,
@@ -630,10 +622,12 @@ sub Mj::Format::who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, $request->{'list'};
   my ($arg, $chunksize, $count, $fullclass, $i, $lastchange);
-  my (@lines, $numbered, $remove, @time, $user);
+  my (@lines, $list, $numbered, $remove, @time, $user);
 
-  if ($request->{'auxlist'}) {
-    $remove = "auxremove";
+  $list = $request->{'list'};
+  if ($request->{'sublist'} and $request->{'sublist'} ne 'MAIN') {
+    $list .= ":$request->{'sublist'}";
+    $remove = "unsubscribe";
   }
   elsif ($request->{'list'} eq 'GLOBAL') { 
     $remove = "unregister"; 
@@ -652,7 +646,7 @@ sub Mj::Format::who {
 <form method=POST action="$cgiurl">
 <input type=submit name=func value="$remove">
 <input type=hidden name=domain value="$domain">
-<input type=hidden name=list value="$request->{'list'}">
+<input type=hidden name=list value="$list">
 <input type=hidden name=passw value="$passw">
 <input type=hidden name=st value="$st">
 <br>To remove addresses, choose one or more 
