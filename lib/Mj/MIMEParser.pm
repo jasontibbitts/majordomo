@@ -98,7 +98,7 @@ sub collect_data {
   $data;
 } 
    
-
+use Mj::Util qw(re_match);
 sub _r_ct_lines {
   my ($entity, $data, $qp) = @_;
   my (@parts) = $entity->parts;
@@ -115,7 +115,7 @@ sub _r_ct_lines {
   # Iterate over the lines
   while ($line = $body->getline) {
     $data->{body_lines}++;
-    $data->{quoted_lines}++ if Majordomo::_re_match($qp, $line);
+    $data->{quoted_lines}++ if re_match($qp, $line);
   }
 }
 
@@ -165,7 +165,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
