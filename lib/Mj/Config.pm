@@ -3545,15 +3545,15 @@ sub _str_to_clock {
   }
   # Deal with 'yearly'
   if ($out =~ /^yearly/i) {
-    return (['y', 4, 4]);
+    return (['y', 5, 5]);
   }
   # Deal with 'quarterly'
   if ($out =~ /^quarterly/i) {
-    return (['m1', 3, 3], ['m4', 3, 3], ['m7', 3, 3], ['m10', 3, 3]);
+    return (['m1', 4, 4], ['m4', 4, 4], ['m7', 4, 4], ['m10', 4, 4]);
   }
   # Deal with 'monthly'
   if ($out =~ /^monthly/i) {
-    return (['m', 2, 2]);
+    return (['m', 3, 3]);
   }
   # Deal with 'weekly'
   if ($out =~ /^weekly/i) {
@@ -3562,6 +3562,10 @@ sub _str_to_clock {
   # Deal with 'daily'
   if ($out =~ /^daily/i) {
     return (['a', 0, 0]);
+  }
+  # Deal with 'hourly'
+  if ($out =~ /^hourly/i) {
+    return (['a', 0, 23]);
   }
   # Hour or hour range
   elsif ($out =~ /^(\d{1,2})-?(\d{1,2})?$/) {
