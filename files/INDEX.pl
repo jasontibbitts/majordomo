@@ -229,6 +229,7 @@ $files =
    'en/help/stop'                                     => ['alias help file',                          'us-ascii', '7bit'],
    'en/help/sub'                                      => ['alias help file',                          'us-ascii', '7bit'],
    'en/help/subscribe'                                => ['detailed help for subscribe command',      'us-ascii', '7bit'],
+   'en/help/times'                                    => ['exhaustive description of Mj2 time specs', 'us-ascii', '7bit'],
    'en/help/tokeninfo'                                => ['detailed help for tokeninfo command',      'us-ascii', '7bit'],
    'en/help/topics'                                   => ['exhaustive list of help commands',         'us-ascii', '7bit'],
    'en/help/trigger'                                  => ['default help file for non-user command',   'us-ascii', '7bit'],
