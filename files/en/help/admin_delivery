@@ -131,6 +131,8 @@ For more information, read the following documents:
    help configset_override_reply_to
    help configset_reply_to
    help configset_subject_prefix
+   help configset_subject_re_pattern
+   help configset_subject_re_strip
    help set
 
 
