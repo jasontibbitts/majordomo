@@ -1,63 +1,62 @@
-This pre-recorded message is being sent in response to your recent
+This automated message is being sent in response to your recent
 email to $REQUEST.
 
-All routine administrative requests (including subscriptions and
-unsubscriptions) concerning this mailing list are handled by an
-automated server.  Please read this message carefully to find the
-information relevant to you.
+All routine administrative requests, including subscriptions and
+unsubscriptions, for this mailing list are handled by an automated
+server.  Please read this message carefully to find the information
+relevant to you.
+
 
 SUBSCRIBING
 ===========
 
-To subscribe to $list, send the following in the body (not
-the subject line) of an email message to "$MAJORDOMO":
+To subscribe to the $LIST mailing list, send an e-mail message to
+  $MJ
+In the body (not the subject line) of the message put this command:
+  subscribe $LIST
 
-        subscribe $LIST
+If you wish to subscribe a different address than the one from which you
+are writing, use the following command:
+  subscribe $LIST ADDRESS
+(Substitute the address you wish to subscribe for ADDRESS.)
 
-This will subscribe the account from which you send the message to
-the $LIST list.
-
-If you wish to subscribe another address instead (such as a local
-redistribution list), you can use a command of the form:
-
-        subscribe $LIST other-address@your_site.your_net
 
 UNSUBSCRIBING
 =============
 
-To unsubscribe from $LIST, send the following in the body (not
-the subject line) of an email message to "$whoami":
+To unsubscribe from the $LIST mailing list, send an e-mail message to
+  $MJ
+In the body (not the subject line) of the message put this command:
+  unsubscribe $LIST
 
-        unsubscribe $LIST
+If you wish to unsubscribe a different address than the one from which you
+are writing, use the following command:
+  unsubscribe $LIST ADDRESS
+(Substitute the address you wish to unsubscribe for ADDRESS.)
 
-This will unsubscribe the account from which you send the message.
-If you are subscribed with some other address, you'll have to send
-a command of the following form instead:
+If you do not know the address of your subscription, you can send
+the following command to see a complete list of subscribers, if that
+information has not been restricted by the list administrators:
+  who $LIST
 
-        unsubscribe $LIST other-address@your_site.your_net
+If you want to search all public lists at this domain for your
+subscription, use the following command:
+  which PATTERN
+Substitute a portion of your address for PATTERN.  For example, if your
+address is jane@example.org, use the following command:
+  which jane
 
-If you don't know what address you are subscribed with, you can send
-the following command to see who else is on the list (assuming that
-information isn't designated "private" by the owner of the list):
-
-        who $LIST
-
-If you want to search non-private lists at this server, you can do that
-by sending a command like:
-
-        which string
-
-This will return a list of all entries on all lists that contain "string".
 
 HELP
 ====
 
 To find out more about the automated server and the commands it
-understands, send the following command to "$MAJORDOMO":
+understands, send a message to
+  $MJ
+In the body of the message, put this command:
+  help
 
-        help
-
-If you feel you need to reach a human, send email to:
-
-        $OWNER
+To contact the people who administer the $LIST mailing list, send 
+a message to
+  $OWNER
 
