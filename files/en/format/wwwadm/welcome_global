@@ -1,0 +1,176 @@
+<pre>?ERROR</pre>
+
+<table cellspacing="15" width="100%">
+<tr>
+  <td valign="top">Introduction
+  </td>
+  <td>
+Welcome to $SITE.
+The links at the top and bottom of the page will help you to 
+manage one or more of your mailing lists.  You can return
+to this introduction at any time by pressing <b>Introduction</b>.
+
+  </td>
+</tr>
+<tr>
+  <td valign="top">Sign In
+  </td>
+  <td>
+
+If you finish administering the $LIST list and wish to change
+to another list, press <b>Sign In</b>.  You will be prompted
+for a new mailing list name and password.  Your temporary password 
+for this session will continue to be valid.
+
+  </td>
+</tr>
+<tr>
+  <td valign="top">Sign Out
+  </td>
+  <td>
+
+If you finish administering the $LIST list and wish to end
+this session, press <b>Sign Out</b>.  Your temporary password
+for this session will be invalidated.
+
+  </td>
+</tr>
+<tr>
+  <td valign="top">Moderation
+  </td>
+  <td>
+
+Occasionally, posted messages, subscriptions, and other requests
+will need your approval before they are completed.  Press 
+<b>Moderation</b> to see all of the unfinished requests for every
+mailing list at $SITE. 
+The requests labeled <b>consult</b> await the approval of an
+administrator, whereas the requests labeled <b>confirm</b> await the
+approval of the people who made them.  The requests labeled <b>delay</b>
+will be completed automatically at a later time.
+
+  </td>
+</tr>
+<tr>
+  <td valign="top">Registry
+  </td>
+  <td>
+
+Press <b>Registry</b> to see the first 20 e-mail addresses of
+people who have registered at $SITE.  
+Whenever someone joins a mailing list, the e-mail address of that person
+is registered automatically.  
+
+  </td>
+</tr>
+<tr>
+  <td valign="top">Configuration
+  </td>
+  <td>
+
+Majordomo has over 100 GLOBAL configuration settings which you can
+use to fine-tune the performance of your domain.  To manage them 
+more easily, they have been divided into several categories.
+Press <b>Configuration</b> to see a list of these categories.
+You can then view and change the current settings.
+
+  </td>
+</tr>
+<tr>
+  <td valign="top">Defaults
+  </td>
+  <td>
+
+Majordomo has over 100 DEFAULT configuration settings which you can
+use to set the default values for every mailing list in this domain.  
+To manage them more easily, they have been divided into several 
+categories.  Press <b>Defaults</b> to see a list of these categories.
+You can then view and change the current settings.
+
+  </td>
+</tr>
+<tr>
+  <td valign="top">Create Lists
+  </td>
+  <td>
+
+If you wish to create, rename, or destroy a mailing list, press 
+<b>Create Lists</b>.
+  </td>
+</tr>
+<tr>
+  <td valign="top">Command Form
+  </td>
+  <td>
+
+Although the other features of this WWW service will allow you
+to perform many common tasks, not every task is supported yet.
+However, the <b>Command Form</b> offers a primitive way of 
+issuing commands that may be easier for experienced administrators.
+<p>
+In particular, the $HELP:GET, $HELP:INDEX, and $HELP:PUT
+commands are supported only by the command form.
+
+  </td>
+</tr>
+<tr>
+  <td valign="top">Help
+  </td>
+  <td>
+
+Majordomo has over 100 cross-referenced help files, which you
+can browse by pressing <b>Help</b>.
+They describe how to email commands to Majordomo at
+<a href="mailto:$MJ">$MJ</a>.  The help pages may be displayed in a new
+window in your web browser.
+The following files give a good introduction.
+<dl>
+  <dt>$HELP:ADMIN</dt>
+    <dd>A basic introduction to list administration, including hints
+    for solving common problems.</dd>
+
+  <dt>$HELP:ADMIN_COMMANDS</dt>
+    <dd>A summary of all of the commands available to list administrators.</dd>
+
+  <dt>$HELP:ADMIN_DOMAIN</dt>
+    <dd>A basic introduction to the administration of a domain, 
+    such as $DOMAIN.</dd>
+
+  <dt>$HELP:ADMIN_PASSWORDS (important!)</dt>
+    <dd>How to use passwords when you email commands to Majordomo.</dd>
+
+  <dt>$HELP:COMMANDS</dt>
+    <dd>A summary of commands for list subscribers</dd>
+
+  <dt>$HELP:CONFIGSHOW</dt>
+    <dd>How to see the current configuration settings for your list.</dd>
+
+  <dt>$HELP:CONFIGSET and $HELP:CONFIGDEF</dt>
+    <dd>How to change the configuration settings.</dd>
+
+  <dt>$HELP:SET</dt>
+    <dd>How to change the personal settings of your list's subscribers.</dd>
+
+  <dt>$HELP:SUBSCRIBE</dt>
+    <dd>How to add people to your mailing list.</dd>
+
+  <dt>$HELP:UNSUBSCRIBE</dt>
+    <dd>How to remove people from your mailing list.</dd>
+
+  <dt>$HELP:SHOWTOKENS</dt>
+    <dd>How to see a summary of requests that require moderation.</dd>
+
+  <dt>$HELP:TOKENINFO</dt>
+    <dd>How to obtain more information about one request that
+        requires moderation.</dd>
+
+  <dt>$HELP:WHO</dt>
+    <dd>How to see who is subscribed to a mailing list.</dd>
+
+  <dt>$HELP:MJ_WWWADM</dt>
+    <dd>Technical details about this web interface.</dd>
+
+</dl>
+  </td>
+</tr>
+</table>

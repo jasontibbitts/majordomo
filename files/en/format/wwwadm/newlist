@@ -1,0 +1,89 @@
+<h4 align=center>Create a Mailing List</h4>
+<p>
+<ol>
+
+<li>Type the name of the new mailing list into the <b>List Name</b> box.
+List names can be composed of letters, digits, the hyphen (-), 
+underscore (_), or period (.).  List names are case-insensitive:
+capital letters and small letters are treated identically.
+
+<li>If you wish to specify the master password for the new list,
+type it into the <b>Password</b> box.  The password must be at
+least $PWLENGTH characters long.
+
+<li>Type the e-mail addresses of the list owners into the large
+box.  Put one e-mail address on each line.
+
+<li>Press the <b>createlist</b> button to create the mailing list.
+
+</ol>
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+
+  List Name: <input name="newlist" size="40"><br>
+
+  Password:  <input type="password" name="newpasswd" size="18"><br>
+
+  <textarea cols="70" rows="6" name="owners"></textarea><br>
+
+  <input type="submit" name="func" value="createlist">
+</form>
+
+<h4 align="center">Rename a Mailing List</h4>
+<p>
+<ol>
+<li>
+Type the current name of a mailing list into the <b>Old Name</b> box.  
+
+<li>
+Type the new name of the list into the <b>New Name</b> box.
+
+<li>
+Press the <b>createlist-rename</b> button to change the name of the
+list.
+
+</ol>
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+
+  Old Name: <input name="newlist" size="40"><br>
+  New Name: <input name="newname" size="40"><br>
+
+  <input type="submit" name="func" value="createlist-rename">
+</form>
+
+<h4 align="center">Destroy a Mailing List</h4>
+<p>
+<ol>
+<li>
+Type the name of a mailing list into the <b>List Name</b> box.  
+
+<li>
+Press the <b>createlist-destroy</b> button to destroy the list.
+
+</ol>
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+
+  List Name: <input name="newlist" size="40"><br>
+
+  <input type="submit" name="func" value="createlist-destroy">
+</form>
+
+<p>
+<a href="$CGIURL?$CGIDATA&passw=$CMDPASS&func=lists">List of Lists</a>
+</p>
+
+

@@ -1,0 +1,73 @@
+<!-- Majordomo foot_global format file -->
+<p>
+  If you need help, contact 
+  <a href="mailto:$MJOWNER">the $DOMAIN administrators</a>.
+
+<table cellspacing="8" width="100%">
+<tr>
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=welcome">
+     <font size="-1" color="#f0f0f0">
+     Introduction</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=login">
+     <font size="-1" color="#f0f0f0">
+     Sign In</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=logout">
+     <font size="-1" color="#f0f0f0">
+     Sign Out</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?user=$USER&passw=$CMDPASS&list=ALL&func=showtokens-delay">
+     <font size="-1" color="#f0f0f0">
+     Moderation</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?user=$USER&passw=$CMDPASS&list=GLOBAL&func=who&chunksize=20">
+     <font size="-1" color="#f0f0f0">
+     Registry</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?user=$USER&passw=$CMDPASS&list=GLOBAL&func=configshow-categories">
+     <font size="-1" color="#f0f0f0">
+     Configuration</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?user=$USER&passw=$CMDPASS&list=DEFAULT&func=configshow-categories">
+     <font size="-1" color="#f0f0f0">
+     Defaults</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=newlist">
+     <font size="-1" color="#f0f0f0">
+     Create Lists</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=command">
+     <font size="-1" color="#f0f0f0">
+     Command Form</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=help&extra=help">
+     <font size="-1" color="#f0f0f0">
+     Help</font></a>
+  </td>
+
+</tr>
+</table>
+
+</p>
+</body></html>
+

@@ -748,12 +748,14 @@ files/en/format/wwwadm/.configshow_head
 files/en/format/wwwadm/.configshow_none
 files/en/format/wwwadm/.configshow_short
 files/en/format/wwwadm/.foot
+files/en/format/wwwadm/.foot_global
 files/en/format/wwwadm/.get_edit_foot
 files/en/format/wwwadm/.get_edit_head
 files/en/format/wwwadm/.get_error
 files/en/format/wwwadm/.get_foot
 files/en/format/wwwadm/.get_head
 files/en/format/wwwadm/.head
+files/en/format/wwwadm/.head_global
 files/en/format/wwwadm/.lists
 files/en/format/wwwadm/.lists_category
 files/en/format/wwwadm/.lists_enhanced
@@ -763,6 +765,7 @@ files/en/format/wwwadm/.lists_full
 files/en/format/wwwadm/.lists_head
 files/en/format/wwwadm/.lists_none
 files/en/format/wwwadm/.login
+files/en/format/wwwadm/.newlist
 files/en/format/wwwadm/.password
 files/en/format/wwwadm/.set
 files/en/format/wwwadm/.set_check
@@ -800,6 +803,7 @@ files/en/format/wwwadm/.tokeninfo_replace
 files/en/format/wwwadm/.tokeninfo_text_foot
 files/en/format/wwwadm/.tokeninfo_text_head
 files/en/format/wwwadm/.welcome
+files/en/format/wwwadm/.welcome_global
 files/en/format/wwwadm/.who
 files/en/format/wwwadm/.who_error
 files/en/format/wwwadm/.who_foot
@@ -841,12 +845,14 @@ files/en/format/wwwadm/configshow_head
 files/en/format/wwwadm/configshow_none
 files/en/format/wwwadm/configshow_short
 files/en/format/wwwadm/foot
+files/en/format/wwwadm/foot_global
 files/en/format/wwwadm/get_edit_foot
 files/en/format/wwwadm/get_edit_head
 files/en/format/wwwadm/get_error
 files/en/format/wwwadm/get_foot
 files/en/format/wwwadm/get_head
 files/en/format/wwwadm/head
+files/en/format/wwwadm/head_global
 files/en/format/wwwadm/lists
 files/en/format/wwwadm/lists_category
 files/en/format/wwwadm/lists_enhanced
@@ -856,6 +862,7 @@ files/en/format/wwwadm/lists_full
 files/en/format/wwwadm/lists_head
 files/en/format/wwwadm/lists_none
 files/en/format/wwwadm/login
+files/en/format/wwwadm/newlist
 files/en/format/wwwadm/password
 files/en/format/wwwadm/set
 files/en/format/wwwadm/set_check
@@ -894,6 +901,7 @@ files/en/format/wwwadm/tokeninfo_replace
 files/en/format/wwwadm/tokeninfo_text_foot
 files/en/format/wwwadm/tokeninfo_text_head
 files/en/format/wwwadm/welcome
+files/en/format/wwwadm/welcome_global
 files/en/format/wwwadm/who
 files/en/format/wwwadm/who_error
 files/en/format/wwwadm/who_foot
