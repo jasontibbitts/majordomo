@@ -169,7 +169,7 @@ sub auxremove {
 sub auxwho  {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}, $request->{'sublist'}";
-  my (@lines, $chunksize, $count, $error, $i, $ret);  
+  my (@lines, $chunksize, $count, $error, $i, $line, $ret);  
 
   my ($ok, $mess) = @$result;
 
@@ -196,7 +196,9 @@ sub auxwho  {
     last unless $ret > 0;
     for $i (@lines) {
       $count++;
-      eprint($out, $type, "  $i\n");
+      $line = sprintf "  %-48s %7s %s\n", $i->{'stripaddr'}, 
+                                          $i->{'flags'}, $i->{'class'};
+      eprint($out, $type, $line);
     }
   }
   $request->{'command'} = "auxwho_done";
@@ -554,7 +556,7 @@ sub post {
 
 sub put {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($act, $handled, $i);
+  my ($act, $chunk, $handled, $i);
   my ($ok, $mess) = @$result;
   $handled = 0;
   $handled = 1 
@@ -565,7 +567,9 @@ sub put {
 
   $request->{'command'} = "put_chunk"; 
 
+  $chunk = '';
   while (1) {
+    last if ($request->{'mode'} =~ /dir/);
     $i = $handled ? 
       $request->{'contents'}->getline :
       shift @{$request->{'contents'}};
@@ -576,8 +580,9 @@ sub put {
     }      
     if (length($chunk) > $chunksize || !defined($i)) {
       ($ok, $mess) = @{$mj->dispatch($request, $chunk)};
+      $chunk = '';
     }
-    last unless (defined ($i) and $ok > 0);
+    last unless (defined $i and $ok > 0);
   }
 
   $request->{'command'} = "put_done"; 
@@ -620,8 +625,15 @@ sub reject {
     eprint($out, $type, "Token '$token' for command:\n    $data->{'cmdline'}\n");
     eprint($out, $type, "issued at: ", scalar gmtime($data->{'time'}), " GMT\n");
     eprint($out, $type, "from session: $data->{'sessionid'}\n");
-    eprint($out, $type, "has been rejected.  Further information about this\n");
-    eprint($out, $type, "rejection is being sent to responsible parties.\n\n");
+    eprint($out, $type, "has been rejected.\n");
+    if ($data->{'type'} eq 'consult') {
+      if ($data->{'ack'}) {
+        eprint($out, $type, "$data->{'victim'} was notified.\n");
+      }
+      else {
+        eprint($out, $type, "$data->{'victim'} was not notified.\n");
+      }
+    }
   }
 
   1;
@@ -658,20 +670,23 @@ sub sessioninfo {
 sub set {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my ($ok, $change, @changes);
+  my ($change, @changes, $list, $ok);
  
   @changes = @$result; 
   while (@changes) {
     ($ok, $change) = splice @changes, 0, 2;
     if ($ok > 0) {
+        $list = $change->{'list'};
+        if (length $change->{'sublist'}) {
+          $list .= ":$change->{'sublist'}";
+        }
         eprint($out,
          $type,
-         &indicate("New settings for $change->{'victim'}->{'full'} on $change->{'list'}:\n".
-           "  Receiving $change->{'classdesc'}\n".
-           "  Flags:\n    ".
-           join("\n    ", @{$change->{'flagdesc'}}).
-           "\n(see 'help set' for full explanation)\n",
-           $ok, 1)
+         &indicate("New settings for $change->{'victim'}->{'full'} on \"$list\":\n"
+           .  "  Receiving $change->{'classdesc'}\n"
+           .  "  Flags:\n    "
+           .  join("\n    ", @{$change->{'flagdesc'}})
+           . "\n(see 'help set' for full explanation)\n", $ok, 1)
         );
     }
     # deal with partial failure
@@ -860,6 +875,7 @@ Generated at: $time
 By:           $data->{'user'}
 Type:         $data->{'type'}
 From command: $data->{'cmdline'}
+Approvals:    $data->{'approvals'}
 Expires:      $expire
 EOM
 
@@ -867,10 +883,11 @@ EOM
   if ($data->{'arg2'}) {
     @reasons = split "\002", $data->{'arg2'};
     for (@reasons) {
-      eprint($out, $type, "Reason: $_\n");
+      eprint($out, $type, "Reason:      $_\n");
     }
   }
   if ($sess) {
+    eprint($out, $type, "\n");
     $request->{'sessionid'} = $data->{'sessionid'};
     Mj::Format::sessioninfo($mj, $out, $err, $type, $request, [1, '']);
   }
@@ -1059,7 +1076,7 @@ sub who {
         $tmp .= "$ind  Bounces in the past month: $i->{'bouncestats'}->{'month'}\n"
           if $i->{'bouncestats'}->{'month'};
         $numbered = join " ", sort {$a <=> $b} keys %{$i->{'bouncedata'}{'M'}};
-        $tmp .= "Message numbers: $numbered\n"
+        $tmp .= "$ind  Message numbers: $numbered\n"
           if $numbered;
         eprint($out, $type, "$tmp\n");
       }
