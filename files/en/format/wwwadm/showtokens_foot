@@ -1,4 +1,5 @@
 <!-- Majordomo showtokens_foot format file -->
+<p>
 Requests found: $COUNT<br>
 <input type=submit name=func value="tokeninfo-full">
 <input type=submit name=func value="tokeninfo">
