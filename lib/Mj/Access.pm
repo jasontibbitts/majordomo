@@ -729,7 +729,7 @@ FINISH:
         'REQUESTER' => "$requester",
 	'VICTIM'  => "$victim",
        },
-      ) if $mess;
+      ) if (defined $mess and length $mess);
 
   # Remove temporary files created by the action routines.
   for $i (@temps) {
@@ -1576,7 +1576,7 @@ sub _d_post {
       else {
 	$tmp = $i;
 	$tmp =~ s/\Q$td->{'list'}\E[.-_]?//;
-	if ($self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'user'}, $i)) {
+	if ($self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'user'}, $tmp)) {
 	  $member = 1;
 	  last;
 	}

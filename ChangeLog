@@ -1,3 +1,8 @@
+2003-10-07  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Access.pm:  (_d_post)  Bugfix:  Use the correct
+	sublist name when testing for Mj1-style restrict_post groups.
+
 2003-09-22  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (substitute_vars_format)  Bugfix:
