@@ -11,6 +11,7 @@ settings,    if specified, are one or more comma-separated configuration setting
 -extract,    if specified, causes "configset-extract" commands to be displayed
 -merge,      if specified, displays configset commands for the second list.
 -nocomments, if specified, hides explanatory comments with the setting
+-noforce,    if specified, causes "configset-noforce" commands to be displayed
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 Retrieves the value of the given setting(s). Multiple settings can
@@ -88,11 +89,13 @@ the default values to be displayed.  In effect, this gives list
 owners the opportunity to see only those values that they have
 personally changed.
 
-The "append" mode causes the configset commands to be displayed
-as "configset-append" commands, if the value of the setting can
-occupy more than one line.  The "extract" mode causes the configset
-commands to be displayed as "configset-extract" commands.  See
-"help configset" for an explanation of these two command modes.
+The "append" mode causes the configset commands to be displayed as
+"configset-append" commands, if the value of the setting can occupy more
+than one line.  The "extract" mode causes the configset commands to be
+displayed as "configset-extract" commands.   The "noforce" command mode
+causes the configset commands to be displayed as "configset-noforce"
+commands.  See "help configset" for an explanation of these three
+command modes.
 
 The "merge" mode causes the configset commands to be displayed
 as if they were intended to alter the second mailing list on

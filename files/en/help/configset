@@ -1,6 +1,6 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset[-append][-extract] listname setting [=] [value]
-configset[-append][-extract] listname setting <<TAG
+configset[-append][-extract][-noforce] listname setting [=] [value]
+configset[-append][-extract][-noforce] listname setting <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -9,6 +9,7 @@ setting, required, is the name of a configuration setting
 value,    if specified, is the new value of the setting
 -append,  if specified, causes the value to be appended to the existing value
 -extract, if specified, causes the value to be removed from the existing value
+-noforce, if specified, causes a failure if the new and old values are identical
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The configset command will change the value of one configuration setting
@@ -73,6 +74,10 @@ setting is changed to its default value.  If the two values are
 not identical, but the extracted value occupies a portion of the
 lines of the existing value, that portion is removed from the existing
 value.  Otherwise, an error occurs if the values are not identical.
+
+If "noforce" mode is used, the configset command will fail if the new
+and old values are identical.  This feature is useful for preventing
+default values from being overridden by identical new values.
 
 There are six settings for which the GLOBAL settings are combined with
 the list's settings.  They include: 

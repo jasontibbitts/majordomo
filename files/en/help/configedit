@@ -1,5 +1,6 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configedit[-append][-declared][-extract][-nocomments] listname [settings]
+configedit[-nocomments][-noforce] listname [settings]
 configedit-merge[-append][-extract][-nocomments] listname listname [settings]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site
@@ -7,8 +8,9 @@ settings,    if specified, are one or more comma-separated configuration setting
 -append,     if specified, causes "configset-append" commands to be displayed
 -declared,   if specified, displays settings that have been changed by the owners
 -extract,    if specified, causes "configset-extract" commands to be displayed
--merge,      if specified, displays configset commands for the second list.
--nocomments, if specified, hides explanatory comments with the setting
+-merge,      if specified, displays configset commands for the second list 
+-nocomments, if specified, hides explanatory comments for each setting
+-noforce,    if specified, causes "configset-noforce" commands to be displayed
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The configedit command is used to display and change one or more
