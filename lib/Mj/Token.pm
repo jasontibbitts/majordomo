@@ -558,6 +558,7 @@ sub t_accept {
   my $token = shift;
   my $mode = shift;
   my $comment = shift;
+  my $delay = shift;
   my $log   = new Log::In 50, $token;
   my (%file, @out, $data, $ent, $ffunc, $func, $line, $mess, $ok, $outfh,
       $req, $sender, $tmp, $tmpdir, $vict, $repl, $whoami);
@@ -565,13 +566,24 @@ sub t_accept {
   $self->_make_tokendb;
   $data = $self->{'tokendb'}->lookup($token);
   return (0, "Nonexistent token \"$token\"!\n") unless $data;
-  
+
   # Tick off one approval
-  # XXX Note that more approvals are still required.
   $data->{'approvals'}--;
+
+  # If a delay was requested, change the token type and return.
+  if ($data->{'type'} eq 'consult' and defined $delay and $delay > 0) {
+    $data->{'expire'} = time + $delay;
+    $data->{'type'} = 'delay';
+    $data->{'reminded'} = 1;
+    $self->{'tokendb'}->replace('', $token, $data);
+    return (-1, sprintf "Request delayed until %s.\n", 
+            scalar localtime ($data->{'expire'}), $data, -1);
+  }
+  
   if ($data->{'approvals'} > 0) {
     $self->{'tokendb'}->replace("", $token, $data);
-    return (-1, '', $data, -1);
+    return (-1, "$data->{'approvals'} approvals are still required", 
+            $data, -1);
   }
   
   # Allow "accept-archive" to store a message in the archive but
