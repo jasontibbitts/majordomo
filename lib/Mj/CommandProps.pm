@@ -24,7 +24,7 @@ use strict;
 my %actions =
   ('allow'           => {files => [],    terminal => 1,},
    'confirm'         => {files => [0],   terminal => 1,},
-   'confirm2'        => {files => [0],   terminal => 1,},
+   'confirm2'        => {files => [0,1], terminal => 1,},
    'consult'         => {files => [0],   terminal => 1,},
    'confirm_consult' => {files => [0,1], terminal => 1,},
    'default'         => {files => [],    terminal => 1,},
