@@ -1,5 +1,8 @@
 Wed Mar  3 22:18:13 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/CommandProps.pm: Add 'days_since_subscribe' and 'mime' to
+ 	allowed variables for 'post'.
+
 	* lib/Mj/Resend.pm (_check_poster): New function, do checks based
  	on the person posting the message.  Currently check the number of
  	days since they joined.
