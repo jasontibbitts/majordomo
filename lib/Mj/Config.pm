@@ -1901,17 +1901,17 @@ sub parse_inform {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my ($stat);
+  my ($l, $stat);
 
   my %stats =
     (
-     'all'     => 2,
-     'succeed' => 1,
-     'success' => 1,
-     'ok'      => 1,
-     'fail'    => 0,
-     'failure' => 0,
-     'stall'   => -1,
+     'all'     => [-1, 0, 1],
+     'succeed' => [1],
+     'success' => [1],
+     'ok'      => [1],
+     'fail'    => [0],
+     'failure' => [0],
+     'stall'   => [-1],
     );
 
   my ($table, $err) = parse_table('fsmm', $arr);
@@ -1934,18 +1934,23 @@ sub parse_inform {
       return (0, "Unknown condition $table->[$i][1][$j].")
 	unless exists $stats{$table->[$i][1][$j]};
 
-      $stat = $table->[$i][1][$j] eq 'all' ? 'all' :
-              $stats{$table->[$i][1][$j]};
+      $l = $stats{$table->[$i][1][$j]};
 
       for (my $k = 0; $k < @{$table->[$i][2]}; $k++) {
 	if ($table->[$i][2][$k] eq 'report') {
-	  $out{$table->[$i][0]}{$stat} |= 1;
+          for $stat (@$l) {
+            $out{$table->[$i][0]}{$stat} |= 1;
+          }
 	}
 	elsif ($table->[$i][2][$k] eq 'inform') {
-	  $out{$table->[$i][0]}{$stat} |= 2;
+          for $stat (@$l) {
+            $out{$table->[$i][0]}{$stat} |= 2;
+          }
 	}
 	elsif ($table->[$i][2][$k] eq 'ignore') {
-	  $out{$table->[$i][0]}{$stat} = 0;
+          for $stat (@$l) {
+            $out{$table->[$i][0]}{$stat} = 0;
+          }
 	}
 	else {
 	  return (0, "Unknown action $table->[$i][2][$k].");

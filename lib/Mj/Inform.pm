@@ -90,7 +90,7 @@ sub inform {
 
   # Decide whether or not to inform the owner
   my $data = $self->_list_config_get($list, 'inform');
-  my $inf = $data->{$req}{'all'} || $data->{$req}{$stat} || 0;
+  my $inf = $data->{$req}{$stat} || 0;
 
   # Inform the owner (1 is report, 2 is inform); we inform on accepts
   # elsewhere.
