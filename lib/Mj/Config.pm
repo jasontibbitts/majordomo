@@ -1627,6 +1627,8 @@ sub parse_digests {
 
     # maxage
     $elem->{'maxage'} = _str_to_offset($table->[$i][4]);
+    # default to zero (no limit) to avoid warnings in decide().
+    $elem->{'maxage'} ||= 0;
     
     # separate
     $elem->{'separate'} = _str_to_offset($table->[$i][5]);
@@ -1853,7 +1855,7 @@ sub parse_list_array {
   for $i (@$arr) {
     ($l, $e) = split(':', $i);
     next unless length($l);
-    return (0, "Illegal list $l.")
+    return (0, "Illegal or unknown list $l.")
       unless ((-d "$self->{'ldir'}/$l") && (legal_list_name(undef, $l)));
   }
   (1, undef, $arr);
