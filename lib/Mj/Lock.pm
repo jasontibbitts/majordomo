@@ -199,9 +199,9 @@ sub expire_locks {
 
   opendir DIRH, $::LOCKDIR || return undef;
   while (defined($file = readdir(DIRH))) {
-    $file =~ /(.*)/;
-    unlink "$::LOCKDIR/$1"
-      unless $1 eq $mname || $1 =~ /^\./;
+    $file =~ /(.*)/;  $file = $1;
+    unlink "$::LOCKDIR/$file"
+      unless ($file eq $mname || $file =~ /^\./ || $file eq 'mj_queueserv.lock');
   }
   closedir(DIRH);
   close $handle; # Release global lock
