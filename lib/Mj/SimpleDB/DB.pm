@@ -202,7 +202,7 @@ sub remove {
     }
   
   for $try (@deletions) {
-    $db->del($try, R_CURSOR);
+    $db->del($try);
   }
 
   if (@out) {
@@ -291,7 +291,7 @@ sub replace {
     }
 
     for ($i = 0; defined($changes[$i]); $i+=2) {
-      $db->del($changes[$i], R_CURSOR);
+      $db->del($changes[$i]);
     }
     while (($k, $v) = splice(@changes, 0, 2)) {
       $db->put($k, $v);
@@ -381,7 +381,7 @@ sub mogrify {
       }
     }
   for $k (@deletions) {
-    $status = $db->del($k, R_CURSOR);
+    $status = $db->del($k);
   }
   while (($k, $v) = splice(@new, 0, 2)) {
     $status = $db->put($k, $v);
