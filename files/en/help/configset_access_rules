@@ -80,7 +80,7 @@ set         list-specific*     set_policy
 show        GLOBAL             none
 showtokens  list-specific*     none
 subscribe   list-specific*     subscribe_policy
-tokeninfo   none               none
+tokeninfo   list-specific*     none
 trigger     none               none
 unalias     GLOBAL             none
 unregister  GLOBAL             none
