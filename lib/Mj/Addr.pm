@@ -685,6 +685,7 @@ sub _validate {
 
   my $specials    = q|()<>@,;:\".[]|;
   my $specials_nd = q|()<>@,;:\"[]|;  # No dot
+  $lhs_length = $rhs_length = 0;
 
   # We'll be interpolating arrays into strings and we don't want any
   # spaces.
