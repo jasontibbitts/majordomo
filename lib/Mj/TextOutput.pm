@@ -1059,7 +1059,7 @@ sub who {
   # the chunk routine.  This is safe because the core doesn't trust the
   # regexp it gave us any more than the one we originally passed.
   ($ok, $err, $re, $tmpl) = $mj->dispatch('who_start', @stuff, $args);
-  Mj::Format::who($mj, $outfh, $outfh, 'text', @stuff, $re, '','', $ok, $err, $tmpl);
+  Mj::Format::who($mj, $outfh, $outfh, 'text', @stuff, $re, $tmpl,'', $ok, $err);
 }
 
 =head2 g_add

@@ -850,6 +850,9 @@ sub who {
         else {
           $subs->{'LISTS'} =~ s/\002/ /g;
         }
+        my (@time) = localtime($i->{'changetime'});
+        $subs->{'LASTCHANGE'} = 
+          sprintf "%4d-%.2d-%.2d", $time[5]+1900, $time[4], $time[3];
         $result = $mj->substitute_vars_string($template, $subs);
         chomp $result;
       }

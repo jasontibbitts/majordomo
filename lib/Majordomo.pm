@@ -4307,7 +4307,9 @@ sub who_start {
 sub _who {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $regexp) = @_;
   my $log = new Log::In 35, "$list";
+  my ($fh, $listing);
   my ($tmpl) = '';
+  $listing = [];
  
   if ($list eq 'GLOBAL' or $list eq 'DEFAULT') {
     $self->{'reg'}->get_start;
@@ -4322,8 +4324,16 @@ sub _who {
       ($tmpl) = $self->_list_file_get('GLOBAL', 'who_subscriber');
     }
   }
+  if ($tmpl) {
+    $fh = new IO::File "< $tmpl";
+    return (0, "Unable to open template file.") unless $fh;
+    while ($_ = $fh->getline) {
+      push @{$listing}, $_;
+    }
+    $fh->close;
+  }
 
-  (1, '', $regexp, $tmpl);
+  (1, '', $regexp, $listing);
 }
 
 use Mj::Addr;
