@@ -4565,7 +4565,8 @@ sub changeaddr {
 sub _changeaddr {
   my($self, $list, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, "$vict, $requ";
-  my(@out, @aliases, @lists, %uniq, $data, $key, $l, $lkey, $ldata);
+  my (@out, @aliases, @lists, %uniq, $data, $key, $l, $lkey, $ldata,
+      $time, $tmp);
 
   if (($vict->canon eq $requ->canon) and ($vict->strip ne $requ->strip)) {
     return (0, $requ->full . " and " . $vict->full . " are aliases.\n");
@@ -4596,12 +4597,22 @@ sub _changeaddr {
 
   # Remove from all subscribed lists
   for $l (split("\002", $data->{'lists'})) {
+    $time = $::log->elapsed;
     next unless $self->_make_list($l);
+
+    $tmp = $self->{'lists'}{$l}->is_subscriber($requ);
+
     ($lkey, $ldata) = $self->{'lists'}{$l}->remove('', $key);
     if ($ldata) {
       $ldata->{'fulladdr'} = $requ->full;
       $ldata->{'stripaddr'} = $requ->strip;
       $self->{'lists'}{$l}->{'sublists'}{'MAIN'}->add('', $requ->canon, $ldata);
+      $self->inform($l, 'unsubscribe', $requ, $vict, "changeaddr $vict", 
+                    $self->{'interface'}, 1, 0, 0, '', $::log->elapsed - $time);
+    }
+    unless (defined $tmp) {
+      $self->inform($l, 'subscribe', $requ, $requ, "changeaddr $vict", 
+                    $self->{'interface'}, 1, 0, 0, '', $::log->elapsed - $time);
     }
   }
 

@@ -1,8 +1,14 @@
+2002-07-06  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_changeaddr)  Log "subscribe" and
+	"unsubscribe" events for subscriptions that are changed
+	by the changeaddr command.
+
 2002-07-04  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr, 
-	  lib/Majordomo.pm, lib/Mj/Format.pm:  Include the list
-	  name in the arguments when calling Majordomo::format_get_string.
+	lib/Majordomo.pm, lib/Mj/Format.pm:  Include the list
+	name in the arguments when calling Majordomo::format_get_string.
 
 2002-06-30  Michael Yount <csf@moscow.com>
 
