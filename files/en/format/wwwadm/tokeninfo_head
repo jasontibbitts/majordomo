@@ -24,5 +24,13 @@ or $HELP:REJECTing the request, type them here:
 
   <textarea rows=4 cols=70 name=xplanation>
   </textarea>
+
+<ul>
+  <li>The reasons are never shown for accepted, posted messages.
+  <li>The reasons are never shown for rejected <b>confirm</b> requests.
+  <li>Acknowledgements for rejected <b>consult</b> requests are sent only
+      if the <b>ackreject</b> flag is set.  See the $HELP:SET and 
+      $HELP:CONFIGSET_NONMEMBER_FLAGS help pages for more details.
+</ul>
 <pre>
 
