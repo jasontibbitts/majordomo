@@ -218,13 +218,17 @@ What Mail Transfer Agent will be feeding mail to Majordomo?
   configuration details.
  Currently supported MTAs are:
   sendmail
+  qmail
   (sorry, no more!  Look in MTAConfig.pm and write your own!)
- Enter \'none\' if you use another MTA.
+ Enter \'none\' if you use an unsupported MTA.
 EOM
 
-  $def = $config->{'mta'} ||
-    (-x '/usr/lib/sendmail'  && 'sendmail') ||
-    (-x '/usr/sbin/sendmail' && 'sendmail');
+  $def = ($config->{'mta'} ||
+          (-x '/usr/lib/sendmail'           && 'sendmail') ||
+          (-x '/usr/sbin/sendmail'          && 'sendmail') ||
+          (-x '/var/qmail/bin/qmail-inject' && 'qmail')    ||
+          'none'
+         );
   $config->{'mta'} = get_enum($msg, $def, [qw(none sendmail qmail)]);
 
   if ($config->{'mta'} eq 'sendmail') {

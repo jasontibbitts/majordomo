@@ -1,24 +1,32 @@
-sub ask_qmail_domain {
-  my($config, $dom) = @_;
-
-  $msg = <<EOM;
-
-What is the qmail alias directory for this domain?
-    Majordomo will create a .qmail-default file in this directory.
-EOM
-  $def = $config->{'domain'}{$i}{'aliasdir'};
-  $config->{'domain'}{$i}{'aliasdir'} = get_str($msg, $def);
-}
-
 sub ask_qmail {
   my($config) = @_;
 
   $msg = <<EOM;
 
+Should Majordomo maintain .qmail-default files automatically?
+ Majordomo can hook into the .qmail-default mechanism and can maintain the
+  necessary .qmail-default files for you.  Note that if you have other
+  (non-Majordomo) entries in any of your .qmail-default files, Majordomo
+  will _not_ overwrite them; it will instead warn you and leave the files
+  unchanged.
+EOM
 
-
+  $def = (defined $config->{'maintain_mtaconfig'} ?
+	  $config->{'maintain_mtaconfig'} : 1);
+  $config->{'maintain_mtaconfig'} = get_bool($msg, $def);
 }
 
+sub ask_qmail_domain {
+  my($config, $dom) = @_;
+
+  $msg = <<EOM;
+
+What is the qmail alias directory for $dom?
+ Majordomo will create a .qmail-default file in this directory.
+EOM
+  $def = $config->{'domain'}{$dom}{'qmaildir'};
+  $config->{'domain'}{$dom}{'qmaildir'} = get_str($msg, $def);
+}
 
 =head1 COPYRIGHT
 

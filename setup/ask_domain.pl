@@ -48,24 +48,29 @@ EOM
   }
   
   #---- Ask for location of old (1.x) lists
-  $msg = <<EOM;
+#   $msg = <<EOM;
 
-Where are the Majordomo 1.x lists for $i stored?
-  If you have lists that were maintained by Majordomo 1.x, you can convert
-    them for use by Majordomo 2.0.  You will be given the option to do this
-    during the "make postinstall" step at the end of the installation.
-  If you have no 1.x lists to convert, enter nothing.
-EOM
-  $def = $config->{'domain'}{$i}{'old_lists_dir'};
-  $config->{'domain'}{$i}{'old_lists_dir'} = get_dir($msg, $def, 1);
+# Where are the Majordomo 1.x lists for $i stored?
+#   If you have lists that were maintained by Majordomo 1.x, you can convert
+#     them for use by Majordomo 2.0.  You will be given the option to do this
+#     during the "make postinstall" step at the end of the installation.
+#   If you have no 1.x lists to convert, enter nothing.
+# EOM
+#   $def = $config->{'domain'}{$i}{'old_lists_dir'};
+#   $config->{'domain'}{$i}{'old_lists_dir'} = get_dir($msg, $def, 1);
   
-  # Try to get list of lists; for each list found, ask enough questions
-  # about it to enable a conversion.
+#   # Try to get list of lists; for each list found, ask enough questions
+#   # about it to enable a conversion.
   
-  print "\nSorry, old list conversion not yet implemented.  Use:\n";
-  print "mj_shell -p password createlist list owner\@address\n";
-  print "mj_shell -p password -f old_list_file subscribe=quiet,noinform new_list\n";
-  print "To convert lists.\n";
+#   print "\nSorry, old list conversion not yet implemented.  Use:\n";
+#   print "mj_shell -p password createlist list owner\@address\n";
+#   print "mj_shell -p password -f old_list_file subscribe=quiet,noinform new_list\n";
+#   print "To convert lists.\n";
+
+  #---- Ask for qmail information
+  if ($config->{'mta'} eq 'qmail') {
+    ask_qmail_domain($config, $i);
+  }
 }
 
 =head1 COPYRIGHT
