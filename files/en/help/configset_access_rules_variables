@@ -217,6 +217,7 @@ Second, the variables available for each request (see bottom for explanations):
   admin
   any
   bad_approval
+  body_length_exceeded
   bytes
   days_since_subscribe
   dup
