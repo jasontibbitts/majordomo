@@ -10,6 +10,10 @@
   </td>
 </tr>
 <tr>
+  <td align="center"><small>$SETTINGS</small>
+</tr>
+
+<tr>
   <td align="center"><input type="checkbox" name="$ADDRESS" value="$SETTINGS" $SETTING_CHECKED>
 </tr>
 <tr><td colspan="12">Diagnostic message from the last bounce: ?BOUNCE_DIAGNOSTIC </td></tr>
