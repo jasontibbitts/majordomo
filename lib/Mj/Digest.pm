@@ -326,7 +326,7 @@ gives a range of exactly one hour.
 sub in_clock {
   my $clock = shift;
   my $time  = shift || time;
-  my ($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($time);
+  my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday) = localtime($time);
   $mday--; # Clock values start at 0
 
   for my $i (@$clock) {
@@ -339,10 +339,17 @@ sub in_clock {
       my $whour = $wday*24 + $hour;
       return 1 if $whour >= $i->[1] && $whour <= $i->[2];
     }
-    elsif ($i->[0] eq 'm') {
+    elsif ($i->[0] =~ /^m(\d{0,2})/) {
       # Handle day/hour of month
-      my $mhour = $mday*24 + $hour;
-      return 1 if $mhour >= $i->[1] && $mhour <= $i->[2];
+      unless (length $1 and ($mon + 1 != $1)) {
+        my $mhour = $mday*24 + $hour;
+        return 1 if $mhour >= $i->[1] && $mhour <= $i->[2];
+      }
+    }
+    elsif ($i->[0] eq 'y') {
+      # Handle day/hour of year
+      my $yhour = $yday*24 + $hour;
+      return 1 if $yhour >= $i->[1] && $yhour <= $i->[2];
     }
     # Else things are really screwed
   }
