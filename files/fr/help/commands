@@ -1,0 +1,202 @@
+               Sommaire des commandes pour les abonnés
+
+Ce document décris brièvement chaque commande disponible pour les
+abonnés des listes. Pour une introduction plus aisée, référez vous à
+"help overview". Pour en savoir plus sur les commandes Majordomo
+utiles pour les administrateurs, référez vous à "help admin" et "help
+admin_commands".
+
+Pour exécuter une commande, envoyez la dans le corps d'un message à
+  $MJ
+
+La syntaxe de chaque commande est affichée, suivie d'une brève
+description. Dans la syntaxe de la commande, les items entourés de
+crochets [ ] sont optionnels. Un mot en lettre capitales devrait être
+remplacé par la valeur appropriée. Par exemple, LISTE doit être
+remplacé par une liste.
+
+accept [TICKET]
+  La commande "accept" est utilisée pour confirmer un message posté ou
+  une autre requête qui a été mise en attente d'approbation. Une
+  confirmation est souvent requise lorsque vous vous abonnez a une
+  liste, pour vérifier votre identité.
+  Référez vous à "help accept" pour plus de détails.
+
+
+alias NOUVELLEADRESSE
+  La commande "alias" donne a une autre adresse les mêmes privilèges
+  que votre adresse originelle. Votre adresse originelle doit déjà
+  être enregistrée sur ce site. Cette commande est utile si vous
+  voulez poster des messages à la même liste depuis deux adresses
+  différentes. Elle s'applique sur tous vos abonnements sur ce
+  domaine.
+  Référez vous à "help alias" pour plus de détails. 
+  
+
+approve MOTDEPASSE COMMAND
+  La commande "approve" est le préfixe a une autre commande complète.
+  Elle demande a Majordomo d'utiliser un mot de passe particulier,
+  mais uniquement pour cette commande.
+  Référez vous à "help approve" pour plus de détails.
+
+
+archive LISTE MESSAGES
+  La commande "archive" est utilisée pour afficher le contenu, ou
+  le sommaire, d'un ou plusieurs messages qui ont été postés a la
+  liste.
+  Référez vous à "help archive" pour plus de détails.
+
+
+changeaddr ANCIENNEADRESSE
+  La commande "changeaddr" transférera tous vos abonnements de votre
+  ancienne adresse vers la nouvelle.
+  Référez vous à "help changeaddr" pour plus de détails.
+
+
+default VARIABLE [VALEUR]
+  La commande "default" dit à Majordomo d'utiliser une valeur
+  particulière pour pour toutes les commandes suivantes. Les noms
+  possibles pour VARIABLE sont :
+
+    password  Utilise un mot de passe personnel différent.
+              (référez vous à "help password" pour plus de détails..
+
+    user      Vous fait passer pour quelqu'un d'autre. Le résultat de
+              la commande sera envoyé a cette autre personne, avec
+              votre adresse en "From:"
+
+  Référez vous à "help default" pour plus de détails.
+
+
+end
+  La commande "end" demande à Majordomo d'arrêter le traitement du
+  message. Les commandes suivantes seront ignorées.
+
+
+faq LISTE
+  La commande "faq" affiche le document faq (questions fréquemment
+  posées) de la liste.
+  Référez vous à "help faq" pour plus de détails.
+
+
+get LISTE FICHIER
+  La commande "get" permet de récupérer un document de l'espace de
+  stockage de la liste.
+  Référez vous à "help get" pour plus de détails.
+
+
+help [SUJET]
+  La commande "help" affiche un fichier d'aide, comme le document que
+  vous lisez en ce moment.
+  Référez vous à "help help" pour plus de détails.
+
+
+index LISTE [CHEMIN]
+  La commande "index" affiche un dossier de l'espace de stockage de la
+  liste.
+  Référez vous à "help index" pour plus de détails.
+
+
+info LISTE
+  La commande "info" affiche le message de bienvenue (Welcome) de la
+  liste.
+  Référez vous à "help info" pour plus de détails.
+
+
+intro LISTE
+  La commande "intro" affiche le message d'introduction de la liste.
+  Référez vous à "help intro" pour plus de détails.
+
+
+lists [MOTIF]
+  La commande "lists" affiche la liste des listes publiques
+  disponibles sur le domaine $DOMAIN.
+  Référez vous à "help lists" pour plus de détails.
+
+
+password NOUVEAUMOTDEPASSE
+  La commande "password" modifiera votre mot de passe personnel pour
+  tous vos abonnements sur $DOMAIN.
+  Référez vous à "help password" pour plus de détails.
+
+
+register 
+  La commande "register" ajoutera votre adresse au registre central et
+  vous assignera un mot de passe. La commande "register" ne vous
+  abonnera a aucune liste. Lorsque vous vous abonnez a une liste,
+  vous serez automatiquement enregistré.
+  Référez vous à "help register" pour plus de détails.
+
+
+reject [TICKET]
+  La commande "reject" est utilisée par les modérateurs pour empêcher
+  un message d'être posté ou des requêtes d'être gardées pour
+  approbation.
+  Référez vous à "help reject" pour plus de détails.
+
+
+set LISTE [RÉGLAGE[,RÉGLAGE]]
+  La commande "set" affichera ou modifiera vos réglages personnels
+  pour une liste.
+  Référez vous à "help set" pour plus de détails.
+
+
+show
+  La commande "show" affichera des informations relatives a tous vos
+  abonnements et alias.
+  Référez vous à "help show" pour plus de détails.
+
+
+subscribe LISTE [ADRESSE]
+  La commande "subscribe" ajoute une ou plusieurs adresses à la liste
+  de celles abonnées à une liste normale ou auxiliaire.
+  Référez vous à "help subscribe" pour plus de détails.
+
+
+tokeninfo TICKET
+  La commande "tokeninfo" affiche des informations à propos de la
+  requête qui demande l'approbation des modérateurs.
+  Référez vous à "help tokeninfo" pour plus de détails.
+
+
+unalias ADRESSE
+  La commande "unalias" supprimera un alias que vous avez créé avec la
+  commande "alias".
+  Référez vous à "help unalias" et "help alias" pour plus de détails.
+
+
+unregister [ADRESSE]
+  La commande "unregister" supprimera tous vos abonnements, alias, et
+  supprimera votre mot de passe personnel.
+  Référez vous à "help unregister" pour plus de détails.
+
+
+unsubscribe LISTE [ADRESSE]
+  La commande "unsubscribe" supprime une ou plusieurs adresses email
+  de la liste des abonnés d'une liste normale ou auxiliaire.  Référez
+  vous à "help unsubscribe", "help admin_subscribers", et "help
+  auxiliary_list" pour plus de détails.
+
+
+which [MOTIF]
+  La commande "which" affiche les adresses qui correspondent a un
+  motif, et les listes auxquelles elles sont abonnées.
+  Référez vous à "help which" et "help patterns" pour plus de détails.
+
+
+who LISTE [MOTIF]
+  La commande "who" affiche les adresses qui sont abonnées a une liste
+  normale ou auxiliaire.
+  Référez vous à "help who" et "help patterns" pour plus de détails.
+
+
+Référez vous aussi à :
+   help admin
+   help admin_commands
+   help auxiliary_list
+   help command_parser (signatures, fichier attachés et découpage de
+                        commandes longues)
+   help help
+   help overview
+
+$INCLUDE-help/foot

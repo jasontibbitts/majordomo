@@ -1,0 +1,276 @@
+                    Une introduction à Majordomo 2
+
+Ce message d'aide vous provient du Majordomo présent sur
+  $SITE
+
+Vous pouvez interagir avec Majordomo en envoyant des commandes à
+  $MJ
+dans le corps d'un message. Ne mettez surtout pas vos commandes dans
+le sujet ! Majordomo ne traîte que les commandes qui sont dans le
+corps du messages.
+
+Majordomo est fait pour gérer des listes de diffusions electroniques
+automatiquement. Ce document présente un apperçu de la manière dont
+Majordomo fonctionne, du point de vue d'une personne voulant
+participer a une liste. Si vous cherchez un apperçu du point de vue
+d'un administrateur, utilisez la commande "help admin".
+
+Ce document décrit beaucoup de commandes communes, mais certaines
+fonctionnalités ne sont pas mentionnées ici. Pour avoir un apperçu
+complet de la liste des commandes disponibles, utilisez la commande
+"help commands". Pour avoir la liste complète des commandes Majordomo,
+utilisez la commande "help topics".
+
+Adresses email importantes 
+--------------------------
+
+Ce serveur Majordomo est lancé sur le domaine "$WHEREAMI".
+Il y a deux adresses importantes qui sont communes a toutes les listes
+de ce domaine
+
+$MJ
+
+  C'est l'adresse du serveur, l'adresse à laquelle les commandes
+  Majordomo (comme "subscribe", "help", ou "lists") doivent TOUJOURS
+  être envoyées. Les messages envoyés à cette adresse seront traités
+  automatiquement. Personne ne lira jamais ces messages.
+
+$MJOWNER
+
+  C'est l'adresse de la ou des personnes qui administrent le domaine
+  entier. Écrivez leurs en cas d'urgence, comme une boucle d'emails ou
+  des erreurs systemes.
+
+En plus, il y à deux adresses uniques pour chaque liste qui sont
+gérées par ce domaine. Remplacez LISTE par le nom de la liste.
+
+LISTE@$WHEREAMI
+
+  C'est l'adresse à laquelle vous devez envoyer vos messages, une fois
+  que vous vous êtes abonnés a la liste. Les messages postés peuvent
+  être lu par des centaines ou des milliers de personnes. N'envoyez
+  JAMAIS de commandes Majordomo à cette adresse.
+
+LISTE-owner@$WHEREAMI
+
+  C'est l'adresse de la ou des personnes qui gèrent la liste. Si vous
+  avez une question spécifique, écrivez aux gestionnaires à cette
+  adresse.
+
+Quelles sont les listes qui sont gérées à $WHEREAMI ?
+---------------------------------------------------------------
+
+  Pour avoir la liste des listes publiques sur ce domaine, avec une
+  brève description de chaque liste, utilisez la commande
+
+    lists
+
+  Si vous désirez avoir plus de détails a propos de chaque liste,
+  comme le nombre d'abonnés et la fréquecne de posts de mesasges,
+  utilisez cette commande :
+
+    lists-full
+
+  Il y a trois commandes associées avec chaque liste, le document
+  questions fréquement posées (faq), le document info et le document
+  intro. Pour obtenir ces documents pour une liste spécifique,
+  utilisez les commandes suivantes :
+
+    faq LISTE
+    info LISTE
+    intro LISTE
+
+Abonnement à une liste
+----------------------
+
+  Une fois que vous avez décidé que vous désiriez vous abonner a une
+  ou plusieurs listes sur ce système, vous pouvez envoyer des
+  commandes à Majordomo. Vous n'avez pas besoin de demander au
+  propriétaire de la liste (en général), et le faire par vous même
+  fera gagner BEAUCOUP de temps a tout le monde. Rappelez vous que le
+  gestionnaire de la liste est en général un volontaire qui a d'autres
+  chats a fouetter, et que beaucoup de gens s'abonnent a des listes.
+
+  Pour recevoir les messages de la liste à l'adresse de laquelle vous
+  envoyez ce message, envoyez simplement une commande "subscribe" au
+  serveur, comme expliqué dans l'aide de subscribe. Pour récupérer ce
+  fichier, envoyez la ligne suivante dans le corps d'un message envoyé
+  à $MJ
+
+    help subscribe
+
+  Vous devez fournir au moins le nom de la liste, vous pouvez aussi
+  ajouter votre nom et votre adresse, si ce n'est pas celle qui est
+  dans vos en-têtes. Par exemple :
+
+    subscribe LISTE
+
+    subscribe LISTE Votre Nom <votreadresse@votredomaine.fr>
+
+  Based on configuration decisions made by the list owners, you may be
+  added to the mailing list immediately, or you may receive notification
+  that an authorization key (or token) is required for subscription.
+  This can be a bit of extra hassle, but it helps keep you from being
+  swamped in extra email by someone who forged requests from your address.
+  In this case, follow the instructions in the help file for "accept".
+  (Or send a "reject" command if you don't want to be subscribed.)
+
+  You may also get a message that your subscription is being forwarded to
+  the list owner for approval; some lists have waiting lists, or policies
+  about who may subscribe.  If your request is forwarded for approval, the
+  list owner may contact you soon after your request, or the list owner may
+  simply add you to the list when they have time.
+
+  Upon subscribing, you should receive an introductory message, containing
+  list policies and features.  Please SAVE THIS MESSAGE for future
+  reference; it should contain exact directions for unsubscribing.  If
+  you lose the intro mail and would like another copy of the policies,
+  send this one-line message to $MJ
+
+    info LISTE
+
+  ...substituting, of course, the real name of your list for "LISTE".
+
+Your Personal Password
+----------------------
+
+  When you first subscribe to a mailing list at $WHEREAMI, you will
+  receive a password, and have your address registered in the Majordomo
+  central registry.  No matter how many subscriptions you have at
+  $WHEREAMI, you will never have more than one password 
+  for your e-mail address.
+
+  Once you have obtained a password, you can use it to avoid the extra
+  step of confirmation when you change your settings with the set 
+  command, or subscribe to a new list with the subscribe command.
+
+  Please see "help approve" and "help default" to learn how to use
+  your password when you issue commands.
+
+  In addition, if this site is configured to use Majordomo's built-in
+  WWW interfaces, you can use your password at the following WWW page
+  to change your settings, unsubscribe, or join other mailing lists:
+    $WWWUSR_URL
+
+Unsubscribing from Mailing Lists
+--------------------------------
+
+  Your original intro message should contains the exact command for
+  removing your address from the list.  However, in most cases, you
+  can simply send the command "unsubscribe" followed by the list name:
+       unsubscribe LISTE
+  This command may fail if your email address has changed since
+  you first subscribed to the mailing list.
+
+  To remove an address other than the one from which you're sending the
+  request, refer to the help file for "unsubscribe" to get details on
+  how to remove yourself. If you have your old password, you can quickly
+  remove your old address even if you no longer have access to the
+  account. If your old account is forwarding mail to your new account,
+  you can also use "accept" from the new account once the server asks
+  you for confirmation.
+
+  If you want to unsubscribe from all lists on this server at once,
+  send an "unregister" command instead of "unsubscribe". This will
+  remove you from all email lists reachable from $MJ
+
+Posting Messages
+----------------
+
+  When you post a message to a mailing list, your message may not be
+  delivered to the subscribers immediately.  There are many possible
+  reasons that this might happen:  the list may be moderated;  you
+  may have accidentally included a word or phrase that Majordomo recognizes
+  as a command; or the list may be configured to require the moderators'
+  approval for posted messages from new subscribers, for example.  If
+  your message is moderated or denied, you will usually receive a 
+  notice from Majordomo why that happened.  If not, use the command
+
+   help set
+
+  to learn about your personal settings, then use the 
+
+   set LISTE
+
+  command or the 
+
+   show 
+
+  command to see the current settings.  If the settings that start with
+  "ack" are turned off, you will not receive notices about the progress of
+  your posted messages.
+
+Receiving Messages in a Digest
+------------------------------
+
+  A mailing list can be configured to bundle sets of posted messages
+  together into a collection called a "digest."  Each mailing list
+  can have several digests configured.  The most basic way to change
+  your delivery class to receive a digest is to use the following
+  command (substitute the name of a mailing list for LISTE):
+
+    set LISTE digest
+
+  Three digest formats are available for every digest:  MIME, text, and
+  index.  MIME digests contain every part of every message, including any
+  attachments; this is the most common format.  Text digests include only
+  plain text message parts.  Index digests display the subject line
+  and other information about each message, but the message contents 
+  are omitted.  
+
+  To choose a new digest format, add its name after the word "digest"
+  in the set command, for example: 
+
+    set LISTE digest-mime
+
+  Each mailing list can have several digests.  To see a description
+  of the digests that are available for a particular mailing list, 
+  use the following command:
+
+    lists-full LISTE
+
+  As an example, if a list has three digests (daily, weekly, biweekly),
+  you can include their names in the set command, for example:
+   
+    set LISTE digest-daily-index
+    set LISTE digest-weekly
+    set LISTE digest-biweekly-mime
+   
+Going on Vacation
+-----------------
+
+  To stop receiving mail from a mailing list temporarily, use the 
+  "nomail" setting.  The simplest example is
+
+    set LISTE nomail
+
+  Then, when you wish to resume receiving mail from the list, use
+  the command
+  
+    set LISTE nomail-return
+
+  However, you can also tell Majordomo to automatically start sending
+  you mail again after a period of time.  For example, if you are
+  planning to travel for 15 days, use the command
+
+    set LISTE nomail-15d
+
+  If you return early, you can still use the "nomail-return" setting to
+  resume receiving mail anytime. 
+
+
+See Also:
+   help alias
+   help commands
+   help faq
+   help info
+   help intro
+   help lists
+   help password
+   help set
+   help show
+   help subscribe
+   help unregister
+   help unsubscribe
+
+$INCLUDE-help/foot
