@@ -37,14 +37,28 @@ The "get" command can be used to verify that the file exists:
 Files can be created in the file space using the "put" command.
 
 The second field of the second line of a file description is an optional
-flag field.  Two flags are supported:  an 'N' indicates that the file
-should be the first part of a new welcome message; an 'S' causes the
-file to undergo variable substitution (and possibly auto-inclusion of
-additional files).  The variables supported include the standard
-substitutions, plus USER and PASSWORD.  See "help variables" for a
-description of each substitution variable.  Regardless of whether the
-'S' flag is present, the substitutions will be applied to the subject
-from the first line of the description.
+flag field.  Four flags are supported:  
+
+  * 'N' indicates that the file should be the first part of a new welcome 
+     message; 
+
+  * 'R' causes the file to be included only if the address was
+     already registered.
+
+  * 'S' causes the file to undergo variable substitution (and possibly 
+     auto-inclusion of additional files).  The variables supported include 
+     the standard substitutions, plus USER and PASSWORD.  See 
+     "help variables" for a description of each substitution variable.  
+
+  * 'U' causes the file to be included only if the address was
+     not already registered.
+
+Regardless of whether the 'S' flag is present, the substitutions will be
+applied to the subject from the first line of the description.
+
+Welcome files with neither the 'R' flag nor the 'U' flag will always be
+included in the welcome messages.
+
 
 Here is another example:
 
@@ -62,6 +76,23 @@ The first welcome message consists of a file called "welcome" and an
 attached photograph called "owner.jpg".  The second welcome message
 consists of a single file called "/faq".
 
+
+The following example uses the 'U' flag to send extra information to
+newcomers who have not previously joined a mailing list at
+$DOMAIN:
+
+configset LISTNAME welcome_files <<END
+Welcome to the $LIST mailing list!
+welcome : S
+Your registration at $SITE
+registered : US
+END
+
+In this example, newcomers will receive a message consisting of two
+files, "welcome" and "registered".  Subscribers who are already
+registered at this domain will only receive the first welcome file.
+
+
 The GLOBAL welcome_files setting only applies to messages that are sent
 when someone uses the "register" command.
 
@@ -78,6 +109,8 @@ See Also:
    help put               (to store files in the list's file space)
    help register
    help subscribe
+   help unregister
+   help unsubscribe
    help variables         (for an explanation of substitution variables)
 
 $INCLUDE-help/foot
