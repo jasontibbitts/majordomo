@@ -235,7 +235,7 @@ sub address {
     elsif ($val == -2) {
 
       # Checkpoint; discard responses.
-      for ($k = $j + 1 ; $i > $j + 1 ; $i--, $k++ ) {
+      for ($k = $j + 1 ; ($i > $j) and ($k < scalar (@{$addr})) ; $i--, $k++ ) {
         $log->message(150, 'info', "Discarding response for $addr->[$k]");
         $log->message(150, 'info', "Sent: $i Received: $j");
 
@@ -258,11 +258,13 @@ sub address {
       # We can't send any more RCPTs, so send using the accepted
       # recipients and reinitialize.
       if ($self->{'addressed'}) {
+        unless ($self->send) {
+          return 0;
+        }
         for ($j-- ; $j >= 0 ; $j-- ) {
           splice @{$addr}, $j, 1;
         }
         $i = $j = 0;
-        $self->send;
       }
       else {
         ($val, $code, $mess) = $self->{'smtp'}->RSET;
@@ -313,7 +315,17 @@ sub address {
     }
   }
 
-  return $self->{'addressed'} ? 1 : -1;
+  if ($self->{'addressed'}) {
+    return 1;
+  }
+  else {
+    unless (scalar @{$addr}) {
+      # Reset to avoid complications if this envelope is reused.
+      ($val, $code, $mess) = $self->{'smtp'}->RSET;
+      $self->{'initialized'} = 0;
+    }
+    return -1;
+  }
 }
 
 =head2 send
@@ -344,6 +356,10 @@ sub send {
 
   # DATA must return 354
   unless (defined $code && $code == 354) {
+    if (defined $code) {
+      ($val, $code, $mess) = $self->{'smtp'}->RSET;
+      $self->{'initialized'} = 0;
+    }
     return 0;
   }
 
