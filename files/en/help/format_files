@@ -123,6 +123,16 @@ an array of values.
  USER, VALUE, SETTING, LEVEL)
 
 
+configshow_bool
+---------------
+(text, wwwadm)  This file displays the comments and value of one
+configuration setting.  It is used for settings, such as moderate,
+that have two possible values, on or off.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMENT, LEVEL, NO
+ SETCOMMAND, SETTING, USER, VALUE, YES)
+
+
 configshow_categories
 ---------------------
 (text, wwwadm)  This file displays a list of configuration categories.
