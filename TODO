@@ -155,7 +155,8 @@ mj_queuerun lifetime limiting
 In addition to an idle timeout, mj_queuerun needs a limit on how many
 messages it will process without exiting.  This keeps memory leaks under
 control.  The queue server will simply start another runner when one exits,
-so this is a safe cleanup mechanism.
+so this is a safe cleanup mechanism.  (Currently, each runner has a
+hard-coded limit of 1000 messages.)
 
 
 mj_queueserv bug with all dead queue runners
@@ -314,15 +315,6 @@ this problem.  It would make the continuation of sessions more
 convenient.
 
 
-Eliminate redundant response messages
--------------------------------------
-In some cases, a person who issues a majordomo command will receive two
-response messages when only one is necessary.  For example, when someone
-posts a message to the LIST-subscribe address, and confirmation is
-required, both a confirmation message and a result message are sent
-back.
-
-
 Remove hard-coded English
 -------------------------
 A variety of error messages, moderation reasons, and results from the
@@ -354,11 +346,6 @@ Web posting
 -----------
 The wwwadm and wwwusr interfaces cannot currently be used to post
 a message or reply to an archived message.
-
-
-WWW support for alias database
-------------------------------
-The wwwadm interface does not support the who-alias command.
 
 
 =======================
