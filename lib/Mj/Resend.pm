@@ -494,8 +494,8 @@ sub _post {
   $head->modify(0);
 
   # Convert/drop MIME parts.  
-  $i      = $self->_list_config_get($list, 'attachment_rules');
-  if (exists $i->{'change_code'}) {
+  $i = $self->_list_config_get($list, 'attachment_rules');
+  if (exists $i->{'change_code'} and $mode !~ /intact/) {
     @changes = $self->_r_strip_body($list, $ent[0], $i->{'change_code'}, 1);
     $ent[0]->sync_headers;
     $head = $ent[0]->head;
@@ -1443,7 +1443,6 @@ given width.
 
 =cut
 use Symbol;
-use Mj::Util qw(plain_to_hyper enriched_to_hyper);
 sub _format_text {
   my $self = shift;
   my $entity = shift;
@@ -1483,10 +1482,25 @@ sub _format_text {
 
   # Convert plain text or enriched text to hypertext.
   if ($type =~ m#^text/plain#i) {
-    &plain_to_hyper($txtfile);
+    eval { use Text::Reflow; };
+    if ($@) {
+      # Use simple fallback if Text::Reflow is not available.
+      eval { use Mj::Util qw(plain_to_hyper); };
+      &plain_to_hyper($txtfile);
+    }
+    else {
+      # Reformat the text and return immediately.
+      eval { use Mj::Util qw(reflow_plain); };
+      &reflow_plain($txtfile, $width, 1);
+      return $txtfile;
+    }
   }
   elsif ($type =~ m#^text/(richtext|enriched)#i) {
+    eval { use Mj::Util qw(enriched_to_hyper); };
     &enriched_to_hyper($txtfile);
+  }
+  else {
+    # XXX Treat other text/* types as HTML
   }
 
   require HTML::TreeBuilder;
@@ -1496,6 +1510,7 @@ sub _format_text {
   unless ($width =~ /^\d+$/ and $width > 0) {
     $width = 72;
   }
+
   require HTML::FormatText;
   $formatter = HTML::FormatText->new(leftmargin => 0, 
                                      rightmargin => $width);
@@ -1986,7 +2001,7 @@ sub _add_fters {
 
   # We take different actions if the message is multipart
   if ($ent->is_multipart) {
-      return 0 if $ent->effective_type eq 'multipart/alternative';
+      return 0 unless ($ent->effective_type eq 'multipart/mixed');
       if ($front) {
 	  $front_ent = build MIME::Entity(Type       => "text/plain",
 					  Data       => $front,
