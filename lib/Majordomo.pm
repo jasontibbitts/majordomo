@@ -4184,7 +4184,7 @@ sub _set {
 
   if ($list eq 'ALL') {
     $data = $self->{'reg'}->lookup($addr->canon);
-    return (0, "Unable to find data for $addr->canon.\n") unless $data;
+    return (0, "Unable to find data for $addr.\n") unless $data;
     @lists = split("\002", $data->{'lists'});
   }
   else {
