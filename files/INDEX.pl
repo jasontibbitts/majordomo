@@ -141,6 +141,7 @@ $files =
    'en/help/configset_resend_host'                    => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_restrict_post'                  => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_return_subject'                 => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
+   'en/help/configset_save_denial_checksums'          => ['The save_denial_checksums variable',       'us-ascii', '7bit'],
    'en/help/configset_sender'                         => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_sequence_number'                => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_session_lifetime'               => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],

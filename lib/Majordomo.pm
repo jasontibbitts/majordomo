@@ -483,6 +483,9 @@ sub _re_match {
 
 This routine iterates over a file and expands embedded "variables".  It
 takes a file and a hash, the keys of which are the tags to be expanded.
+The hash of substitutions ($subs) is allowed to be undefined, in which
+case only $INCLUDE processing is done, but _list_file_get currently
+does not call this routine if $subs is undefined.
 
 =cut
 sub substitute_vars {
@@ -506,15 +509,16 @@ sub substitute_vars {
     || $::log->abort("Cannot write to file $tmp, $!");
   
   while (defined ($i = $in->getline)) {
-    if ($i =~ /\$INCLUDE-(.*)$/) {
+    # Don't process INCLUDE after a backslashed $
+    if ($i =~ /([^\\]|^)\$INCLUDE-(.*)$/) {
       # Do a _list_file_get.  If we get a file, open it and call
       # substitute_vars on it, printing to the already opened handle.  If
       # we don't get a file, print some amusing text.
-      ($inc) =  $self->_list_file_get($list, $1);
+      ($inc) =  $self->_list_file_get($list, $2);
 
       if ($inc) {
 	if ($depth > 3) {
-	  $out->print("Recursive inclusion depth exceeded\n ($depth levels: may be a loop, now reading $1)\n");
+	  $out->print("Recursive inclusion depth exceeded\n ($depth levels: may be a loop, now reading $2)\n");
 	}
 	else {
 	  # Got the file; substitute in it, perhaps recursively
@@ -522,12 +526,13 @@ sub substitute_vars {
 	}
       }
       else {
-	warn "Include file $1 not found.";
-	$out->print("Include file $1 not found.\n");
+	warn "Include file $2 not found.";
+	$out->print("Include file $2 not found.\n");
       }
       next;
     }
-    $i = $self->substitute_vars_string($i, $subs);
+    # don't waste time in substitute_vars_string unless there is a hash
+    $i = $self->substitute_vars_string($i, $subs) if($subs);
     $out->print($i);
   }
   $in->close;

@@ -316,6 +316,7 @@ files/en/help/configset_request_answer
 files/en/help/configset_resend_host
 files/en/help/configset_restrict_post
 files/en/help/configset_return_subject
+files/en/help/configset_save_denial_checksums
 files/en/help/configset_sender
 files/en/help/configset_sequence_number
 files/en/help/configset_session_lifetime

@@ -1,0 +1,20 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname save_denial_checksums = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 0
+Data Type     : integer
+Variable Group: resend, majordomo
+Password Notes: Visible only with password. Set with global password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+If set, the checksums for the body of a posted message will be saved
+if that message is denied by the access rules.  If the checksums are
+saved, any succeeding message with an identical body will be regarded
+as a duplicate.  
+
+See "help configset access_rules" for how to sent notices about
+checksums and other rules that cause posts to bounce.
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
