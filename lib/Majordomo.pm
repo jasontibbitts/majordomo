@@ -4547,12 +4547,12 @@ sub archive_chunk {
         ($ok, $out) = $list->archive_delete_msg(@$i);
         if ($ok) {
           $buf .= $self->format_error('message_deleted', $request->{'list'},
-                    'PART' => $request->{'part'}, 'MSGNO' => $j);
+                    'PART' => $request->{'part'}, 'MSGNO' => $i->[0]);
         }
         else {
           $buf .= $self->format_error('message_not_deleted', 
                     $request->{'list'}, 'PART' => $request->{'part'}, 
-                    'MSGNO' => $j, 'ERROR' => $out);
+                    'MSGNO' => $i->[0], 'ERROR' => $out);
         }
       }
     }

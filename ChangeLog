@@ -1,3 +1,8 @@
+2004-11-09  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (who_chunk)  Fix MSGNO substitution.
+	Thanks to Roger Klorese.
+
 2004-11-05  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Addr.pm:  (setcomment)  Add quotes if needed.
