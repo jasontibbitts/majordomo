@@ -1196,8 +1196,10 @@ picks apart the table array and sends the appropriate bits to the compiler
 to get evalable strings.  Returns a hash containing a hash per request
 type, each containing:
 
- check_main  - membership in the main list must be checked
- check_aux   - hash of aux lists that must be checked.
+ check_aux   - hash of aux lists that must be checked, including MAIN 
+               for the main subscriber list.
+ check_time  - list of time specs, against which the current date
+               and time are checked
  code        - a string ready to be evaled.
 
 =cut
@@ -1207,7 +1209,7 @@ sub parse_access_rules {
   my $var  = shift;
   my $log  = new Log::In 150;
 
-  my (%rules, @at, @tmp, $action, $check_aux, $check_main, $code, $count,
+  my (%rules, @at, @tmp, $action, $check_aux, $code, $count,
       $data, $error, $evars, $i, $j, $k, $l, $m, $n, $ok, $part, $rule,
       $table, $taboo, $tmp, $tmp2, $warn);
 
@@ -1299,7 +1301,7 @@ sub parse_access_rules {
       }
 
       # Compile the rule
-      ($ok, $error, $part, $check_main, $check_aux) =
+      ($ok, $error, $part, $check_aux, $check_time) =
 	_compile_rule($i, $action, $evars, $rule, $count);
 
       # If the compilation failed, we return the error
@@ -1309,7 +1311,8 @@ sub parse_access_rules {
       $warn .= $error if $error;
 
       $data->{$i}{'code'}        .= $part;
-      $data->{$i}{'check_main'} ||= $check_main;
+      push @{$data->{$i}{'check_time'}},  @$check_time
+           if @$check_time;
       for $j (@{$check_aux}) {
 	$data->{$i}{'check_aux'}{$j} = 1;
       }
@@ -1528,7 +1531,7 @@ sub parse_bounce_rules {
   my $var  = shift;
   my $log  = new Log::In 150;
 
-  my (@tmp, $acts, $check_aux, $check_main, $count, $data, $error,
+  my (@tmp, $acts, $check_aux, $check_time, $count, $data, $error,
       $i, $j, $k, $o, $part, $rule, $table, $tmp, $tmp2, $warn);
 
   # %$data will contain our output hash
@@ -1575,7 +1578,7 @@ sub parse_bounce_rules {
       }
 
       # Compile the rule
-      ($ok, $error, $part, $check_main, $check_aux) =
+      ($ok, $error, $part, $check_aux, $check_time) =
 	_compile_rule('_bounce', $acts, {}, $rule, $i);
 
       # If the compilation failed, we return the error
@@ -1583,7 +1586,6 @@ sub parse_bounce_rules {
 	unless $ok;
 
       $data->{'code'}        .= $part;
-      $data->{'check_main'} ||= $check_main;
       for $k (@{$check_aux}) {
 	$data->{'check_aux'}{$k} = 1;
       }
@@ -3101,8 +3103,10 @@ Returns:
  flag  (ok or not)
  error (if any)
  code in a string
- check_main - flag: should membership in the main list be checked
- check_aux  - listref: list of aux lists to check for membership
+ check_aux  - listref: list of aux lists to check for membership,
+              including MAIN for the main subscriber list.
+ check_time - listref: list of time specs against which the 
+              current date and time are compared.
 
 About the ID:
 
@@ -3118,8 +3122,8 @@ sub _compile_rule {
   my $evars   = shift; # Any extra legal variables
   $_          = shift;
   my $id      = shift;
-  my ($check_main,# Should is_list_member be called?
-      $check_aux, # Listref of aux lists to check for membership
+  my ($check_aux,  # Listref of aux lists to check for membership
+      $check_time, # Listref of time specifications
       $indent,    # Counter for current indentation level.
       $invert,    # Should sense of next expression be inverted?
       $need_or,   # Is an 'or' required to join the next exp?
@@ -3145,8 +3149,8 @@ sub _compile_rule {
   $indent = 0;
   $invert = 0;
   $need_or = 0;
-  $check_main = 0;
   $check_aux = [];
+  $check_time = [];
   $pr = "\nif ((\$skip < $id) &&\n   (";
   $ep = "\n   ))\n  {\n";
 
@@ -3412,18 +3416,31 @@ sub _compile_rule {
     if (s:^\@(.*?)($|[\s\)])::) {
       $arg = $1 || "MAIN";
       $o .= "\n    "."  "x$indent;
-      if ($arg eq "MAIN") {
-	$check_main = 1;
-      }
-      else {
-	push @{$check_aux}, $arg;
-      }
+      push @{$check_aux}, $arg;
       if ($invert) {
 	$o .= "(!\$memberof{'$arg'})";
 	$invert = 0;
       }
       else {
 	$o .= "(\$memberof{'$arg'})";
+      }
+      $need_or = 1;
+      next;
+    }
+
+    if (s:^\*([^*]+)($|\*)::) {
+      $arg = $1;
+      $o .= "\n    "."  "x$indent;
+      @tmp = split /\s*,\s*/, $arg;
+      for $i (@tmp) {
+        push @{$check_time}, _str_to_clock($i);
+      }
+      if ($invert) {
+	$o .= '(!\$current)';
+	$invert = 0;
+      }
+      else {
+	$o .= '($current)';
       }
       $need_or = 1;
       next;
@@ -3440,7 +3457,7 @@ sub _compile_rule {
   if ($e) {
     return (0, $e, $o);
   }
-  return (1, $w, $o, $check_main, $check_aux);
+  return (1, $w, $o, $check_aux, $check_time);
 }
 
 =head2 _str_to_offset(string)
