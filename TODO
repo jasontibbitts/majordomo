@@ -36,6 +36,8 @@ Top of the list
     configset
     configdef
 
+- rewrite lots of routines to take named arguments instead of positionals.
+
 - Allow end user to set language preference.  Add language choice as extra
   parser variable.  Export a core set_language routine.  Reference a
   Majordomo class variable inside of internationalization routines.

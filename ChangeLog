@@ -1,5 +1,8 @@
 Mon Apr  6 00:00:13 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* postinstall: Place all temporary files in $config->{wtmpdir}
+ 	just in case root can't write to the build directory.
+
 	* lib/Mj/FileSpace.pm (put): Add functionality to just create a
  	file; pass back the pathname upon success so it can be manipulated
  	elsewhere.

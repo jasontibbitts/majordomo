@@ -218,9 +218,10 @@ sub do_config {
   # Do everything from the global $config
   my(@args, $arg, $i, $ignore, $pw);
 
-  @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F", "inst.$$");
+  @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
+	   "$config->{wtmpdir}/inst.$$");
 
-  open FILE, ">inst.$$";
+  open FILE, ">$config->{wtmpdir}/inst.$$";
 
   $pw = $config->{'domain'}{$dom}{'master_password'};
   print FILE "approve GLOBAL.pass configset GLOBAL master_password = $pw\n";
@@ -237,9 +238,9 @@ sub do_config {
   print "\nDo not be alarmed if the first command fails.\n\n";
   print "@args\n";
   system(@args) == 0 or die "Error executing $args[0], $?";
-  unlink "inst.$$";
+  unlink "$config->{wtmpdir}/inst.$$";
 }
-    
+
 sub install_response_files {
   my $dom   = shift;
   my $pass  = shift;
@@ -247,9 +248,10 @@ sub install_response_files {
   my $dirs  = shift;
   my(@args, $dir, $file, $i, $subj);
 
-  @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F", "inst.$$");
+  @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
+	   "$config->{wtmpdir}/inst.$$");
 
-  open FILE, ">inst.$$";
+  open FILE, ">$config->{wtmpdir}/inst.$$";
   print FILE "default password $config->{'domain'}{$dom}{'master_password'}\n";
 
   # Make the directories
@@ -268,7 +270,7 @@ sub install_response_files {
   chmod(0644, "inst.$$");
   print "@args\n";
   system(@args) == 0 or die "Error executing $args[0], $?";
-  unlink "inst.$$";
+  unlink "$config->{wtmpdir}/inst.$$";
 }
 
 sub suggest_mta {
