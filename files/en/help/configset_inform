@@ -1,61 +1,51 @@
-NOTE: Details/corrections are below the configshow output!
-
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname inform <<TAG
+configset GLOBAL inform <<TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: empty
+Data Type    : inform
+Variable Type: inform
+Apply to List: both regular lists and the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+EXAMPLE:
+configset GLOBAL inform << ENDTAG
+ENDTAG
 
-# inform
-# (empty)              [inform] <inform>
-# This controls just what actions the list owner will be informed of and
-# what will be logged.  The format of each line is:
-#
-# request | status | actions
-#
-# where request is subscribe, lists, post, etc., status is a comma
-# separated list of:
-#
-#   succeed: perform the actions if the request succees.
-#   fail:    perform the actions if the request fails.
-#   stall:   perform the actions if the request is stalled.
-#   all:     always perform the actions
-#
-# and actions is a comma separated list of:
-#
-#   ignore: completelu ignore the request
-#   report: log the request for later reposting
-#   inform: inform the owner immediately
-#
-# ignore overrides the others.
-#
-# If a request is not specified, the default behavior for subscribe and
-# unsubscribe is to inform on success, report otherwise.  The default
-# behavior for all other requests is to report always.  This
-# approximates the 1.9x behavior.
-#
-# Note that all actions are logged; this only affects which actions are
-# deemed important enough to send mail about and which will be reported.
-configset listname inform << ENDAAQ
-ENDAAQ
-
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
-==> see also: configset inform_GLOBAL (applies to GLOBAL pseudo-list)
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
-addendum to Majordomo2 "configset inform" File - updated 7 Mar 99
+This controls just what actions the list owner will be informed of and
+what will be logged.  The format of each line is:
 
+request | status | actions
+
+where request is subscribe, lists, post, etc., status is a comma
+separated list of:
+
+  succeed: perform the actions if the request succees.
+  fail:    perform the actions if the request fails.
+  stall:   perform the actions if the request is stalled.
+  all:     always perform the actions
+
+and actions is a comma separated list of:
+
+  ignore: completelu ignore the request
+  report: log the request for later reposting
+  inform: inform the owner immediately
+
+ignore overrides the others.
+
+If a request is not specified, the default behavior for subscribe and
+unsubscribe is to inform on success, report otherwise.  The default
+behavior for all other requests is to report always.  This
+approximates the 1.9x behavior.
+
+Note that all actions are logged; this only affects which actions are
+deemed important enough to send mail about and which will be reported.
 This command specifies the commands or actions which should result in
 notices being sent to the list owner or site administrator, and/or
 what will be logged (the log file is probably in the /tmp or /var/mj
-or a similar directory - see "help configset tmpdir_GLOBAL" for how
+or a similar directory - see "help configset tmpdir" for how
 to change or set this directory).
 
 Every command that Majordomo knows how to process can be the target
@@ -64,8 +54,8 @@ item even though it is not a Majordomo command.
 
 A complete list of all "request"s can be retrieved by sending these
 two commands to $MJ
+   help commands
    help admin commands
-   help user commands
 or just send
    help topics
 and ignore all the configset sub-options.
@@ -74,12 +64,6 @@ Note that the "inform" command can apply to the GLOBAL pseudo-list or
 an actual listname, based on which "request" you want to observe. Some
 requests don't make sense for the GLOBAL list (like "post"), while
 others don't make sense for a real list (like "help").
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configset_inform
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

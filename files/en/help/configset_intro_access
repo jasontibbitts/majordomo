@@ -1,27 +1,23 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname intro_access = [value]
+configset GLOBAL intro_access = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Value must be: open, or closed, or list
+Default Value: list
+Data Type    : enum
+Variable Type: access,majordomo
+Apply to List: both regular lists and the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+EXAMPLE:
+configset GLOBAL intro_access = open
 
-# intro_access         /open,closed,list/
-# (list)               [enum] <access,majordomo>
-# One of three values: open, list, closed.  Open allows anyone access to this
-# command.  List allows only list members access, while closed completely
-# disables the command for everyone.
-configset listname intro_access = list
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
-==> see also: configset intro_access_GLOBAL (applies to GLOBAL pseudo-list)
 
-For a list of topics, or this text, send one of the next two lines
+One of three values: open, list, closed.  Open allows anyone access to this
+command.  List allows only list members access, while closed completely
+disables the command for everyone.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset_intro_access
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

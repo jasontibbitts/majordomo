@@ -1,8 +1,28 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL addr_xforms <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: empty
+Data Type    : xform_array
+Variable Type: addr
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL addr_xforms << ENDTAG
+ENDTAG
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+A list of transformations to be applied to addresses before comparing
+them for equivalency.  This can be used to remove the '+mailbox' part
+of an address, or to remove the machine name from addresses in a
+domain.  Transforms should listed one per line, and should be in the
+form /pattern/replacement/.  For example, /(.*?)\+.*(\@.*)/$1$2/
+removes the '+mailbox' specifier from an address.  NOTE: these
+transforms must give the same result when applied multiple times in
+succession.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset addr_xforms
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

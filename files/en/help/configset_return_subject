@@ -1,8 +1,21 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL return_subject = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: yes
+Data Type    : bool
+Variable Type: email
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL return_subject = 1
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+Should the subject of an email request be returned as part of the
+subject of the response?
+
+For a list of all help topics send this one-line message
    help topics
-   help configset return_subject
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

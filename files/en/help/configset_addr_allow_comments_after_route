@@ -1,8 +1,29 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL addr_allow_comments_after_route = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: no
+Data Type    : bool
+Variable Type: addr
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL addr_allow_comments_after_route = 1
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+If this is true, Majordomo will allow addresses with comments after the <>
+bracked route portion of an address.
+This command, if set to a value of "1", allows "subscribe" commands
+to be processed with technically illegal email addresses.
+
+This is always legal:
+   Joe Blow <joe@blow.com>
+
+This is only accepted if "addr_allow_comments_after_route" is true:
+   <joe@blow.com> Joe Blow
+
+For a list of all help topics send this one-line message
    help topics
-   help configset addr_allow_comments_after_route
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

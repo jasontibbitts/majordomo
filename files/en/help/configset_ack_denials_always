@@ -1,32 +1,23 @@
-NOTE: Details/corrections are below the configshow output!
-
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname ack_denials_always = [value]
+configset listname ack_denials_always = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: yes
+Data Type    : bool
+Variable Type: resend
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
-
-# ack_denials_always
-# (yes)                [bool] <resend>
-# If this is on, users whose posts are denied will always be informed of
-# the denial.  Otherwise they will be informed based on their flag
-# settings: if they have either the 'ackall' or 'ackimportant' flag set
-# then they will receive notice of the denial, else they will not
-# recieve any type of notice.
+EXAMPLE:
 configset listname ack_denials_always = 1
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
-addendum to Majordomo2 "configset ack_denials_always" File - updated 24 Feb 99
-
+If this is on, users whose posts are denied will always be informed of
+the denial.  Otherwise they will be informed based on their flag
+settings: if they have either the 'ackall' or 'ackimportant' flag set
+then they will receive notice of the denial, else they will not
+recieve any type of notice.
 This command can be used to override a subscriber's setting of "noack".
 It does not generate new messages, but it may cause messages that would
 otherwise be suppressed to actually be delivered.
@@ -38,16 +29,11 @@ ack_denials_always means that users will always receive something back
 when they violate one of the "access_rules" or other mechanisms that
 can bounce a post.
 
-==> see also: configset access_rules  (for how to specify replyfiles)
-==> see also: configset default_flags (for pre-setting the "ack" flag)
-==> see also: set                     (for subscribers to set the "ack" flag)
+See Also:
+   help configset access_rules  (for how to specify replyfiles)
+   help configset default_flags (for pre-setting the "ack" flag)
+   help set                     (for subscribers to set the "ack" flag)
 
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configset_ack_denials_always
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

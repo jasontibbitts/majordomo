@@ -1,32 +1,29 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname subscribe_policy = [value]
+configset listname subscribe_policy = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Value must be: open, or closed, or auto, or open+confirm, or closed+confirm, or auto+confirm
+Default Value: open+confirm
+Data Type    : enum
+Variable Type: majordomo,access,subscribe
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
-
-# subscribe_policy     /open,closed,auto,open+confirm,closed+confirm,auto+confirm/
-# (open+confirm)       [enum] <majordomo,access,subscribe>
-# One of three values: open, closed, auto; plus an optional modifier:
-# '+confirm'.  Open allows people to subscribe themselves to the list,
-# but attempts to subscribe addresses diferent than where the request is
-# coming from will require approval.  Auto allows anybody to subscribe
-# anybody to the list without maintainer approval.  Closed requires
-# maintainer approval for all subscribe requests to the list.  Adding
-# '+confirm', (i.e. 'open+confirm') will cause majordomo to send a reply
-# back to the subscriber which includes a authentication number which
-# must be sent back in with another subscribe command.
+EXAMPLE:
 configset listname subscribe_policy = open+confirm
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-For a list of topics, or this text, send one of the next two lines
+
+One of three values: open, closed, auto; plus an optional modifier:
+'+confirm'.  Open allows people to subscribe themselves to the list,
+but attempts to subscribe addresses diferent than where the request is
+coming from will require approval.  Auto allows anybody to subscribe
+anybody to the list without maintainer approval.  Closed requires
+maintainer approval for all subscribe requests to the list.  Adding
+'+confirm', (i.e. 'open+confirm') will cause majordomo to send a reply
+back to the subscriber which includes a authentication number which
+must be sent back in with another subscribe command.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset_subscribe_policy
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -1,26 +1,21 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname comments <<TAG
+configset GLOBAL comments <<TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: empty
+Data Type    : string_array
+Variable Type: comments
+Apply to List: both regular lists and the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+EXAMPLE:
+configset GLOBAL comments << ENDTAG
+ENDTAG
 
-# comments
-# (empty)              [string_array] <comments>
-# Comment string that will be retained across config file rewrites.
-configset listname comments << ENDAAI
-ENDAAI
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
-==> see also: configset comments_GLOBAL (applies to GLOBAL pseudo-list)
 
-For a list of topics, or this text, send one of the next two lines
+Comment string that will be retained across config file rewrites.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset_comments
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

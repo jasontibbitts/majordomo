@@ -43,7 +43,7 @@ It is also possible to use "put-dir top/next to create nested folders.
 
 Unless the "-dir" option is used, data must be supplied as the
 contents of the new file. This is done using a "here file" as
-explained in both "help user commands" and "help admin commands".
+explained in both "help commands" and "help admin commands".
 For example, to create a file with two lines in it:
 
   put MYLIST MYFILE MY SUBJECT STRING <<ENDOFMYFILE
@@ -51,8 +51,9 @@ this is the first line of the file
 and this is the second line!
 ENDOFMYFILE
 
-List and file names are case sensitive! Be sure to type upper and
-lower case letters exactly as you want them to be shown by "index".
+File names are case sensitive! Be sure to type upper and lower
+case letters exactly as you want them to be shown by "index".
+List names are NOT case sensitive.
 
 Note that "filename" is actually a file pathname, and may include
 one or more levels of directories (also called folders). The "index"
@@ -110,22 +111,20 @@ List archives, if they are being created and if archive_dir is not
 set, go into ".../listname/files/public/archive/archive-file-name",
 where they appear to commands like "index listname archive".
 
-==> see also: get      (retrieve files by email)
-==> see also: index    (find out which files are available for "put")
-==> see also: filedir  (to create files in a non-default location)
-==> see also: filesync (which must be used if you create files without "put")
+See Also:
+   help get      (retrieve files by email)
+   help index    (find out which files are available for "put")
+   help filedir  (to create files in a non-default location)
+   help filesync (which must be used if you create files without "put")
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help put
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 The remainder of this help file is the contents of
-'README.FILES' from the Mj2 distribution tree, as of 8 Mar 1999
+'README.FILES' from the Mj2 distribution tree, as of 18 Mar 2000
 
 -*- Text -*-
 
@@ -265,6 +264,35 @@ ack_timeout
 
 Sent when a token/spooled message is deleted after expiration without being
 accepted or rejected.
+
+digest files
+------------
+
+Majordomo uses various files to fill in pieces of the digests.
+
+There are three places in where files are used in digests:
+  before the index (preindex)
+  after the index (postindex)
+  at the very end (footer)
+
+There are three types of digest:
+  text
+  mime
+  index  (index digests have no footers)
+
+The list owner can define any number of named digests with various
+generation parameters.
+
+Majordomo will look for the following files in the usual search list for
+the preindex text:
+
+   digest_name_type_preindex
+   digest_name_preindex
+   digest_type_preindex
+   digest_preindex
+
+Of course, 'name' is replaced by the digest name and 'type is replaced by
+the type.  Similarly for postindex and footer.
 
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

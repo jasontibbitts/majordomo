@@ -15,8 +15,9 @@ files from it. If get fails, contact the list owner to make sure you
 asked for the right file name or try "index-recursive listname" to
 get a list of all files you can access.
 
-List and file names are case sensitive! Be sure to type upper and
+File names are case sensitive! Be sure to type upper and
 lower case letters exactly as they are shown by "index".
+List names are NOT case sensitive.
 
 Note that "filename" is actually a file pathname, and may include
 one or more levels of directories (also called folders). The "index"
@@ -28,13 +29,11 @@ is called "ANOTHERFILE", then these commands would be valid:
   get MYLIST SUBDIR/ANOTHERFILE
 where a slash "/" separates the directory name from the file name.
 
-==> see also: get_access (determines who can get files from a list)
-==> see also: index      (find out which files are available for "get")
-==> see also: put        (to create files or directories under a list)
+See Also:
+   help get_access (determines who can get files from a list)
+   help index      (find out which files are available for "get")
+   help put        (to create files or directories under a list)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help get
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

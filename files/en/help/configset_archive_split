@@ -1,37 +1,34 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname archive_split = [value]
+configset listname archive_split = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Value must be: yearly, or monthly, or weekly, or daily
+Default Value: monthly
+Data Type    : enum
+Variable Type: archive
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
-
-# archive_split        /yearly,monthly,weekly,daily/
-# (monthly)            [enum] <archive>
-# A word describing how the archive files should be split.  Here are the
-# possibilities, along with sample names of the archive files:
-#
-#   yearly  - 1999.00
-#   monthly - 199903.00
-#   weekly  - 20021031.00
-#   daily   - 21121002.00
-#
-# Note that archives will be further split by size; see the archive_size
-# variable.  This gives rise to the two trailing digits, which may not be
-# present depending on the archive_size setting.
-#
-# Also note that changing this variable will only change the settings for new
-# messages; old archives will not be renamed or altered in any way.
+EXAMPLE:
 configset listname archive_split = monthly
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-For a list of topics, or this text, send one of the next two lines
+
+A word describing how the archive files should be split.  Here are the
+possibilities, along with sample names of the archive files:
+
+  yearly  - 1999.00
+  monthly - 199903.00
+  weekly  - 20021031.00
+  daily   - 21121002.00
+
+Note that archives will be further split by size; see the archive_size
+variable.  This gives rise to the two trailing digits, which may not be
+present depending on the archive_size setting.
+
+Also note that changing this variable will only change the settings for new
+messages; old archives will not be renamed or altered in any way.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset_archive_split
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

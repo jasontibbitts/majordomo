@@ -23,13 +23,11 @@ called "SUBDIR", then these commands would be valid:
 where a slash "/" separates the directory names, and a slash by
 itself is the same as using no pathname at all.
 
-==> see also: get          (retrieve files by email)
-==> see also: index_access (determines who can index files under a list)
-==> see also: put          (to create files or directories under a list)
+See Also:
+   help get          (retrieve files by email)
+   help index_access (determines who can index files under a list)
+   help put          (to create files or directories under a list)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help index
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

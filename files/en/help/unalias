@@ -12,12 +12,10 @@ Send the "unalias" command from an account that is registered with
 the server; the given "address" will then be removed from the database
 and no longer considered equivalent to the registered account.
 
-==> see also: alias     (subscribe once, post from several addresses)
-==> see also: subscribe (subscribe your primary address before alias)
+See Also:
+   help alias     (subscribe once, post from several addresses)
+   help subscribe (subscribe your primary address before alias)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help unalias
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

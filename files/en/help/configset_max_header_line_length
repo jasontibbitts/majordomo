@@ -1,27 +1,23 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname max_header_line_length = [value]
+configset listname max_header_line_length = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: 448
+Data Type    : integer
+Variable Type: resend
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
-
-# max_header_line_length
-# (448)                [integer] <resend>
-# Sets the maximum length of a single header in an unapproved message.
-# This can be used to prevent excessive CC'ing or to cur down on some
-# types of spam.  Set to zero to disable length checks on single
-# headers.
+EXAMPLE:
 configset listname max_header_line_length = 448
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-For a list of topics, or this text, send one of the next two lines
+
+Sets the maximum length of a single header in an unapproved message.
+This can be used to prevent excessive CC'ing or to cut down on some
+types of spam.  Set to zero to disable length checks on single
+headers.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset_max_header_line_length
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

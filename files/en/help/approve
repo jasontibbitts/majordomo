@@ -25,14 +25,11 @@ In the example below, "vespa" is the registered user's password.
 EXAMPLE:
    approve vespa unsubscribe test-list tsmith@example.com
 
+See Also:
+   help accept   (which may be required if approve is not used)
+   help default  (which can supply a password for many commands)
+   help password (which changes an individual's password)
 
-==> see also: accept   (which may be required if approve is not used)
-==> see also: default  (which can supply a password for many commands)
-==> see also: password (which changes an individual's password)
-
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help approve
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -1,30 +1,26 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname allowed_classes <<TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: each ...
+Data Type    : string_array
+Variable Type: class
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
-
-# allowed_classes
-# (each ...)           [string_array] <class>
-# A list of the classes that a user is allowed to put themselves into.
-# If a less specific class like 'digest' is given, users are allowed
-# to put themselves into any of the more specific classes.
-configset listname allowed_classes << ENDAAG
+EXAMPLE:
+configset listname allowed_classes << ENDTAG
 each
 digest
 nomail
-ENDAAG
+ENDTAG
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-For a list of topics, or this text, send one of the next two lines
+
+A list of the classes that a user is allowed to put themselves into.
+If a less specific class like 'digest' is given, users are allowed
+to put themselves into any of the more specific classes.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset_allowed_classes
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

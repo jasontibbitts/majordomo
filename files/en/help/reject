@@ -41,14 +41,12 @@ for token reminders and expirations.
 Site administrators should refer to "help configset access_rules" for
 ways to change the message which asks for accept/reject tokens.
 
-==> see also: accept      (the opposite action of "reject")
-==> see also: showtokens  (for a list of unhandled requests)
-==> see also: configset token_lifetime (site-wide or per-list expiration period)
-==> see also: configset token_remind   (site-wide or per-list reminder before expiration)
+See Also:
+   help accept      (the opposite action of "reject")
+   help showtokens  (for a list of unhandled requests)
+   help configset token_lifetime (site-wide or per-list expiration period)
+   help configset token_remind   (site-wide or per-list reminder before expiration)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help reject
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -1,54 +1,39 @@
-NOTE: Details/corrections are below the configshow output!
-
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname access_rules <<TAG
+configset GLOBAL access_rules <<TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: empty
+Data Type    : access_rules
+Variable Type: access
+Apply to List: both regular lists and the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+EXAMPLE:
+configset GLOBAL access_rules << ENDTAG
+ENDTAG
 
-# access_rules
-# (empty)              [access_rules] <access>
-#
-# A table containing access rules.  This is a very powerful and
-# unfortunately somewhat complicated mechanism for precisely restricting
-# access to Majordomo functions which I will document later.
-#
-configset listname access_rules << ENDAAB
-ENDAAB
-
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
-==> see also: configset access_rules_GLOBAL (applies to GLOBAL pseudo-list)
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
-addendum to Majordomo2 "configset access_rules" File - updated 6 Mar 99
+
+A table containing access rules.  This is a very powerful and
+unfortunately somewhat complicated mechanism for precisely restricting
+access to Majordomo functions which I will document later.
 
 The "access_rules" command can be set for individual lists as well as
 for the GLOBAL pseudo-list. There are different requests that can be
 trapped by each one.  If a command takes a list, it is restricted by
 the list-specific access_rules. If it doesn't, the GLOBAL rules are used.
 
-For trapping of illegal words or phrases, it is best to use the
-commands documented in "help configset admin_body" rather than using
-inline access_rules. If you put a pattern in access_rules, it is
-matched against the user's address and nothing more.  If you want to
-match parts of the message (or other parts of the header) use taboo_*
-or admin_*, since access_rules does not get fed any part of the message.
-
-NOTE: Refer to "help configset access_password_override" for info on
-      letting a list password bypass these rules.
+WARNING: If you set access rules for the GLOBAL pseudo-list that attempt
+to trap per-list commands, those rules will be silently ignored! This
+includes things like "subscribe", which must be the target of a rule in
+each list's configuration if you want to keep someone from subscribing.
 
 This information is below:
   Section 1 - Working description of the access_rules config variable
   Section 2 - Hints and suggestions for how and why to use access_rules
           2.1 - how to test access_rules quickly
-          2.2 - why deny is worse than consult or confirm
+          2.2 - why deny is much more drastic than consult or confirm
           2.3 - restricting non-subscriber posts
           2.4 - files and subjects for 'replyfile's or 'mailfile's
           2.5 - variables you can use in 'replyfile's or 'mailfile's
@@ -63,15 +48,12 @@ may not agree with Section 2.
 Section 2 is from a site manager's observations. It is ALSO not a spec,
 but represents one person's experience. It was written after Section 1.
 
-WARNING: As of 2/99, there are some interactions between your choice
-of replyfile or mailfile and the subscriber's setting of ack/noack (via
-the "set" or "configset default_flags" commands). Error messages can
-vanish (for noack with replyfile, unless ack_denials_always is enabled
-for the list in question) or lacking information because variables are
-not always evaluated (for mailfile). Refer to "help set" for more details.
-
-It is recommended that you do NOT use replyfile unless you are sure the
-user will not "set noack".
+There are some interactions between your choice of replyfile or mailfile
+and the subscriber's setting of ack/noack (via the "set" or "configset
+default_flags" commands). Error messages can vanish (for noack with
+replyfile, unless ack_denials_always is enabled for the list in question)
+or lacking information because variables are not always evaluated (for
+mailfile). Refer to "help set" for more details.
 
 In general mailfile is almost never the right thing to do since the
 user will already be receiving an acknowledgement through either an
@@ -80,15 +62,29 @@ mailfile can produce multiple messages for a single event, and mailfiles
 cannot contain as much information as replyfiles (because some variables
 are not evaluated).
 
-Please contact the maintainer as indicated at the bottom of this file
-if you have any suggestions or corrections. The access_rules command
-is very complicated, and there is no doubt that the documentation can
-be improved with your help.
+If you put a pattern in access_rules, it is matched against the user's
+address and nothing more.  If you want to match parts of the message
+(or other parts of the header) use taboo_* or admin_*, since access_rules
+does not get fed any part of the message.
+
+All these access_rules can be bypassed with a password - this is
+important for the list-owner and others who help with administrating
+the mailing list. For details of how to do this please refer to
+"help configset access_password_override".
 
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 
 Section 1 - Working description of the access_rules config variable:
+
+Any command that doesn't take a list uses GLOBAL access_rules. Commands
+that do take a list use the list'saccess_rules. There are two weird ones:
+
+  which - GLOBAL allows/disallows and sets the maximum number of hits.
+          list allows/disallows and sets the hits for this list.
+
+  lists - GLOBAL check for 'lists', but each list is individually checked
+          for the 'advertise' request.
 
 First line - request 
   Comma-separated list of advertise, alias, post, subscribe, unsubscribe,
@@ -165,47 +161,26 @@ Up to next blank line - code
   (, ) - enclose groups of conditions
 
   Username match:
-  /expression/
-  "string"
-  %dos pattern%  - a Majordomo pattern applied to the requesting user's
-                   address (without its comments).
-
-  Expression match:
-  \$variable =~ /expression/ - true if the given pattern matches the contents
-                               of the variable.  Any Majordomo pattern
-                               works in place of /expression/.
-  
-  \$variable !~ /expression/ - true if the given mattern does not match the
-                               contents of the variable.
-
+  /expression/ - a Perl regular expression applied to the requesting user's
+    address.
 
   Membership check:
   @, @MAIN - these are equivalent, and check to see that the user is a
-             list subscriber.
+    list subscriber.
   @auxlist - checks to see that the user is a member of the named auxiliary
-             list.
+    list.
 
   Variable check:
   \$variable - checks to see that the supplied variable is true.
-  \$variable op value - applies a binary operation.  Posible ops are:
-      String ops:
-      =   - equal, as a string
-      !=  - not equal, as a string
-
-      Numeric ops:
-      >   - greater than
-      >=  - greater than or equal to
-      <   - less then
-      <=  - less than or equal to
-      ==  - equal to
-      <>  - not equal to
+  \$variable=value - checks that the variable equals (stringwise) the given
+    value.
 
 Semantics: 
   Rules for a particular request are processed in order; the _first_ rule
   that matches is taken.
 
   If no rules match, the "default" action is taken, which results in a
-  reasonable emulation of the 1.94.4 behavior using *_access, moderate,
+  reasonable emulation of the 1.94.3 behavior using *_access, moderate,
   restrict_post, etc.
 
 Supported variables:
@@ -262,6 +237,11 @@ Section 2 - Hints and suggestions for how and why to use access_rules
   mj_shell and review the spew or save it to contact the author. The
   syntax of access_rules is complex but powerful. Be sure to test it.
 
+  If you have parsing errors, remember to escape the "@" in addresses:
+     post
+     deny
+     /joe\\@blow.com/
+
   If your rules don't match expected addresses, watch case sensitivity:
      post
      deny
@@ -270,21 +250,35 @@ Section 2 - Hints and suggestions for how and why to use access_rules
   See "help patterns" for more information on Perl regular expressions.
 
 
-2.2 - why deny is worse than consult or confirm
+2.2 - why deny is much more drastic than consult or confirm
 
   deny    - post never shows up at all when expression matches
   consult - post goes to list owner for "accept" when expression matches
-  confirm - post goes to message originator for "accept"
+  confirm - post MAY go to message originator for "accept"
 
-  Denials are very drastic.  Majordomo has always tended to give the list
-  owner the final word before something is rejected out of hand, but
-  access_rules allows more control.  Shutting off certain commands
-  (generally 'who' and 'which') and removing 'post' access for certain
-  classes of users is often warranted but it may be useful to consider
-  allowing some limited form of access.  For instance, allowing 'who' to
-  list members but adding 'hideaddress' ('h') to default_flags or requiring
-  nonmenbers to confirm their posts instead of rejecting posts from
-  nonmenbers.
+  The problem with "deny" is that neither the owner nor the person trying
+  to post gets a notice. The post just evaporates since there isn't
+  generally any kind of reply channel when doing a post. (Unlike when you
+  send commands, where there is a message set up for the purpose of sending
+  back the results of the commands.) There are additional actions that the
+  "mailfile" and "replyfile" options can provide in some cases.
+
+  If what you need is for the owner to review and approve the post, not for
+  it to just vanish, use "consult". The "confirm" option is when the person
+  making the post needs to be asked, while "consult" asks the list owner.
+
+  In some cases, "confirm" cannot know who the originator was. In others,
+  it will ask the "victim" for approval (like when you send from one
+  account to subscribe a second account). It is possible, but not certain,
+  that some confirmations will go the list owner or the site administrator
+  (essentially the "consult" behavior but when "confirm" is used).
+
+  Using deny with "set listname noack" and replyfile in access_rules can
+  mean the user gets no message, the owner gets no message, and the list
+  gets no post. Errors simply vanish in some cases. If you are using "deny",
+  make sure to use "configset default_flags" or else use "set" to add
+  "ackall" flags to each user's subscription. See "help who" for a
+  technique to change user flags for the entire list.
 
 
 2.3 - restricting non-subscriber posts
@@ -295,14 +289,15 @@ Section 2 - Hints and suggestions for how and why to use access_rules
   and bury you with unsolicited email (causing people to unsubscribe and/or
   complain to you).
 
-  The classic Majordomo (1.9x) way of restricting posting is with the
-  restrict_post variable; if you put the name of your list in it, only
-  subscribers will be allowed to post.  Messages from other folks will
-  be sent to you for approval.
+  Previous versions of Majordomo (1.9x) used the restrict_post
+  configuration variable to restrict posting to a mailing list.
+  If you put the name of your list in it, only subscribers were
+  allowed to post directly, and messages from other folks would
+  be sent to the list-owner or moderators for approval.
 
   The Majordomo2 way to deal with it is to use access_rules:
      post
-     deny, replyfile=NonSubscriberPost
+     consult, replyfile=NonSubscriberPost
      !@MAIN
   where the file "NonSubscriberPost" can be created under the GLOBAL
   pseudo-list (so it is available to all lists) with
@@ -311,9 +306,9 @@ Section 2 - Hints and suggestions for how and why to use access_rules
 
   You (as the list owner) will then be consulted on all post requests sent
   by anyone whose address is not on the main list.  There are other things
-  you can do, too; replace 'deny' with 'consult' and the list owner will
-  have a chance to allow non-subscriber posts if they make sense (but will
-  also have to deal with rejecting all spammer posts).
+  you can do, too; replace 'consult' with 'deny' and the list owner will
+  never have a chance to allow non-subscriber posts even if they make sense
+  (but will not be bothered with spammer posts at all).
 
   It is unquestionably better to "deny" non-subscribers than to "allow"
   subscribers. The deny method still filters posts through admin_body and
@@ -351,9 +346,11 @@ Section 2 - Hints and suggestions for how and why to use access_rules
   few cases, Majordomo will replace your subject with a stock one.
   Test all access_rules messages as soon as you create them!
 
-  If you use a reply or replyfile of "NONE" no ack is sent.  This is useful
-  when you are having users confirm their own messages; there's no point in
-  them receiving a confirmation message _and_ an ack.
+  If you use a reply or replyfile of "NONE" no ack is sent.  This is a
+  feature which will not be used often, but there are limited cases where
+  you may actually want to send absolutely no message. For example, if you
+  are having users confirm their own messages, you might want to suppress
+  the ack.
 
 
 2.5 - variables you can use in 'replyfile's or 'mailfile's
@@ -564,12 +561,6 @@ ENDCONSULT
 
 -------------
 
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configset_access_rules
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

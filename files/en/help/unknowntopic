@@ -19,14 +19,11 @@ To get basic help, send this one-line message to $MJ
    help
 
 All commands have help files, but you will probably want to start with
-   help user overview
-or
-   help admin overview
-to get an idea of which commands you want to use.
+   help overview
+if you are a list subscriber, or
+   help admin
+if you manage a list, to get an idea of which commands you want to use.
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help unknowntopic
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

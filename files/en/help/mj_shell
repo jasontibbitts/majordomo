@@ -1,12 +1,9 @@
-Majordomo2 "help mj shell" File - updated 3 Mar 99
-This message is from $SITE
-
 The "mj_shell" tool is for shell (or command line) administrators who
 have access to the machine where Majordomo is running. It cannot be
 accessed through email or the web, but if you have shell access it
 will bypass the delays associated with email. All functionality of
 the mj_shell is provided by the email parser. For more information,
-send "help admin overview" to $MJ
+send "help admin" to $MJ
 
 The text which follows is simply a copy of the man page:
 
@@ -427,9 +424,6 @@ MJ_SHELL(1)    User Contributed Perl Documentation    MJ_SHELL(1)
 
 
 6/Feb/99               perl 5.004, patch 04                     7
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help mj_shell
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

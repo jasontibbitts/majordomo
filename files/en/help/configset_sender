@@ -1,32 +1,22 @@
-NOTE: Details/corrections are below the configshow output!
-
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname sender = [value]
+configset GLOBAL sender = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: majordomo-owner
+Data Type    : address
+Variable Type: resend
+Apply to List: both regular lists and the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+EXAMPLE:
+configset GLOBAL sender = majordomo-owner
 
-# sender
-# (listname-owner)    [address] <resend>
-# The envelope and sender address for the resent mail.  This string has
-# "@" and the value of resend_host appended to it to make a complete
-# address.  For majordomo, it provides the sender address for the
-# welcome mail message generated as part of the subscribe command.
-configset listname sender = listname-owner
-
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
-==> see also: configset sender_GLOBAL (applies to GLOBAL pseudo-list)
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
-addendum to Majordomo2 "configset sender" File - updated 8 Feb 99
-
+The envelope and sender address for the resent mail.  This string has
+"@" and the value of resend_host appended to it to make a complete
+address.  For majordomo, it provides the sender address for the
+welcome mail message generated as part of the subscribe command.
 If you set this address to LISTNAME-owner, replies to welcome text
 go to the list owner. If you comment the "configset sender" command
 out, replies go to the server. This often cuts down on random traffic
@@ -41,12 +31,6 @@ Finally, this address seems to show up in some "accept" messages as
 the "to reach a human" address. That's wrong, and the problem goes
 away if you don't specify "configset sender" at all.
 
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configset_sender
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

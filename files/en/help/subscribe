@@ -11,6 +11,14 @@ the command is "approve"d in advance, a confirmation token will be
 sent to the given "address" to verify this action, and must be
 replied to with an "accept" command before the subscription is done.
 
+To subscribe to the LISTNAME email broadcast list at this site,
+as simply as possible, send this one-line message to $MJ:
+    subscribe LISTNAME YourEmailAddress
+replacing "LISTNAME" with the name of the list and replacing
+"YourEmailAddress" with the address you want to subscribe to the
+list. Additional commands may be required, but you will receive
+messages telling you what to do if necessary.
+
 When an address is first subscribed to any list at this site, it is
 automatically put in the registration database and the register command
 can not be used until that address is unregistered. Unregistering will
@@ -60,10 +68,10 @@ or other puncutation.
 In addition, other technically illegal addresses can be used
 but only if the site administrator has enabled them. See these
 help files for details:
-   help configset addr_allow_at_in_phrase_GLOBAL
-   help configset addr_allow_bang_paths_GLOBAL
-   help configset addr_allow_comments_after_route_GLOBAL
-   help configset addr_allow_ending_dot_GLOBAL
+   help configset addr_allow_at_in_phrase
+   help configset addr_allow_bang_paths
+   help configset addr_allow_comments_after_route
+   help configset addr_allow_ending_dot
 
 Upon subscribing, you should (unless you specified otherwise) receive an
 introductory message containing list policies and features.  Save this
@@ -73,14 +81,12 @@ the policies, send this message to $MJ
         intro LISTNAME
 (substituting, of course, the real name of your list for "LISTNAME").
 
-==> see also: approve        (which can eliminate the need to use "accept")
-==> see also: password    (which changes an individual's password)
-==> see also: unsubscribe (which removes an address from just one list)
-==> see also: unregister  (which removes an address from all lists)
+See Also:
+   help approve     (which can eliminate the need to use "accept")
+   help password    (which changes an individual's password)
+   help unsubscribe (which removes an address from just one list)
+   help unregister  (which removes an address from all lists)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help subscribe
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

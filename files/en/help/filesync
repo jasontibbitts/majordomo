@@ -17,11 +17,9 @@ the new information by way of this command.
 Don't forget to filesync the "GLOBAL" pseudo-list if files are altered
 outside the confines of a regular list.
 
-==> see also: rekey (to update the registration database)
+See Also:
+   help rekey (to update the registration database)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help filesync
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

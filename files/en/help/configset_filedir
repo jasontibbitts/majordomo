@@ -1,29 +1,19 @@
-NOTE: Details/corrections are below the configshow output!
-
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname filedir = [value]
+configset GLOBAL filedir = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: undef
+Data Type    : directory
+Variable Type: filespace
+Apply to List: both regular lists and the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+EXAMPLE:
+configset GLOBAL filedir =
 
-# filedir
-# (undef)              [directory] <filespace>
-# The directory where the filespace for the list is kept.
-configset listname filedir =
-
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
-==> see also: configset filedir_GLOBAL (applies to GLOBAL pseudo-list)
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
-addendum to Majordomo2 "configset filedir" File - updated 11 Feb 99
-
+The directory where the filespace for the list is kept.
 If you leave this variable undefined (e.g. nothing after the "="),
 the "put" command will create files inside "listname/files/public"
 by default, and inside "listname/files" if you start the put path
@@ -33,12 +23,6 @@ If you define this variable, you must make sure that Majordomo has
 permission to access the directory and the files in it. Defining
 "filedir" may affect many commands like "get", "put", "index", and
 even "help" if you have stored files in the GLOBAL pseudo-list.
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configset_filedir
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

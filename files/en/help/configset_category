@@ -1,26 +1,22 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname category = [value]
+configset listname category = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: 
+Data Type    : string
+Variable Type: majordomo,lists
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
-
-# category
-# ()                   [string] <majordomo,lists>
-# A string used to categorize the list.  Any string can be chosen; the
-# value is used only in the output of the lists command to group and
-# sort lists.
+EXAMPLE:
 configset listname category =
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-For a list of topics, or this text, send one of the next two lines
+
+A string used to categorize the list.  Any string can be chosen; the
+value is used only in the output of the lists command to group and
+sort lists.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset_category
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -1,8 +1,22 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL description_max_lines = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: 0
+Data Type    : integer
+Variable Type: lists
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL description_max_lines = 20
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+Sets the maximum number of lines of list description that will be
+shown in a long or extended listing.  Setting this to zero will impose
+no limit.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset description_max_lines
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

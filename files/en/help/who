@@ -22,15 +22,13 @@ for administrative changes in a pipe. For example:
   mj_shell -p pass who-short | mj_shell -p pass -f - set listname ackimportant
 can be used to alter the subscription options of all list subscribers.
 
-==> see also: patterns (for simple and complex regular expressions)
-==> see also: show     (for information about a given subscriber)
-==> see also: which    (for all lists a given subscriber is on)
-==> see also: configset access_rules (to restrict use of who)
-==> see also: configset who_access   (to restrict use of who)
+See Also:
+   help patterns (for simple and complex regular expressions)
+   help show     (for information about a given subscriber)
+   help which    (for all lists a given subscriber is on)
+   help configset access_rules (to restrict use of who)
+   help configset who_access   (to restrict use of who)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help who
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -1,35 +1,31 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname archive_size = [value]
+configset listname archive_size = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: unlimited
+Data Type    : string
+Variable Type: archive
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
-
-# archive_size
-# (unlimited)          [string] <archive>
-# A string decribing the maximum size of a single archive file.  When a
-# message arrives that would cause an archive file to exceed the size set
-# here, a new archive file is created with the final number incremented by
-# one.
-#
-# Possible values are an integer followed by one of k, or m for
-# kilobytes or messages.  The value 'unlimited' is also permitted, in
-# which case the archives will not have the following period and two
-# digits appended.
-#
-# Note that changing this variable will only change the settings for new
-# messages; old archives will not be renamed or altered in any way.
+EXAMPLE:
 configset listname archive_size = unlimited
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-For a list of topics, or this text, send one of the next two lines
+
+A string decribing the maximum size of a single archive file.  When a
+message arrives that would cause an archive file to exceed the size set
+here, a new archive file is created with the final number incremented by
+one.
+
+Possible values are an integer followed by one of k, or m for
+kilobytes or messages.  The value 'unlimited' is also permitted, in
+which case the archives will not have the following period and two
+digits appended.
+
+Note that changing this variable will only change the settings for new
+messages; old archives will not be renamed or altered in any way.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset_archive_size
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

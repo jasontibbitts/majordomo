@@ -1,8 +1,21 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL site_name = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: Peak Climbers
+Data Type    : string
+Variable Type: majordomo
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL site_name =\\
+    My Organization (www.nowhere.org or admin@nowhere.org)
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+The name of the site that this Majordomo runs at.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset site_name
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -1,8 +1,22 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL addr_allow_ending_dot = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: no
+Data Type    : bool
+Variable Type: addr
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL addr_allow_ending_dot =
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+If this is true, Majordomo will allow trailing dots on hostnames.  This is
+legal syntax for a hostname, but not within an email address.
+Unfortunately some sites addd them spuriously.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset addr_allow_ending_dot
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -45,22 +45,20 @@ in the event you need help later.
 In addition, other technically illegal addresses can be used
 but only if the site administrator has enabled them. See these
 help files for details:
-   help configset addr_allow_at_in_phrase_GLOBAL
-   help configset addr_allow_bang_paths_GLOBAL
-   help configset addr_allow_comments_after_route_GLOBAL
-   help configset addr_allow_ending_dot_GLOBAL
+   help configset addr_allow_at_in_phrase
+   help configset addr_allow_bang_paths
+   help configset addr_allow_comments_after_route
+   help configset addr_allow_ending_dot
 
 A confirmation token will be sent to the given "address" to verify
 this action, and must be replied to with an "accept" command before
 the registration is completed and the password can be used.
 
-==> see also: password   (which changes an individual's password)
-==> see also: subscribe  (does an automatic registration)
-==> see also: unregister (which removes an address from the database)
+See Also:
+   help password   (which changes an individual's password)
+   help subscribe  (does an automatic registration)
+   help unregister (which removes an address from the database)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help register
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

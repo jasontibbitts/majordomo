@@ -1,8 +1,21 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL addr_allow_at_in_phrase = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: no
+Data Type    : bool
+Variable Type: addr
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL addr_allow_at_in_phrase =
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+If this is true, Majordomo will allow an @ symbol in the phrase, or
+unbracketed portion of an address.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset addr_allow_at_in_phrase
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

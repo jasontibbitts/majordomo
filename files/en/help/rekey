@@ -13,12 +13,10 @@ same, the duplicate entries will be silently dropped.  It is generally
 possible to get them back by removing the bad setting from addr_xforms
 and rekeying.
 
-==> see also: configset addr_xforms (downcase or otherwise fix addresses)
-==> see also: filesync              (updates the filespace info database)
+See Also:
+   help configset addr_xforms (downcase or otherwise fix addresses)
+   help filesync              (updates the filespace info database)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help rekey
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

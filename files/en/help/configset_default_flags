@@ -1,38 +1,29 @@
-NOTE: Details/corrections are below the configshow output!
-
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname default_flags = [value]
+configset listname default_flags = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: SPR
+Data Type    : string
+Variable Type: flags
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
-
-# default_flags
-# (SPR)                [string] <flags>
-# A string containing the flags to be given to new subscribers unless they
-# choose otherwise.  Possible flags are:
-#
-#   A - ackall
-#   a - ackimportant
-#   C - eliminatecc
-#   H - hideall
-#   h - hideaddress
-#   P - prefix
-#   R - replyto
-#   S - selfcopy
+EXAMPLE:
 configset listname default_flags = SPR
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
-addendum to Majordomo2 "configset default_flags" File - updated 24 Feb 99
+A string containing the flags to be given to new subscribers unless they
+choose otherwise.  Possible flags are:
 
+  A - ackall
+  a - ackimportant
+  C - eliminatecc
+  H - hideall
+  h - hideaddress
+  P - prefix
+  R - replyto
+  S - selfcopy
 NOTE: These supply defaults for new subscribers. Once subscribed, the
 user can change their own settings on a per-list per-subscriber basis.
 See "help set" for more information, including digest and nomail settings.
@@ -53,17 +44,11 @@ These flags correspond to these "set" commands:
           S  - set listname selfcopy        EmailAddress
       (no S) - set listname noselfcopy      EmailAddress
 
+See Also:
+   help set       (for how a user can set these options after subscribing)
+   help configset ack_denials_always  (overrides "noack" for denied posts)
+   help configset allowed_flags (restricts subscribers ability to use set)
 
-==> see also: set  (for how a user can set these options after subscribing)
-==> see also: configset ack_denials_always  (overrides "noack" for denied posts)
-==> see also: configset allowed_flags (restricts subscribers ability to use set)
-
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configset_default_flags
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -1,8 +1,24 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL session_lifetime = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: 14
+Data Type    : integer
+Variable Type: majordomo
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL session_lifetime = 14
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+The number of days that information on all Majordomo sessions will be
+kept.  Majordomo saves the complete headers of all emailed requests,
+and all pertinent information for other types of requests.  These
+files can occupy significant space on an active server, so they are
+purged after this many days.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset session_lifetime
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

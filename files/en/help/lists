@@ -36,12 +36,10 @@ all the information from "-long".
 To find out where you are subscribed without descriptive paragraphs:
   lists-enhanced-short
 
-==> see also: info      (to find out more about a list)
-==> see also: subscribe (to add your name to a list)
+See Also:
+   help info      (to find out more about a list)
+   help subscribe (to add your name to a list)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help lists
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

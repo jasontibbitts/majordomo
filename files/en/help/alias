@@ -31,13 +31,11 @@ There is, as of 2/99, no formal way to review the register or alias
 databases. Please contact the maintainer shown at the bottom of this
 file for a Perl script that assumes shell access.
 
-==> see also: register  (must occur before alias will work)
-==> see also: subscribe (does an automatic registration)
-==> see also: unalias   (to cancel an alias command)
+See Also:
+   help register  (must occur before alias will work)
+   help subscribe (does an automatic registration)
+   help unalias   (to cancel an alias command)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help alias
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -63,13 +63,11 @@ or:
 
 The more commands you have, the more "default" helps you.
 
-==> see also: accept   (which may be required if default is not used)
-==> see also: approve  (like "default", but for only one command)
-==> see also: password (which changes an individual's password)
+See Also:
+   help accept   (which may be required if default is not used)
+   help approve  (like "default", but for only one command)
+   help password (which changes an individual's password)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help default
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

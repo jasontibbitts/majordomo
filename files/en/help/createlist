@@ -62,12 +62,10 @@ Options include the following:
   -regen:
     Display MTA configuration only, ignore all other options and args.
 
-==> see also: configset     (to configure the list once created)
-==> see also: default_flags (to configure default subscriptions)
+See Also:
+   help configset               (to configure the list once created)
+   help configset default_flags (to configure default subscriptions)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help createlist
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

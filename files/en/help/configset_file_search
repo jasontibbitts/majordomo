@@ -1,44 +1,34 @@
-NOTE: Details/corrections are below the configshow output!
-
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname file_search <<TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: :\$LANG ...
+Data Type    : list_array
+Variable Type: filespace
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
-
-# file_search
-# (:\$LANG ...)         [list_array] <filespace>
-# This provides a search-path mechanism for filename lookup.  Entries are of
-# the form
-#
-#   list:path
-#
-# where 'list' is the name of a list and path is the path within the
-# list's filespace.  'list' can be empty, in which case this list is used.
-# 'path' can be empty, in which case the root of the filespace is used.
-# Thus ':' refers to the top of the filespace of this list.
-#
-# To access files of another list, that list must must contain this
-# list's name in its file_share variable.  If the referenced list does
-# not share with this list, the relevant entries will be ignored.
-#
-configset listname file_search << ENDAAO
+EXAMPLE:
+configset listname file_search << ENDTAG
 :\$LANG
 :
-ENDAAO
+ENDTAG
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
-addendum to Majordomo2 "configset file_search" File - updated 8 Mar 99
+This provides a search-path mechanism for filename lookup.  Entries are of
+the form
 
+  list:path
+
+where 'list' is the name of a list and path is the path within the
+list's filespace.  'list' can be empty, in which case this list is used.
+'path' can be empty, in which case the root of the filespace is used.
+Thus ':' refers to the top of the filespace of this list.
+
+To access files of another list, that list must must contain this
+list's name in its file_share variable.  If the referenced list does
+not share with this list, the relevant entries will be ignored.
 When it appears in the list slot, the special string 'STOCK'
 indicates that the stock library of default files is searched.
 Majordomo comes with a library of files in various languages and these
@@ -67,12 +57,6 @@ directory, followed by stock files in the preferred language, finally
 followed by English files.  An English version of any file which
 Majordomo makes use of internally will always be present.
 
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configset_file_search
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

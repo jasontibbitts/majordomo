@@ -1,71 +1,62 @@
-NOTE: Details/corrections are below the configshow output!
-
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname digests <<TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: empty
+Data Type    : digests
+Variable Type: digest
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+EXAMPLE:
+configset listname digests << ENDTAG
+ENDTAG
 
-# digests
-# (empty)              [digests] <digest>
-#
-# Data on the various digests that the list supports.  A digest is
-# defined by a name, a description, and several pieces of data that tell
-# Majordomo when an issue should be generated.  The following data can be given:
-#
-# name     - A one-word name given to the digest.  It is unwise to name
-#            the digest "mime" or "nomime".
-#
-# times    - The times that digests are allowed to be created.  Times are
-#            specified as an integer from 0 to 23 or several other forms.
-#            The default is to allow digest creation anytime.
-#
-# minsizes - The minimum amount of data (measured in messages or
-#            kilobytes) which must be collected before a digest will be
-#            generated. The default is no minimum.
-#
-# maxsizes - The maximum size of digest that will be created.  Specify
-#            either messages or kilobytes or both as with minsizes.  The
-#            default is no maximum.
-#
-# maxage   - If an article is older than this, a digest will be created
-#            even if enough messages have not been collected.  This
-#            prevents messages from becoming "stale" on low traffic
-#            lists.  Specify hours like 12h, days like 4d and weeks like
-#            2w.  The default is no maximum age.
-#
-# separate - The minimum amount of time that separates digests.
-#
-# minage   - A digest will not be created if it most recent article is
-#            younger than this.  This is intended to prevent digest
-#            creation in the middle of active discussion.  The default
-#            is no minimum age.
-#
-# deftype -- This specifies the type of digest that new subscribers get
-#            by default.  Currently only MIME and index digests are
-#            supported.  The default is MIME.
-#
-# Each digest is defined by two lines.  The first contains data in the
-# following order, separated by vertical bars ('|') or colons:
-#
-# name    | times  | minsizes | maxsizes | maxage | separate | minage | deftype
-#
-# The second line holds a description of the digest.
-#
-configset listname digests << ENDAAN
-ENDAAN
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-addendum to Majordomo2 "configset digests" File - updated 8 Mar 99
+Data on the various digests that the list supports.  A digest is
+defined by a name, a description, and several pieces of data that tell
+Majordomo when an issue should be generated.  The following data can be given:
 
+name     - A one-word name given to the digest.  It is unwise to name
+           the digest "mime", "text" or "index".
+
+times    - The times that digests are allowed to be created.  Times are
+           specified as an integer from 0 to 23, the string "always" or
+           the string "never".  The default is "always".
+
+minsizes - The minimum amount of data (measured in messages or
+           kilobytes) which must be collected before a digest will be
+           generated.  The default is no minimum.
+
+maxsizes - The maximum size of digest that will be created.  Specify
+           either messages or kilobytes or both as with minsizes.  The
+           default is no maximum.
+
+maxage   - If an article is older than this, a digest will be created
+           even if enough messages have not been collected.  This
+           prevents messages from becoming "stale" on low traffic
+           lists.  Specify hours like 12h, days like 4d and weeks like
+           2w.  The default is no maximum age.
+
+separate - The minimum amount of time that separates digests.
+
+minage   - A digest will not be created if it most recent article is
+           younger than this.  This is intended to prevent digest
+           creation in the middle of active discussion.  The default
+           is no minimum age.
+
+deftype -- This specifies the type of digest that new subscribers get
+           by default.  Currently only MIME, text and index digests are
+           supported.  The default is MIME.
+
+Each digest is defined by two lines.  The first contains data in the
+following order, separated by vertical bars ('|') or colons:
+
+name    | times  | minsizes | maxsizes | maxage | separate | minage | deftype
+
+The second line holds a description of the digest.
 These settings take precedence in the following order:
 
   A digest is always created when triggered if there is a waiting
@@ -129,12 +120,6 @@ weekly  | fr(23) |20k, 5m   | 100k,30m |        |          |        | index
 The test-list weekly index
 END
 
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configset_digests
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

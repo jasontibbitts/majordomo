@@ -1,8 +1,23 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL confirm_url = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: no server configured
+Data Type    : string
+Variable Type: access,token
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL confirm_url = no server configured
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+The URL that is used to return confirmation tokens.  The only purpose
+of this variable is to supply a value to be used in the confirmation
+messages that are sent out.  The embedded variable $TOKEN will be
+expanded to the token being confirmed.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset confirm_url
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

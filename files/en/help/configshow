@@ -40,13 +40,11 @@ list owner. Some require global priviliges.
 
 A complete list of variables is included in "help configset".
 
-==> see also: configedit (to set the variable to a non-default value)
-==> see also: configset  (to set the variable to a non-default value)
-==> see also: configdefault (to have the variable track the default value)
+See Also:
+   help configedit (to set the variable to a non-default value)
+   help configset  (to set the variable to a non-default value)
+   help configdefault (to have the variable track the default value)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configshow
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

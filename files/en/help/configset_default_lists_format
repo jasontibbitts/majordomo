@@ -1,8 +1,25 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL default_lists_format = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Value must be: tiny, or compact, or short, or long, or enhanced
+Default Value: short
+Data Type    : enum
+Variable Type: lists
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL default_lists_format = enhanced
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+This defines the default output format for the lists command.
+compact shows one list per line with short descriptions.
+long shows long descriptions
+enhanced shows long descriptions and extra information (whether or not
+  the user is subscribed to the list, etc.)
+
+For a list of all help topics send this one-line message
    help topics
-   help configset default_lists_format
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

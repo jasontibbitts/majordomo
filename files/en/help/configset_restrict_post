@@ -1,32 +1,28 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname restrict_post <<TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: empty
+Data Type    : restrict_post
+Variable Type: resend,access
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+EXAMPLE:
+configset listname restrict_post << ENDTAG
+ENDTAG
 
-# restrict_post
-# (empty)              [restrict_post] <resend,access>
-#
-# If defined only addresses belonging to one of the listed sublists will
-# be allowed to post to the list.  This variable's function is
-# completely encapsulated within the access_rules mechanism, but it
-# remains for backwards compatibility and because it's simpler to use.
-#
-# This is an array variable, but for backwards compatibility the first
-# item is split on spaces, tabs, and colons.
-configset listname restrict_post << ENDAAY
-ENDAAY
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
 
-For a list of topics, or this text, send one of the next two lines
+
+If defined only addresses belonging to one of the listed sublists will
+be allowed to post to the list.  This variable's function is
+completely encapsulated within the access_rules mechanism, but it
+remains for backwards compatibility and because it's simpler to use.
+
+This is an array variable, but for backwards compatibility the first
+item is split on spaces, tabs, and colons.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset_restrict_post
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -1,29 +1,25 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname nonmember_flags = [value]
+configset listname nonmember_flags = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: 
+Data Type    : string
+Variable Type: flags
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
-
-# nonmember_flags
-# ()                   [string] <flags>
-# A string containing the flags which apply to users who are not list members
-# when they send messages to the list.  Only a very few flags make sense in
-# this case.  They are:
-#
-#   A - ackall
-#   a - ackimportant
+EXAMPLE:
 configset listname nonmember_flags =
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-For a list of topics, or this text, send one of the next two lines
+
+A string containing the flags which apply to users who are not list members
+when they send messages to the list.  Only a very few flags make sense in
+this case.  They are:
+
+  A - ackall
+  a - ackimportant
+
+For a list of all help topics send this one-line message
    help topics
-   help configset_nonmember_flags
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

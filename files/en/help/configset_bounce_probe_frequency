@@ -1,39 +1,29 @@
-NOTE: Details/corrections are below the configshow output!
-
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname bounce_probe_frequency = [value]
+configset listname bounce_probe_frequency = VALUE
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: 0
+Data Type    : integer
+Variable Type: resend,deliver,bounce
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
-
-# bounce_probe_frequency
-# (0)                  [integer] <resend,deliver,bounce>
-# This variable controls how often bounce probes are sent out.
-#
-# The address list is split into 'bounce_probe_frequency' pieces, and a
-# different piece is probed for each message sent to the list.  This lowers
-# the overall load while still allowing complete probes to be done in a
-# reasonable amount of time.
-#
-# Setting this to zero disables regular bounce probing.  Setting this to one
-# probes every address for every message and may place an extreme load on the
-# server(s).  Note that this variable will be ignored if the MTA is qmail,
-# because qmail does an equivalent kind of bounce probing itself.
-#
+EXAMPLE:
 configset listname bounce_probe_frequency =
 
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
-addendum to Majordomo2 "configset bounce_probe_frequency" File - updated 8 Mar 99
+This variable controls how often bounce probes are sent out.
 
+The address list is split into 'bounce_probe_frequency' pieces, and a
+different piece is probed for each message sent to the list.  This lowers
+the overall load while still allowing complete probes to be done in a
+reasonable amount of time.
+
+Setting this to zero disables regular bounce probing.  Setting this to one
+probes every address for every message and may place an extreme load on the
+server(s).  Note that this variable will be ignored if the MTA is qmail,
+because qmail does an equivalent kind of bounce probing itself.
 Bounce probing entails sending specially formatted messages such that the
 address causing a bounce is immediately obvious when the bounce is
 received.  This requires that each mail transaction send to only one
@@ -46,12 +36,6 @@ not more frequently than once a day.  Thus this should not be set lower
 than the expected number of messages per day.  The upper bound depends on
 how much additional load the mail server(s) can tolerate.
 
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configset_bounce_probe_frequency
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

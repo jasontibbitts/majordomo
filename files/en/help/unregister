@@ -14,12 +14,10 @@ A confirmation token will be sent to the given "address" to verify
 this action, and must be replied to with an "accept" command, unless
 an authorized password is used with "approve".
 
-==> see also: register    (which adds an address to the database)
-==> see also: unsubscribe (which removes an address from one list)
+See Also:
+   help register    (which adds an address to the database)
+   help unsubscribe (which removes an address from one list)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help unregister
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

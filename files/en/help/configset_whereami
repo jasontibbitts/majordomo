@@ -1,8 +1,31 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL whereami = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: nowhere.org
+Data Type    : word
+Variable Type: majordomo
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
-   help topics
+EXAMPLE:
+configset GLOBAL whereami = nowhere.org
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+What machine is Majordomo running on?
+These important help files are related:
    help configset whereami
-to the server at $MJ
+   help configset whoami
+   help configset whoami_owner
 
-Generated 8 Mar 1999 by SRE, web version available
+The "whereami" configuration applies only to the GLOBAL pseudo-list.
+You should set "whereami" to be the domain of the server, such as
+"wherever.com" if you want users to send posts to addresses like
+"listname@wherever.com".
+
+In some cases email addresses can be fully qualified. The "whereami"
+setting supplies domains when only a partial address is specified.
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

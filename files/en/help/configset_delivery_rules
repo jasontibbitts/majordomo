@@ -1,92 +1,82 @@
-NOTE: Details/corrections are below the configshow output!
-
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname delivery_rules <<TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname is the name of a list at this site (other than GLOBAL)
+Default Value: empty
+Data Type    : delivery_rules
+Variable Type: delivery
+Apply to List: regular lists, but not the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+EXAMPLE:
+configset listname delivery_rules << ENDTAG
+ENDTAG
 
-# delivery_rules
-# (empty)              [delivery_rules] <delivery>
-#
-# A table containing delivery rules, which describe how Majordomo will
-# deliver mail.  In the simplest form, you can specify a host to use for
-# delivery and a batch size.  (This duplicates much of the functionality
-# of bulk_mailer, for those familiar with it.)
-#
-# Each delivery destination should begin with a line containing either a
-# regular expression, or the word ALL.  Addreses are compared against
-# these in order; the first matching destination is chosen.  This
-# enables you to choose which addresses go to which sets of hosts.
-#
-# The remaining lines (up until the next blank) should consist of
-# various parameters which affect delivery.  The possible parameters
-# are:
-#
-# numbatches=N
-#   Split the address list up into exactly N batches.
-#
-# maxaddrs=N
-#   Split the list into batches of N addresses apiece.
-#
-# maxdomains=N
-#   Split the address list into batches of N domains apiece.
-#
-# minseparate=N
-#   If a domain appears more than N times in various addresses, they
-#   will all be given a separate batch.
-#
-# If neither of the above are specified, the default is numbatches=1,
-# which duplicates the Majordomo 1.x behavior.
-#
-# hosts=(hosta, hostb, hostc)
-#   A list of hostnames that Majordomo will connect to to deliver
-#   batches.  If no hosts are given, Majordomo connects to localhost.
-#
-# backup=(hostd, hoste, hostf)
-#   A list of backup hosts to use in case one or more of the regular
-#   delivery hosts are down.
-#
-# sort
-#   Sort the address list.  Many of the batching options depend on
-#   getting the addresses in sorted order and will not work as expected
-#   if the address are unsorted.
-#
-# Hosts in either the hosts or backup lists can also be specified with
-# additional information, as follows:
-#
-# hosts=(hosta=(parameter1, param2=5), hostb=(param3), hostc)
-#
-# The host parameters are as follows:
-#
-# esmtp      - speak ESMTP with the hosts if it is able.
-# onex       - send ESMTP ONEX to the host if it supports it.
-# pipelining - send the ESMTP PIPELINING command to the host.
-# timeout    - the number of seconds to wait when opening a connection
-#              to the host
-# port       - the port number to connect to, if different from the
-#              usual SMTP port.
-#
-# If, instead of a host name, the string "@qmail" is used, Majordomo
-# will open a direct connection to the qmail-queue program and directly
-# inject the message into the qmail delivery system.  This assumes, of
-# course, that you are running qmail.
-#
-configset listname delivery_rules << ENDAAK
-ENDAAK
-
-==> see also: configset     (for an overview and list of all variables)
-==> see also: configedit    (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
-==> see also: configdefault (to have the variable track the default value)
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
-addendum to Majordomo2 "configset delivery_rules" File - updated 8 Mar 99
 
+A table containing delivery rules, which describe how Majordomo will
+deliver mail.  In the simplest form, you can specify a host to use for
+delivery and a batch size.  (This duplicates much of the functionality
+of bulk_mailer, for those familiar with it.)
+
+Each delivery destination should begin with a line containing either a
+regular expression, or the word ALL.  Addreses are compared against
+these in order; the first matching destination is chosen.  This
+enables you to choose which addresses go to which sets of hosts.
+
+The remaining lines (up until the next blank) should consist of
+various parameters which affect delivery.  The possible parameters
+are:
+
+numbatches=N
+  Split the address list up into exactly N batches.
+
+maxaddrs=N
+  Split the list into batches of N addresses apiece.
+
+maxdomains=N
+  Split the address list into batches of N domains apiece.
+
+minseparate=N
+  If a domain appears more than N times in various addresses, they
+  will all be given a separate batch.
+
+If neither of the above are specified, the default is numbatches=1,
+which duplicates the Majordomo 1.x behavior.
+
+hosts=(hosta, hostb, hostc)
+  A list of hostnames that Majordomo will connect to to deliver
+  batches.  If no hosts are given, Majordomo connects to localhost.
+
+backup=(hostd, hoste, hostf)
+  A list of backup hosts to use in case one or more of the regular
+  delivery hosts are down.
+
+sort
+  Sort the address list.  Many of the batching options depend on
+  getting the addresses in sorted order and will not work as expected
+  if the address are unsorted.
+
+Hosts in either the hosts or backup lists can also be specified with
+additional information, as follows:
+
+hosts=(hosta=(parameter1, param2=5), hostb=(param3), hostc)
+
+The host parameters are as follows:
+
+esmtp      - speak ESMTP with the hosts if it is able.
+onex       - send ESMTP ONEX to the host if it supports it.
+pipelining - send the ESMTP PIPELINING command to the host.
+timeout    - the number of seconds to wait when opening a connection
+             to the host
+port       - the port number to connect to, if different from the
+             usual SMTP port.
+
+If, instead of a host name, the string "@qmail" is used, Majordomo
+will open a direct connection to the qmail-queue program and directly
+inject the message into the qmail delivery system.  This assumes, of
+course, that you are running qmail.
 More complicated forms allow you specify a list of hosts to be used
 for parallel delivery, and to specify more powerful batching parameters.
 
@@ -154,12 +144,6 @@ ALL
 numbatches=1
 hosts=(my.host.com)
 ENDC
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configset_delivery_rules
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

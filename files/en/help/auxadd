@@ -13,11 +13,9 @@ Adds an address to the named sublist of a given list.
 
 There is currently no help file for sublist usage.
 
-==>see also: subscribe (for syntax)
+See Also:
+   help subscribe (for syntax)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help auxadd
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

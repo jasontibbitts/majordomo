@@ -1,8 +1,26 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL signature_separator = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: /^[-_]/
+Data Type    : regexp
+Variable Type: parser
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL signature_separator = /^[-_]/
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+The text parser will stop looking for commands when it sees a line
+matching this pattern.
+
+The standard signature separator is a line consisting only of two
+dashes followed by one space.  However, many users ignore this
+standard and many sites use underscores instead of dashes.  Hence a
+more lenient pattern is generally more useful.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset signature_separator
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

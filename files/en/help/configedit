@@ -22,13 +22,11 @@ the variable(s) will be returned as well, as with "configshow".
 
 A complete list of variables is included in "help configset".
 
-==> see also: configdefault (to have the variable track the default value)
-==> see also: configset     (to set the variable to a non-default value)
-==> see also: configshow    (to display the variable's current value)
+See Also:
+   help configdefault (to have the variable track the default value)
+   help configset     (to set the variable to a non-default value)
+   help configshow    (to display the variable's current value)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help configedit
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

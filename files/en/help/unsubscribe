@@ -13,6 +13,14 @@ token will be sent to the given "address" to verify this action, and
 must be replied to with an "accept" command before the address is
 removed from the list.
 
+To unsubscribe from the LISTNAME email broadcast list at this site,
+as simply as possible, send this one-line message to $MJ:
+    unsubscribe LISTNAME YourEmailAddress
+replacing "LISTNAME" with the name of the list and replacing
+"YourEmailAddress" with the address that was subscribed to the
+list. Additional commands may be required, but you will receive
+messages telling you what to do if necessary.
+
 Unregistering will automatically remove an address from all lists at
 this site, or the unsubscribe command can be used to selectively remove
 an address from one list at a time. Even after the address has been
@@ -36,15 +44,13 @@ If the "-allmatching" option is used with "-regexp", then every
 address that matches the pattern will be removed from the list.
 Without "-allmatching", only the first matching address is removed.
 
-==> see also: approve     (which can eliminate the need to use "accept")
-==> see also: password    (which changes an individual's password)
-==> see also: patterns    (for simple and complex regular expressions)
-==> see also: subscribe   (which adds an address to a list)
-==> see also: unregister  (which removes an address from all lists)
+See Also:
+   help approve     (which can eliminate the need to use "accept")
+   help password    (which changes an individual's password)
+   help patterns    (for simple and complex regular expressions)
+   help subscribe   (which adds an address to a list)
+   help unregister  (which removes an address from all lists)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help unsubscribe
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

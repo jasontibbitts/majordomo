@@ -279,14 +279,12 @@ NOTE: "nomail" and "vacation" are identical, use whichever you like.
    set LISTNAME noreplyto EmailAddress             (no R in default_flags)
 
 
-==> see also: configset ack_attach_original (attaches post to error message if stalled)
-==> see also: configset ack_denials_always  (overrides "noack" for denied posts)
-==> see also: configset allowed_flags       (restricts subscribers ability to use set)
-==> see also: configset default_flags       (sets per-list defaults before subscribing)
+See Also:
+   help configset ack_attach_original (attaches post to error message if stalled)
+   help configset ack_denials_always  (overrides "noack" for denied posts)
+   help configset allowed_flags       (restricts subscribers ability to use set)
+   help configset default_flags       (sets per-list defaults before subscribing)
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help set
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

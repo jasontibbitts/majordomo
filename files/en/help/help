@@ -1,118 +1,78 @@
-Majordomo2 - Basic Help File
-============================
+(More detailed help is available on many topics, including details
+of every command you can send to the server: refer to "help topics".)
 
-This help message is from the Majordomo list management system at:
+Majordomo is an automated system which allows users to subscribe and
+unsubscribe to mailing lists, and to retrieve files from list archives.
+This is version $VERSION of Majordomo2
 
+This help message is from the Majordomo list management system at
      $SITE
-
-This is version $VERSION of Majordomo2.  More detailed help is
-available on many topics; see below.
-
-
-About Majordomo
----------------
-
-Majordomo is an automated system which allows users to subscribe to and
-unsubscribe from mailing lists, and to retrieve files from list archives.
-
-You interact with the Majordomo software by sending commands to the
-server address:
-
+You interact with the Majordomo software by sending commands to
      $MJ
+in the body of a mail message. Please do not put your commands in
+the subject! Majordomo only processes commands in the message body.
 
-...in the body of a mail message.  Please do not put your commands in the
-subject.  Majordomo only processes commands in the message body.  You may
-put multiple Majordomo commands in the same mail message; put each command
-on a line by itself.
+You may put multiple Majordomo commands in the same mail message.
+Put each command on a line by itself, and remember that commands
+are NOT case sensitive: you can replace lower case characters with
+upper case, and vice versa. Some commands also have abbreviations
+and alternate command names, like "subscribe" (for which "sub" works)
+and "unsubscribe" (for which "unsub" and "signoff" both work).
 
+If you put the command "end" (without quotes) in your message,
+Majordomo will stop reading commands at that line (see "help end").
+Your site administrator may also configure Majordomo to stop reading
+commands at commonly used signature block separator lines.
 
-Subscribing To a List
----------------------
+To subscribe or unsubscribe from the LISTNAME email broadcast list
+at this site, send a one-line message to $MJ:
+    subscribe LISTNAME YourEmailAddress
+or
+    unsubscribe LISTNAME YourEmailAddress
+replacing "LISTNAME" with the name of the list and replacing
+"YourEmailAddress" with the address you want to add to or remove
+from the list. Additional commands may be required, but you will
+receive messages telling you what to do if necessary.
 
-To subscribe to a list, send the "subscribe" command, followed by the
-list name, to the server address:
-
-     subscribe example
-
-Once your command is received by Majordomo, one of three things will
-happen, depending on the configuration of the list:
-
-     - You may be added to the mailing list automatically.
-
-     - You may receive notification that an authorization key is required
-       to verify your subscription.  This can be a bit of extra hassle,
-       but it helps keep other people from subscribing you to lists
-       without your knowledge.  In this case, you will receive a message
-       containing your authorization key and instructions on how to
-       complete your subscription.
-
-     - Whether or not you had to use an authorization key, you may get a
-       message informing you that your subscription request is being
-       forwarded to the list owner for approval.  Some lists have waiting
-       lists, or policies about who may subscribe.  If your request is
-       forwarded for approval, the list owner should contact you soon
-       after your request.
-
-Upon subscribing, you should receive an introductory message containing
-list policies and features.  Please SAVE THIS MESSAGE for future
-reference; it will also contain exact directions for unsubscribing.  If
-you lose the intro mail and would like another copy of the policies, send
-the "intro" command, followed by the list name, to the server address:
-
-     intro example
-
-Consult the help topic "subscribing" for more information and additional
-options.  See the section "Getting Additional Help" below for instructions
-on reading additional help topics.
-
-
-Unsubscribing from Mailing Lists
---------------------------------
-
-Your original intro message contains the exact command which should be
-used to remove your address from the list.  However, in most cases, you
-may simply send the command "unsubscribe" followed by the list name:
-
-     unsubscribe example
-
-If this command fails, it may be that your provider has changed the way
-your return address appears in your mail.  You may need to contact the
-list owner for further help.
-
-
-Getting Additional Help
------------------------
-
-For another copy of this message, send the command:
-
-     help
+Additional information is available from this server in the form of
+help topics. You are reading the basic help file now, obtained by just
+sending "help" to the server. For other topics, send one or more of the
+commands described below to $MJ
 
 To find out what you, as a list subscriber, can do with Majordomo
 (finding out about lists, subscribing, unsubscribing, getting files
-from the server, confirmations, passwords, etc.) send the command:
-
-     help user overview
+from the server, confirmations, passwords, etc.) send:
+   help overview
 
 For a complete subscriber (or end-user) command reference, send:
+   help commands
 
-     help user commands
+If you are the owner or moderator of a mailing list, you will want
+to use one or both of the following commands to get information about
+the special Majordomo commands for mailing list administration:
+   help admin
+   help admin commands
 
-To get a complete list of all available topics, send:
+To retrieve a new copy of this help file, send the command:
+   help help
 
-     help topics
+To retrieve a complete list of ALL available topics, send:
+   help topics
 
 To contact the owner of a specific list, send mail to the "-owner"
-address which exists for every list:
+address which exists for every list. For example, to contact the
+owner of the hypothetical list
+    some-list@$WHEREAMI
+you would send mail to:
+    some-list-owner@$WHEREAMI
 
-     example-owner@$WHEREAMI
+To contact a human site manager, send mail to $MJOWNER
 
-To contact a human site manager, send mail to $MJOWNER.
+A Note to Longtime Majordomo Users: Majordomo 2.0 tries as hard as
+possible to be backwards-compatible with previous versions of Majordomo.
+All user commands and many admin commands from previous versions should
+work; those that don't will provide you with a pointer to their replacements.
 
-
-A Note to Longtime Majordomo Users
-----------------------------------
-
-Majordomo 2.0 tries as hard as possible to be backwards-compatible
-with previous versions of Majordomo.  All user commands and many
-admin commands from previous versions should work; those that don't
-will provide you with a pointer to their replacements.
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

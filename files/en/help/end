@@ -14,13 +14,11 @@ The "end" command is a way to ignore automatically inserted signature
 blocks, but remember that you MUST NOT allow any text to be inserted
 at the top of your email message when you send commands to Majordomo.
 
-==> see also: mj_shell               (for a command-line parser to eliminate email)
-==> see also: configset signature_separator_GLOBAL (for another way to end parsing)
+See Also:
+   help mj_shell        (for a command-line parser to eliminate email)
+   help configset signature_separator (for another way to end parsing)
 
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help end
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -1,7 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 help [topic]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-all possible topics are listed in "help topics"
+all possible topics are listed in this file, "help topics"
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The "help" command returns a help file from the server, if help is
@@ -14,46 +14,57 @@ of the lines below to the server at $MJ, as in
 to get basic help.
 
 All commands have help files, but you will probably want to start with
-   help user overview
-or
-   help admin overview
-to get an idea of which commands you want to use.
+   help overview
+if you are a list subscriber, or
+   help admin
+if you manage a list, to get an idea of which commands you want to use.
 
 If you are looking for the right command to use, and already understand
 the Majordomo software, try sending one of these lines to $MJ
-   help user commands
+   help commands
    help admin commands
 to get an idea of which commands you want to use without browsing the
 LONG list of commands below. There is a one-line description of what
 each command does, plus some introductory text, in each file.
 
-For a list of topics, or this text, send one of the next two lines
-   help topics
+For a list of all help topics send this one-line message
    help topics
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 Below is a complete list of all available help topics:
    help accept
+   help access
+   help admin
    help admin commands
-   help admin overview
+   help admin passwords
+   help advertise
    help alias
+   help aliasadd
+   help aliasremove
    help approve
    help archive
    help auxadd
+   help auxdel
    help auxremove
+   help auxshow
+   help auxsubscribe
+   help auxunsubscribe
    help auxwho
+   help cancel
    help commands
+   help config
+   help configdef
    help configdefault
    help configedit
    help configset
    help configshow
    help createlist
    help default
+   help digest
    help end
+   help exit
    help faq
    help filesync
    help get
@@ -62,25 +73,41 @@ Below is a complete list of all available help topics:
    help info
    help intro
    help lists
+   help man
    help mj shell
+   help mkdigest
+   help newconfig
+   help newfaq
+   help newinfo
+   help newintro
+   help overview
+   help owner
    help password
    help patterns
    help post
    help put
+   help quit
    help register
    help reject
    help rekey
+   help remove
+   help request_response
+   help sessioninfo
    help set
    help show
    help showtokens
+   help signoff
+   help stop
+   help sub
    help subscribe
+   help tokeninfo
    help topics
+   help trigger
    help unalias
    help unknowntopic
    help unregister
+   help unsub
    help unsubscribe
-   help user commands
-   help user overview
    help which
    help who
 
@@ -88,27 +115,22 @@ Below is a complete list of all available help topics:
 
 FURTHER DETAILS ARE AVAILABLE FOR THE "configset" COMMAND:
    help configset access_password_override
-   help configset access_password_override_GLOBAL
    help configset access_rules
-   help configset access_rules_GLOBAL
    help configset ack_attach_original
    help configset ack_denials_always
-   help configset addr_allow_at_in_phrase_GLOBAL
-   help configset addr_allow_bang_paths_GLOBAL
-   help configset addr_allow_comments_after_route_GLOBAL
-   help configset addr_allow_ending_dot_GLOBAL
-   help configset addr_limit_length_GLOBAL
-   help configset addr_require_fqdn_GLOBAL
-   help configset addr_strict_domain_check_GLOBAL
-   help configset addr_xforms_GLOBAL
+   help configset addr_allow_at_in_phrase
+   help configset addr_allow_bang_paths
+   help configset addr_allow_comments_after_route
+   help configset addr_allow_ending_dot
+   help configset addr_limit_length
+   help configset addr_require_fqdn
+   help configset addr_strict_domain_check
+   help configset addr_xforms
    help configset admin_body
-   help configset admin_body_GLOBAL
    help configset admin_headers
-   help configset admin_headers_GLOBAL
    help configset administrivia
    help configset advertise
-   help configset advertise_GLOBAL
-   help configset advertise_subscribed_GLOBAL
+   help configset advertise_subscribed
    help configset allowed_classes
    help configset allowed_flags
    help configset archive_dir
@@ -117,51 +139,38 @@ FURTHER DETAILS ARE AVAILABLE FOR THE "configset" COMMAND:
    help configset attachment_rules
    help configset bounce_probe_frequency
    help configset category
-   help configset chunksize_GLOBAL
+   help configset chunksize
    help configset comments
-   help configset comments_GLOBAL
-   help configset confirm_url_GLOBAL
-   help configset database_backend_GLOBAL
+   help configset confirm_url
+   help configset database_backend
    help configset date_info
-   help configset date_info_GLOBAL
    help configset date_intro
-   help configset date_intro_GLOBAL
    help configset debug
-   help configset debug_GLOBAL
    help configset default_class
    help configset default_flags
    help configset default_language
-   help configset default_language_GLOBAL
-   help configset default_lists_format_GLOBAL
+   help configset default_lists_format
    help configset delete_headers
    help configset delivery_rules
    help configset description
    help configset description_long
-   help configset description_max_lines_GLOBAL
+   help configset description_max_lines
    help configset digest_index_format
    help configset digest_issues
    help configset digests
    help configset dup_lifetime
    help configset faq_access
-   help configset faq_access_GLOBAL
    help configset file_search
    help configset file_share
    help configset filedir
-   help configset filedir_GLOBAL
    help configset get_access
-   help configset get_access_GLOBAL
    help configset index_access
-   help configset index_access_GLOBAL
    help configset info_access
-   help configset info_access_GLOBAL
    help configset inform
-   help configset inform_GLOBAL
    help configset intro_access
-   help configset intro_access_GLOBAL
    help configset master_password
-   help configset master_password_GLOBAL
    help configset max_header_line_length
-   help configset max_in_core_GLOBAL
+   help configset max_in_core
    help configset max_mime_header_length
    help configset max_total_header_length
    help configset maxlength
@@ -175,52 +184,39 @@ FURTHER DETAILS ARE AVAILABLE FOR THE "configset" COMMAND:
    help configset moderator_group
    help configset moderators
    help configset noadvertise
-   help configset noadvertise_GLOBAL
    help configset nonmember_flags
    help configset override_reply_to
    help configset owners
-   help configset owners_GLOBAL
-   help configset password_min_length_GLOBAL
+   help configset password_min_length
    help configset passwords
-   help configset passwords_GLOBAL
    help configset precedence
    help configset purge_received
    help configset quote_pattern
    help configset reply_to
-   help configset request_answer_GLOBAL
+   help configset request_answer
    help configset resend_host
    help configset restrict_post
-   help configset return_subject_GLOBAL
+   help configset return_subject
    help configset sender
-   help configset sender_GLOBAL
    help configset sequence_number
-   help configset session_lifetime_GLOBAL
-   help configset signature_separator_GLOBAL
-   help configset site_name_GLOBAL
+   help configset session_lifetime
+   help configset signature_separator
+   help configset site_name
    help configset subject_prefix
    help configset subscribe_policy
    help configset taboo_body
-   help configset taboo_body_GLOBAL
    help configset taboo_headers
-   help configset taboo_headers_GLOBAL
-   help configset tmpdir_GLOBAL
+   help configset tmpdir
    help configset token_lifetime
-   help configset token_lifetime_GLOBAL
    help configset token_remind
-   help configset token_remind_GLOBAL
    help configset unsubscribe_policy
    help configset welcome
-   help configset welcome_GLOBAL
    help configset welcome_files
-   help configset welcome_files_GLOBAL
-   help configset whereami_GLOBAL
+   help configset whereami
    help configset which_access
-   help configset which_access_GLOBAL
    help configset who_access
    help configset whoami
-   help configset whoami_GLOBAL
    help configset whoami_owner
-   help configset whoami_owner_GLOBAL
 
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -7,13 +7,11 @@ listname, required, is an email list at this site
 This command returns a Frequently Asked Questions file for the list named,
 if one is available. If no FAQ file exists, it returns an error message.
 
-==> see also: info  (another document related to the list)
-==> see also: intro (another document related to the list)
+See Also:
+   help info  (another document related to the list)
+   help intro (another document related to the list)
 
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help faq
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -10,13 +10,11 @@ is available. If no INTRO file exists, it returns an error message.
 Note that this may not be the same as the welcome document that is
 sent to new subscribers.
 
-==> see also: faq  (another document related to the list)
-==> see also: info (another document related to the list)
+See Also:
+   help faq  (another document related to the list)
+   help info (another document related to the list)
 
 
-For a list of topics, or this text, send one of the next two lines
+For a list of all help topics send this one-line message
    help topics
-   help intro
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

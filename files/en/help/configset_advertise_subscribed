@@ -1,8 +1,28 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL advertise_subscribed = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value: yes
+Data Type    : bool
+Variable Type: majordomo,access,advertise,lists
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL advertise_subscribed = 1
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+If this is on, users that are subscribed to a list will always be
+shown that list, regardless of any advertise restriction; the list's
+advertise restrictions will not even be consulted.  This can result in
+a performance increase.
+
+If this is off, the list's advertise restrictions will be consulted
+normally.  This will still result in the same behavior unless an
+access_rules entry is used to override the normal processing of
+advertise/noadvertise, but list owners will then have the choice.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset advertise_subscribed
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available

@@ -1,8 +1,22 @@
-NOTE: This command applies only to the GLOBAL pseudo-list!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL database_backend = VALUE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Value must be: text
+Default Value: text
+Data Type    : enum
+Variable Type: general
+Apply to List: GLOBAL pseudo-list only
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-For a list of topics, or this text, send one of the next two lines
+EXAMPLE:
+configset GLOBAL database_backend = text
+
+(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+
+
+This controls the database format used to store various sets of data
+like subscriber lists.  Currently only a flat text database is supported.
+
+For a list of all help topics send this one-line message
    help topics
-   help configset database_backend
 to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available
