@@ -1732,7 +1732,12 @@ sub bounce_gen_stats {
   }
 
   @numbered = sort keys(%{$bdata->{M}});
-  $stats->{span} = $numbered[$#numbered] - $numbered[0] + 1;;
+  if (@numbered) {
+    $stats->{span} = $numbered[$#numbered] - $numbered[0] + 1;
+  }
+  else {
+    $stats->{span} = 0;
+  }
 
   for $i (@numbered) {
     push @times, $bdata->{M}{$i};
@@ -1740,14 +1745,14 @@ sub bounce_gen_stats {
     if (!defined($lastnum) || $i == $lastnum+1) {
       $lastnum = $i;
       $stats->{consecutive}++;
-warn "A $i, $stats->{consecutive}";
     }
   }
 
   # We shouldn't export some statistics unless they're relevant
-  delete($stats->{consecutive}) unless $stats->{consecutive} >= 2;
+  delete($stats->{consecutive})
+    unless $stats->{consecutive} && $stats->{consecutive} >= 2;
 
-  if ($stats->{numbered} >= 5) {
+  if ($stats->{numbered} && $stats->{numbered} >= 5) {
     $stats->{bouncedpct} = int(.5 + 100*($stats->{numbered} / $stats->{span}));
   }
 
