@@ -1,5 +1,8 @@
 Mon Aug  2 19:20:18 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Digest.pm (trigger): Initialize digest state to sane
+ 	values if necessary.
+
 	* lib/Majordomo.pm (reject): Don't clobber the given token string
  	if it doesn't turn out to be a real token.
 	(_showtokens): Call get_done when finished enumerating the tokens.

@@ -3310,7 +3310,6 @@ sub rekey {
     $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
 			       "rekey", $user);
 
-
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $error);

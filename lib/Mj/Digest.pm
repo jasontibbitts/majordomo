@@ -192,6 +192,13 @@ sub trigger {
   $run ||= $self->{digests};
 
   for $i (@{$run}) {
+    unless ($state->{$i}) {
+      $state->{$i}{messages} = [];
+      $state->{$i}{lastrun}  = 0;
+      $state->{$i}{bytecount}= 0;
+      $state->{$i}{newest}   = 0;
+      $change = 1;
+    }
     $push = $force || $self->decide($state->{$i}, $self->{decision}{$i});
     $change ||= $push;
     if ($push) {
