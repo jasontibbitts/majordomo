@@ -312,10 +312,11 @@ sub parse_part {
       }
 
     # The command is pretty close to legal; go ahead and print the line and
-    # a message if we skipped any garbage
+    # a message if we skipped any garbage.
     if ($garbage > 1) {
-      printf $outhandle ("**** Skipped %d additional line%s of unrecognized text.\n\n",
-                         $garbage-1, $garbage==2?"":"s")
+      printf $outhandle (
+        "**** Skipped %d additional line%s of unrecognized text.\n\n",
+        $garbage - 1, $garbage == 2 ? "" : "s");
     }
     $garbage = 0;
     print $outhandle $out;
@@ -326,8 +327,19 @@ sub parse_part {
     # by the above call to command_legal.
     if ($true_command eq "approve") {
       ($password, $command, $cmdargs) = split(" ", $cmdargs, 3);
-      $password = '' unless defined $password;
-      $command  = '' unless defined $command;
+
+      unless (defined $password) {
+        print $outhandle 
+          qq(The "approve" command must be followed by a password.\n\n); #XLANG
+        next CMDLINE;
+      }
+
+      unless (defined $command) {
+        print $outhandle 
+          qq(The "approve" command must be followed by a command.\n\n); #XLANG
+        next CMDLINE;
+      }
+
       $cmdargs  = '' unless defined $cmdargs;
 
       # Pull off a command mode
@@ -340,7 +352,7 @@ sub parse_part {
       unless (defined($true_command) &&
               command_prop($true_command, $interface))
         {
-          print $outhandle "Illegal command!\n";
+          print $outhandle qq(The "$command" command is invalid.\n\n);
           next CMDLINE;
         }
     }
@@ -857,7 +869,7 @@ sub parse_args {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
