@@ -4155,7 +4155,7 @@ sub set {
   my $log = new Log::In 30, "$request->{'list'}, $request->{'setting'}";
   my ($ok, $mess);
  
-  unless (defined $request->{'setting'}) {
+  unless ($request->{'setting'}) {
     return (0, "No setting defined.\n");
   }
 
@@ -4172,9 +4172,6 @@ sub set {
     $log->out("noaccess");
     return ($ok, $mess);
   }
-
-  return (0, "Unable to initialize list $list.\n")
-    unless $self->_make_list($list);
 
   $self->_set($request->{'list'}, $request->{'user'}, $request->{'victim'}, 
               $request->{'mode'}, $request->{'cmdline'}, $request->{'setting'},
