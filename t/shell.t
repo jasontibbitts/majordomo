@@ -12,7 +12,7 @@ mkdir "tmp.$$", 0700 || die;
 mkdir "tmp.$$/test", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL/files", 0700 || die;
-mkdir "tmp.$$/test/GLOBAL/files/sessions", 0700 || die;
+mkdir "tmp.$$/test/GLOBAL/sessions", 0700 || die;
 
 # Set a password
 $e = qq!\Qmaster_password set to "gonzo".\n!;
