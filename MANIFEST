@@ -1792,6 +1792,7 @@ files/en/format/wwwusr/.unregister_error
 files/en/format/wwwusr/.unsubscribe
 files/en/format/wwwusr/.unsubscribe_error
 files/en/format/wwwusr/.welcome
+files/en/format/wwwusr/.welcome_choose_email
 files/en/format/wwwusr/.welcome_choose_list
 files/en/format/wwwusr/accept
 files/en/format/wwwusr/alias
@@ -1866,6 +1867,7 @@ files/en/format/wwwusr/unregister_error
 files/en/format/wwwusr/unsubscribe
 files/en/format/wwwusr/unsubscribe_error
 files/en/format/wwwusr/welcome
+files/en/format/wwwusr/welcome_choose_email
 files/en/format/wwwusr/welcome_choose_list
 files/en/forward_loop
 files/en/forwarded_command

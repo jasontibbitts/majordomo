@@ -1,0 +1,18 @@
+<pre>?ERROR</pre>
+<p>
+Please type your e-mail address into the <b>E-mail Address</b> box.   
+Optionally, type your full name into the <b>Name</b> box.  
+Finally, press the <b>Choose Address</b> button.
+
+<p>
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="$COMMAND">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="extra" value="?EXTRA">
+  E-mail Address: <input size="36" name="user" value=""><br>
+  Name: <input size="36" name="name" value="">
+  <input type="submit" value="Choose Address">
+</form>
+
+
