@@ -457,16 +457,16 @@ tokeninfo_foot
 (text, wwwadm, wwwconfirm)  This file displays supplementary information 
 at the bottom of the output.
 
-(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, DATE, ERROR, EXPIRE, 
- CMDPASS, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
 
 tokeninfo_head
 --------------
 (text, wwwadm, wwwconfirm)  This file displays supplementary information 
 at the top of the output.
 
-(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, DATE, ERROR, EXPIRE, 
- CMDPASS, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
 
 welcome
 -------
