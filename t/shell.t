@@ -115,12 +115,12 @@ $r = run('-p gonzo who bleeargh:harumph');
 ok($e, $r);
 
 # 13. Add an alias
-$e = qq!\Qenchanter\@example.com successfully aliased to zork\@example.com.\n!;
+$e = qq!\Qenchanter\@example.com was successfully aliased to zork\@example.com.\n!;
 $r = run('-p gonzo -u zork@example.com alias enchanter@example.com');
 ok($e, $r);
 
 # 14. Add an alias to the first alias
-$e = qq!\Qplanetfall\@example.com successfully aliased to enchanter\@example.com.\n!;
+$e = qq!\Qplanetfall\@example.com was successfully aliased to enchanter\@example.com.\n!;
 $r = run('-p gonzo -u enchanter@example.com alias planetfall@example.com');
 ok($e, $r);
 
