@@ -60,10 +60,10 @@ it was chosen, but comments have no impact on how the setting works.
 
 
 See Also:
-   help put               (for how to store files in the list's file space)
-   help configset filedir (for where the list's file space is)
-   help configset welcome (determines if welcome messages are sent)
-   help variables         (for a list of all possible variables and what they mean)
+   help configset_welcome (determines if welcome messages are sent)
+   help get               (to retrieve files from the list's file space)
+   help put               (to store files in the list's file space)
+   help variables         (for an explanation of substitution variables)
 
 For a list of all help topics send this one-line message
    help topics
