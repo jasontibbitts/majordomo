@@ -68,7 +68,7 @@ $::log->add
    log_args    => 1,
   );
 
-$::log->in(20, undef, "info", "Majordomo - ".scalar(localtime));
+$::log->in(20, undef, "info", "Majordomo WWW Admin - ".scalar(localtime)." from $ENV{'REMOTE_ADDR'}");
 $::log->startup_time();
 
 # Start up the page and parse the URL
@@ -136,12 +136,12 @@ command:
 <option> which
 <option> who-enhanced
 </select>
-<input size=24 name=extra value='$extra'>
+<input size=24 name=extra value="$extra">
 <input type=checkbox name=st $st>show pending requests<br>
 password:
-<input size=14 name=passw type=password value=$passw>
+<input size=14 name=passw type=password value="$passw">
 mailing list:
-<input size=14 name=list value=$list>
+<input size=14 name=list value="$list">
 <input type=submit value="Issue command">
 </form>
 EOM
@@ -164,8 +164,7 @@ no strict 'refs';
 # Make sure the command is valid
 unless (defined ${Mj::TextOutput::}{$func}) {
   print "Illegal command: $func\n";
-  $::log->message(50, "info",  
-    "Invalid command $command in request from $ENV{'REMOTE_ADDR'} at " . time);
+  $::log->message(50, "info",  "Invalid command $func in form data.");
   exit 0;
 }
 # Make sure the list name is valid
@@ -178,8 +177,7 @@ if ($list ne '') {
   }
   else {
     print "<h3>Invalid list name: $list</h3>\n";
-    $::log->message(50, "info",  
-      "Invalid list $list in request from $ENV{'REMOTE_ADDR'} at " . time);
+    $::log->message(50, "info",  "Invalid list $list in form data.");
     exit 0; 
   }
 }
@@ -201,8 +199,7 @@ elsif ($passw ne '') {
                                "mjwww", $list, $func);
   if ($ok <= 0) {
     print "<h3>The password you provided is invalid</h3>\n";
-    $::log->message(50, "info",  
-      "Invalid password in request from $ENV{'REMOTE_ADDR'} at " . time);
+    $::log->message(50, "info",  "Invalid password in form data.");
     exit 0;
   }
 }
