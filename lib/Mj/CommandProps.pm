@@ -384,7 +384,7 @@ my %commands =
     'parser' => [qw(email shell real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'mismatch',
+		   'default' => 'confirm',
 		   'legal'   => \%reg_legal,
 		   'actions' => \%actions,
 		  },

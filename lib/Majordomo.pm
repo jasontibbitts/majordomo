@@ -3449,11 +3449,17 @@ sub set {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $addr, $setting) = @_;
   my $log = new Log::In 30, "$list, $addr, $setting";
-  my ($isflag, $ok, $raction);
+  my ($isflag, $ok, $mess, $raction);
  
-  # Check access
-
   $self->_make_list($list);
+  ($ok, $mess) =
+    $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
+                 $list, 'set', $user, $addr, $setting, '', '');
+  unless ($ok > 0) {
+    $log->out("noaccess");
+    return ($ok, $mess);
+  }
+
   return $self->{'lists'}{$list}->set($addr, $setting);
 }
 
