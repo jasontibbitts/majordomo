@@ -3,3 +3,6 @@ or "subscribe" can be limited, and there are the two special cases
 (see "help post" and "help access"). This is a very powerful and
 unfortunately somewhat complicated mechanism for precisely restricting
 access to Majordomo functions.
+
+Full syntax is described in "help configset access_rules".
+
