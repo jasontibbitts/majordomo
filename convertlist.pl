@@ -193,7 +193,13 @@ EOM
 
   print CMD "default password $pw\n";
 
-  print CMD "createlist $list $owner\n";
+  if ($config{master_password}) {
+    print CMD "createlist-pass $list $config{master_password} $owner\n";
+    delete $config{master_password};
+  }
+  else {
+    print CMD "createlist $list $owner\n";
+  }
 
   # Pick apart the restrict_post variable and build auxlists.
   if (length $config{restrict_post}) {
