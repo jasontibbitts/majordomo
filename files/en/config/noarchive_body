@@ -1,0 +1,4 @@
+If the body of a posted message matches one of these patterns, 
+and the message is stored in the archive of the mailing list, the
+archive command will only display the message if an administrative
+password is used.

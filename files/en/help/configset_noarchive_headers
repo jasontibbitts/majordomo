@@ -1,0 +1,51 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  noarchive_headers <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset listname noarchive_headers <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : "X-no-archive: yes" and "Restrict: no-external-archive"
+Data Type     : taboo_headers
+Category      : archive moderate
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset GLOBAL noarchive_headers << ENDTAG
+/X-no-archive:\s*yes/i 1,headers
+ENDTAG
+
+$INCLUDE-config/noarchive_headers
+
+The "help patterns" document explains how to write Majordomo patterns.
+In addition to pattern matching, the noarchive_headers setting supports
+special features, such as severity scores and customized access
+variables.  The "help configset_admin_body" document explains how to use
+these features. All syntax and information is identical, but the "nn"
+option (and its comma) which restricts matches to the first few lines is
+not present for headers. Just substitute the string "noarchive_"
+wherever you see "admin_" in that help file.
+
+See "help configset_access_rules" for how to send informative messages
+when one of the noarchive_headers lines matches.
+
+The admin_body, admin_headers, noarchive_body, noarchive_headers,
+taboo_body, and taboo_headers settings have a special characteristic.
+When these six settings are applied to a message that has been posted to
+a mailing list, the patterns in the GLOBAL settings are also used.
+
+See Also:
+   help admin_moderate
+   help configset_access_rules
+   help configset_admin_body
+   help configset_admin_headers
+   help configset_block_headers (for how to block server commands)
+   help configset_noarchive_body
+   help configset_taboo_body
+   help configset_taboo_headers
+   help patterns
+
+$INCLUDE-help/foot
