@@ -234,19 +234,31 @@ exit 1;
 # A simple interactive routine.
 sub parse_interactive {
   my ($in, $pass, $disp) = @_;
-  my ($args, @arglist, $cmd, $cmdline, $defaults, $features, $go,
-      $prompt, $res, $term);
+  my ($args, @arglist, $attr, $cmd, $cmdline, $defaults, $features, $go,
+      $hereline, $hist, $lib, $needmore, $prompt, $res, $stoptag, $term);
 
   $^W = 0;
   require Term::ReadLine;
   $term = Term::ReadLine->new('Interactive Majordomo Shell Interface');
   $^W = 1;
 
-  $prompt = "Majordomo>";
+  $prompt   = "Majordomo>";
   $features = $term->Features;
+  $lib      = $term->ReadLine;
+  $lib      =~ s/.+::(\w+)$/$1/;
+
+  # Do not store lines into the history buffer automatically.  With
+  # multi-line commands, save the whole command as one history entry.
+  $term->MinLine(0);
+
   $term->ornaments(1) if $features->{ornaments} && $opts{ornaments};
-  $readline::rl_completion_function = # Shut up warnings...
-    $readline::rl_completion_function = '::completer';
+
+  # Support command, list, and configuration setting completion.
+  if ($features->{'attribs'}) {
+    $attr = $term->Attribs();
+    $attr->{'completion_function'} = \&completer;
+  }
+
   # values from default commands;
   $defaults = {
                'delay'    => 0,
@@ -256,29 +268,75 @@ sub parse_interactive {
               };
 
   # use Data::Dumper; print Dumper $features;
-  print "Entering Majordomo interactive mode.\n"
-        . "Type majordomo commands.  Use the 'end' command to exit.\n\n";
+  
+  print <<EOM;
+Entering Majordomo interactive mode (using the $lib library).
+Use the 'help command_line' command to get instructions.
+Use the 'end' command to exit.
+
+EOM
 
   while (defined($cmdline = $term->readline($prompt))) {
     $i = $/; $/ = $i; # Silence weird Perl bug
+    $hist = "$cmdline\n";
 
     # Trim leading and trailing whitespace and remove tabs
     $cmdline =~ s/^\s*(.*?)\s*$/$1/;
     $cmdline =~ s/\t/ /g;
 
     @arglist = ();
-    if ($cmdline =~ /^(.*)\s+\<\<\s*([A-Z]{3}[A-Z0-9]*)$/) {
+    # Process multi-line commands.  It must be possible to execute
+    # the commands directly from the history buffer, as well as
+    # from the command prompt.
+    #
+    # First, here documents.
+    if ($cmdline =~ /^([^\n]+)\s+\<\<\s*([A-Z]{3}[A-Z0-9]*)(\n|$)/) {
+      $hereline = $cmdline;
       $cmdline = $1;
-      my $stoptag = $2;
+      $stoptag = $2;
+      $needmore = ($3 ne "\n");
+      unless ($needmore) {
+          @arglist = split "\n", $hereline;
+          shift @arglist;
+          if ($arglist[$#arglist] =~ /^$stoptag$/) {
+            pop @arglist;
+          }
+      }
       # here document
-      my $hereline;
-      while (1) {
+      while ($needmore) {
         $hereline = $term->readline("> ");
+        $hist .= "$hereline\n";
         last if $hereline =~ /^$stoptag$/;
         push @arglist, $hereline;
       }
     }
+    # Second, continuation lines.
+    elsif ($cmdline =~ /^[^\n]+[^\\](\\\\)*\\(\n|$)/) {
+      if ($2 ne "\n") {
+        $cmdline =~ s/\\$/ /;
+        $needmore = 1;
+      }
+      else {
+        $cmdline = join (" ", split (/\\\n/ , $cmdline));
+        if ($cmdline =~ s#([^\\](\\\\)*)\\$#$1#) {
+          $needmore = 1;
+        }
+      }
+      while ($needmore) {
+        $hereline = $term->readline("> ");
+        $hist .= "$hereline\n";
+        if ($hereline =~ s#([^\\](\\\\)*)\\$#$1 #) {
+        }
+        else {
+          $needmore = 0;
+        }
+        $cmdline .=  $hereline;
+      }
+    }
+
     print "\n";
+    chomp($hist);
+    $term->addhistory($hist);
     ($cmd, $args) = $cmdline =~ /(\S+)\s*(.*)/;
     if ($cmd) {
       ($go, $res) = parse_command($cmd, $args, '', $defaults, @arglist);
@@ -456,7 +514,9 @@ sub parse_command {
 
   &{"Mj::Format::$true_command"}($mj, $fh, $fh, 'text', $request, $result);
 
-  # If the 
+  # If the default display command or -P option was used, display
+  # the output of the command in the appropriate external program.
+  #
   if ($display eq 'pager' or $display eq 'editor') {
     # Pull the editor out of the environment and untaint it. This is safe
     # because we only exec the editor as the calling user.
@@ -591,13 +651,13 @@ sub completer {
   # If on the second word after a command, complete as a list
   if ($line =~ /^(\S+)\s*(\S*)$/ && command_prop($1, 'list'))
     {
-      @lists = $mj->get_all_lists($user, $pass, '', 'shell');
+      @lists = $mj->get_all_lists($user, $pass);
       return sort(grep(/^\Q$2\E/, @lists));
     }
   # Complete config variables.  XXX This doesn't handle completion of group
   # names, but I'm inclined to not worry about it.
   if ($line =~ /^config\S+\s+(\S+)\s+(\S*)$/) {
-    @vars = $mj->config_get_vars($user, $pass, '', 'shell', $1, 'ALL');
+    @vars = $mj->config_get_vars($user, $pass, $1, 'MAIN', 'ALL');
     return sort(grep(/^\Q$2\E/, @vars));
   }
   ();
@@ -677,7 +737,10 @@ The B<-p> switch specifies that the command should be executed with the
 given password.  For general information on how passwords work in
 Majordomo, execute
 
-  mj_shell help admin_passwords
+  mj_shell -P help admin_passwords
+
+The "-P" option will cause the help file to be displayed using an
+external pager program, making it easier to read.
 
 =head2 Command modes
 
