@@ -25,6 +25,17 @@ for the month of March, 1999, would be called
 Archives may be organized by year, month, week, or day, at the 
 discretion of the list owners.
 
+Dates can be specified in two formats, depending on the list settings:
+ 1. for a given year, month, or day, use "yyyymmdd" as follows:
+   1999     for the year  of           1999
+   200007   for the month of    July   2000
+   20000802 for the day   of 02 August 2000
+ 2. for a given week, use "yyyymmw" as follows:
+   2000011 for the first week of January 2000
+NOTE: There is a subtle difference between day and week time periods...
+days are always two digits, weeks are always one digit! (this is the
+same date syntax found in "help report")
+
 Within each archive, each message will have a number.  For instance,
 the seventh message in the March, 1999, archive would have the following
 number:
