@@ -359,13 +359,13 @@ sub configure {
 Welcome to the Majordomo automatic configuration system!
 
 This script will guide you through some of the Majordomo configuration
-process.  Of course, it isn\'t finished.... so follow the instructions
-shown at the end of this step. If an existing .mj_config file was found
-and read in, the default answers below will be from that file. If no
-configuration file existed, this is assumed to be a fresh install and
-basic defaults will be provided. Some answers CANNOT be defaulted, even
-if this is a re-install with an existing configuration file, so don't
-just hit ENTER without reading the prompt\!
+process.  Configuring majordomo causes a configuration file (.mj_config)
+to be created.  If an existing .mj_config file was found and read in, 
+the default answers below will be from that file. If no configuration 
+file existed, this is assumed to be a fresh install and basic defaults 
+will be provided. Some answers CANNOT be defaulted, even if this is a 
+re-install with an existing configuration file, so don't just hit ENTER 
+without reading the prompt\!
 
 EOM
   require "setup/ask_basic.pl";
