@@ -483,6 +483,7 @@ files/en/delay
 files/en/delay_noweb
 files/en/digest_preindex
 files/en/error/.absolute_path
+files/en/error/.digest_mode
 files/en/error/.invalid_command
 files/en/error/.invalid_mode
 files/en/error/.invalid_password
@@ -497,6 +498,7 @@ files/en/error/.unknown_setting
 files/en/error/.unknown_token
 files/en/error/.unregistered
 files/en/error/absolute_path
+files/en/error/digest_mode
 files/en/error/invalid_command
 files/en/error/invalid_mode
 files/en/error/invalid_password
