@@ -1,10 +1,9 @@
 #!/usr/local/bin/perl-latest -w
 use Mj::SimpleDB;
 use Mj::Log;
+use Majordomo;
 use Safe;
-
 $Majordomo::safe = new Safe;
-#    $safe->reval('$^W=0');
 $Majordomo::safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
 
 $NUM = 100;

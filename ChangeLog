@@ -1,3 +1,38 @@
+Wed Sep 23 00:16:10 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Inform.pm (inform): Change format of log to use \001 as
+ 	the separator.
+
+	* lib/Mj/Format.pm: Return the core return value, not just 1 or 0.
+	(g_sub): Keep track of successes, failures, etc and return an
+ 	appropriate aggregate value at the end.
+
+	* lib/Mj/Parser.pm (parse_part): Get four-valued return from
+ 	formatting Formatting routine (by way of TextOutput routine) and
+ 	keep track of the exact value.
+
+	* lib/Mj/Archive.pm (add): Various changes; archive count is
+ 	separated a dash from the rest of the archive name.
+
+Tue Sep 22 18:21:21 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/FileRepl.pm (search_copy): Use _re_match in Majordomo.pm.
+
+	* lib/Mj/File.pm (search): Use _re_match in Majordomo.pm.
+
+	* lib/Mj/TextOutput.pm (g_remove): Remove debugging warning.
+	(archive): New function.
+
+	* lib/Mj/Access.pm (_d_password): Fix dumb comparison error.
+
+Mon Sep 21 00:13:06 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Archive.pm (get_message): Keep track of retrieved byte
+ 	count so the caller can't suck past the end of the message.
+
+	* lib/Mj/List.pm (archive_get_start, archive_get_chunk,
+ 	archive_get_done): New functions.
+
 Sun Sep 20 11:16:24 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/CommandProps.pm: Change default actions for unreg and

@@ -69,7 +69,7 @@ sub inform {
   $user ||= ''; $requ ||= '';
 
   # Log the data
-  my $line = join("\t", $list, $req, $requ, $user, $cmd, $int, $stat,
+  my $line = join("\001", $list, $req, $requ, $user, $cmd, $int, $stat,
 		  $pass, $self->{'sessionid'}, time);
   $fh->print("$line\n") ||
     $log->abort("Cannot append to $file, $!");

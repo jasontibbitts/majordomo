@@ -1,5 +1,16 @@
 Notes on upgrading from alpha1 or before:
 
+1998.09.23(CVS):
+
+The format and arrangement of the archives has changed; for each list that
+is archiving, delete all archives and index directories.  You may want to
+save the archives themselves on some other location; eventually there will
+be a tool to incorporate archives.
+
+The format of the logfile has changed; you can convert by doing:
+
+for i in */GLOBAL/_log; do perl -p -i.bak -e 's/\t/\001/g';done
+
 1998.09.20(snapshot):
 Makefile.PL prompts for a new configuration variable; be sure to rerun it.
 

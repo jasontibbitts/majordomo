@@ -128,6 +128,16 @@ my %commands =
 		   'actions' => \%reg_actions,
 		  },
    },
+   'archive' =>
+   {
+    'parser'   => [qw(email shell list real)],
+    'dispatch' => {'top' => 1},
+    'access'   => {
+		   'default' => 'allow',
+		   'legal'   => \%reg_legal,
+		   'actions' => \%reg_actions,
+		  },
+   },
    'auxadd' =>
    {
     'parser' => [qw(email shell list global real)],

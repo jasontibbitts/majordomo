@@ -844,7 +844,7 @@ sub _d_password {
 
   $minlength = $self->_global_config_get('password_min_length');
 
-  if ($args{'password_length'} >= $minlength) {
+  if ($args{'password_length'} < $minlength) {
     shift @_;
     return $self->_a_denymess("Your new password must be at least $minlength characters long.\n", @_);
   }

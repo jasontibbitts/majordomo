@@ -152,12 +152,11 @@ sub parse_part {
   my $extra       = shift;
   my $log         = new Log::In 50, "$interface, $title";
   my (@arglist, @help, $action, $args, $attachhandle, $command, $count,
-      $function, $garbage, $list, $mode, $ok, $ok_count, $out, $password,
-      $replacement, $tlist, $true_command);
+      $fail_count, $function, $garbage, $list, $mode, $ok, $ok_count, $out,
+      $password, $pend_count, $replacement, $tlist, $true_command,
+      $unk_count);
 
-  $count    = 0;
-  $ok_count = 0;
-  $garbage  = 0;
+  $count = $ok_count = $pend_count = $fail_count = $unkj_count = $garbage = 0;
 
  CMDLINE:
   while (defined($_ = $inhandle->getline)) {
@@ -310,8 +309,8 @@ sub parse_part {
       }
       else {
 	print $outhandle "Illegal action \"$action\" for default.\n";
-	$count--;
 	$ok_count--;
+	$fail_count++;
       }
     }
     else {
@@ -328,7 +327,18 @@ sub parse_part {
 					   undef, $interface,
 					   $attachhandle, $outhandle,
 					   $mode, $list, $args, @arglist);
-      $ok_count++ if $ok;
+      if (!defined $ok) {
+	$unk_count++;
+      }
+      elsif ($ok > 0) {
+	$ok_count++;
+      }
+      elsif ($ok < 0) {
+	$pend_count++;
+      }
+      else { # $ok == 0
+	$fail_count++;
+      }
     }
     print $outhandle "\n";
   }
@@ -338,18 +348,75 @@ sub parse_part {
     # Nothing
   }
   elsif ($count == 1) {
-    printf $outhandle "; it %s successful",
-      $ok_count == 1 ? "was" : "was not";
+    if ($fail_count == 1) {
+      printf $outhandle "; it failed",
+    }
+    elsif ($pend_count == 1) {
+      printf $outhandle "; it is pending",
+    }
+    elsif ($ok_count == 1) {
+      printf $outhandle "; it was successful";
+    }
+    elsif ($unk_count == 1) {
+      printf $outhandle "; its status is indeterminate";
+    }
+    else { # Huh?
+      printf $outhandle "; we can't count";
+    }
   }
-  elsif ($ok_count == 1) {
-    print $outhandle "; 1 was successful";
-  }
-  elsif ($ok_count == 0) {
-    print $outhandle "; none were successful";
-  }
+  # We have a number of processed commands; some may be ok, pending,
+  # mixed, or failed
   else {
-    print $outhandle "; $ok_count were successful";
-  }  
+    # Do $ok_count
+    if ($ok_count == 0) {
+      print $outhandle "; none were successful";
+    }
+    elsif ($ok_count == 1) {
+      print $outhandle "; 1 was successful";
+    }
+    elsif ($ok_count == $count) {
+      print $outhandle "; all were successful";
+    }
+    else {
+      print $outhandle "; $ok_count were successful";
+    }
+    # Do $fail_count
+    if ($fail_count == 0) {
+      # Nothing
+    }
+    elsif ($fail_count == $count) {
+      print $outhandle "; all failed";
+    }
+    else {
+      print $outhandle "; $fail_count failed";
+    }
+    # Do $pend_count
+    if ($pend_count == 0) {
+      # Nothing
+    }
+    elsif ($pend_count == 1) {
+      print $outhandle "; 1 is pending";
+    }
+    elsif ($pend_count == $count) {
+      print $outhandle "; all are pending";
+    }
+    else {
+      print $outhandle "; $pend_count are pending";
+    }
+    # Do $unk_count
+    if ($unk_count == 0) {
+      # Nothing
+    }
+    elsif ($unk_count == 1) {
+      print $outhandle "; 1 was mixed";
+    }
+    elsif ($unk_count == $count) {
+      print $outhandle "; all were mixed";
+    }
+    else {
+      print $outhandle "; $unk_count were mixed";
+    }
+  }
   print $outhandle ".\n";
   return $count;
 }

@@ -19,8 +19,62 @@ Bugs?
 
 Messages with empty first part always checksum the same?
 
+You can specify an illegal domain.  Majordomo should bomb and return a
+string (instead of an object ref) when this happens.  The interface should
+return this if it can.
+
 Top of the list 
 ---------------
+
+! Archiver:
+    Retrieve message given archive name and number
+    Retrieve last N messages/message numbers from archive
+    Build index from existing file (sync)
+    Delete message from archive?
+    Automatically add meaningful description to created archive files.
+
+! Digest:
+    Trigger parameters:
+      maximum size
+      maximum messages
+      minimum size
+      minimum messages
+      max age of 1st message
+      min age of last message
+      time(s)
+      runone, runall
+
+if ($age1st > $maxage) {
+  trigger;
+}
+else {
+  if ($size >= $minsize || $msg >= $minmsg) {
+    if ($agelast > $minage) {
+      if (time > $triggertime && $nottriggeredrecently) {
+        trigger;
+      }
+    }
+  }
+}
+
+persistent digest_info:
+ @messages
+ $volume
+ $issue
+ $last_triggered
+ $last_triggered_clock
+
+saved via Data::Dumper.
+
+Way to force the users to use the digest version:
+allowed_subscribtion_classes - array of names of subscription classes that
+users can join without owner's password approval.  'digest' covers all
+digests, 'digest-blah' allows only 'blah' digest.
+
+! Digestifier:
+    Add message number to digest
+    Trigger - ?
+    Build digest given message numbers.
 
 ! Utility method to set the default language from the interface.
   Check the user's chosen language.  Should the language used be that of
@@ -537,56 +591,6 @@ We already support translated long documents.
 
 - mj_resend should go through the dispatcher and use the iterative
   interface instead of the direct post function.
-
-- Archiver:
-    Retrieve message given archive name and number
-    Retrieve last N messages/message numbers from archive
-    Build index from existing file (sync)
-    Delete message from archive?
-    Automatically add meaningful description to created archive files.
-
-- Digest:
-    Trigger parameters:
-      maximum size
-      maximum messages
-      minimum size
-      minimum messages
-      max age of 1st message
-      min age of last message
-      time(s)
-      runone, runall
-
-if ($age1st > $maxage) {
-  trigger;
-}
-else {
-  if ($size >= $minsize || $msg >= $minmsg) {
-    if ($agelast > $minage) {
-      if (time > $triggertime && $nottriggeredrecently) {
-        trigger;
-      }
-    }
-  }
-}
-
-persistent digest_info:
- @messages
- $volume
- $issue
- $last_triggered
- $last_triggered_clock
-
-saved via Data::Dumper.
-
-Way to force the users to use the digest version:
-allowed_subscribtion_classes - array of names of subscription classes that
-users can join without owner's password approval.  'digest' covers all
-digests, 'digest-blah' allows only 'blah' digest.
-
-- Digestifier:
-    Add message number to digest
-    Trigger - ?
-    Build digest given message numbers.
 
 - bounce handling
     Parse all mail to owner alias, looking for bounces.

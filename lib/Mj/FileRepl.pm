@@ -287,7 +287,7 @@ sub search_copy {
   # Else we weren't passed a subroutine.
   while ($line = $self->{'oldhandle'}->getline) {
     for $re (@_) {
-      if (_re_match($re, $line)) {
+      if (Majordomo::_re_match($re, $line)) {
         $::log->out;
         return $line;
       }
@@ -331,17 +331,17 @@ sub _savename {
   return ($1 || "") . ".S" . $2 . $$;
 }
 
-sub _re_match {
-  my $re   = shift;
-  my $addr = shift;
-  my $match;
-  return 1 if $re eq 'ALL';
+# sub _re_match {
+#   my $re   = shift;
+#   my $addr = shift;
+#   my $match;
+#   return 1 if $re eq 'ALL';
 
-  local($^W) = 0;
-  $match = $Majordomo::safe->reval("'$addr' =~ $re");
-  $::log->complain("_re_match error: $@") if $@;
-  return $match;
-}
+#   local($^W) = 0;
+#   $match = $Majordomo::safe->reval("'$addr' =~ $re");
+#   $::log->complain("_re_match error: $@") if $@;
+#   return $match;
+# }
 
 
 =head1 COPYRIGHT

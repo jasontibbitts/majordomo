@@ -60,7 +60,7 @@ sub accept {
 
   if ($ok <= 0) {
     eprint($err, $type, &indicate($mess, $ok));
-    return $ok>0;
+    return $ok;
   }
 
   # Print some basic data
@@ -98,7 +98,20 @@ sub alias {
     eprint($out, $type, "$arg1 not successfully aliased to $user.\n");
     eprint($out, $type, &indicate($mess, $ok));
   }
-  $ok>0;
+  $ok;
+}
+
+sub archive {
+  my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
+      $list, $vict, $arg1, $arg2, $arg3, $ok, $mess, @in) = @_;
+  
+  if ($ok > 0) { 
+    eprint($out, $type, "$mess");
+  }
+  else {
+    eprint($out, $type, &indicate($mess, $ok));
+  }
+  $ok;
 }
 
 # auxsubscribe and auxunsubscribe are formatted by the sub and unsub
@@ -114,7 +127,7 @@ sub auxwho  {
   if ($ok <= 0) {
     eprint($out, $type, "Could not access $sublist:\n");
     eprint($out, $type, &indicate($mess, $ok));
-    return $ok>0;
+    return $ok;
   }
   
   # We know we succeeded
@@ -140,7 +153,7 @@ sub auxwho  {
     ($count || "No"),
     ($count == 1 ? "" : "s"));
 
-  return $ok>0;
+  return $ok;
 }
 
 sub configdef {}
@@ -374,7 +387,7 @@ sub password {
   if ($mess) {
     eprint($out, $type, &indicate($mess, $ok));
   }
-  $ok>0;
+  $ok;
 }
 
 sub post {
@@ -390,7 +403,7 @@ sub post {
   }
   eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
 
-  return $ok>0;
+  return $ok;
 }
 
 sub put {
@@ -412,7 +425,7 @@ sub put {
   }
   eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
 
-  return $ok>0;
+  return $ok;
 } 
 
 sub register {
@@ -437,7 +450,7 @@ sub reject {
   eprint($out, $type, "from session: $sessionid\n");
   eprint($out, $type, "has been rejected.  Further information about this\n");
   eprint($out, $type, "rejection is being sent to responsible parties.\n");
-  $ok>0;
+  $ok;
 }
 
 sub rekey {
@@ -452,7 +465,7 @@ sub rekey {
    eprint($out, $type, "$list not rekeyed.\n");
    eprint($out, $type, &indicate($mess, $ok));
  }
- $ok>0;
+ $ok;
 }
 
 sub sessioninfo {
@@ -650,7 +663,7 @@ sub unalias {
     eprint($out, $type, "Alias from $arg1 to $vict not successfully removed.\n");
     eprint($out, $type, &indicate($mess, $ok));
   }
-  $ok>0;
+  $ok;
 }
 
 sub unregister {
@@ -670,7 +683,7 @@ sub which {
   # Deal with initial failure
   if ($ok <= 0) {
     eprint($out, $type, &indicate($mess, $ok));
-    return $ok>0;
+    return $ok;
   }
 
   $whoami = $mj->global_config_get($user, $pass, $auth, $int,
@@ -720,7 +733,7 @@ sub which {
     eprint($out, $type, "The string '$arg1' appears in no lists\n");
     eprint($out, $type, "served by $whoami.\n");
   }
-  $ok>0;
+  $ok;
 }
 
 # XXX Merge this with sub auxwho above.
@@ -733,7 +746,7 @@ sub who {
   if ($ok <= 0) {
     eprint($out, $type, "Could not access $list:\n");
     eprint($out, $type, &indicate($mess, $ok));
-    return $ok>0;
+    return $ok;
   }
   
   # We know we succeeded
@@ -759,7 +772,7 @@ sub who {
     ($count || "No"),
     ($count == 1 ? "" : "s"));
 
-  return $ok>0;
+  return $ok;
 }
 
 sub g_get {
@@ -809,7 +822,7 @@ sub g_sub {
   my ($act, $mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd,
       $mode, $list, $vict, $arg1, $arg2, $arg3, $ok, $mess) = @_;
   my $log = new Log::In 29, "$act, $type";
-  my ($i, $tok);
+  my ($fail, $good, $i, $pend);
 
   $tok = 0;
   if ($act eq 'sub') {
@@ -843,7 +856,7 @@ sub g_sub {
 
   # Now print the multi-address format.
   if (@$arg1) {
-    $tok = 1;
+    $good = 1;
     eprintf($out, $type, ("The following address%s%s%s:\n",
 		 @$arg1==2 ? " was " : "es were ",
 		 $act, $list));
@@ -856,6 +869,7 @@ sub g_sub {
     }
   }
   if (@$arg2) {
+    $fail = 1;
     eprint($out, $type, "\n") if @$arg1;
     eprintf($out, $type, ("**** The following %s not successfully %s%s:\n",
 		 @$arg2==2 ? "was" : "were", $act, $list));
@@ -868,6 +882,7 @@ sub g_sub {
     }
   }
   if (@$arg3) {
+    $pend = 1;
     eprint($out, $type, "\n") if @$arg1 || @$arg2;
     eprintf($out, $type, ("**** The following require%s additional action:\n",
 		 @$arg3==2 ? "s" : ""));
@@ -879,7 +894,10 @@ sub g_sub {
       }
     }
   }
-  return $tok>0;
+  return  1 if $good && !($fail || $pend);
+  return  0 if $fail && !($good || $pend);
+  return -1 if $pend && !($good || $fail);
+  return undef;
 }
 
 sub eprint {

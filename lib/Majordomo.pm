@@ -2324,12 +2324,10 @@ Useful modes include:
   end of a range is left off, the most recent message or current date is
   used.
 
-  Results are returned in digests.  The type of digest is selected by a
-  mode; normal, MIME and HTML are possibilities.  The digest will be mailed
-  in a separate message.
-
-  An immediate mode returns the text of the messages verbatim, including
-  From_ separators; this is essentially an mbox file.
+  Results are returned in digests unless -immediate is given; in that case,
+  the messages will be returned immediately in mbox format.  The type of
+  digest is selected by a mode; normal, MIME and HTML are possibilities.
+  The digest will be mailed in a separate message.
 
   Other modes ('index', perhaps) could be used to return just the subjects
   of messages or other data (probably an array of everything stored within
@@ -2338,11 +2336,48 @@ Useful modes include:
 =cut
 sub archive {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list, $addr, $name) = @_;
-  
+      $list, $vict, @args) = @_;
+  my $log = new Log::In 30, "$list, @args";
+  my (@msgs, $i, $out);
+
+  $self->_make_list($list);
+
+  if ($mode =~ /get/) {
+    if ($mode =~ /immediate/) {
+      $i = $args[0];
+      return (0, "Message $i does not exist in the archive.\n")
+	unless $self->{'lists'}{$list}->archive_get_start($i);
+      while (defined ($i = $self->{'lists'}{$list}->archive_get_chunk(1000))) {
+	$out .= $i;
+      }
+      $self->{'lists'}{$list}->archive_get_done;
+      return (1, $out);
+    }
+    else { # Not immediate
+      @msgs = $self->{'lists'}{$list}->archive_expand_range(@args);
+    }
+  }
+
+  elsif ($mode =~ /index/) {
+  }
+  elsif ($mode =~ /search/) {
+  }
   1;
+}
+
+sub _archive {
 
 }
+
+sub archive_chunk {
+
+}
+
+sub archive_done {
+
+
+}
+
 
 =head2 auxadd(..., list, name, address)
 

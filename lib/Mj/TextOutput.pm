@@ -115,6 +115,25 @@ sub alias {
 		   );
 }
 
+=head2 archive
+
+Retrieves files and indices from the archive.
+
+=cut
+sub archive {
+  my ($mj, $name, $user, $passwd, $auth, $interface,
+      $infh, $outfh, $mode, $list, $args, @arglist) = @_;
+  my $log = new Log::In 27;
+
+  my @stuff = ($user, $passwd, $auth, $interface,
+	       "archive".($mode?"-$mode":"")." $args", $mode, $list,
+	       $user);
+
+  Mj::Format::archive($mj, $outfh, $outfh, 'text', @stuff, $args, '', '',
+		      $mj->dispatch('archive', @stuff, $args));
+}
+
+
 =head2 auxsubscribe
 
 This adds an address to one of a list''s auxiliary lists.
@@ -1041,7 +1060,6 @@ sub g_remove {
     last unless $i;
     chomp $i;
 
-warn "$type";
     if ($type eq 'auxremove') {
       ($ok, @out) =
 	$mj->dispatch('auxremove', $user, $pass, $auth, $int, 

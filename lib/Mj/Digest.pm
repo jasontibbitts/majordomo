@@ -29,7 +29,7 @@ use strict;
 1;
 __END__
 
-=head2 new(dir, archive, datahashref)
+=head2 new(archive, dir, datahashref)
 
 This creates a digest object.  dir is the place where the digest will store
 its state file (volume, issue, pooled messages, etc).  archive is an
@@ -41,8 +41,8 @@ passed directly from the List object).  It will not be modified.
 =cut
 sub new {
   my $type  = shift;
-  my $dir   = shift;
   my $arc   = shift;
+  my $dir   = shift;
   my $data  = shift;
   my $class = ref($type) || $type;
   my $log   = new Log::In 150, "$dir";

@@ -31,7 +31,6 @@ to add a message.
 =cut
 
 package Mj::Archive;
-use AutoLoader 'AUTOLOAD';
 
 use strict;
 use DirHandle;
@@ -43,8 +42,9 @@ use vars qw(@index_fields);
 @index_fields = qw(byte bytes line lines body_lines quoted split date from
 		   subject refs);
 
+#use AutoLoader 'AUTOLOAD';
 1;   
-__END__
+#__END__
 
 =head2 new(directory, listname, split, size)
 
@@ -154,12 +154,11 @@ sub add {
 
       # Figure out which count to use; take the last file in the list and
       # extract the count from it
-      $sub = (grep(/^$arc\.\d\d/,
+      $sub = (grep(/^$arc-\d\d/,
 		   sort(keys(%{$self->{'archives'}})))
 	     )[-1] || "$arc-$count";
 
-      $sub =~ /.*\.(\d\d)/; $count = $1;
-
+      $sub =~ /.*-(\d\d)/; $count = $1;
       # Grab the counts for the subarchive and open a new archive if
       # necessary. XXX Put the archive in the filespace with an appropriate
       # description if creating a new one.
@@ -201,7 +200,7 @@ sub add {
   # Instantiate the index; implicitly use text (or 'none' if we supported
   # it) here
   unless ($self->{'indices'}{$arc}) {
-    $self->{'indices'}{$arc} = new Mj::SimpleDB("$dir/.index/.I$arc",
+    $self->{'indices'}{$arc} = new Mj::SimpleDB("$dir/.index/I$arc",
 						'text', \@index_fields);
   }
 
@@ -270,17 +269,17 @@ sub get_message {
   my $self = shift;
   my $msg  = shift;
   my $log = new Log::In 150, "$msg";
-  my ($arc, $data, $dir);
+  my ($arc, $data, $dir, $fh, $file, $idx);
 
   # Figure out appropriate index database and message number
   ($arc, $msg) = $msg =~ m!([^/]+)/(.*)!;
   $dir = $self->{dir};
-  $idx = "$dir/.index/.I$arc";
+  $idx = "$dir/.index/I$self->{'list'}.$arc";
+  $file= "$dir/$self->{'list'}.$arc";
 
   # Open the database
   unless ($self->{'indices'}{$arc}) {
-    $self->{'indices'}{$arc} = new Mj::SimpleDB("$dir/.index/.I$arc",
-						'text', \@index_fields);
+    $self->{'indices'}{$arc} = new Mj::SimpleDB($idx, 'text', \@index_fields);
   }
   
   # Look up the data for the message
@@ -288,18 +287,20 @@ sub get_message {
   return unless $data;
 
   # Open FH on appropriate split
-  if (length($data->{split})) {
-    $fh = new Mj::File "$dir/$arc-$data->{split}";
+  if (length($data->{'split'})) {
+    $fh = new Mj::File "$file-$data->{'split'}";
   }
   else {
-    $fh = new Mj::File "$dir/$arc";
+    $fh = new Mj::File "$file";
   }
 
   # Seek to byte offset
-  $fh->seek($data->{byte});
+  $fh->seek($data->{byte}, 0);
 
   # Stuff handle
   $self->{get_handle} = $fh;
+  $self->{get_count}  = 0;
+  $self->{get_max}    = $data->{bytes};
 
   # Return
   $data;
@@ -326,14 +327,23 @@ Starts the iterator on the message containing the given byte.
 This reads a chunk of size bytes from the selected message.  The caller
 should be sure not to read past the end of the message into the next one.
 
+XXX There is probably at least one off-by-one error in here.
+
 =cut
 sub get_chunk {
   my $self = shift;
   my $size = shift;
   my $log  = new Log::In 200, "$size";
-  my $chunk;
+  my ($chunk, $bytes);
 
-  $self->{get_handle}->sysread($chunk, $size);
+  return undef if $self->{get_count} >= $self->{get_max};
+
+  if ($self->{get_count} + $size > $self->{get_max}) {
+    $size = $self->{get_max} - $self->{get_count};
+  }
+  $bytes = $self->{get_handle}->read($chunk, $size);
+  return undef unless $bytes;
+  $self->{get_count} += $bytes;
   $chunk;
 }
 
@@ -367,7 +377,7 @@ sub index_name {
   my $self = shift;
   my $file = shift;
 
-  # Look up archive directory; tack it on, with .I
+  # Look up archive directory; tack it on, with I
 
 }
 
@@ -375,7 +385,7 @@ sub count_name {
   my $self = shift;
   my $file = shift;
 
-  # Look up archive dir, tack on with .C
+  # Look up archive dir, tack on with C
 
 }
 
@@ -434,10 +444,10 @@ sub _read_counts {
 
   return if defined $self->{archives}{$file}{bytes};
 
-  if (-f "$dir/.index/.C$file") {
+  if (-f "$dir/.index/C$file") {
     $self->{archives}{$file}{bytes} = (stat("$dir/$file"))[7];
-    $fh = new IO::File "<$dir/.index/.C$file";
-    $log->abort("Can't read count file $dir/.index/.C$file: $!") unless $fh;
+    $fh = new IO::File "<$dir/.index/C$file";
+    $log->abort("Can't read count file $dir/.index/C$file: $!") unless $fh;
     $tmp = $fh->getline;
     chomp $tmp;
     $self->{archives}{$file}{lines} = $tmp;
@@ -466,12 +476,12 @@ sub _write_counts {
   my $log   = new Log::In 200, "$file";
   my ($fh);
 
-  $fh = new IO::File ">$dir/.index/.C$file";
-  $log->abort("Can't write count file $dir/.index/.C$file: $!") unless $fh;
+  $fh = new IO::File ">$dir/.index/C$file";
+  $log->abort("Can't write count file $dir/.index/C$file: $!") unless $fh;
   $fh->print("$self->{archives}{$file}{lines}\n") ||
-    $log->abort("Can't write count file $dir/.index/.C$file: $!");
+    $log->abort("Can't write count file $dir/.index/C$file: $!");
   $fh->print("$self->{archives}{$file}{msgs}\n") ||
-    $log->abort("Can't write count file $dir/.index/.C$file: $!");
+    $log->abort("Can't write count file $dir/.index/C$file: $!");
   $fh->close;
 }
 
@@ -485,6 +495,74 @@ seek and a sysread.
 =cut
 
 
+=head2 expand_range
+
+Takes a range of articles and expands it into a list of articles.
+
+* By named messages:
+    199805/12 199805/15
+
+  By a range of names:
+    199805/12 - 199805/20
+
+  Ranges of names can span dates:
+    199805/12 - 199806/2
+
+  By date:
+    19980501
+
+  By date range:
+    19980501 - 19980504
+
+A limit on the size of the returned article list can be set.
+
+This must be an archive method because it needs to expand a date to a list
+of article numbers using the index.
+
+=cut
+sub expand_range {
+  my $self = shift;
+  my $lim  = shift;
+  my @args = @_;
+  my (@out, $i, $j);
+
+  # Walk the arg list
+  while (defined($i = shift(@args))) {
+    return @out if $lim && $#out > $lim;
+
+    # Skip commas and bomb on dashes
+    next if $i eq ',';
+    return if $i eq '-';
+
+    # Remove date separators.
+    $i =~ s/[\.\-]//g;
+
+    # Do we have a message or a date?
+    if ($i =~ m!/!) {
+      # Message: look beyond for a range, grab it, expand it
+      if ($args[0] eq '-') {
+	# Parse message range
+	shift @args; $j = shift @args;
+	push @out, $self->_parse_message_range($i, $j);
+      }
+      else {
+	push @out, $i;
+      }
+    }
+    else {
+      if ($args[0] eq '-') {
+	# Date range: expand to list of dates, unshift dates into args
+	shift @args; $j = shift @args;
+	unshift @args, $self->_expand_date_range($i, $j);
+      }
+      else {
+	# Expand date to all messages on that date; push into @out
+	push @out, $self->_expand_date($i);
+      }
+    }
+  }
+  @out;
+}
 
 =head1 COPYRIGHT
 

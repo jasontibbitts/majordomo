@@ -1102,9 +1102,7 @@ sub _make_digest {
 This instantiates the Archive object.
 
 =cut
-
 use Mj::Archive;
-use Data::Dumper;
 sub _make_archive {
   my $self = shift;
   return 1 if $self->{'archive'};
@@ -1258,99 +1256,41 @@ sub archive_add {
   $self->{'archive'}->add(@_);
 }
 
-=head1 Digest functions
+=head2 archive_get_start,chunk,done
 
-These functions prepare data for and interface with the list's Digest object.
-
-=head2 _build_digest_data
-
-XXXXXXXXXXXX Remove this.
-
-This builds the digest information hash for a list.
-
-Note that this is a List method, not a Digest method.  The Digest object
-doesn't have access to the list's config, and so expects an already parsed
-set of rules.  This routine is used to parse the rules.
+Pass through to the archive interface
 
 =cut
-# use Mj::Digest;
-# sub _build_digest_data {
-#   my $self = shift;
-#   my(@dig, $elem, $error, $i, $j, $table);
-  
-#   return if $self->{'digests_loaded'};
-  
-#   @dig = $self->config_get("digests");
-#   ($table, $error) =
-#     parse_table($self->config_get_isarray("digests"), \@dig);
-  
-#   # We expect that the table would have been syntax-checked when it was
-#   # accepted, so we can abort if we get an error.  XXX Oops; this routine
-#   # will be the syntax checker, too, so we need to return something.
-#   if ($error) {
-#     $::log->abort("Received an error while parsing digest table: $error");
-#   }
+sub archive_get_start {
+  my $self = shift;
+  return unless $self->_make_archive;
+  $self->{'archive'}->get_message(@_);
+}
 
-#   $self->{'default_digest'} = $table->[0][0] if $table->[0];
+sub archive_get_chunk {
+  my $self = shift;
+  $self->{'archive'}->get_chunk(@_);
+}
 
-#   for ($i=0; $i<@{$table}; $i++) {
-#     $self->{'digest_data'}{$table->[$i][0]} = {};
-#     $elem = $self->{'digest_data'}{$table->[$i][0]};
+sub archive_get_done {
+  my $self = shift;
+  $self->{'archive'}->get_done(@_);
+}
 
-#     # minsizes
-#     for $j (@{$table->[$i][1]}) {
-#       if ($j =~ /(\d+)m/i) {
-# 	$elem->{'minmsg'} = $1;
-#       }
-#       elsif ($j =~ /(\d+)k/i) {
-# 	$elem->{'minsize'} = $1;
-#       }
-#       else {
-# 	# Error condition XXX
-#       }
-#     }
+sub archive_expand_range {
+  my $self = shift;
+  $self->_make_archive;
+  $self->{'archive'}->expand_range(@_);
+}
 
-#     # maxage
-#     $elem->{'maxage'} = _str_to_offset($table->[$i][2]);
-    
-#     # maxsizes
-#     for $j (@{$table->[$i][3]}) {
-#       if ($j =~ /(\d+)m/i) {
-# 	$elem->{'maxmsg'} = $1;
-#       }
-#       elsif ($j =~ /(\d+)k/i) {
-# 	$elem->{'maxsize'} = $1*1024;
-#       }
-#       else {
-# 	# Error condition XXX
-#       }
-#     }
 
-#     # minage
-#     $elem->{'minage'} = _str_to_offset($table->[$i][4]);
-    
-#     # runall
-#     $elem->{'runall'} = $table->[$i][5] =~ /y/ ? 1 : 0;
+=head1 Digest functions
 
-#     # mime
-#     $elem->{'mime'} = $table->[$i][6] =~ /y/ ? 1 : 0;
-
-#     # times
-#     $elem->{'times'} = [];
-#     for $j (@{$table->[$i][7]}) {
-#       push @{$elem->{'times'}}, _str_to_clock($j);
-#     }
-#     # Give a default of 'anytime'
-#     $elem->{'times'} = [['a', 0, 23]] unless @{$elem->{'times'}};
-
-#     # description
-#     $elem->{'desc'} = $table->[$i][8];
-
-#   }
-#   $self->{'digests_loaded'} = 1;
-# }
+These functions interface with the list''s Digest object.
 
 =head1 COPYRIGHT
+
+
 
 Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
