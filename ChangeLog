@@ -3,6 +3,8 @@ Thu Aug  6 00:10:23 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 	* bin/mj_shell (parse_interactive): New function: interactively
  	parse command lines.  Fancy ornamentation with Term::ReadLine if
  	supported.  --noornaments flag to turn off ornamentation.
+	(parse_command): If after a configedit the editor returns an
+ 	error, abort only after asking.
 
 Wed Aug  5 22:33:24 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 

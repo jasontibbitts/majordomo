@@ -72,12 +72,14 @@ Members of list "test-list":
     tibbs@morpheus.hpc.uh.edu
 1 listed subscriber
 
+The problem here is probably that the results from the configedit are
+tainted.  Normally this doesn't matter because we exit and the results of
+the loaded config file are untainted.  But when we're evaling code created
+from user data in the same session, we can have taint problems.
+
 
 Top of the list 
 ---------------
-
-! Somehow fix problems with vi editors that exit with error codes even if
-  everything is OK.  Perhaps prompt after an error?
 
 ! remove questions from postinstall; instead consult environment
    variables.  Of course, still need to ask for passwords.

@@ -265,9 +265,16 @@ sub parse_command {
       $> = $tmpu; $) = $tmpg;
       
       if ($ok) {  # system has reversed semantics...
-	print "Editor failed: $?\n";
+	print "Editor returned an error: $?\n";
+	$ok = prompt('Abort configedit?', 'yes');
+	if ($ok =~ /^n/i) {
+	  undef $ok; # Dirty trick
+	}
       }
-      else {
+      # Another dirty trick; do this if the system returned a null value
+      # (reversed semantics) or we cleared that after the abort prompt
+      # above.
+      if (!$ok) {
 	if ((stat("$::WTMPDIR/mjs.$$.AAA"))[9] != $modtime) {
 	  # Switch, open, restore
 	  $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
@@ -323,6 +330,21 @@ sub parse_file {
 			   }
 			  );
   return $result;
+}
+
+sub prompt ($;$) {
+  my($mess,$def)=@_;
+  my $ISA_TTY = -t STDIN && -t STDOUT ;
+  Carp::confess("prompt function called without an argument") unless defined $mess;
+  my $dispdef = defined $def ? "[$def] " : " ";
+  $def = defined $def ? $def : "";
+  my $ans;
+  if ($ISA_TTY) {
+    local $|=1;
+    print "$mess $dispdef->";
+    chomp($ans = <STDIN>);
+  }
+  return $ans || $def;
 }
 
 =head1 NAME
