@@ -379,7 +379,7 @@ sub completer {
               # on in the string.
   # At the beginning, any command will do
   if ($pos == 0) {
-    @out = commands_matching("^$word", $ac, ['shell']);
+    @out = commands_matching("^\Q$word\E", $ac, ['shell']);
     return sort @out;
   }
   # If we're completing the password, no completion
@@ -393,20 +393,20 @@ sub completer {
   }
   # If now on a command, complete real commands
   if ($line =~ /^\S*$/) {
-    @out = commands_matching("^$word", $ac, ['shell', 'real']);
+    @out = commands_matching("^\Q$word\E", $ac, ['shell', 'real']);
     return sort @out;
   }
   # If on the second word after a command, complete as a list
   if ($line =~ /^(\S+)\s*(\S*)$/ && command_prop($1, 'list'))
     {
       @lists = $mj->get_all_lists($user, $pass, '', 'shell');
-      return sort(grep(/^$2/, @lists));
+      return sort(grep(/^\Q$2\E/, @lists));
     }
   # Complete config variables.  XXX This doesn't handle completion of group
   # names, but I'm inclined to not worry about it.
   if ($line =~ /^config\S+\s+(\S+)\s+(\S*)$/) {
     @vars = $mj->config_get_vars($user, $pass, '', 'shell', $1, 'ALL');
-    return sort(grep(/^$2/, @vars));
+    return sort(grep(/^\Q$2\E/, @vars));
   }
   ();
 }
