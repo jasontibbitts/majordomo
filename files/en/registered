@@ -1,4 +1,8 @@
-You have been registered at $SITE.
+The address
+
+$USER
+
+has been registered at $SITE.
 Note that you are not yet a member of any lists; you must join them
 individually.
 
@@ -11,10 +15,10 @@ interact with this server.  To use your password when interacting via
 email, you use the 'approve' command.  Some examples follow; note that
 'example' is a fictional list name.
 
-Join the 'example' list without confirming your address:
+To join the 'example' list without confirming your address, send:
 approve $PASSWORD subscribe example
 
-Remove yourself from the 'example' list even if your address changes:
+To remove yourself from the 'example' list even if your address changes, send:
 approve $PASSWORD unsubscribe example $USER
 
 See the help document "passwords" for more information.  To retrieve this

@@ -181,7 +181,7 @@ sub _build_passwd_data {
   my $force = shift;
   my $log   = new Log::In 130, "$list";
 
-  my (@pw, $pw, $i, $j, $k, $table, $error);
+  my (@pw, $addr, $pw, $i, $j, $k, $table, $error);
 
   # Bail quickly if we don't need to do anything
   return if $self->{'pw_loaded'}{$list} && !$force;
@@ -216,11 +216,11 @@ sub _build_passwd_data {
     # Iterate over the records
     for ($i=0; $i<@{$table}; $i++) {
 
-      # First canonicalize each address
+      # First canonize each address
       for ($j=0; $j<@{$table->[$i][2]}; $j++) {
-	# Skip what's obviously not an address
-	next unless $table->[$i][2][$j] =~ /@/;
-	$table->[$i][2][$j] = $self->{'lists'}{$list}->canon($table->[$i][2][$j]);
+	$addr = new Mj::Addr($table->[$i][2][$j]);
+	next unless $addr->valid;
+	$table->[$i][2][$j] = $addr->canon;
       }
 
       # Iterate over each action ($table->[$i][1] is a listref of actions)
@@ -510,8 +510,8 @@ sub list_access_check {
   # Pull in some useful variables; we don't do these earlier because it
   # wastes time if we were given a password (and it can foul up the test
   # code)
-  $sender = $self->_list_config_get($list, "sender");
-  $mj_owner = $self->_global_config_get("whoami_owner");
+  $sender = $self->_list_config_get($list, 'sender');
+  $mj_owner = $self->_global_config_get('sender');
 
   # Now figure out what to do
   for $i (@{$actions}) {
@@ -630,10 +630,21 @@ sub _a_conf_cons {
   # Confirm file, consult file, consult group, consult approvals
   ($file1, $file2, $group, $approvals) = split(/\s*,\s*/,$arg);
 
-  $self->confirm($file1 || "confirm", $list, $request, $requester,
-		 $victim, $mode, $cmdline, 1, $file2 || 'consult',
-		 $group || 'default', $approvals || 1, $file2 ||
-		 'repl_chain', $arg1, $arg2, $arg3);
+  $self->confirm('file'      => $file1 || "confirm",
+		 'list'      => $list,
+		 'request'   => $request,
+		 'requester' => $requester,
+		 'victim'    =>	$victim,
+		 'mode'      => $mode,
+		 'cmdline'   => $cmdline,
+		 'approvals' => 1,
+		 'chain'     => [$file2 || 'consult',
+				 $group || 'default',
+				 $approvals || 1,
+				 $file2 || 'repl_chain',
+				],
+		 'args'      => [$arg1, $arg2, $arg3],
+		);
 
   return (-1, 'repl_confcons');
 }
@@ -643,9 +654,21 @@ sub _a_confirm {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
 
-  $self->confirm($arg || "confirm", $list, $request, $requester, $victim,
-		 $mode, $cmdline, 1, '', '', '', '', $arg1, $arg2, $arg3,
+  $self->confirm('file'      => $arg || 'confirm',
+		 'list'      => $list,
+		 'request'   => $request,
+		 'requester' => $requester,
+		 'victim'    =>	$victim,
+		 'mode'      => $mode,
+		 'cmdline'   => $cmdline,
+		 'approvals' => 1,
+		 'args'      => [$arg1, $arg2, $arg3],
 		);
+
+#  $self->confirm($arg || ($request eq 'post' ? 'confirm_post' : 'confirm'),
+#		 $list, $request, $requester, $victim, $mode, $cmdline, 1,
+#		 '', '', '', '', $arg1, $arg2, $arg3,);
+
   return (-1, 'repl_confirm');
 }
 
@@ -659,10 +682,18 @@ sub _a_consult {
   my ($file, $group, $size);
 
   ($file, $arg, $group, $size) = split(/\s*,\s*/,$arg || "");
-  $self->consult($file || "consult", $group || 'default',
-		 $list, $request, $requester, $victim, $mode, $cmdline,
-		 $arg || 1, '', '', '', '', $arg1, $arg2, $arg3,
+  $self->consult('file'      => $file || "consult",
+		 'group'     => $group || 'default',
+		 'list'      => $list,
+		 'request'   => $request,
+		 'requester' => $requester,
+		 'victim'    => $victim,
+		 'mode'      => $mode,
+		 'cmdline'   => $cmdline,
+		 'approvals' => $arg || 1,
+		 'args'      => [$arg1, $arg2, $arg3],
 		);
+
   return (-1, $request eq 'post' ? 'ack_stall' : 'repl_consult');
 }
 

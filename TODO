@@ -35,15 +35,39 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
+Token::t_add take hashes instead of big, overly complicated lists.
+
+Convert the following to take hashes:
+
+  Access::_a_deny, _a_denymess, _a_allow, _a_conf_cons, _a_confirm,
+    _a_consult, _a_forward, _a_reply, _a_replyfile, _a_mailfile, _a_default
+
+  Access::_d_advertise, _d_password, _d_post, _d_subscribe
+
+Store things like token args as real lists (\002 separated) so that we have
+some expandability there.  Make sure everything passes them around as
+listrefs internally so we never have to worry about counts again.  This
+will break all stored tokens, though...
+
+Need to pass additional context-specific data to consult/confirm routines.
+First make Token routines take hashes, then pass an additional hashref of
+subs.  Then Access::_a_* should accept this and pass it on.  
+
+Mj::TokenDB - need some kind of multilevel structure and a way to store
+arbitrary data in a token.  Perhaps can the entire database thing and start
+from scratch with a DB-based system.  Use Storable?
+
+Have a separate file for post consultation/confirmation reminders.
+
 Queueing:
 
   Runners automatically exit after processing some number of messages (to
-  prevent memory leaks).
+  prevent the accumulation of memory leaks).
 
   Server does the same, only some much larger number as it does no
   allocations.
 
-Allow mj_email/mj_euqueue to be setuid under qmail, if the user wants it.
+Allow mj_email/mj_enqueue to be setuid under qmail, if the user wants it.
 
 Make sure cached configurations don't persist past config file changes.
 
@@ -51,6 +75,8 @@ Add option to set umask of generated alias files.
 
 Don't show the user variables that they can't change.  (Make their values
 visible to the interface but don't have configshow display them).
+
+
 
 - add nonterminal access_rules.  Now we take the first matching, but we
   could act and keep going.  This could be used to add reasons to a list,

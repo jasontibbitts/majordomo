@@ -62,7 +62,7 @@ $Mj::Config::default_string = q(
  'moderator'            => undef,
  'moderators'           => [],
  'moderator_group'      => 0,
- 'sender'               => $list eq 'GLOBAL' ? "majordomo-owner" : "$list-owner",
+ 'sender'               => $list eq 'GLOBAL' ? 'DEFAULT' : "$list-owner",
  'maxlength'            => 40000,
  'precedence'           => "bulk",
  'reply_to'             => undef,
@@ -148,7 +148,18 @@ $Mj::Config::default_string = q(
  'return_subject'       => 1,
  'chunksize'            => 1000,
  'welcome'              => 1,
- 'welcome_files'        => [],
+ 'welcome_files'        => ($list eq 'GLOBAL' ?
+			    [
+			     'You have been registered at $SITE.',
+			     'registered | NS',
+			    ]
+			    :
+			    [
+			     'Welcome to the $LIST mailing list!',
+			     'welcome | NS',
+			     'List introductory information',
+			     'info | PS',
+			    ]),
  'file_search'          => [':$LANG', ':'],
  'file_share'           => [],
  'filedir'              => undef,

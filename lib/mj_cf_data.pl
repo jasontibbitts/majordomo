@@ -377,7 +377,7 @@ EOC
    {
     'type'   => 'address',
     'groups' => [qw(resend)],
-    'visible'=> 0,
+    'visible'=> 1,
     'global' => 1,
     'local'  => 1,
     'mutable'=> 1,
@@ -770,15 +770,15 @@ EOC
     'local'  => 1,
     'visible'=> 1,
    },
-   'whoami_owner' =>
-   {
-    'type'   => 'address',
-    'groups' => [qw(majordomo)],
-    'global' => 1,
-    'local'  => 1,
-    'visible'=> 1,
-    'mutable'=> 1,
-   },
+    'whoami_owner' =>
+    {
+     'type'   => 'address',
+     'groups' => [qw(majordomo)],
+     'global' => 1,
+     'local'  => 1,
+     'visible'=> 1,
+     'mutable'=> 1,
+    },
    'owners' =>
    {
     'type'   => 'address_array',

@@ -88,6 +88,7 @@ use AutoLoader 'AUTOLOAD';
 __END__
 
 use Mj::MIMEParser;
+use File::Copy mv;
 sub post {
   my($self, $user, $passwd, $auth, $int, $cmd, $mode, $list, $file) = @_;
   my ($owner,                # The list owner address
@@ -106,10 +107,11 @@ sub post {
       $desc,
       $c_type,
       $c_t_encoding,
-      $approved,
-      $fileinfo,
-      $subs,
-      $ack_attach,
+      $approved,             # Is the message approved?
+      $fileinfo,             # Info from list_file_get
+      $subs,                 # Hash of substitutions
+      $ack_attach,           # Should acks attach the message (fron config)
+      $spool,                # File to spool 
      );
   my $log = new Log::In 30, "$list, $user, $file"; 
   $tmpdir = $self->_global_config_get("tmpdir");
@@ -180,16 +182,29 @@ sub post {
     $ok = 1;
   }
   else {
+    # Generate a spool filename, just in case we have to stash the message.
+    # Just call t_gen and make sure the file doesn't exist
+    while (1) {
+      $spool = $self->t_gen;
+      last unless -f "$self->{ldir}/GLOBAL/spool/$spool";
+    }
+
     ($ok, $mess, $fileinfo) =
       $self->list_access_check
 	($passwd, undef, $int, $mode, $cmd, $list, "post", $user, '',
-	 $file, join("\002", @$reasons), join("\002", %$avars), %$avars);
+	 "$self->{ldir}/GLOBAL/spool/$spool", join("\002", @$reasons),
+	 join("\002", %$avars), %$avars);
   }
 
   $owner = $self->_list_config_get($list, 'sender');
   if ($ok > 0) {
     return $self->_post($list, $user, $user, $mode, $cmd,
 			$file, '', join("\002", %$avars), $ent);
+  }
+
+  # If the request is stalled, we need to spool the file.
+  if ($ok < 0) {
+    mv($file, "$self->{ldir}/GLOBAL/spool/$spool");
   }
 
   # Some substitutions will be done by the access routine, but we have
@@ -199,7 +214,7 @@ sub post {
 	   SUBJECT  => ($ent->head->get('subject') || '(none)'),
 	   VERSION  => $Majordomo::VERSION,
 	   MJ       => $self->_global_config_get('whoami'),
-	   MJOWNER  => $self->_global_config_get('whoami_owner'),
+	   MJOWNER  => $self->_global_config_get('sender'),
 	   SITE     => $self->_global_config_get('site_name'),
 	   WHEREAMI => $self->_global_config_get('whereami'),
 	  };
@@ -338,14 +353,12 @@ sub _post {
     $ent[0] = $ent;
   }
   else {
-    ($file) = $self->_list_file_get('GLOBAL', "spool/$file", undef, undef, 1);
-    my $fh = new IO::File "<$file";
+    open SPOOL, "<$file";
     my $mime_parser = new Mj::MIMEParser;
     $mime_parser->output_to_core($self->_global_config_get("max_in_core"));
     $mime_parser->output_dir($tmpdir);
     $mime_parser->output_prefix("mjr");
-    $ent[0] = $mime_parser->read($fh);
-    $fh->close;
+    $ent[0] = $mime_parser->read(SPOOL);
   }
 
   # Trim off approvals, get back a new entity
@@ -399,6 +412,9 @@ sub _post {
      },
     );
 
+  # We're done with the file by this point, so we should remove it.
+  unlink $file;
+
   # Only call this if we got back a message number because there isn't an
   # archive around if we didn't.
   if ($msgnum) {
@@ -427,7 +443,7 @@ sub _post {
 	   SUBJECT  => $subject,
 	   WHEREAMI => $whereami,
 	   MJ       => $self->_global_config_get('whoami'),
-	   MJOWNER  => $self->_global_config_get('whoami_owner'),
+	   MJOWNER  => $self->_global_config_get('sender'),
 	   SITE     => $self->_global_config_get('site_name'),
 	  };
 

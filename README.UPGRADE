@@ -1,5 +1,9 @@
 Notes on upgrading from alpha1 or before:
 
+1999.05.22 (CVS):
+
+The 'whoami_owner' variable is now deprecated; use 'sender' instead.
+
 1999.04.01 (CVS):
 
 Backslashes in help files no longer need to be escaped, only expansion

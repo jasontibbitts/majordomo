@@ -666,7 +666,7 @@ sub put {
 This adds a user to the registration database without adding them to any
 lists.
 
-Modes: password - a password is passed as the first argu,ent
+Modes: password - a password is passed as the first argument
 
 else a password will be randomly generated.
 
@@ -678,15 +678,20 @@ sub register {
   my (@addresses, @bad, @good, @maybe, $arg1, $arg2, $cmd, $i, $mess, $ok,
       $pw);
 
+  # If given a password, it's the first argument and anything left over is
+  # an address.
   ($arg1, $arg2) = split(/\s+/, $args, 2);
-  if ($infh && $mode !~ /pass/) {
-    $addresses[0] = $arg1; $pw = '';
-    $cmd = "register".($mode?"=$mode":"")." ";
-  }
-  else {
+  if ($mode =~ /pass/) {
     $addresses[0] = $arg2; $pw = $arg1;
     $cmd = "register".($mode?"=$mode":"")." $pw ";
   }
+  else {
+    $addresses[0] = $arg1; $pw = '';
+    $cmd = "register".($mode?"=$mode":"")." ";
+  }
+
+  # If we weren't given any addresses, look in the provided arguments, then
+  # just use the user's address.
   @addresses = @arglist unless $addresses[0];
   @addresses = $user unless $addresses[0];
 

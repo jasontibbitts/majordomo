@@ -2033,23 +2033,23 @@ sub parse_welcome_files {
   return (0, "Error parsing: $error")
     if $error;
 
-  # Check for an empty table and supply a default; the 'welcome' and 'info'
-  # files should always exist in the GLOBAL filespace
-  unless (@$table) {
-    $table =
-      [
-       [
-	'Welcome to the $LIST mailing list!',
-	'welcome',
-	'NS',
-       ],
-       [
-	"List introductory information",
-	'info',
-	'PS',
-       ],
-      ];
-  }
+#   # Check for an empty table and supply a default; the 'welcome' and 'info'
+#   # files should always exist in the GLOBAL filespace
+#   unless (@$table) {
+#     $table =
+#       [
+#        [
+# 	'Welcome to the $LIST mailing list!',
+# 	'welcome',
+# 	'NS',
+#        ],
+#        [
+# 	"List introductory information",
+# 	'info',
+# 	'PS',
+#        ],
+#       ];
+#   }
 
   for ($i=0; $i < @$table; $i++) {
     return (0, "Illegal flags $table->[$i][2]")

@@ -1,3 +1,137 @@
+Tue Jun  1 22:34:01 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (dispatch): Make sure that $user is defined and
+ 	nonzero; when we allocate Mj::Addr objects, we want to make sure
+ 	that they are valid.  (They can be anomymous.)
+
+Thu May 27 00:49:15 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Unlink the message file appropriately.
+	(post): Spool the message ourselves in the case of stalls; this
+ 	removes lots of the special casing from the Token.pm routines and
+ 	costs very little in terms of extra code here.  Use t_gen to get
+ 	random strings for the name and just make sure another file of
+ 	that name doesn't exist.  Use a different spool directory (outside
+ 	of the filespace) to do this.
+
+	* lib/mj_cf_data.pl: 'sender' must be visible for emailed commands
+ 	to work.
+
+	* lib/Mj/Token.pm (t_remove): No need to unspool; a higher level
+ 	can take care of that itself if necessary.
+	(confirm): Don't do spooling.
+	(consult): Ditto.
+	(t_accept): Don't try to play any filename games.
+
+	* bin/mj_queuerun (resend): Don't use the the iterative functions;
+ 	instead, just submit the queue file directly.  post() may move
+ 	this file into its spool area, so be careful not to bomb unlinking
+ 	it.
+
+Wed May 26 00:25:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queuerun: Change queue directory location throughout.
+
+	* bin/mj_enqueue (in): Move location of queue directory into
+ 	persistent (instead of temporary) storage; this makes spooling
+ 	files for approval a rename instead of a copy.
+
+	* setup/setup_func.pl (create_dirs_dom): Make new spool directory
+ 	outside of the filespace.
+
+Sun May 23 00:06:44 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_shutdown: New script; ask mj_queueserv to exit.
+
+	* postinstall: Add mj_shutdown script to be installed.
+
+	* Makefile.PL: Add mj_shutdown script to be installed.
+
+	* bin/mj_enqueue: Send a greeting string to the queue server at startup.
+
+	* bin/mj_queueserv: Add logic to shut down when requested.
+
+	* lib/Majordomo.pm (list_config_get): Don't check for validity of
+ 	the address if it's not defined.
+	(reject): Don't delete the session of the rejected token before
+ 	we've had a chance to read it.
+
+	* lib/Mj/Token.pm (confirm): Request that _list_file_get not fail.
+
+	* lib/Majordomo.pm (_list_file_get): Accept new $nofail parameter
+ 	so that a file is always returned, even if it's not terribly
+ 	useful.
+
+	* lib/Mj/Resend.pm (_post): _list_file_get takes six parameters
+ 	now.
+
+Sat May 22 19:02:26 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queuerun (run_queue): Add processing of queue files sent
+ 	to majordomo-owner (which don't have a list in the filename).
+
+	* lib/Mj/Token.pm: Make sure everything sent has reasonable From:,
+ 	To: and Reply-To: headers when appropriate.
+
+	* lib/Mj/Access.pm: Change whoami_owner to
+ 	sender.
+
+	* lib/Mj/MailOut.pm: Change whoami_owner to sender.
+
+	* lib/Mj/Token.pm: Change whoami_owner to sender.
+
+	* lib/Mj/Resend.pm: Change whoami_owner to sender.
+
+	* bin/mj_queuerun (parse_commands): Change whoami_owner to sender.
+
+	* bin/mj_email (parse_commands): Change whoami_owner to sender.
+
+	* lib/Majordomo.pm: Various changes from whoami_owner to sender.
+
+	* lib/Mj/Access.pm (_build_passwd_data): Fix problem calling old
+ 	'canon' routine.
+
+Thu May 20 22:38:28 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Token.pm (consult): Change some headers in various mailed
+ 	messages.
+
+	* lib/Mj/TextOutput.pm (register): Fix bug that registered the
+ 	wrong address.
+
+	* lib/Mj/Config.pm (parse_welcome_files): Remove the special
+ 	meaning of an "empty table".
+
+	* lib/mj_cf_defs.pl: Add defaults for welcome_files so that
+ 	registrations get something more useful and to allow removal of
+ 	the special "empty table" checking in
+ 	Mj::Config::parse_welcome_files.
+
+Mon May 17 18:41:32 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_email (connect_and_parse): Don't use Reply-To: for the
+ 	user address; reply-to rerely means that.
+
+	* bin/mj_queuerun: Ditto.
+
+Wed May 12 22:28:47 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/List.pm: Add 'noack' to flags table.
+
+Tue Apr 20 01:13:06 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queuerun (connect_and_parse): Don't exit if we can't
+ 	connect (that was dumb).  Instead return an empty list.
+	(respond_with_file): If connect_and_parse didn't return anything,
+ 	don't call the dispatcher.
+	(parse_commands): Return straight away if connect_and_parse
+ 	didn't return anything.
+
+Mon Apr 19 22:56:41 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queueserv: Use DEFAULT for SIGCHLD instead of IGNORE so
+ 	we at least get auto-reap.
+
 Sun Apr 18 00:31:30 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* bin/mj_enqueue: Make use of hardcoded constants to avoid loading

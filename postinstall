@@ -33,7 +33,7 @@ $quiet = $ENV{QUIET};
 $| = 1;
 
 # List of script files to be installed.
-@sidscripts = (qw(mj_resend mj_shell mj_confirm));
+@sidscripts = (qw(mj_resend mj_shell mj_confirm mj_shutdown));
 @scripts = (qw(mj_trigger mj_queueserv mj_queuerun));
 
 if ($config->{mta} eq 'sendmail') {

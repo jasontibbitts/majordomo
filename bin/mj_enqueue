@@ -35,7 +35,12 @@ use Socket;
 #use Fcntl qw(:flock :DEFAULT);
 use Getopt::Std;
 use strict;
+
+
 sub logmsg { print STDERR "[$$].Enqueue: @_\n"; }
+sub out { logmsg("Out: $_[1]"); syswrite($_[0], $_[1], length($_[1])) }
+sub in  { logmsg("In..."); sysread($_[0], $_, 1024); logmsg("In: $_"); $_ };
+
 my (%opts, $dom, $i, $line, $ok, $pid, $rendezvous, $q1, $q2, $q3, $qdir,
     $qfile, $qfunc);
 
@@ -75,12 +80,12 @@ elsif ($opts{'q'}) { $qfunc = 'request'  }
 elsif ($opts{'r'}) { $qfunc = 'list'     }
 
 # Figure out the queue directory and make sure everything exists.
-$qdir = "$::TMPDIR/queue/$opts{'P'}/$dom/$opts{'p'}/$qfunc";
-smkdir("$::TMPDIR",                                  0777);
-smkdir("$::TMPDIR/queue",                            0777);
-smkdir("$::TMPDIR/queue/$opts{'P'}",                 0777);
-smkdir("$::TMPDIR/queue/$opts{'P'}/$dom",            0777);
-smkdir("$::TMPDIR/queue/$opts{'P'}/$dom/$opts{'p'}", 0777);
+$qdir = "$::LISTDIR/QUEUE/$opts{'P'}/$dom/$opts{'p'}/$qfunc";
+smkdir("$::LISTDIR",                                  0777);
+smkdir("$::LISTDIR/QUEUE",                            0777);
+smkdir("$::LISTDIR/QUEUE/$opts{'P'}",                 0777);
+smkdir("$::LISTDIR/QUEUE/$opts{'P'}/$dom",            0777);
+smkdir("$::LISTDIR/QUEUE/$opts{'P'}/$dom/$opts{'p'}", 0777);
 smkdir("$qdir",                                      0777);
 
 # Construct some strings 
@@ -159,7 +164,12 @@ for ($i = 0; $i < 10 || die "connect: $!"; $i++) {
   }
   $ok ||= connect(SOCK, sockaddr_un($rendezvous));
 }
-while (defined($line = <SOCK>)) {
+
+# Send a greeting to the server
+out(*SOCK, "Hello.\n");
+
+# Get a response
+while ($line = in(*SOCK)) {
   logmsg "$line";
 }
 
@@ -245,6 +255,17 @@ sub smkdir {
   }
 }
 
+=head1 NAME
+
+mj_enqueue - Add a message to the incoming message queue.
+
+=head1 SYNOPSIS
+
+B<mj_enqueue>
+
+=head1 DESCRIPTION
+
+Blah.
 
 =head1 COPYRIGHT
 

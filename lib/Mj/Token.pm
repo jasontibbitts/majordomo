@@ -127,27 +127,19 @@ sub t_add {
   return $token;
 }
 
-=head2 t_remove(token, unspool)
+=head2 t_remove(token)
 
-Removes a token from the database.  If optional argument unspool is true,
-also deletes the file "spool/$token" from the GLOBAL FileSpace, if it
-exists.
-
+Removes a token from the database.
 =cut
 sub t_remove {
   my $self = shift;
   my $tok  = shift;
-  my $unsp = shift;
   my $log  = new Log::In 150, "$tok";
   $self->_make_tokendb;
-  if ($unsp) {
-    $self->_list_file_delete('GLOBAL', "spool/$tok", 1);
-  }
   $self->{'tokendb'}->remove("", $tok);
 }
 
-=head2 confirm(file, user, list, request, cmdline, approvals, chain1,
-chain2, chain3, chain4, arglist)
+=head2 confirm(file, arghash)
 
 This adds a token to the database and mails out the confirmation notice.
 
@@ -164,12 +156,12 @@ filename, approval count, moderator group, group size (?)
 =cut
 use MIME::Entity;
 sub confirm {
-  my ($self, $fname, $list, $request, $requester, $victim, $mode,
-      $cmdline, $approvals, $chain1, $chain2, $chain3, $chain4, $arg1,
-      $arg2, $arg3) = @_;
+  my ($self, %args) = @_;
+
   my $log  = new Log::In 50;
   my (%file, $repl, $token, $data, $ent, $sender, $url, $file, $mj_addr,
       $mj_owner, $expire, $expire_days, $desc, $remind, $remind_days);
+  my $list = $args{'list'};
 
   $self->_make_tokendb;
 
@@ -180,28 +172,24 @@ sub confirm {
   $remind = time+86400*$remind_days;
 
   # Make a token and add it to the database
-  $token = $self->t_add('confirm', $list, $request, $requester,
-			$victim, $mode, $cmdline, $approvals, $chain1,
-			$chain2, $chain3, $chain4, $arg1, $arg2,
-			$arg3, $expire, $remind);
+  $token = $self->t_add('confirm', $list, $args{'request'},
+			$args{'requester'}, $args{'victim'}, $args{'mode'},
+			$args{'cmdline'}, $args{'approvals'},
+			@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
+			$expire, $remind);
 
-  # Spool away the message if doing a post request
-  if ($request eq 'post') {
-    $self->_list_file_put('GLOBAL', "spool/$token", $arg1, 'overwrite',
-			  "Spooled awaiting acceptance of $token",
-			  'message/rfc822', 'ISO-8859-1', '8bit', 'en',
-			  'w');
-  }
-
-  # Extract the file from storage
-  ($file, %file) = $self->_list_file_get($list, $fname);
-  
-  $log->abort("Couldn't get $fname from $list")
-    unless $file;
+#   # Spool away the message if doing a post request
+#   if ($args{'request'} eq 'post') {
+#     $self->_list_file_put('GLOBAL', "spool/$token", $args{'args'}[0],
+# 			  'overwrite',
+# 			  "Spooled awaiting acceptance of $token",
+# 			  'message/rfc822', 'ISO-8859-1', '8bit',
+# 			  'en', 'w');
+#   }
 
   $sender   = $self->_list_config_get($list, 'sender');
   $mj_addr  = $self->_global_config_get('whoami');
-  $mj_owner = $self->_global_config_get('whoami_owner');
+  $mj_owner = $self->_global_config_get('sender');
   $url = $self->_global_config_get('confirm_url');
   $url = $self->substitute_vars_string($url,
 				       {'TOKEN' => $token,},
@@ -214,20 +202,21 @@ sub confirm {
 	   'URL'        => $url,
 	   'EXPIRE'     => $expire_days,
 	   'REMIND'     => $remind_days,
-	   'REQUESTER'  => $requester,
-	   'REQUESTOR'  => $requester,
-	   'VICTIM'     => $victim,
-	   'APPROVALS'  => $approvals,
-	   'CMDLINE'    => $cmdline,
-	   'REQUEST'    => $request,
+	   'REQUESTER'  => $args{'requester'},
+	   'REQUESTOR'  => $args{'requester'},
+	   'VICTIM'     => $args{'victim'},
+	   'APPROVALS'  => $args{'approvals'},
+	   'CMDLINE'    => $args{'cmdline'},
+	   'REQUEST'    => $args{'request'},
 	   'LIST'       => $list,
 	   'SESSIONID'  => $self->{'sessionid'},
-	   'ARG1'       => $arg1,
-	   'ARG2'       => $arg2,
-	   'ARG3'       => $arg3,
+	   'ARG1'       => $args{'arg1'},
+	   'ARG2'       => $args{'arg2'},
+	   'ARG3'       => $args{'arg3'},
 	  };
 
-  $file = $self->substitute_vars($file, $repl);
+  # Extract the file from storage
+  ($file, %file) = $self->_list_file_get($list, $args{'file'}, $repl, 1);
   $desc = $self->substitute_vars_string($file{'description'}, $repl);
 
   # Send it off
@@ -238,14 +227,14 @@ sub confirm {
      Charset     => $file{'charset'},
      Encoding    => $file{'c_t_encoding'},
      Filename    => undef,
-     To          => "$victim",
+     -To         => "$args{'victim'}", # Note explicit stringification
      -From       => $mj_addr,
      '-Reply-To' => $mj_addr,
      -Subject    => "$token : $desc",
      'Content-Language:' => $file{'language'},
     );
 
-  $self->mail_entity($mj_owner, $ent, $victim);
+  $self->mail_entity($mj_owner, $ent, $args{'victim'});
 
   $ent->purge;
 }
@@ -274,7 +263,7 @@ XXX This really needs to be looked at very closely.
 
 This function takes:
 
-  fname - name of template file to mail to owner
+  file  - name of template file to mail to owner
   group - name of moderator group to use
   list
   request
@@ -283,11 +272,7 @@ This function takes:
   mode
   cmdline
   approvals - number of approvals required
-  chain1 - 
-  chain2 - useless, really, since we don''t chain
-  chain3 - consultation tokens.
-  chain4 - 
-  arg1-3 - arguments for the real command
+  args - listref of (currently 3) arguments for the real command
 
 Rearrange these.  Add moderator pool size.  Add some way to tell that the
 token came from a consultation, so that we can send the results to the
@@ -296,18 +281,16 @@ proper place.
 =cut
 use MIME::Entity;
 sub consult {
-  my ($self, $fname, $group, $list, $request, $requester, $victim,
-      $mode, $cmdline, $approvals, $chain1, $chain2, $chain3, $chain4,
-      $arg1, $arg2, $arg3, $sessionid) = @_;
+  my ($self, %args) = @_;
   my $log  = new Log::In 50;
   my (%file, @mod1, @mod2, $data, $desc, $ent, $expire, $expire_days,
-      $file, $mj_addr, $mj_owner, $remind, $remind_days, $repl, $sender,
-      $subject, $tmp, $token, $url);
+      $file, $group, $mj_addr, $mj_owner, $remind, $remind_days, $repl,
+      $sender, $subject, $tmp, $token, $url);
+  my $list = $args{'list'};
 
   $self->_make_tokendb;
 
-#  $cmdline = "(post to $list)" if $request eq "post";
-  $sessionid ||= $self->{'sessionid'};
+  $args{'sessionid'} ||= $self->{'sessionid'};
 
   $expire_days = $self->_list_config_get($list, "token_lifetime");
   $expire = time+86400*$expire_days;
@@ -315,15 +298,16 @@ sub consult {
   $remind = time+86400*$remind_days;
 
   # Make a token and add it to the database
-  $token = $self->t_add('consult', $list, $request, $requester,
-			$victim, $mode, $cmdline, $approvals, $chain1,
-			$chain2, $chain3, $chain4, $arg1, $arg2,
-			$arg3, $expire, $remind);
+  $token = $self->t_add('consult', $list, $args{'request'},
+			$args{'requester'}, $args{'victim'}, $args{'mode'},
+			$args{'cmdline'}, $args{'approvals'},
+			@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
+			$expire, $remind);
 
-  $sender = $self->_list_config_get($list, "sender");
-  $mj_addr  = $self->_global_config_get("whoami");
-  $mj_owner = $self->_global_config_get("whoami_owner");
-  $url = $self->_global_config_get("confirm_url");
+  $sender = $self->_list_config_get($list, 'sender');
+  $mj_addr  = $self->_global_config_get('whoami');
+  $mj_owner = $self->_global_config_get('sender');
+  $url = $self->_global_config_get('confirm_url');
   $url = $self->substitute_vars_string($url,
 				       {'TOKEN' => $token,},
 				      );
@@ -347,32 +331,34 @@ sub consult {
     $mod2[0] = $self->_list_config_get($list, 'moderator') || $sender;
   }
 
-  # For post requests, the consult message we send to the
-  # owner/moderator has to include the entire original message (since
-  # they'll want to read it).  Since we also want to enable the old
-  # edit-the-message-to-approve-it thing, we can't include anything
-  # else.  We do give a useful content-type, though.  This is going to
-  # be a sticking point.
-  if ($request eq 'post') {
-    # Drop the message into storage
-    $self->_list_file_put('GLOBAL', "spool/$token", $arg1, 'overwrite',
-			  "Spooled awaiting acceptance of $token",
-			  'message/rfc822', 'ISO-8859-1', '8bit', 'en',
-			  'w');
+  # For post requests, the consult message we send to the owner/moderator
+  # has to include the entire original message (since they'll want to read
+  # it).  Since we also want to enable the old
+  # edit-the-message-to-approve-it thing, we can't include anything else.
+  # We do give a useful content-type, though.  This is going to be a
+  # sticking point; it should be configurable ('old_style_consult').
+  if ($args{'request'} eq 'post') {
+    # Drop the message into storage unless we're chained (in which case the
+    # message is already in storage, but under the wrong name)
+#     $self->_list_file_put('GLOBAL', "spool/$token", $args{'args'}[0],
+# 			  'overwrite', "Spooled awaiting acceptance of $token",
+# 			  'message/rfc822', 'ISO-8859-1', '8bit',
+# 			  'en', 'w')
+#       unless $args{'chained'};
 
-    
     # Build a mesage
     $subject = "$token : CONSULT $list";
-    if ($arg2) {
-      ($tmp = $arg2) =~ s/\002/\n /g;
+    if ($args{'args'}[1]) {
+      ($tmp = $args{'args'}[1]) =~ s/\002/\n /g;
       $subject .= "\n $tmp";
     }
     $ent = build MIME::Entity
       (
-       Path            => $arg1,
+       Path            => $args{'args'}[0],
        Type            => 'message/rfc822',
        Encoding        => '8bit',
        Filename        => undef,
+       -To             => $sender,
        -From           => $sender,
        '-X-Mj-Confirm' => $url,
        '-Reply-To'     => $mj_addr,
@@ -381,17 +367,12 @@ sub consult {
     $ent->head->modify(0);
     $ent->head->add('Subject', $subject);
 
-    $self->mail_entity($mj_addr, $ent, @mod2);
+    $self->mail_entity($mj_owner, $ent, @mod2);
     return;
   }
 
   # Not doing a post, so we send a form letter.
-  # Extract the file from storage:
-  ($file, %file) = $self->_list_file_get($list, $fname);
-  
-  $::log->abort("Couldn't get $fname from $list")
-    unless $file;
-
+  # First, build our big hash of substitutions.
   $repl = {'OWNER'      => $sender,
 	   'MJ'         => $mj_addr,
 	   'MJOWNER'    => $mj_owner,
@@ -399,20 +380,21 @@ sub consult {
 	   'URL'        => $url,
 	   'EXPIRE'     => $expire_days,
 	   'REMIND'     => $remind_days,
-	   'REQUESTER'  => $requester,
-	   'REQUESTOR'  => $requester,
-	   'VICTIM'     => $victim,
-	   'APPROVALS'  => $approvals,
-	   'CMDLINE'    => $cmdline,
-	   'REQUEST'    => $request,
+	   'REQUESTER'  => $args{'requester'},
+	   'REQUESTOR'  => $args{'requester'},
+	   'VICTIM'     => $args{'victim'},
+	   'APPROVALS'  => $args{'approvals'},
+	   'CMDLINE'    => $args{'cmdline'},
+	   'REQUEST'    => $args{'request'},
 	   'LIST'       => $list,
 	   'SESSIONID'  => $self->{'sessionid'},
-	   'ARG1'       => $arg1,
-	   'REASONS'    => $arg2,
-	   'ARG3'       => $arg3,
+	   'ARG1'       => $args{'args'}[0],
+	   'REASONS'    => $args{'args'}[1],
+	   'ARG3'       => $args{'args'}[2],
 	  };
 
-  $file = $self->substitute_vars($file, $repl);
+  # Extract the file from storage:
+  ($file, %file) = $self->_list_file_get($list, $args{'file'}, $repl, 1);
   $desc = $self->substitute_vars_string($file{'description'}, $repl);
 
   # Send it off
@@ -423,7 +405,8 @@ sub consult {
      Charset     => $file{'charset'},
      Encoding    => $file{'c_t_encoding'},
      Filename    => undef,
-     -From       => $mj_addr,
+     -To         => $sender,
+     -From       => $sender,
      '-Reply-To' => $mj_addr,
      -Subject    => "$token : $desc",
      'Content-Language:' => $file{'language'},
@@ -474,33 +457,32 @@ sub t_accept {
   return (0, "Nonexistant token \"$token\"!\n") unless $data;
   
   # Tick off one approval
-  # XXX Note that more approvals are stull required.
+  # XXX Note that more approvals are still required.
   $data->{'approvals'}--;
   if ($data->{'approvals'} > 0) {
     $self->{'tokendb'}->replace("", $token, $data);
     return (-1, '', $data, -1);
   }
 
-  # All of the necessary approvals have been gathered.  Make sure we don't
-  # now have to ask the list owner.
+  # All of the necessary approvals have been gathered.  Now, this may be a
+  # chained token where we need to generate yet another token and send it
+  # to another source.
   if ($data->{'chain1'}) {
 
-    # We have a confirm+consult token.  Generate the consult token
-    # from it
-    $self->consult($data->{'chain1'},
-		   $data->{'chain2'},
-		   $data->{'list'},
-		   $data->{'request'},
-		   $data->{'requester'},
-		   $data->{'victim'},
-		   $data->{'mode'},
-		   $data->{'cmdline'},
-		   $data->{'chain3'},
-		   '', '', '',
-		   $data->{'arg1'},
-		   $data->{'arg2'},
-		   $data->{'arg3'},
-		   $data->{'sessionid',}
+    # We have a confirm+consult token, the first half was just accepted.
+    # Generate the new consult token
+    $self->consult('chained'   => 1,
+		   'file'      => $data->{'chain1'},
+		   'group'     => $data->{'chain2'},
+		   'list'      => $data->{'list'},
+		   'request'   => $data->{'request'},
+		   'requester' => $data->{'requester'},
+		   'victim'    => $data->{'victim'},
+		   'mode'      => $data->{'mode'},
+		   'cmdline'   => $data->{'cmdline'},
+		   'sessionid' => $data->{'sessionid'},
+		   'approvals' => $data->{'chain3'},
+		   'args'      => [$data->{'arg1'}, $data->{'arg2'}, $data->{'arg3'}],
 		  );
     $self->t_remove($token);
 
@@ -533,14 +515,13 @@ sub t_accept {
 		       $vict,
 		       $data->{'mode'},
 		       $data->{'cmdline'},
-		       # really, really, really gross hack
-		       ($data->{'request'} eq 'post' ? $token : $data->{'arg1'}),
+		       $data->{'arg1'},
 		       $data->{'arg2'},
 		       $data->{'arg3'},
 		      );
 
-  # Nuke the token, and delete any spooled files associated with it.
-  $self->t_remove($token, 1);
+  # Nuke the token
+  $self->t_remove($token);
 
   # If we're accepting a confirm token, we can just return the results
   # so that they'll be formatted by the core accept routine.
@@ -696,7 +677,7 @@ sub t_remind {
 
     # Grab some global variables
     $mj_addr  = $self->_global_config_get('whoami');
-    $mj_owner = $self->_global_config_get('whoami_owner');
+    $mj_owner = $self->_global_config_get('sender');
     $gurl = $self->_global_config_get('confirm_url');
 
     while (($token, $data) = splice(@reminded, 0, 2)) {
@@ -753,9 +734,11 @@ sub t_remind {
       # Mail it out; the victim gets confirm notices, otherwise the owner
       # gets them
       if ($data->{type} eq 'confirm') {
+	$ent->head->replace('To', $data->{'victim'});
 	$self->mail_entity($mj_owner, $ent, $data->{'victim'});
       }
       else {
+	$ent->head->replace('To', $sender);
 	$self->mail_entity($mj_owner, $ent, $sender);
       }
 	
@@ -799,7 +782,9 @@ sub t_expire {
   # Unspool any spooled documents relating to the nuked tokens
   @kill = @nuked;
   while (($key, $data) = splice(@nuked, 0, 2)) {
-    $self->_list_file_delete('GLOBAL', "spool/$key");
+    if ($data->{'request'} eq 'post') {
+      unlink "$self->{ldir}/GLOBAL/spool/$data->{arg1}";
+    }
   }
   return @nuked;
 }

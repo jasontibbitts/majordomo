@@ -59,9 +59,9 @@ sub create_dirs_dom {
   safe_mkdir("$l/$d",                    0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/$d/GLOBAL",             0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/$d/GLOBAL/sessions",    0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir("$l/$d/GLOBAL/spool",       0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/$d/GLOBAL/files",       0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/$d/GLOBAL/files/public",0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$l/$d/GLOBAL/files/spool", 0777 & ~oct($um), $uid, $gid);dot;
 
   # Make the dotfiles so they show up properly in an index
   open DF, ">$l/$d/GLOBAL/files/.spool"
@@ -130,7 +130,8 @@ sub do_default_config {
     s!(^ \'whoami\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{whoami}$2!;
     s!(^ \'whoami_owner\'.*)DEFAULT(.*)!$1$owner$2!;
     s!(^ \'owners\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{owner}$2!;
-    
+    s!(^ \'sender\'.*)DEFAULT(.*)!$1$owner$2!;
+
     for $i (qw(tmpdir site_name)) {
       $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
       s!(^ \'$i\'.*)DEFAULT(.*)!$1$arg$2!;

@@ -306,8 +306,7 @@ sub connect_and_parse {
   $head->unfold;
   $::log->out;
 
-  $user = $head->get('reply-to') || $head->get('from') ||
-      $head->get('apparently-from');
+  $user = $head->get('from') || $head->get('apparently-from');
   chomp $user;
 
 
@@ -421,9 +420,9 @@ sub parse_commands {
   $head->replace('to'     , $user);
   $head->replace('subject', "Majordomo results$sub_addin");
   $head->replace('from'   , $mj->global_config_get(undef, undef, undef,
-						   "email", "whoami"));
+						   'email', 'whoami'));
   
-  $sender = $mj->global_config_get(undef, undef, undef, "email", "whoami_owner");
+  $sender = $mj->global_config_get(undef, undef, undef, 'email', 'sender');
   $::log->delete($debug_log) if defined $debug_log;
   open BLAH, ">$::TMPDIR/mje.$$.final" ||
     $::log->abort("Couldn't open final output file, $!");

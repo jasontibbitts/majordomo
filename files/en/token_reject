@@ -1,4 +1,5 @@
-You have recently rejected token $TOKEN from $MJ.
+You have recently rejected token $TOKEN from
+$MJ.
 
 Because rejected tokens can be the result of attempted forgery or
 mailbombing, this message is being sent to inform you of everything that is

@@ -6,6 +6,7 @@
 $files =
   {
    # English
+   'en/file_not_found'          => ['File not found',                                  'us-ascii', '7bit'],
    'en/ack_denial'              => ['Denied post to $LIST',                            'us-ascii', '7bit'],
    'en/ack_rejection'           => ['Rejection',                                       'us-ascii', '7bit'],
    'en/ack_stall'               => ['Stalled post to $LIST',                           'us-ascii', '7bit'],

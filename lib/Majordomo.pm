@@ -192,6 +192,12 @@ sub new {
   $self;
 }
 
+sub DESTROY {
+  my $self = shift;
+  undef $self->{alias};
+}
+
+
 =head2 connect(interface, sessinfo)
 
 Connect a session to the Majordomo object.
@@ -298,6 +304,7 @@ sub dispatch {
   ($base_fun = $fun) =~ s/_(start|chunk|done)$//;
   $continued = 1 if $fun =~ /_(chunk|done)/;
   $list ||= 'GLOBAL';
+  $user ||= 'unknown@anonymous';
   $vict ||= $user;
   $mode ||= '';
 
@@ -866,7 +873,7 @@ sub list_config_get {
 
   # Make sure we have a real user before checking passwords
   $user = new Mj::Addr($user);
-  return unless $user->isvalid;
+  return unless $user && $user->isvalid;
 
   for $i ($self->config_get_groups($var)) {
     $ok = $self->validate_passwd($user, $passwd, $auth, $interface,
@@ -1465,7 +1472,7 @@ sub help_start {
   }
 
   $whoami = $self->_global_config_get('whoami'),
-  $wowner = $self->_global_config_get('whoami_owner'),
+  $wowner = $self->_global_config_get('sender'),
 
   $subs =
     {VERSION  => $Majordomo::VERSION,
@@ -1618,7 +1625,7 @@ sub _password {
     $sender = $self->_global_config_get('sender');
     $whereami = $self->_global_config_get('whereami');
     $majord   = $self->_global_config_get('whoami');
-    $majord_own = $self->_global_config_get('whoami_owner');
+    $majord_own = $self->_global_config_get('sender');
     $site       = $self->_global_config_get('site_name');
 
     $subst = {
@@ -1771,9 +1778,9 @@ sub _request_response {
   $sender = $self->_list_config_get($list, 'sender');
   $whereami = $self->_global_config_get('whereami');
   $majord   = $self->_global_config_get('whoami');
-  $majord_own = $self->_global_config_get('whoami_owner');
+  $majord_own = $self->_global_config_get('sender');
   $site       = $self->_global_config_get('site_name');
-  $list_own   = $self->_list_config_get($list, 'whoami_owner');
+  $list_own   = $self->_list_config_get($list, 'sender');
 
   $subst = {
 	    REQUEST   => "$list-request\@$whereami",
@@ -1850,7 +1857,7 @@ sub _index {
 }
   
 
-=head2 _list_file_get(list, file, subs, lang, force)
+=head2 _list_file_get(list, file, subs, nofail, lang, force)
 
 This forms the basic internal interface to a list''s (virtual) filespace.
 All core routines which need to retrieve files should use this function as
@@ -1861,6 +1868,10 @@ the search list and handling the share_list.
 
 If $subs is defined, it should be a hashref of substitutions to be made;
 substitute_vars will be called automatically.
+
+If $nofail is defined, this function will never fail to return a file, even
+if the file is not found.  Instead, it will emit a warning and return a
+generic "file not found" file.
 
 If $lang is defined, it is used in place of any default_language setting.
 
@@ -1874,6 +1885,7 @@ sub _list_file_get {
   my $list  = shift;
   my $file  = shift;
   my $subs  = shift;
+  my $nofail= shift;
   my $lang  = shift;
   my $force = shift;
   my $log  = new Log::In 130, "$list, $file";
@@ -1949,6 +1961,14 @@ sub _list_file_get {
       }
       return @out;
     }
+  }
+
+  # If we get here, we didn't find anything that matched at all so if so
+  # instructed we pull out the file of last resort.
+  if ($nofail) {
+    @out = $self->_get_stock('en/file_not_found');
+    $log->complain("Requested file $file not found");
+    return @out;
   }
   return;
 }
@@ -2908,7 +2928,7 @@ sub _digest {
 	     VERSION  => $Majordomo::VERSION,
 	     WHEREAMI => $whereami,
 	     MJ       => $self->_global_config_get('whoami'),
-	     MJOWNER  => $self->_global_config_get('whoami_owner'),
+	     MJOWNER  => $self->_global_config_get('sender'),
 	     SITE     => $self->_global_config_get('site_name'),
 	    };
     $deliveries = {};
@@ -3057,13 +3077,13 @@ sub reject {
   # For confirmation tokens, a rejection is a serious thing.  We send a
   # message to the victim with important information.
   if ($data->{'type'} eq 'confirm') {
-    $list_owner = $self->_list_config_get($data->{'list'}, "sender");
-    $site       = $self->_global_config_get("site_name");
-    $mj_addr    = $self->_global_config_get("whoami");
-    $mj_owner   = $self->_global_config_get("whoami_owner");
+    $list_owner = $self->_list_config_get($data->{'list'}, 'sender');
+    $site       = $self->_global_config_get('site_name');
+    $mj_addr    = $self->_global_config_get('whoami');
+    $mj_owner   = $self->_global_config_get('sender');
 
     # Extract the session data
-    $in = new IO::File(">$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}");
+    $in = new IO::File("$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}");
 
     # If the file no longer exists, what should we do?  We assume it's just
     # a really old token and say so.

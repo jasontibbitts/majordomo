@@ -38,7 +38,7 @@ sub mail_message {
   my $sender = shift;
   my $file   = shift;
   my @addrs  = @_;
-  my $log = new Log::In 30, "$file, $addrs[0]";
+  my $log = new Log::In 30, "$file, $sender, $addrs[0]";
   my (@a, $i);
 
   # Make sure all addresses are stripped before mailing.  If we were given
@@ -173,7 +173,7 @@ sub owner_done {
   $self->_make_list($list);
 
   # Extract the owners
-  $owner  = $self->_list_config_get($list, 'whoami_owner');
+  $owner  = $self->_list_config_get($list, 'sender');
   @owners = @{$self->_list_config_get($list, 'owners')};
 
   # Mail the file
@@ -203,21 +203,21 @@ sub welcome {
       $top, $i, $j);
 
   # Extract some necessary variables from the config files
-  my $whoami        = $self->_global_config_get('whoami');
-  my $whoami_owner  = $self->_global_config_get('whoami_owner');
-  my $whereami      = $self->_global_config_get('whereami');
-  my $tmpdir        = $self->_global_config_get('tmpdir');
-  my $site          = $self->_global_config_get('site_name');
-  my $sender        = $self->_list_config_get($list, 'sender');
-  my $table         = $self->_list_config_get($list, 'welcome_files');
+  my $mj        = $self->_global_config_get('whoami');
+  my $mj__owner = $self->_global_config_get('sender');
+  my $whereami  = $self->_global_config_get('whereami');
+  my $tmpdir    = $self->_global_config_get('tmpdir');
+  my $site      = $self->_global_config_get('site_name');
+  my $sender    = $self->_list_config_get($list, 'sender');
+  my $table     = $self->_list_config_get($list, 'welcome_files');
 
   $subs = {'LIST' => $list,
 	   'REQUEST'  => "$list-request\@$whereami",
-	   'MAJORDOMO'=> $whoami,
-	   'MJ'       => $whoami,
+	   'MAJORDOMO'=> $mj,
+	   'MJ'       => $mj,
 	   'USER'     => $addr,
 	   'SITE'     => $site,
-	   'MJOWNER'  => $whoami_owner,
+	   'MJOWNER'  => $mj_owner,
 	   'OWNER'    => $sender,
 	   %args,
 	  };

@@ -70,11 +70,11 @@ my $config = configure();
 
 # Now we can set these up based on what we got from configure.
 if ($config->{mta} eq 'sendmail') {
-  @SIDSCRIPTS = qw(mj_email mj_enqueue mj_shell mj_confirm);
+  @SIDSCRIPTS = qw(mj_email mj_enqueue mj_shell mj_confirm mj_shutdown);
   @SCRIPTS = qw(mj_trigger mj_queueserv mj_queuerun);
 }
 else {
-  @SIDSCRIPTS = qw(mj_shell mj_confirm);
+  @SIDSCRIPTS = qw(mj_shell mj_confirm mj_shutdown);
   @SCRIPTS = qw(mj_email mj_enqueue mj_trigger mj_queueserv mj_queuerun);
 }
 @EXES = map {"./bin/$_"} @SIDSCRIPTS, @SCRIPTS;

@@ -62,7 +62,6 @@ getopts('t:v:', \%opts);
 $opts{t} ||= $::LISTDIR;
 $opts{t} =~ /(.*)/;
 $opts{t} = $1;
-
 $opts{v} ||= 0;
 
 # Pull in the logging module
@@ -100,6 +99,7 @@ eval '
   use Mj::MIMEParser;
   use Data::Dumper;
   use IO::File;
+#  use Devel::Symdump;
 ';
 $::log->out;
 
@@ -117,17 +117,17 @@ while (1) {
   }
 
   $line = in();
-  if ($line =~ /(Ping \d+)$/) {
-    # The server is pinging us to see if we're alive.  Return the ping and
-    # wait again.  This lets the server know that we're are just sitting
-    # here and to refresh the timeout.  We chop off all but the last bit
-    # because the server may have pinged us multiple times.
-    out($line);
-    next;
-  }
   unless (defined $line && length $line) {
     $::log->message(50, 'info', "Read undef or empty line; server must have died.");
     last;
+  }
+  if ($line =~ /(Ping \d+)$/) {
+    # The server is pinging us to see if we're alive.  Return the ping and
+    # wait again.  This lets the server know that we're just sitting here
+    # and to refresh the timeout.  We chop off all but the last bit because
+    # the server may have pinged us multiple times.
+    out($1);
+    next;
   }
   out('Running queue');
   run_queue();
@@ -138,22 +138,23 @@ exit;
 sub run_queue {
   my $log = new Log::In 25, 'Running queue';
   my(@domains, @functions, @pri1, @pri2, $debug1, $debug2, $dom, $file,
-     $func, $list, $mj, $msg, $ok, $pri1, $pri2);
-
+     $func, $list, $mj, $msg, $ok, $pri1, $pri2, $start, $end);
 
   # Grab the domain priorities from the queue, high priorities first
-  opendir PRI1, "$::TMPDIR/queue" ||
-    $::log->abort("Can't opendir $::TMPDIR/queue: $!");
+  opendir(PRI1, "$::LISTDIR/QUEUE") ||
+    $::log->abort("Can't opendir $::LISTDIR/QUEUE: $!");
   @pri1 = sort {$b <=> $a} grep { $_ !~ /^\./ } readdir PRI1;
+  closedir PRI1;
 
   # Loop over domain priorities
   for $pri1 (@pri1) {
     $pri1 =~ /(.*)/; $pri1 = $1;
 
     # Grab the domains from the queue
-    opendir DOMS, "$::TMPDIR/queue/$pri1" ||
-      $::log->abort("Can't opendir $::TMPDIR/queue/$pri1: $!");
+    opendir(DOMS, "$::LISTDIR/QUEUE/$pri1") ||
+      $::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1: $!");
     @domains = grep { $_ !~ /^\./ } readdir DOMS;
+    closedir DOMS;
 
     # XXX Ramdomize domain list to avoid starvation
 
@@ -164,20 +165,24 @@ sub run_queue {
       # directory.
       $dom =~ /(.*)/; $dom = $1;
 
+#      $start = Devel::Symdump->rnew();
+
       # Grab list priorities from the queue, high priorities first
-      opendir PRI2, "$::TMPDIR/queue/$pri1/$dom" ||
-	$::log->abort("Can't opendir $::TMPDIR/queue/$pri1/$dom: $!");
+      opendir(PRI2, "$::LISTDIR/QUEUE/$pri1/$dom") ||
+	$::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1/$dom: $!");
       @pri2 = sort {$b <=> $a} grep { $_ !~ /^\./ } readdir PRI2;
+      closedir PRI2;
 
       # Loop over list priorities
       for $pri2 (@pri2) {
 	$pri2 =~ /(.*)/; $pri2 = $1;
 
 	# Grab the functions from the queue
-	opendir FUNCS, "$::TMPDIR/queue/$pri1/$dom/$pri2" ||
-	  $::log->abort("Can't opendir $::TMPDIR/queue/$pri1/$dom/$pri2: $!");
+	opendir(FUNCS, "$::LISTDIR/QUEUE/$pri1/$dom/$pri2") ||
+	  $::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1/$dom/$pri2: $!");
 	@functions = grep { $_ !~ /^\./ } readdir FUNCS;
-    
+	closedir FUNCS;
+
 	# XXX Ramdomize function list to avoid starvarion???
 
 	# Loop over functions
@@ -188,8 +193,8 @@ sub run_queue {
 	  $func =~ /(.*)/; $func = $1;
 
 	  # Grab the queue files from the queue
-	  opendir QDIR, "$::TMPDIR/queue/$pri1/$dom/$pri2/$func" ||
-	    $::log->abort("Can't opendir $::TMPDIR/queue/$pri1/$dom/$pri2/$func: $!");
+	  opendir(QDIR, "$::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func") ||
+	    $::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func: $!");
 
 	  # Loop over queue files (no need to randomize; they're in a random
 	  # order and there may be many of them)
@@ -200,7 +205,7 @@ sub run_queue {
 	    # Untaint $msg; this is safe because only we are able to write
 	    # stuff in that directory
 	    $msg =~ /(.*)/; $msg = $1;
-	    $file = "$::TMPDIR/queue/$pri1/$dom/$pri2/$func/$msg";
+	    $file = "$::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func/$msg";
 	    unless (open(MSG, "+< $file")) {
 	      # Some other runner may have deleted the file while we were
 	      # iterating through the directory.  That's OK; note it and go
@@ -219,7 +224,7 @@ sub run_queue {
 	    # Make sure file has nonzero size to avoid a race with mj_enqueue
 	    unless ((stat($file))[7]) {
 	      close MSG;
-	      next;
+	      next MSG;
 	    }
 
 	    # OK, have something to process.  Lazily create a Majordomo object
@@ -243,10 +248,23 @@ sub run_queue {
 	      debug_to('queuerun');
 	      unlink $file;
 	      close MSG;
-	      next;
+	      next MSG;
 	    }
 
-	    # Extract the list name
+	    # Messages to the Majordomo owner address don't have a list on
+	    # the end
+	    if ($func eq 'owner' && $msg =~ /^\w\w\w-\d+$/) {
+	      $log->message(50, 'info', 'Forwarding to majordomo-owner');
+	      debug_to('owner');
+	      forward_to_owner($mj, 'GLOBAL');
+	      debug_to('queuerun');
+	      unlink $file;
+	      close MSG;
+	      next MSG;
+	    }
+
+	    # Else we have something that is associated with a list;
+	    # extract the list name
 	    $msg =~ /^\w\w\w-\d+-(.*)$/; $list = $1;
 
 	    # Now set the logging level to that of the list.
@@ -260,7 +278,7 @@ sub run_queue {
 	    if ($func eq 'list' || $func eq 'resend') {
 	      $log->message(50, 'info', 'Posting message');
 	      debug_to('resend');
-	      resend($mj, $list);
+	      resend($mj, $list, $file);
 	      debug_to('queuerun');
 	    }
 
@@ -299,10 +317,15 @@ sub run_queue {
 	      forward_to_owner($mj, $list || 'GLOBAL');
 	      debug_to('queuerun');
 	    }
-	    unlink $file;
+
+	    # Remove the file, but keep in mind that it may have already
+	    # been moved to some other location (if it was spooled, for
+	    # instance).
+	    unlink $file if -f $file;
 	    close MSG;
 	    $::log->set_level($debug1);
 	  } # $msg
+	  closedir QDIR;
 	} # $func
       } # $pri2
       # undef Majordomo object
@@ -311,6 +334,8 @@ sub run_queue {
 	undef $mj;
 	undef $::mj;
       }
+#      $end = Devel::Symdump->rnew();
+#      warn($start->diff($end));
     } # $dom
   } # $pri1
 } # sub run_queue
@@ -343,32 +368,21 @@ sub forward_to_owner {
   1;
 }
 
-# Resend a message; call post_start, post_chunk, post_done passing in all
+# Resend a message; call post but instead of doing the copy operation, just
+# use the spooled message.  #XXX Beware of who gets to unlink it.
+# call post_start, post_chunk, post_done passing in all
 # of the message.
 sub resend {
-  my ($mj, $list) = @_;
-  my (@out, @stuff, $sess);
-
-  $sess = connect_no_parse($mj, 'resend');
+  my ($mj, $list, $file) = @_;
+  my $sess = connect_no_parse($mj, 'resend');
 
   # Some MTAs hand the message to us with the mbox separator prepended.
   # Sending this on as part of the headers can hose some MTAs, so we strip
   # it.  The regexp doesn't harm the body $sess contains only the headers.
   $sess =~ s/^From .*?\r?\n//;
 
-  @stuff = ('', '', '', 'resend', "(post to $list)", '', $list, '');
-
-  ($ok) = $mj->dispatch('post_start', @stuff);
-  return unless $ok;
-
-  $_ = $sess;
-  while (1) {
-    last unless defined $_;
-    ($ok) = $mj->dispatch('post_chunk', @stuff, $_);
-    return unless $ok;
-    $_ = <MSG>;
-  }
-  ($ok) = $mj->dispatch('post_done', @stuff);
+  ($ok) = $mj->dispatch('post', '', '', '', 'resend', "(post to $list)",
+			'', $list, $file);
   return unless $ok;
   1;
 }
@@ -376,9 +390,10 @@ sub resend {
 # Just call the response_file method.
 sub respond_with_file {
   my ($mj, $list) = @_;
-  my $user;
+  my($ent, $user);
 
-  (undef, undef, $user) = connect_and_parse($mj, 'request');
+  ($ent, undef, $user) = connect_and_parse($mj, 'request');
+  return unless $ent;
   $mj->dispatch('request_response', $user, '', '', 'email', '', '', $list,
 		$user);
   1;
@@ -434,8 +449,7 @@ sub connect_and_parse {
   $head->unfold;
   $::log->out;
 
-  $user = $head->get('reply-to') || $head->get('from') ||
-      $head->get('apparently-from');
+  $user = $head->get('from') || $head->get('apparently-from');
   chomp $user;
 
 
@@ -445,19 +459,13 @@ sub connect_and_parse {
   # Connect can now fail: 0: try again later, undef: bomb with error, > 0:
   # connection ID
 
-  # If it failed, just clean up and exit.  Should probably tell the owner.
+  # If it failed, just clean up and return.  XXX We probably should warn
+  # the owner here.
   unless (defined($ok)) {
     $entity->purge;
-    exit ($opts{'S'} ? 99 : 0);
-    #    $::log->abort("Connect failed: $suser");
+    return;
   }
   
-#   ($ok, $user, undef) = $mj->addr_validate($uuser);
-#   unless ($ok) {
-#     # We can't get the stripped address, so we can't reply
-#     # We should send something to the owner or something
-#     $::log->abort("Invalid return address: $uuser, $user");
-#   }
   ($entity, $head, $suser);
 }
 
@@ -472,6 +480,7 @@ sub parse_commands {
       $sub_addin, $subject, $tag, $tlist, $top, $token, $user);
 
   ($entity, $head, $user) = connect_and_parse($mj, 'email');
+  return unless $entity;
   $subject = $head->get('subject') || "";
 
   # Look for a possible token
@@ -549,11 +558,11 @@ sub parse_commands {
   $head->replace('to'     , $user);
   $head->replace('subject', "Majordomo results$sub_addin");
   $head->replace('from'   , $mj->global_config_get(undef, undef, undef,
-						   "email", "whoami"));
+						   'email', 'whoami'));
   
-  $sender = $mj->global_config_get(undef, undef, undef, "email", "whoami_owner");
+  $sender = $mj->global_config_get(undef, undef, undef, 'email', 'sender');
   $::log->delete($debug_log) if defined $debug_log;
-  open BLAH, ">$::TMPDIR/mje.$$.final" ||
+  open(BLAH, ">$::TMPDIR/mje.$$.final") ||
     $::log->abort("Couldn't open final output file, $!");
   $top->print(\*BLAH);
   close BLAH;
@@ -660,6 +669,5 @@ detailed information.
 
 #
 ### Local Variables: ***
-### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***

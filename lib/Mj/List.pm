@@ -37,6 +37,7 @@ use vars (qw($addr %flags %noflags %classes %digest_types));
   (
    'ackall'       => ['ackall',       0,0,'A'],
    'ackimportant' => ['ackimportant', 2,0,'a'],
+   'noack'        => ['ackall',       1,0,'' ],
    'selfcopy'     => ['selfcopy',     0,1,'S'],
    'hideall'      => ['hideall',      0,0,'H'],
    'hideaddress'  => ['hideall',      2,0,'h'],
