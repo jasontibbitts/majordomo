@@ -1286,15 +1286,14 @@ sub _index {
 
 =head2 _list_file_get(list, file)
 
-This is a prototype interface to a Lists filespace.  All it does right now
-is provide a simple search-list functionality on top of List::fs_get.
+This forms the basic internal interface to a list''s (virtual) filespace.
+All core routines which need to retrieve files should use this function as
+it provides all of the i18n functionality for file access.
 
-$LANG variable which is expanded to the $lang input parameter if given.
+This handles figuring out the list''s default language, properly expanding
+the search list and handling the share_list.
 
-XXX Look up default_language variable for the list.
-
-Allow either to be a comma separated list of languages, searched one at a
-time.
+If $lang is defined, it is used in place of any default_language setting.
 
 =cut
 sub _list_file_get {
@@ -1304,46 +1303,67 @@ sub _list_file_get {
   my $lang  = shift;
   my $force = shift;
   my $log  = new Log::In 130, "$list, $file";
-  my (@search, @share, @out, $ok, $f, $i, $j, $l, $p);
+  my (%paths, @langs, @out, @paths, @search, @share, $ok, $d, $f, $i, $j,
+      $l, $p, $tmp);
 
   $self->_make_list($list);
-  @search = $self->_list_config_get($list, "file_search");
+  @search = $self->_list_config_get($list, 'file_search');
   
- LIST:
+  $lang ||= $self->_list_config_get($list, 'default_language'); 
+  @langs = split(/\s*,\s*/, $lang);
+
+  # Build @paths list; maintain %paths hash to determine uniqueness.
   for $i (@search, 'GLOBAL:$LANG', 'GLOBAL:',
 	  'GLOBAL:stock/$LANG', 'GLOBAL:stock/en')
-    { 
-      # Split up the list and the path
-      ($l, $p) = split(':', $i);
-
-      # Supply defaults
-      $l ||= $list;
-      $p ||= '';
-
-      # Deal with $LANG
-      next if $p =~ /\$LANG/ && !$lang;
-      $p =~ s/\$LANG/$lang/g;
-
+    {
+      # Split and supply defaults
+      ($l, $d) = split(':', $i);
+      $l ||= $list; $d ||= '';
+    
       # Build filename; no leading slashes allowed
-      $f = "$p/$file"; $f =~ s!^/!!;
-
-      # Consult the share list if necessary
-      if ($l ne $list && $l ne 'GLOBAL') {
-       SHARE:
-	for $j ($self->_list_config_get($l, "file_share")) {
-	  if ($j =~ /^\s*$list\s*$/) {
-	    $ok = 1;
-	    last SHARE;
+      $f = "$d/$file"; $f =~ s!^/!!;
+    
+      # Expand if necessary; push into @paths array
+      if ($f =~ /\$LANG/) {
+	for $j (@langs) {
+	  ($tmp = $f) =~ s/\$LANG/$j/g;
+	  unless ($paths{"$l:$tmp"}) {
+	    push @paths, [$l, $tmp];
+	    $paths{"$l:$tmp"} = 1;
 	  }
 	}
-	next LIST unless $ok;
       }
-      # The list shares with us, so we can get the file
-      @out = $self->{'lists'}{$l}->fs_get($f, $force);
-      
-      # We are done if we got something
-      return @out if @out;
+      else {
+	unless ($paths{"$l:$f"}) {
+	  push @paths, [$l, $f];
+	  $paths{"$l:$f"} = 1;
+	}
+      }
     }
+  undef %paths;
+
+  # Now iterate over @paths and search
+ PATH:
+  for $i (@paths) {
+    ($l, $f) = @{$i};
+
+    # Consult the share list if necessary
+    if ($l ne $list && $l ne 'GLOBAL') {
+     SHARE:
+      for $j ($self->_list_config_get($l, "file_share")) {
+	if ($j =~ /^\s*$list\s*$/) {
+	  $ok = 1;
+	  last SHARE;
+	}
+      }
+      next PATH unless $ok;
+    }
+    # The list shares with us, so we can get the file
+    @out = $self->{'lists'}{$l}->fs_get($f, $force);
+    
+    # We are done if we got something
+    return @out if @out;
+  }
   return;
 }
 

@@ -1411,6 +1411,20 @@ value saves memory and decreases performance.  Setting it to 0
 disables internal chunking, and can use very large amounts of memory.
 EOC
    },
+   'default_language' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(language)],
+    'global' => 1,
+    'local'  => 1,
+    'visible'=> 1,
+    'comment'=> <<EOC,
+This sets the default language for the list (or the installation).
+This is overridable by the user in several ways.  Note that at this
+time this is barely implemented.  (Only English messages are supported
+at the moment.)
+EOC
+   },
    'default_lists_format' =>
    {
     'type'   => 'enum',

@@ -1,3 +1,13 @@
+Fri Mar 27 01:03:16 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* .cvsignore: Added some additional goodies.
+
+	* lib/Majordomo.pm (_list_file_get): Reqrite expansion; support
+ 	multiple languages in search list and never search a directory
+ 	more than once.
+
+	* lib/mj_cf_data.pl: Added default_language.
+
 Thu Mar 26 00:35:48 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/SubscriberList.pm: Add new 'warnings' and 'classarg2'

@@ -1,5 +1,9 @@
 Makefile
 blib
+pm_to_blib
+.mj_config
 old*
 wrappers
 .L*
+inst.*
+testdb.*

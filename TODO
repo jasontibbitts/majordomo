@@ -15,6 +15,9 @@ Switch over one of my lists.  (How?  Manually maintain subscription
 Top of the list 
 ---------------
 
+! Warn in installation that tmpdir should not be world writable.  Create
+  this directory during postinstall if necessary.
+
 ! Make sure all sent mails have To: headers.
 
 ! Implement rejection (and perhaps acceptance) messages for tokens, and add
@@ -444,3 +447,6 @@ Allow a 'default prefix' command to specify a prefix to strip from all
 Allow 'approve password' on the line before the command to be approved.
 New 'append' mode to configset to append additional data from a variable
  instead of replacing the existing data.
+Add additional sender information to things like confirmations so that if
+ they bounce, the bounce processor can take care of the generated token and
+ not forward the bounce to the owner.

@@ -5,7 +5,7 @@ mj_cf_defs.pl - default values for config variables
 =head1 DESCRIPTION
 
 This file holds the configuration defaults that are supplied to new lists.
-It is require'd into the config package when the defaults need to be
+It is require''d into the config package when the defaults need to be
 written.  This means that you can put real code to be evaluated here in
 place of the clunky #! mechanism that was there before.  You must use 0 or
 1 for bool values, not "no" and "yes".  Use undef if the keyword has no
@@ -151,5 +151,6 @@ $Mj::Config::default_string = q(
  'inform'               => [],
  'sequence_number'      => 1,
  'bounce_probe_frequency' => 0,
+ 'default_language'     => 'en',
 };
 );
