@@ -1,6 +1,7 @@
 BUGS
 CREDITS
 ChangeLog
+ChangeLog.20000625
 DESIGN
 DEVELOPMENT-FAQ
 GOALS
@@ -426,7 +427,6 @@ files/en/welcome
 files/en/who_registry
 files/en/who_subscriber
 installbin
-lib/Bf/Parser.pm
 lib/Bf/Sender.pm
 lib/Majordomo.pm
 lib/Mj/Access.pm
@@ -434,6 +434,7 @@ lib/Mj/Addr.pm
 lib/Mj/AddressList.pm
 lib/Mj/AliasList.pm
 lib/Mj/Archive.pm
+lib/Mj/BounceParser.pm
 lib/Mj/CommandProps.pm
 lib/Mj/Config.pm
 lib/Mj/Deliver.pm
@@ -449,6 +450,7 @@ lib/Mj/Digest/Build.pm
 lib/Mj/Digest/Index.pm
 lib/Mj/Digest/MIME.pm
 lib/Mj/Digest/Text.pm
+lib/Mj/FakeLog.pm
 lib/Mj/File.pm
 lib/Mj/File.pm.debug
 lib/Mj/FileRepl.pm
@@ -501,6 +503,7 @@ misc/chunk.stats
 misc/dbtest.pl
 misc/domain.regexp
 misc/mime1
+misc/parsebounce.pl
 misc/test-message.1
 misc/test-message.2
 misc/test-message.3
