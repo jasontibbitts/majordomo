@@ -253,7 +253,7 @@ aborts.
 sub sendenvelope {
   my $self = shift;
   my $log  = new Log::In 150;
-  my(%data, $ch, $i, $ok);
+  my(%data, $ch, $host, $i, $ok);
 
   $ch = $self->{'currenthost'};
   
