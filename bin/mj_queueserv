@@ -177,7 +177,7 @@ while (1) {
       $rin = $win = $ein = ''; vec($rin,fileno($child[$i]),1) = 1; $ein = $rin | $win;
       if(select($rout=$rin, $wout=$win, $eout=$ein, 5)) {
 	$line = in($child[$i]);
-	#logmsg "Runner is awake";
+	logmsg "Runner is awake, said $line";
 	$use_child = $i;
       }
       else {

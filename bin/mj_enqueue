@@ -62,6 +62,7 @@ do_qmail() if $opts{'Q'};
 $dom = $opts{'d'} || $::DEFDOM;  $dom =~ /(.*)/; $dom = $1;
 $opts{'p'} = 10 unless defined $opts{'p'};
 $opts{'P'} = 10 unless defined $opts{'P'};
+$opts{'v'} ||= 0;
 
 # Choose the function; the queue name
 if    ($opts{'m'}) { $qfunc = 'majordomo'}
