@@ -218,7 +218,7 @@ a hash containing additional data (currently reply_to, password, deflist,
 and token).
 
 =cut
-use Mj::Util qw(re_match str_to_time);
+use Mj::Util qw(re_match str_to_offset);
 use Mj::CommandProps qw(:command :function);
 use Mj::Format;
 use IO::File;
@@ -414,9 +414,7 @@ sub parse_part {
       }
       elsif ($action eq 'delay') {
         if ($cmdargs) {
-          my ($now) = time;
-          $delay = str_to_time($cmdargs) || $now;
-          $delay -= $now;
+          $delay = str_to_offset($cmdargs) || 0;
         }
         else {
           $delay = 0;
