@@ -109,7 +109,7 @@ not fall into a more specific category (array, enum, or short;
 see below for more details).
 
 (standard plus CGIDATA, CGIURL, COMMENT, PASSWORD, SETCOMMAND, 
- USER, VALUE, VARIABLE)
+ USER, VALUE, SETTING, LEVEL)
 
 
 configshow_array
@@ -119,7 +119,7 @@ configuration setting.  It is used for all settings that require
 an array of values.
 
 (standard plus CGIDATA, CGIURL, COMMENT, LINES, PASSWORD, SETCOMMAND, 
- USER, VALUE, VARIABLE)
+ USER, VALUE, SETTING, LEVEL)
 
 
 configshow_categories
@@ -136,7 +136,7 @@ configuration setting.  It is used for settings, such as subscribe_policy,
 that have one of a specific set of values.
 
 (standard plus CGIDATA, CGIURL, CHECKED, COMMENT, PASSWORD, SELECTED, 
- SETCOMMAND, SETTINGS, USER, VALUE, VARIABLE)
+ SETCOMMAND, SETTINGS, USER, VALUE, SETTING, LEVEL)
 
 
 configshow_error
@@ -180,7 +180,7 @@ configuration setting.  It applies to settings that have short
 (numeric or word) values.
 
 (standard plus CGIDATA, CGIURL, COMMENT, PASSWORD, SETCOMMAND, 
- USER, VALUE, VARIABLE)
+ USER, VALUE, SETTING, LEVEL)
 
 
 error
