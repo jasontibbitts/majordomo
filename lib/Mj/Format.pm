@@ -1056,7 +1056,7 @@ sub lists {
           };
 
   if ($ok <= 0) {
-    $global_subs->{'ERROR'} = $lists[0];
+    $global_subs->{'ERROR'} = &escape($lists[0], $type);
     $tmp = $mj->format_get_string($type, 'lists_error');
     $str = $mj->substitute_vars_format($tmp, $global_subs);
     print $out &indicate("$str\n", $ok, 1);
@@ -1489,9 +1489,11 @@ sub report {
           $mess = sprintf "%-11s %-44s %-7s %s\n", $data->[1],
                   $victim, $outcomes{$data->[6]}, $end;
         }
+
         if ($request->{'mode'} =~ /full/) {
-          # display the session ID and interface.
-          $mess .= sprintf "  %s %s\n", $data->[8], $data->[5];
+          # display the command line, interface, and session ID.
+          $mess .= sprintf "  %s\n  %-16s %s\n\n", 
+                     $data->[4], $data->[5], $data->[8];
         }
      
         eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
@@ -1640,7 +1642,7 @@ sub set {
 
       for $j (keys %$change) {
         next if ($j eq 'partial' or $j eq 'settings');
-        $lsubs->{uc $j} = $change->{$j};
+        $lsubs->{uc $j} = &escape($change->{$j}, $type);
       }
 
       $lsubs->{'CHANGETIME'} = scalar localtime($change->{'changetime'});
@@ -1672,8 +1674,12 @@ sub set {
           $str = '';
         }
 
-        # Is this setting allowed?
-        if ($settings->{'flags'}[$j]->{'allow'} or $type eq 'wwwadm') {
+        if ($type eq 'wwwadm') {
+          $lsubs->{uc "${flag}_CHECKBOX"} =
+            qq(<input name="$lsubs->{'VICTIM'}" value="$flag" type="checkbox" $str>);
+        }
+        elsif ($settings->{'flags'}[$j]->{'allow'}) {
+          # This setting is allowed
           $lsubs->{uc "${flag}_CHECKBOX"} =
             "<input name=\"$list;$flag\" type=\"checkbox\" $str>";
         }
