@@ -11,12 +11,25 @@ use Getopt::Long;
 use Data::Dumper;
 use Carp;
 
-
-my (%opts, @goargs, $conf, $i, $nosep, $sepclear);
+my (%opts, @goargs, @undefined, $check, $clear, $cmdlineop, $complete,
+    $conf, $err, $i, $nosep, $ok, $sepclear);
 
 # Information on all of the settings
 my @var =
   (
+   {
+    'name' => 'sepclear',
+    'type' => 'bool',
+    'desc' => 'Screen Clearing',
+    'ques' => 'Clear the screen before each question?',
+    'post' => sub {
+      require Term::Cap;
+      my $term = Term::Cap->Tgetent({OSPEED=>9600});
+      $clear = $term->Tputs('cl', 0);
+      $nosep = 0;
+      $sepclear = $conf->{sepclear};
+    },
+   },
    {
     'name' => 'site_password',
     'type' => 'str_nospace',
@@ -29,9 +42,12 @@ my @var =
   can be of arbitrary length, but cannot contain spaces.
 ',
    },
+
   );
 
-# Check IDs: must be run as the majordomo user
+# Check IDs: must be run as the majordomo user XXX Run setuid and prompt
+# for pasword?  Allow running as root, changing ownership of any written
+# files?
 if ($> != $::UID || $) != $::GID) {
   print STDERR "This program must be run under the Majordomo user and group:\n";
   print STDERR "   UID: $::UID, GID: $::GID\n";
@@ -41,12 +57,28 @@ if ($> != $::UID || $) != $::GID) {
 # XXX or run setuid and prompt for the password?
 
 # Parse options.  Build option list from @var array, call GetOptions
-@goargs=(qw());
+@goargs=(qw(i));
 for $i (@var) {
   push @goargs, "$i->{name}=s";
 }
-print Dumper \@goargs;
+#print Dumper \@goargs;
 GetOptions(\%opts, @goargs);
+#print Dumper \%opts;
+
+# Check validity of options
+for $i (@var) {
+  if (exists $opts{$i->{name}}) {
+    $check = "check_$i->{type}";
+    {
+      no strict 'refs';
+      ($ok, $err) = &$check($opts{$i->{name}});
+    }
+    unless ($ok) {
+      print STDERR "Error in option $i->{name}: $err\n";
+      exit 1;
+    }
+  }
+}
 
 # If majordomo.cf exists, load it.
 if (-f $::CONFFILE) {
@@ -66,18 +98,73 @@ else {
   $conf = {};
 }
 
+# Fill in config structure from given option, and check to see that every
+# setting has been defined.
+for $i (@var) {
+  if (exists $opts{$i->{name}}) {
+    $conf->{$i->{name}} = $opts{$i->{name}};
+    $cmdlineop = 1;
+  }
+  if (!exists $conf->{$i->{name}}) {
+    push @undefined, $i->{name};
+  }
+}
 
-# Fill in config structure from given options
+#print Dumper \@undefined;
+#print Dumper $conf;
 
 # If no options given (or if interactive option given) go interactive
+if ($opts{i} || !$cmdlineop) {
+  print "\n";
+  interact();
+}
+
+# Check that all settings have been configured.  If not, error out?  Force
+# interactive setup?  It is potentially fatal to leave a setting
+# unconfigured.
 
 # Write out majordomo.cf.  Use given umask?
+
+# As an option, write out an mj_setup command line instead of a
+# majordomo.cf.
 
 
 print "Note: this script does not yet do anything.\n";
 exit 0;
 
 # Various subroutines
+sub interact {
+  my ($def, $i, $name, $prompter);
+  $sepclear = 0; $nosep = 1;
+
+  print <<EOM;
+Welcome to the Majordomo automatic configuration system!
+ 
+This script will guide you through some of the Majordomo configuration
+process.  Configuring majordomo causes a configuration file (.mj_config)
+to be created.  If an existing .mj_config file was found and read in,
+the default answers below will be from that file. If no configuration
+file existed, this is assumed to be a fresh install and basic defaults
+will be provided. Some answers CANNOT be defaulted, even if this is a
+re-install with an existing configuration file, so don't just hit ENTER
+without reading the prompt!
+
+EOM
+
+  for $i (@var) {
+#    print $i->{ques};
+
+    # Default...
+
+    $prompter = "get_$i->{type}";
+    {
+      no strict 'refs';
+      $conf->{$i->{name}} = &$prompter($i->{ques}, 0);
+    }
+    if ($i->{post}) { &{$i->{post}} };
+  }
+}
+
 sub prompt ($;$) {
   sep();
   my($mess,$def) = @_;
@@ -99,19 +186,24 @@ sub prompt ($;$) {
   return $def;
 }
 
-sub get_str {
-  return prompt(shift, shift);
-}
+sub get_str   {return prompt(shift, shift);}
+sub check_str {1;}
 
 sub get_str_nospace {
   my $msg = shift;
   my $def = shift;
-  my $ans;
+  my ($ans, $err, $ok);
   while (1) {
     $ans = get_str($msg, $def);
-    return $ans unless $ans =~ /\s/;
-    $msg = "Spaces are not allowed.\n";
+    ($ok, $err) = check_str_nospace($ans);
+    return $ans if $ok;
+    $msg = "$err\n";
   }
+}
+sub check_str_nospace {
+  my $str = shift;
+  return 1 unless $str =~ /\s/;
+  return (0, "Spaces are not allowed.");
 }
 
 sub get_enum {
@@ -277,7 +369,7 @@ sub get_domain_list {
 sub sep {
   return if $nosep;
   if ($sepclear) {
-    print `clear`;
+    print $clear;
     return;
   }
   print "\n", '-'x76, "\n";

@@ -82,8 +82,8 @@ Things currently hardcoded in the scripts:
   $::TMPDIR   - move
   $::LOCKDIR  - move
   $::WTMPDIR  - move
-  $::UID      - OK
-  $::GID      - OK
+  $::UID      - both (need for install, but put in config file)
+  $::GID      - both
   $::TIMEOUT  - move
   $::CONCURRENCY - move
   $::SIG_CHLD_IGNORE - OK
