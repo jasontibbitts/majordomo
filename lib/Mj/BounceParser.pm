@@ -736,6 +736,7 @@ sub parse_postoffice {
     }
   }
 
+  return unless defined $user;
   'Post.Office';
 }
 
