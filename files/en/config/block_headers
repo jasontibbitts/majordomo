@@ -1,0 +1,3 @@
+If any of the headers in a message sent to one of the list server addresses
+matches one of these regular expressions, the message will be forwarded to
+the list owners instead of being parsed for commands.

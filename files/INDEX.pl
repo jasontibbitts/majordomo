@@ -5,7 +5,7 @@ $files =
    # english generic files
    'en/ack_archive'                                   => ['Archived post to $LIST',                   'us-ascii', '7bit'],
    'en/ack_denial'                                    => ['Denied post to $LIST',                     'us-ascii', '7bit'],
-   'en/ack_rejection'                                 => ['Rejection of Majordomo Request "$REQUEST"','us-ascii', '7bit'],
+   'en/ack_rejection'                                 => ['Rejection of Majordomo Request "$COMMAND"','us-ascii', '7bit'],
    'en/ack_stall'                                     => ['Stalled post to $LIST',                    'us-ascii', '7bit'],
    'en/ack_success'                                   => ['Successful post to $LIST',                 'us-ascii', '7bit'],
    'en/ack_timeout'                                   => ['Timeout',                                  'us-ascii', '7bit'],
@@ -14,7 +14,7 @@ $files =
    'en/file_not_found'                                => ['File not found',                           'us-ascii', '7bit'],
    'en/file_sent'                                     => ['File has been sent',                       'us-ascii', '7bit'],
    'en/info'                                          => ['Info',                                     'us-ascii', '7bit'],
-   'en/inform'                                        => ['$UREQUEST $LIST',                          'us-ascii', '7bit'],
+   'en/inform'                                        => ['$UCOMMAND $LIST',                          'us-ascii', '7bit'],
    'en/intro'                                         => ['Intro',                                    'us-ascii', '7bit'],
    'en/new_list'                                      => ['$LIST mailing list created at $SITE',      'us-ascii', '7bit'],
    'en/new_password'                                  => ['New password at $SITE',                    'us-ascii', '7bit'],
@@ -262,6 +262,7 @@ $files =
    'en/config/archive_split'                   => ['The archive_split variable',                   'us-ascii', '7bit'],
    'en/config/archive_url'                     => ['The archive_url variable',                     'us-ascii', '7bit'],
    'en/config/attachment_rules'                => ['The attachment_rules variable',                'us-ascii', '7bit'],
+   'en/config/block_headers'                   => ['The block_headers variable',                   'us-ascii', '7bit'],
    'en/config/bounce_max_age'                  => ['The bounce_max_age variable',                  'us-ascii', '7bit'],
    'en/config/bounce_max_count'                => ['The bounce_max_count variable',                'us-ascii', '7bit'],
    'en/config/bounce_probe_frequency'          => ['The bounce_probe_frequency variable',          'us-ascii', '7bit'],
@@ -366,7 +367,7 @@ $files =
    'de/intro'                   => 'Intro',
    'de/welcome'                 => 'Welcome',
 #   'de/registered'              => 'Welcome to $SITE',
-   'de/inform'                  => '$UREQUEST $LIST',
+   'de/inform'                  => '$UCOMMAND $LIST',
    'de/repl_consult'            => 'Default consult mailreply file',
    'de/repl_confirm'            => 'Default confirm mailreply file',
    'de/repl_confcons'           => 'Default confirm+consult mailreply file',
@@ -399,7 +400,7 @@ $files =
    'de/informal/intro'                   => 'Intro',
    'de/informal/welcome'                 => 'Welcome',
 #   'de/informal/registered'              => 'Welcome to $SITE',
-   'de/informal/inform'                  => '$UREQUEST $LIST',
+   'de/informal/inform'                  => '$UCOMMAND $LIST',
    'de/informal/repl_consult'            => 'Default consult mailreply file',
    'de/informal/repl_confirm'            => 'Default confirm mailreply file',
    'de/informal/repl_confcons'           => 'Default confirm+consult mailreply file',
@@ -424,8 +425,8 @@ $files =
 
 # Files that are conditional on a working web server
 if ($indexflags & 1) {
-  $files->{'en/confirm'} = ['$TOKEN : CONFIRM from $LIST ($REQUEST)', 'us-ascii', '7bit'];
-  $files->{'en/consult'} = ['$TOKEN : CONSULT from $LIST ($REQUEST)', 'us-ascii', '7bit'];
+  $files->{'en/confirm'} = ['$TOKEN : CONFIRM from $LIST ($COMMAND)', 'us-ascii', '7bit'];
+  $files->{'en/consult'} = ['$TOKEN : CONSULT from $LIST ($COMMAND)', 'us-ascii', '7bit'];
 
   $files->{'de/confirm'} = '$TOKEN : CONFIRM from $LIST';
   $files->{'de/consult'} = '$TOKEN : CONSULT from $LIST';
@@ -434,8 +435,8 @@ if ($indexflags & 1) {
   $files->{'de/informal/consult'} = '$TOKEN : CONSULT from $LIST';
 }
 else {
-  $files->{'en/confirm'} = ['$TOKEN : CONFIRM from $LIST ($REQUEST)', 'us-ascii', '7bit', 'en/confirm_noweb'];
-  $files->{'en/consult'} = ['$TOKEN : CONSULT from $LIST ($REQUEST)', 'us-ascii', '7bit', 'en/consult_noweb'];
+  $files->{'en/confirm'} = ['$TOKEN : CONFIRM from $LIST ($COMMAND)', 'us-ascii', '7bit', 'en/confirm_noweb'];
+  $files->{'en/consult'} = ['$TOKEN : CONSULT from $LIST ($COMMAND)', 'us-ascii', '7bit', 'en/consult_noweb'];
 
   $files->{'de/confirm'} = ['$TOKEN : CONFIRM from $LIST', 'ISO-8859-1', '8bit', 'de/confirm_noweb'];
   $files->{'de/consult'} = ['$TOKEN : CONSULT from $LIST', 'ISO-8859-1', '8bit', 'de/consult_noweb'];

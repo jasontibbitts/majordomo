@@ -87,7 +87,11 @@ $Mj::Config::default_string = q(
  'message_fronter_frequency' => 100,
  'message_footer'       => [],
  'message_footer_frequency' => 100,
- 'message_headers'      => [],
+ 'message_headers'      => ($list eq 'GLOBAL') ?
+                           [
+                            'Reply-To: $MJ',
+                            'X-Loop: majordomo',
+                           ] : [],
  'delete_headers'       => [qw(X-Confirm-Reading-To
 			       X-Ack
 			       Sender
@@ -145,6 +149,7 @@ $Mj::Config::default_string = q(
 			    ] : []),
  'taboo_headers'        => ($list eq 'GLOBAL') ? [] : [],
  'taboo_body'           => ($list eq 'GLOBAL') ? [] : [],
+ 'block_headers'        => ['/X-Loop:.*majordomo/i'],
  'override_reply_to'    => 0,
  'comments'             => [],
  'addr_xforms'          => [],

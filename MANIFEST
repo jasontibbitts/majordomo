@@ -125,6 +125,7 @@ files/en/config/archive_size
 files/en/config/archive_split
 files/en/config/archive_url
 files/en/config/attachment_rules
+files/en/config/block_headers
 files/en/config/bounce_max_age
 files/en/config/bounce_max_count
 files/en/config/bounce_probe_frequency

@@ -603,7 +603,7 @@ EOC
    {
     'type'   => 'string_array',
     'groups' => [qw(resend digest)],
-    'visible'=> 0,
+    'visible'=> 1,
     'local'  => 1,
     'global' => 1,
     'mutable'=> 1,
@@ -657,6 +657,14 @@ EOC
     'groups' => [qw(resend)],
     'visible'=> 0,
     'local'  => 1,
+    'global' => 1,
+    'mutable'=> 1,
+   },
+   'block_headers' =>
+   {
+    'type'   => 'taboo_headers',
+    'groups' => [qw(majordomo)],
+    'visible'=> 0,
     'global' => 1,
     'mutable'=> 1,
    },
