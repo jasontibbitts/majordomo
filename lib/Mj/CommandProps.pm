@@ -870,6 +870,7 @@ my %commands =
                    'modes'    =>  {
                                    %generic_modes,
                                    'allmatching' => 1,
+                                   'farewell'    => 1,
                                    'pattern'     => 1,
                                    'regex'       => 1,
                                   },

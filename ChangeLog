@@ -1,3 +1,9 @@
+2000-12-08  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm: (_unsubscribe) Add "farewell" mode, which
+	causes the farewell file to be mailed to each address that
+	is removed from the list.
+
 2000-12-08  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Majordomo.pm (_list_config_set): When addr_xforms changes,

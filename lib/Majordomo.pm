@@ -2097,12 +2097,13 @@ sub _get_mailfile {
      Charset  => $data{'charset'},
      Encoding => $data{'c-t-encoding'},
      Subject  => $data{'description'} || "Requested file $name from $list",
+     -To      => "$vict",
      Top      => 1,
      Filename => undef,
      'Content-Language:' => $data{'language'},
     );
 
-  $self->mail_entity($sender, $ent, $vict);
+  $self->mail_entity($sender, $ent, $vict) if $ent;
 }
 
 sub get_chunk {
@@ -5658,7 +5659,8 @@ sub unsubscribe {
 sub _unsubscribe {
   my($self, $list, $requ, $vict, $mode, $cmd, $sublist) = @_;
   my $log = new Log::In 35, "$list, $vict";
-  my(@out, @removed, $key, $data);
+  my(%fdata, @out, @removed, $bye, $data, $desc, $fh, $file, 
+     $key, $subs);
 
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
@@ -5672,13 +5674,37 @@ sub _unsubscribe {
     return (0, "Cannot unsubscribe $vict: no matching addresses.");
   }
 
-  while (($key, $data) = splice(@removed, 0, 2)) {
+  if ($mode =~ /farewell/) {
+    ($file, %fdata) = $self->_list_file_get($list, 'farewell');
+    $subs = { $self->standard_subs($list) };
+    $bye = &tempname;
+    $desc = $fdata{'description'};
+  }
 
-    # Convert to an Addr and remove the list from that addr's registration
-    # entry.
+  while (($key, $data) = splice(@removed, 0, 2)) {
+    # Convert to an Addr object and remove the list from 
+    # the registration entry for that address.
     $key = new Mj::Addr($key);
     $self->_reg_remove($key, $list);
     push (@out, $data->{'fulladdr'});
+
+    # Send a farewell message
+    if ($mode =~ /farewell/) {
+      $data = $self->_reg_lookup($key);
+      next unless $data;
+      $subs->{'VICTIM'} = $key;
+      $subs->{'PASSWORD'} = $data->{'password'};
+
+      $fh = new IO::File ">$bye";
+      next unless $fh;
+      $self->substitute_vars($file, $subs, $list, $fh);
+      $fh->close;
+
+      $fdata{'description'} = $self->substitute_vars_string($desc, $subs);
+      $self->_get_mailfile($list, $key, 'farewell', $bye, %fdata);
+      unlink $bye;
+    }
+ 
   }
 
   return (1, [@out]);
