@@ -260,7 +260,10 @@ sub resend {
   };
 
   ($ok, $mess) = @{$mj->dispatch($request)};
-  return unless $ok;
+  unless ($ok) {
+    $::log->message(1, 'info', "Resend failed: $mess");
+    return;
+  }
 
   $_ = $sess;
   $request->{'command'} = 'post_chunk';
