@@ -117,6 +117,8 @@ sub t_add {
      'arg3'	  => shift,
      'expire'     => shift,
      'remind'     => shift,
+     'reminded'   => shift,
+     'permanent'  => shift,
      'time'       => time,
      'sessionid'  => $self->{'sessionid'},
     };
@@ -162,23 +164,33 @@ sub confirm {
 
   my $log  = new Log::In 50;
   my (%file, $repl, $token, $data, $ent, $sender, $url, $file, $mj_addr,
-      $mj_owner, $expire, $expire_days, $desc, $remind, $remind_days);
+      $mj_owner, $expire, $expire_days, $desc, $remind, $remind_days,
+      $reminded, $permanent);
   my $list = $args{'list'};
 
   $self->_make_tokendb;
 
   # Figure out when a token will expire
+  $permanent = 0;
   $expire_days = $self->_list_config_get($list, "token_lifetime");
   $expire = time+86400*$expire_days;
   $remind_days = $self->_list_config_get($list, "token_remind");
-  $remind = time+86400*$remind_days;
+  if (!$remind_days or $remind_days < 0 or $remind_days > $expire_days) {
+    $remind_days = $expire_days;
+    $remind = 0;
+    $reminded = 1;
+  }
+  else {
+    $remind = time+86400*$remind_days;
+    $reminded = 0;
+  }
 
   # Make a token and add it to the database
   $token = $self->t_add('confirm', $list, $args{'request'},
 			$args{'requester'}, $args{'victim'}, $args{'mode'},
 			$args{'cmdline'}, $args{'approvals'},
 			@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
-			$expire, $remind);
+			$expire, $remind, $reminded, $permanent);
 
   $sender   = $self->_list_config_get($list, 'sender');
   $mj_addr  = $self->_global_config_get('whoami');
@@ -278,24 +290,33 @@ sub consult {
   my $log  = new Log::In 50;
   my (%file, @mod1, @mod2, $data, $desc, $ent, $expire, $expire_days,
       $file, $group, $mj_addr, $mj_owner, $remind, $remind_days, $repl,
-      $sender, $subject, $tmp, $token, $url);
+      $sender, $subject, $tmp, $token, $url, $reminded, $permanent);
   my $list = $args{'list'};
 
   $self->_make_tokendb;
 
   $args{'sessionid'} ||= $self->{'sessionid'};
 
+  $permanent = 0;
   $expire_days = $self->_list_config_get($list, "token_lifetime");
   $expire = time+86400*$expire_days;
   $remind_days = $self->_list_config_get($list, "token_remind");
-  $remind = time+86400*$remind_days;
+  if (!$remind_days or $remind_days < 0 or $remind_days > $expire_days) {
+    $remind_days = $expire_days;
+    $remind = 0;
+    $reminded = 1;
+  }
+  else {
+    $remind = time+86400*$remind_days;
+    $reminded = 0;
+  }
 
   # Make a token and add it to the database
   $token = $self->t_add('consult', $list, $args{'request'},
 			$args{'requester'}, $args{'victim'}, $args{'mode'},
 			$args{'cmdline'}, $args{'approvals'},
 			@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
-			$expire, $remind);
+			$expire, $remind, $reminded, $permanent);
 
   $sender = $self->_list_config_get($list, 'sender');
   $mj_addr  = $self->_global_config_get('whoami');
