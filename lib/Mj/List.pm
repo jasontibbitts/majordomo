@@ -1786,7 +1786,7 @@ data.
 
 =cut
 sub bounce_add {
-  my($self, $addr, $time, $type, $number) = @_;
+  my($self, $addr, $time, $type, $number, $diagnostic) = @_;
   my($bouncedata, $event, $ok);
 
   $event = "$time$type$number";
@@ -1799,6 +1799,10 @@ sub bounce_add {
     }
     else {
       $data->{bounce} = $event;
+    }
+
+    if ($diagnostic) {
+      $data->{diagnostic} = substr ($diagnostic, 0, 160);
     }
 
     $bouncedata = $data->{bounce};
