@@ -52,7 +52,7 @@ sub in {
   return $_;
 }
 
-my (%opts, $abandoned, $dom, $i, $j, $line, $ok, $pid, $q1, $q2, $q3,
+my (%opts, $abandoned, $dom, $i, $j, $line, $ok, $path, $pid, $q1, $q2, $q3,
     $qdir, $qfile, $qfunc, $rendezvous, $time);
 
 $time = time;
@@ -157,7 +157,13 @@ $ok = flock(OUT, $::LOCK_EX);
 # Fill the queue file, skipping mailbox separator if present.
 $abandoned = 0;
 $line = <STDIN>;
-print OUT $line unless $line =~ /^From /;
+if (defined $line) {
+  print OUT $line unless ($line =~ /^From /);
+}
+else {
+  warn "The incoming message is empty.";
+}
+
 while (defined($line = <STDIN>)) {
   unless ($abandoned) {
     $ok = print OUT $line;
@@ -172,12 +178,12 @@ $ok = close OUT;  # Also unlocks.
 # will succeed while close() fails for a small message.
 # Returning EX_IOERR (74) will cause sendmail to regard the
 # problem as a temporary failure and defer delivery.
-unless ($ok) {
+unless ($ok and ! $abandoned) {
   # untaint
-  $abandoned = "$qdir/$qfile";
-  $abandoned =~ /(.*)/;
-  $abandoned = $1;
-  unlink $abandoned;
+  $path = "$qdir/$qfile";
+  $path =~ /(.*)/;
+  $path = $1;
+  unlink $path;
   exit 74;
 }
 

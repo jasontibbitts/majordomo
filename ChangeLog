@@ -1,3 +1,26 @@
+2003-10-28  Michael Yount <csf@moscow.com>
+
+	* bin/mj_enqueue:  Cope better with empty messages.
+	Thanks to SRE.
+
+	* lib/Mj/BounceHandler.pm:  Rewrite to use messages
+	instead of hard-coded English.
+	(handle_bounce_message)  Compensate for truncated VERP
+	addresses.  Thanks to Jeff Wasilko.
+
+	* lib/Mj/BounceParser.pm:  (parse_dsn)  Cope with DSN
+	irregularities.  Thanks to Jeff Wasilko.
+
+	* lib/Mj/CommandProps.pm:  Allow the "reason" action
+	to be used in the bounce_rules setting.
+
+	* lib/Mj/Config.pm:  (_compile_rule, _ck_var)  Bugfix:
+	Allow variables to be used on the right side of comparisons.
+	Thanks to SRE.
+
+	* lib/Mj/SimpleDB/Text.pm:  (get_matching*regexp)  Bugfix:
+	Remove anchors before calling Mj::File::search().
+
 2003-10-07  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Access.pm:  (_d_post)  Bugfix:  Use the correct
