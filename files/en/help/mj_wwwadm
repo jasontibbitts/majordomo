@@ -1,5 +1,5 @@
 The WWW interface for list administrators is located at:
-  $WWWADM_URL
+  $WWWADM_URL?domain=$DOMAIN
 
 Instructions are available there.
 
