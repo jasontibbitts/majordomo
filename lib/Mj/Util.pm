@@ -316,6 +316,7 @@ sub n_defaults {
     $defaults->{'attach'} = 1;
     $defaults->{'bounce'} = -1;
     $defaults->{'file'}   = 'bounceprobe';
+    $defaults->{'remind'} = 0;
   }
 
   $defaults;
