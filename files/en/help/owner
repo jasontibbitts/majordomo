@@ -49,7 +49,8 @@ By default, the message will be sent to the list owners or moderators.
 
 Access checks for the owner command take place after the message is
 checked by the bounce rules.  See "help configset_bounce_rules" for more
-information.
+information.  Only messages which were not identified as bounces will be
+affected by the access rules.
 
 
 See Also:
