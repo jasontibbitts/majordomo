@@ -23,7 +23,6 @@ use Mj::SimpleDB::Base;
 use DB_File;
 use Mj::Lock;
 use Mj::Log;
-use Safe;
 use strict;
 use vars qw(@ISA $VERSION $safe);
 
@@ -54,11 +53,6 @@ sub new {
   $self->{compare}  = $args{compare};
 
   my $log  = new Log::In 200, "$self->{filename}, $self->{lockfile}";
-
-  unless (defined($safe)) {
-    $safe = new Safe;
-    $safe->permit_only(qw(const leaveeval not null pushmark return rv2sv stub));
-  }
 
   # Now allocate the database bits.
   if ($self->{compare}) {
@@ -158,6 +152,7 @@ mode=~/regex/, the key is taken as a regular expression.
 This returns a list of (keys, data) pairs that were removed.
 
 =cut
+use Mj::Util qw(re_match);
 sub remove {
   my $self = shift;
   my $mode = shift;
@@ -194,7 +189,7 @@ sub remove {
        $status = $db->seq($try, $value, R_NEXT)
       )
     {
-      if (Majordomo::_re_match($key, $try)) {
+      if (re_match($key, $try)) {
         push @deletions, $try;
         push @out, ($try, $self->_unstringify($value));
         last if $mode !~ /allmatching/;
@@ -229,6 +224,7 @@ Unlike the mogrify function, this cannot change the key.
 Returns a list of keys that were modified.
 
 =cut
+use Mj::Util qw(re_match);
 sub replace {
   my $self  = shift;
   my $mode  = shift;
@@ -267,7 +263,7 @@ sub replace {
        $status = $db->seq($k, $v, R_NEXT)
       )
     {
-      if (Majordomo::_re_match($key, $k)) {
+      if (re_match($key, $k)) {
 	if (ref($field) eq 'HASH') {
 	  $data = $field;
 	}
@@ -490,6 +486,7 @@ before EOF.
 XXX Coderef only implemented for get_matching;
 
 =cut
+use Mj::Util qw(re_match);
 sub get_matching_quick {
   my $self  = shift;
   my $log   = new Log::In 121, "$self->{filename}, @_";
@@ -503,7 +500,7 @@ sub get_matching_quick {
     last unless $k;
 
     # We may be able to skip the unstringification step
-    redo unless Majordomo::_re_match("/\001\Q$value\E/", $v);
+    redo unless re_match("/\001\Q$value\E/", $v);
 
     $data = $self->_unstringify($v);
     if (defined($data->{$field}) && 
@@ -517,6 +514,7 @@ sub get_matching_quick {
   return @keys;
 }
 
+use Mj::Util qw(re_match);
 sub get_matching_quick_regexp {
   my $self  = shift;
   my $log   = new Log::In 121, "$self->{filename}, @_";
@@ -528,9 +526,9 @@ sub get_matching_quick_regexp {
   for ($i=0; $i<$count; $i++) {
     ($k, $v) = $self->_get;
     last unless $k;
-#    redo unless _re_match($value, $v);
+#    redo unless re_match($value, $v);
     $data = $self->_unstringify($v);
-    if (defined($data->{$field}) && Majordomo::_re_match($value, $data->{$field})) {
+    if (defined($data->{$field}) && re_match($value, $data->{$field})) {
       push @keys, $k;
       next;
     }
@@ -539,6 +537,7 @@ sub get_matching_quick_regexp {
   return @keys;
 }
 
+use Mj::Util qw(re_match);
 sub get_matching {
   my $self  = shift;
   my $log   = new Log::In 121, "$self->{filename}, @_";
@@ -552,7 +551,7 @@ sub get_matching {
   for ($i=0; ($count ? ($i<$count) : 1); $i++) {
     ($k, $v) = $self->_get;
     last unless $k;
-    redo if (!$code && ! Majordomo::_re_match("/\001\Q$value\E/", $v));
+    redo if (!$code && ! re_match("/\001\Q$value\E/", $v));
     $data = $self->_unstringify($v);
     if ($code) {
       $tmp = &$field($k, $data);
@@ -570,6 +569,7 @@ sub get_matching {
   return @keys;
 }
 
+use Mj::Util qw(re_match);
 sub get_matching_regexp {
   my $self  = shift;
   my $count = shift;
@@ -581,9 +581,9 @@ sub get_matching_regexp {
   for ($i=0; $i<$count; $i++) {
     ($k, $v) = $self->_get;
     last unless $k;
-#    redo unless _re_match($value, $v);
+#    redo unless re_match($value, $v);
     $data = $self->_unstringify($v);
-    if (defined($data->{$field}) && Majordomo::_re_match($value, $data->{$field})) {
+    if (defined($data->{$field}) && re_match($value, $data->{$field})) {
       push @keys, ($k, $data);
       next;
     }
@@ -635,6 +635,7 @@ sub lookup_quick {
   $value;
 }
 
+use Mj::Util qw(re_match);
 sub lookup_quick_regexp {
   my $self = shift;
   my $reg  = shift;
@@ -649,39 +650,12 @@ sub lookup_quick_regexp {
        $status == 0 ;
        $status = $db->seq($key, $value, R_NEXT) )
     {
-      if (Majordomo::_re_match($reg, $key)) {
+      if (re_match($reg, $key)) {
 	return ($key, $value);
       }
     }
   return;
 }
-
-# sub _re_match {
-#   my $re   = shift;
-#   my $addr = shift;
-#   my $match;
-#   return 1 if $re eq 'ALL';
-
-#   local($^W) = 0;
-#   $match = $Majordomo::safe->reval("'$addr' =~ $re");
-#   $::log->complain("_re_match error: $@") if $@;
-#   return $match;
-# }
-
-#  sub _re_match {
-#    my    $re = shift;
-#    local $_  = shift;
-#    my $match;
-#    return 1 if $re eq 'ALL';
-
-#    local($^W) = 0;
-#    $match = $safe->reval("$re");
-#    $::log->complain("_re_match error: $@\nstring: $_\nregexp: $re") if $@;
-#    if (wantarray) {
-#      return ($match, $@);
-#    }
-#    return $match;
-#  }
 
 1;
 
@@ -694,7 +668,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
