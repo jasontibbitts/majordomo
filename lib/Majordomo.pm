@@ -5929,8 +5929,9 @@ Returns all available information about a token, including the session data
 
 sub tokeninfo {
   my ($self, $request) = @_;
-  my $log = new Log::In 30, "$request->{'token'}";
-  my ($ok, $error, $data, $sess, $spool);
+  my $log = new Log::In 30, $request->{'token'};
+  my ($ok, $error, $data, $gurl, $mj_owner, $origmsg, $sender, 
+      $sess, $spool, $victim);
 
   # Don't check access for now; users should always be able to get
   # information on tokens.  When we have some way to prevent lots of
@@ -5943,15 +5944,60 @@ sub tokeninfo {
   ($ok, $data) = $self->t_info($request->{'token'});
   return ($ok, $data) unless ($ok > 0);
 
+  return (0, "Cannot initialize the list \"$data->{'list'}\".\n")
+    unless $self->_make_list($data->{'list'});
+
+  $data->{'willack'} = ''; 
+  $victim = new Mj::Addr($data->{'victim'});  
+
+  if ($data->{'type'} ne 'confirm' and 
+      ($data->{'command'} ne 'post' or  
+       $self->{'lists'}{$data->{'list'}}->
+         should_ack($data->{'sublist'}, $victim, 'j'))) 
+  {
+    $data->{'willack'} = " ";
+  }
+
   $spool = $sess = '';
-  if ($data->{'command'} eq 'post' and $request->{'mode'} eq 'full') {
+  if ($data->{'command'} eq 'post' and 
+      $request->{'mode'} =~ /full|remind/) {
     # spool file; use basename
     $spool = $data->{'arg1'};
     $spool =~ s#.+/([^/]+)$#$1#;
     $data->{'spoolfile'} = $spool;
   }
   # Pull out the session data
-  if ($request->{'mode'} !~ /nosession/ && $data->{'sessionid'}) {
+  $sess = '';
+  if ($request->{'mode'} =~ /remind/) {
+    $gurl = $self->_global_config_get('confirm_url');
+    $sender = $self->_list_config_get($data->{'list'}, 'sender');
+    $sess = "A reminder has been mailed to $request->{'user'}.\n";
+    $mj_owner = $self->_global_config_get('sender');
+
+    $ent = $self->r_gen($request->{'token'}, $data, $gurl, $sender);
+    if ($ent and exists $data->{'spoolfile'}) {
+      $origmsg = "$self->{ldir}/GLOBAL/spool/$data->{'spoolfile'}";
+      $ent->make_multipart;
+      $ent->attach(Type        => 'message/rfc822',
+                   Description => 'Original message',
+                   Path        => $origmsg,
+                   Filename    => undef,
+                  );
+    }
+    if ($ent) {
+      $self->mail_entity({ addr => $mj_owner,
+                           type => 'D',
+                           data => $request->{'token'},
+                         },
+                         $ent,
+                         $request->{'user'}
+                        );
+    }
+    if (exists $data->{'tmpfile'} and -f $data->{'tmpfile'}) {
+      unlink $data->{'tmpfile'};
+    }
+  }   
+  elsif ($request->{'mode'} !~ /nosession/ && $data->{'sessionid'}) {
     ($sess) =
       $self->sessioninfo_start($data);
   }    
