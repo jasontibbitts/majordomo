@@ -1,5 +1,12 @@
         Notes on upgrading from previous versions of Majordomo 2
 
+2001.09.18 (CVS):
+
+A "msgid" field has been included in the archive databases to support
+sorting the messages by thread with the archive-thread command.  The
+msgid field can be added to past databases by using the archive-sync
+command for each message archive.
+
 2001.09.12 (CVS):
 
 The optional module Text::Reflow can be used for better results
