@@ -220,15 +220,6 @@ if ($commands{$func}->[2] and ! scalar @lists) {
   &usage($mj, $subs, "A mailing list must be provided to use the \"$func\" command.");
 }
 
-$subs = {
-         $mj->standard_subs($lists[0]),
-         'CGIURL'   => $cgiurl,
-         'DOMAIN'   => $mj->{'domain'},
-         'LIST'     => $lists[0],
-         'PASSWORD' => $passw,
-         'COMMAND'  => $func,
-        };
-
 no strict 'refs';
 
 $request = {
@@ -277,6 +268,9 @@ if (function_prop($func, 'iter')) {
 #
 # The sixth exception is for the configshow command, which allows
 # an array of variables to be specified.
+#
+# The seventh exception is for the who command, which must include
+# a pattern.
 #
 # In each of these cases, the basic command form requires that the
 # "extra" variable still be handled if it was used.
@@ -333,10 +327,21 @@ elsif ($func ne 'showtokens') {
     $request->{'tokens'} = [ @extra ];
     $request->{'xplanation'} = join "\n", $cgi->param('xplanation');
   }
-  elsif ($func eq 'subscribe') {
+  elsif ($func eq 'subscribe' or $func eq 'unsubscribe') {
     @extra = $cgi->param('victims');
     $request->{'victims'} = [ @extra ];
-    $request->{'setting'} = join ',', $cgi->param('setting');  
+    if ($func eq 'subscribe' and $mode =~ /set/) {
+      $request->{'setting'} = $cgi->param('setting');  
+      for $j (qw(ackdeny ackpost ackreject ackstall eliminatecc hideaddress
+                 hideall prefix replyto selfcopy rewritefrom)) {
+        if ($cgi->param($j)) {
+          $request->{'setting'} .= ",$j";
+        }
+        else {
+          $request->{'setting'} .= ",no$j";
+        }
+      }
+    }
   }
   elsif ($func eq 'report') { 
     $request->{'action'} = join ',', $cgi->param('action');
@@ -344,6 +349,9 @@ elsif ($func ne 'showtokens') {
   }
   elsif ($func eq 'configshow') {
     $request->{'groups'} = join ',', $cgi->param('groups');
+  }
+  elsif ($func eq 'who') {
+    $request->{'regexp'} = $cgi->param('pattern');
   }
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
