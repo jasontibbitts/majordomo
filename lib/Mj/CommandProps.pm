@@ -977,6 +977,7 @@ my %commands =
                                    'export'      => {'exclude' => 'bounce|common|enhanced|owners'},
                                    'owners'      => {'exclude' => 'bounce|common|enhanced'},
                                    'short'       => 1,
+                                   'summary'     => {'exclude' => 'bounce|common|enhanced|export|owners'},
                                   },
                    'tokendata' => {'arg1'   => 'regexp',
                                    'arg2'   => 'sublist',
