@@ -1,4 +1,4 @@
-WWW Admin login format file.
+WWW admin login format file.
 R
 text/plain
 us-ascii
