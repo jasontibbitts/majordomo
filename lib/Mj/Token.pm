@@ -723,7 +723,7 @@ sub t_accept {
   # pretend we did a 'consult' (in $rreq) command so that the accept
   # routine will format it as we want for the reply to the owner.
   # Acknowledgements of posts take place in Mj::Resend::_post.
-  if ($func ne 'post') {
+  if ($func ne '_post') {
 
     # First make a tempfile
     ($tmp, %file) = $self->_list_file_get($data->{'list'}, "repl_fulfill", $repl);
