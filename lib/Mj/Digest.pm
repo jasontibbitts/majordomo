@@ -21,7 +21,6 @@ and turned into a digest message which is sent to the proper recipients.
 
 package Mj::Digest;
 
-use IO::File;
 use Mj::Log;
 use strict;
 use vars qw($VAR1);
@@ -345,6 +344,7 @@ it locked all the while.  The close routine writes it back if it was dirty
 and unlocks it.
 
 =cut
+use Mj::FileRepl;
 sub _open_state {
   my $self = shift;
   my $file = "$self->{'dir'}/_digests";
