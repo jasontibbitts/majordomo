@@ -1,7 +1,32 @@
-WARNING: 'advertise' is a valid command, but has no help as of 18 Mar 2000
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+advertise
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+used only in "configset access_rules" for the GLOBAL pseudo-list
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This command may not be implemented, or may be undocumented for a reason!
+The "advertise" command is used only in majordomo's access_rules 
+configuration setting, and only for the GLOBAL list. There must
+be several lines of data after the access command, as described
+by "help configset access_rules".
 
+The advertise command is used to determine whether or not the
+existence of a mailing list should be made public in the results
+of the "lists" command and the "which" command.
+ 
+For example, a list owner who wanted only people with addresses in
+the example.net domain to know about the list might use this rule:
+ 
+configset GLOBAL access_rules << ENDTAG
+advertise
+deny
+!/example.net/
+ENDTAG
+
+
+See Also:
+   help configset access_rules
+   help lists
+   help which
 
 For a list of all help topics send this one-line message
    help topics
