@@ -39,7 +39,7 @@ __END__
 
 Return information about a MIME entity:
 
-body_lines quoted date from subject refs hidden;
+body_lines quoted date from subject refs hidden msgid;
 
 =cut
 use Date::Parse;
@@ -52,6 +52,7 @@ sub collect_data {
                  'date'        => time,
                  'from'        => '',
                  'hidden'      => 0,
+                 'msgid'       => '',
                  'quoted'      => 0,
                  'refs'        => '',
                  'subject'     => '',
@@ -68,9 +69,16 @@ sub collect_data {
   }
   $tmp = $head->get('in-reply-to') || '';
   while ($tmp =~ s/<([^>]*)>//) {
-    push @refs, $1;
+    push (@refs, $1) unless (grep { $_ eq $1 } @refs);;
   }
+  map { $_ =~ s/\002/X/g; } @refs;
   $data->{'refs'} = join "\002", @refs;
+
+  $tmp = $head->get('message-id') || '';
+  chomp $tmp;
+  $tmp =~ s/\s*<([^>]*)>\s*/$1/;
+  $tmp =~ s/\002/X/g;
+  $data->{'msgid'} = $tmp;
  
   $data->{'subject'} = $head->get('subject') || ''; 
   chomp $data->{'subject'};
@@ -87,7 +95,6 @@ sub collect_data {
       $data->{'hidden'} = 1;
     }
   }
-    
 
   # Convert the message date into a time value.
   # Use the earliest Received header, or the Date header.
