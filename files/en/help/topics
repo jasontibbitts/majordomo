@@ -254,6 +254,7 @@ These help files describe configuration settings:
    help configset_log_lifetime
    help configset_max_in_core
    help configset_password_min_length
+   help configset_relocated_lists
    help configset_request_answer
    help configset_return_subject
    help configset_session_lifetime
