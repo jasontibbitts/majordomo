@@ -14,6 +14,8 @@ five buttons.
   <li>Press <b>accept-hide</b> to approve each chosen request.  <b>Post</b>ed
       messages will not be displayed in a public archive. 
   <li>Press <b>reject</b> to disallow each chosen request.
+  <li>Press <b>reject-quiet</b> to disallow each chosen request without sending
+      an acknowledgement to the user.
 </ul>
 
 <form method=POST action="$CGIURL">
@@ -23,6 +25,7 @@ five buttons.
   <input type=submit name=func value="accept-archive">
   <input type=submit name=func value="accept-hide">
   <input type=submit name=func value="reject">
+  <input type=submit name=func value="reject-quiet">
   <input type=hidden name=list value="$LIST">
   <input type=hidden name=passw value="$PASSWORD">
   <input type=hidden name=user value="$USER">
