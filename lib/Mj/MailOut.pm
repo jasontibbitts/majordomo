@@ -309,6 +309,7 @@ specified in the 'welcome_files' variable. If one of the files in the
 welcome message does not exist, it is ignored.
 
 =cut
+use Date::Parser;
 use MIME::Entity;
 sub welcome {
   my $self = shift;
@@ -397,6 +398,7 @@ sub welcome {
     $head->replace('To',      $addr);
     $head->replace('Subject', $mess[$i]{'subject'});
     $head->replace('From',    $sender);
+    $head->replace('Date',    time2str("%a, %d %b %Y %T %z", time));
 
     for $j ($self->_global_config_get('message_headers')) {
       $j = $self->substitute_vars_string($j, $subs);
