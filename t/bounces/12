@@ -1,0 +1,82 @@
+Comment: A bounce from mac.com with various weirdness
+Received: from smtpout.mac.com (smtpout.mac.com [17.250.248.88])
+	by example.com (8.12.8/8.12.8) with ESMTP id h2KIAUO6016797
+	for <owner-test+M1@example.com>; Thu, 20 Mar 2003 13:10:30 -0500 (EST)
+Received: from ms01.mac.com (mail01-ge0 [10.13.11.32])
+	by smtpout.mac.com (Xserve/MantshX 2.0) with ESMTP id h2KIATiO025878
+	for <owner-test+M1@example.com>; Thu, 20 Mar 2003 10:10:30 -0800 (PST)
+To: owner-test+M1@example.com
+From: Mail Administrator <postmaster@mac.com>
+Reply-To: Mail Administrator <postmaster@mac.com>
+Subject: Mail System Error - Returned Mail
+Date: Thu, 20 Mar 2003 10:10:29 -0800
+Message-Id: <HC27TH02.NA8@ms01.mac.com>
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+		Boundary="===========================_ _= 5821838(15077+6038384)"
+X-Spam-Status: No, hits=-0.5 required=5.0
+	tests=FAILURE_NOTICE_2,SPAM_PHRASE_01_02
+	version=2.43
+X-Spam-Level: 
+
+--===========================_ _= 5821838(15077+6038384)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+This Message was undeliverable due to the following reason:
+
+The following destination addresses were unknown (please check
+the addresses and re-mail the message):
+
+SMTP <user1@mac.com>
+SMTP <user2@mac.com>
+SMTP <user3@mac.com>
+
+Please reply to <postmaster@mac.com>
+if you feel this message to be in error.
+
+
+--===========================_ _= 5821838(15077+6038384)
+Content-Type: message/delivery-status
+Content-Transfer-Encoding: 7bit
+
+Reporting-MTA: dns; ms01.mac.com
+Received-From-MTA:dns; smtpin02.mac.com (10.13.10.147)
+Arrival-Date: Thu, 20 Mar 2003 10:10:29 -0800
+
+Final-Recipient: rfc822;user1@mac.com
+Diagnostic-Code: smtp;551 User unknown
+Action: failed 
+Status: 5.1.6
+Last-Attempt-Date: Thu, 20 Mar 2003 10:10:29 -0800
+
+Final-Recipient: rfc822;user2@mac.com
+Diagnostic-Code: smtp;551 User unknown
+Action: failed 
+Status: 5.1.6
+Last-Attempt-Date: Thu, 20 Mar 2003 10:10:29 -0800
+
+Final-Recipient: rfc822;user3@mac.com
+Diagnostic-Code: smtp;551 User unknown
+Action: failed 
+Status: 5.1.6
+Last-Attempt-Date: Thu, 20 Mar 2003 10:10:29 -0800
+
+
+--===========================_ _= 5821838(15077+6038384)
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+
+Return-Path: <owner-test+M1@example.com>
+Received: from smtpin02.mac.com ([10.13.10.147]) by ms01.mac.com
+          (Netscape Messaging Server 4.15) with ESMTP id HC27TH00.AQI;
+          Thu, 20 Mar 2003 10:10:29 -0800 
+From: user@example.com
+Message-ID: <1e9.4b315e0.2bab5da2@example.com>
+Date: Thu, 20 Mar 2003 13:08:34 EST
+To: user@example.com
+
+blah
+
+--===========================_ _= 5821838(15077+6038384)--
+

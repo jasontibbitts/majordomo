@@ -1,0 +1,4 @@
+DSN
+user1@mac.com	failure	smtp;551 User unknown
+user2@mac.com	failure	smtp;551 User unknown
+user3@mac.com	failure	smtp;551 User unknown
