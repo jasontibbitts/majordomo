@@ -493,9 +493,11 @@ sub parse_command {
       if (defined $args) {
         if ($args =~ /^page/i) {
           $dfl->{'display'} = 'pager';
+          print STDERR "Display was set to pager.\n";
         }
         elsif ($args =~ /^edit/i) {
           $dfl->{'display'} = 'editor';
+          print STDERR "Display was set to editor.\n";
         }
         else {
           print STDERR "Illegal display \"$args\".\n";
@@ -504,8 +506,8 @@ sub parse_command {
       }
       else {
         $dfl->{'display'} = '';
+	print STDERR "Default display was canceled.\n";
       }
-      print STDERR "Display was set to $dfl->{'display'}.\n";
     }
     elsif ($command eq 'debug') {
       if (defined $args) {
