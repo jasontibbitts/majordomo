@@ -585,18 +585,16 @@ sub index {
     # don't want to recurse.
     $name = "$dir/$file";
     $data = $self->getdata($name);
+    next unless $data; 
 
     # Tack on a visible identifier of a directory
     $file .= '/' if $data->{'permissions'} eq 'd';
     unless (($nodirs && $data->{'permissions'} eq 'd') ||
 	    (!$recurse && $file =~ m!/.+!))
       {
-	push @out, ($file, $data->{'permissions'}, $data->{'description'},
-		    $data->{'c-type'}, $data->{'charset'},
-		    $data->{'c-t-encoding'},
-		    $data->{'language'},
-		    (stat("$self->{'dir'}/$name"))[7],
-		   );
+        $data->{'file'} = $file;
+        $data->{'size'} = (stat("$self->{'dir'}/$name"))[7];
+	push @out, $data;
       }
   }
   (1, @out);
