@@ -7402,7 +7402,7 @@ sub _sublist {
       }
       elsif ($mess eq 'existing') {
         $mess = $self->format_error('existing_sublist', $list, 
-                                    'SUBLIST' => 'sublist');
+                                    'SUBLIST' => $sublist);
       }
     }
   }
