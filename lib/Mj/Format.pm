@@ -256,9 +256,21 @@ sub configset {
   $val = '' unless defined $val;
   eprint($out, $type, indicate($mess, $ok)) if $mess;
   if ($ok) {
-    eprintf($out, $type, "%s set to \"%s%s\".\n",
-            $request->{'setting'}, $val,
-            ${$request->{'value'}}[1] ? "..." : "");
+    if ($request->{'mode'} =~ /append/) {
+      eprintf($out, $type, "Value \"%s%s\" appended to %s.\n",
+              $val, ${$request->{'value'}}[1] ? "..." : "",
+              $request->{'setting'});
+    }
+    elsif ($request->{'mode'} =~ /extract/) {
+      eprintf($out, $type, "Value \"%s%s\" extracted from %s.\n",
+              $val, ${$request->{'value'}}[1] ? "..." : "",
+              $request->{'setting'});
+    }
+    else {
+      eprintf($out, $type, "%s set to \"%s%s\".\n",
+              $request->{'setting'}, $val,
+              ${$request->{'value'}}[1] ? "..." : "");
+    }
   }
   $ok;
 }
@@ -266,15 +278,28 @@ sub configset {
 sub configshow {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
-  my ($list, $ok, $mess, $varresult, $var, $val, $tag, $auto);
+  my ($list, $mode, $mode2, $ok, $mess, $varresult, $var, $val, $tag, $auto);
 
-  $list = $request->{'list'};
-  $list .= ":$request->{'sublist'}"
-    if ($request->{'sublist'} and $request->{'sublist'} ne 'MAIN');
+  if (exists $request->{'config'} and length $request->{'config'}) {
+    $list = $request->{'config'};
+  }
+  else {
+    $list = $request->{'list'};
+    $list .= ":$request->{'sublist'}"
+      if ($request->{'sublist'} and $request->{'sublist'} ne 'MAIN');
+  }
+  $mode = $mode2 = '';
+  if ($request->{'mode'} =~ /append/) {
+    $mode = '-append';
+  }
+  elsif ($request->{'mode'} =~ /extract/) {
+    $mode = $mode2 = '-extract';
+  }
+   
 
   $ok = shift @$result;
   unless (scalar @$result) {
-    $mess = "No settings found for the $list list.\n";
+    $mess = "No settings were found for the $list list.\n";
     eprint($out, $type, indicate($mess, $ok));
     return $ok;
   }
@@ -299,7 +324,7 @@ sub configshow {
       # Process as an array
       $tag = Majordomo::unique2();
       eprint ($out, $type, 
-              indicate("${auto}configset $list $var \<\< END$tag\n", 1));
+              indicate("${auto}configset$mode $list $var \<\< END$tag\n", 1));
       for (@$val) {
           eprint ($out, $type, indicate("$auto$_", 1)) if defined $_;
       }
@@ -310,10 +335,11 @@ sub configshow {
       $val = "" unless defined $val;
       if (length $val > 40) {
         eprint ($out, $type, 
-          indicate("${auto}configset $list $var =\\\n    $auto$val\n", 1));
+          indicate("${auto}configset$mode2 $list $var =\\\n    $auto$val\n", 1));
       }
       else {
-        eprint ($out, $type, indicate("${auto}configset $list $var = $val\n", 1));
+        eprint ($out, $type, 
+                indicate("${auto}configset$mode2 $list $var = $val\n", 1));
       }
       if ($request->{'mode'} !~ /nocomments/) {
         print $out "\n";
@@ -498,6 +524,7 @@ sub lists {
     
     while (@lists) {
       $data = shift @lists;
+      next if ($data->{'list'} =~ /^DEFAULT/ and $request->{'mode'} !~ /config/);
       $lists{$data->{'category'}}{$data->{'list'}} = $data;
     }
 
@@ -868,7 +895,7 @@ sub set {
     ($ok, $change) = splice @changes, 0, 2;
     if ($ok > 0) {
       $list = $change->{'list'};
-      if (length $change->{'sublist'}) {
+      if (length $change->{'sublist'} and $change->{'sublist'} ne 'MAIN') {
         $list .= ":$change->{'sublist'}";
       }
       $summary = <<EOM;
@@ -1136,7 +1163,7 @@ sub which {
   # guaranteed to have some addresses if it is nonempty, even if it
   # contains messages.
   if (@matches) {
-    if ($request->{'mode'} =~ /regexp/) {
+    if ($request->{'mode'} =~ /regex/) {
       eprint($out, $type, "The expression \"$request->{'regexp'}\" matches the following\n");
     }
     else {
@@ -1173,7 +1200,7 @@ sub which {
     $total_count, ($total_count == 1 ? "" : "es"));
   }
   else {
-    if ($request->{'mode'} =~ /regexp/) {
+    if ($request->{'mode'} =~ /regex/) {
       eprint($out, $type, "The expression \"$request->{'regexp'}\" appears in no lists\n");
     }
     else {
