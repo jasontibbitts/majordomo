@@ -240,10 +240,10 @@ There are four configuration settings that support moderation based upon
 the size of the message body or the message headers.  For more information,
 see the following documents:
 
-  help configset_max_header_line_length
-  help configset_max_mime_header_length
-  help configset_max_total_header_length
-  help configset_maxlength
+   help configset_max_header_line_length
+   help configset_max_mime_header_length
+   help configset_max_total_header_length
+   help configset_maxlength
 
 
 Personal limits
