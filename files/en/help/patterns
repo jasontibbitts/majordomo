@@ -251,6 +251,13 @@ Note that the 'x' modifier provides additional functionality to Perl code
 relating to comments, but because Majordomo requires patterns to lie all on
 a single line, this is not significant here.
 
+Negated matches (like !/^sub/) are a function of the taboo expression matcher,
+which has lots of complicated logic to handle them. Majordomo patterns just get
+sent through a function that turns them into regular expressions. Inverting a
+regular expression is nontrivial, so in general negation by a leading '!' is
+not supported by commands like "who".
+
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ
