@@ -1,10 +1,11 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-archive-delete   listname filespec
-archive-get      listname filespec
-archive-get-mime listname filespec
-archive-index    listname filespec
-archive-stats    listname filespec
-archive-sync     listname filespec
+archive-delete        listname filespec
+archive-get           listname filespec
+archive-get-immediate listname filespec
+archive-get-mime      listname filespec
+archive-index         listname filespec
+archive-stats         listname filespec
+archive-sync          listname filespec
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a regular list at this site
 filespec, required, is a single value or range of values (see below)
@@ -22,7 +23,11 @@ an extra argument.
 The type of digest for the archive-get command can be specified in
 the mode: "archive-get-mime" sends a multi-part MIME message, just
 "archive-get" sends plain text. The original format of the messages
-shouldn't matter.
+shouldn't matter. "archive-get" or "archive-get-mime" will cause 
+messages to be bundled into digest, typically with no more than
+1000 lines in a digest.  "archive-get-immediate" will cause all
+messages to be sent within one message, exactly as they are stored
+in the archive, with all message headers intact.
 
 List archives may be organized by year, month, week, or day, at the 
 discretion of the list owners. The configuration of the list does
@@ -31,7 +36,8 @@ and "help get" for other ways to directly access the archive files
 without using "archive-index" and "archive-get".
 
 Different "filespec" syntax applies to different archive options:
-  Section 1: archive-index, archive-get, archive-get-mime (users)
+  Section 1: archive-index, archive-get, archive-get-immediate, 
+             archive-get-mime (users)
   Section 2: archive-delete, archive-stats (list administrators only)
   Section 3: archive-sync (list admins with file system access only)
 
@@ -46,8 +52,8 @@ these options require an administrative password.
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-Section 1: archive-index, archive-get, archive-get-mime (users)
-
+Section 1: archive-index, archive-get, archive-get-immediate,
+           archive-get-mime (users)
 
 The "filespec" needed for these "archive" commands can take various
 forms, and examples of each are shown below:
