@@ -2485,7 +2485,7 @@ sub bounce_gen_stats {
     }
     else {
       undef $lastnum;
-      $seqstarttime = $seqendtime = $bata->{M}{$i};
+      $seqstarttime = $seqendtime = $bdata->{M}{$i};
       $stats->{consecutive} = 1;
     }
   }
