@@ -469,7 +469,7 @@ sub parse_exchange {
   my ($bh, $diag, $line, $subj, $user);
 
   $subj = $ent->head->get('subject');
-  unless ($subj =~ /undeliverable:/i) {
+  unless ($subj && $subj =~ /undeliverable:/i) {
     $log->out("Wrong subject");
     return;
   }
@@ -767,10 +767,11 @@ sub parse_msn {
   my $log  = new Log::In 50;
   my $ent  = shift;
   my $data = shift;
-  my ($bh, $diag, $line, $ok, $user);
+  my ($bh, $diag, $line, $ok, $sub, $user);
 
   # Check the subject
-  return unless $ent->head->get('Subject') =~ /nondeliverable mail/i;
+  $sub = $ent->head->get('Subject');
+  return unless $sub && $sub =~ /nondeliverable mail/i;
 
   # MSN only mails multipart bounces; the first part is flat
   return unless $ent->parts;

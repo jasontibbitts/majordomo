@@ -22,35 +22,34 @@ the form
   list:path
 
 where 'list' is the name of a list and path is the path within the
-list's filespace.  'list' can be empty, in which case this list is used.
-'path' can be empty, in which case the root of the filespace is used.
-Thus ':' refers to the top of the filespace of this list.
+list's filespace.  'list' can be empty, in which case this list is
+used.  'path' can be empty, in which case the root of the filespace is
+used.  Thus ':' refers to the top of the filespace of this list.
 
 To access files of another list, that list must must contain this
 list's name in its file_share setting.  If the referenced list does
 not share with this list, the relevant entries will be ignored.
 
 Majordomo comes with a library of files in various languages and these
-can be explicitly searched.  When it appears in the list slot, the 
-special string 'STOCK' indicates that the stock library of default 
-files is searched.
+can be explicitly searched.  When it appears in the list slot, the
+special string 'STOCK' indicates that the stock library of files is
+searched.
 
-Note that the 'GLOBAL' and 'DEFAULT' pseudo-lists may be used to provide 
-defaults for all lists in a domain.  GLOBAL, DEFAULT, and STOCK share all 
-their files with all lists.
+Note that the 'DEFAULT' pseudo-list may be used to provide defaults
+for all lists in a domain.  DEFAULT and STOCK share all their files
+with all lists.
 
 If '\$LANG' appears in the path portion, it is expanded to the user's
 current language choice if one is available.  If one is not available,
 it will expand to the value of the 'default_language' configuration
 setting.
 
-Certain directories of the GLOBAL and STOCK lists are always searched
+Certain directories of the DEFAULT and STOCK lists are always searched
 after everything else to provide defaults; these directories
 correspond to the following entries:
 
+  DEFAULT:\$LANG
   DEFAULT:
-  GLOBAL:\$LANG
-  GLOBAL:
   STOCK:\$LANG
   STOCK:en
 

@@ -1,3 +1,11 @@
+2001-05-11  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (_list_file_get): DEFAULT:$LANG should be
+	searched before DEFAULT.
+
+	* lib/Mj/BounceParser.pm (parse_exchange, parse_msn): Fix undef
+	warning due to nonexistent subject.
+
 2001-05-08  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/BounceHandler.pm (_hbr_consult): Make sure that the
