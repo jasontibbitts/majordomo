@@ -65,28 +65,29 @@ $::log->startup_time();
 #----- Which commands are supported ?  -----#
 # First value:  Should the result be preformatted?
 %commands = (  
-               'accept'    => [0],
-               'login'     => [0],
-               'reject'    => [0],
-               'tokeninfo' => [0],
-               'welcome'   => [0],
+               'accept'    => 1,
+               'login'     => 1,
+               'reject'    => 1,
+               'tokeninfo' => 1,
+               'welcome'   => 1,
             );
 
-# Start up the page and parse the URL
+#----- Initialize the CGI object -----#
 $cgi = new CGI;
 
-$pathinfo = $domain = '';
+#----- Determine the domain name  -----#
+$pathinfo = '';
+$domain = $cgi->param('d') || $cgi->param('domain') || '';
+
 if (exists $ENV{'PATH_INFO'}) {
   $pathinfo = $ENV{'PATH_INFO'};
-  while ($pathinfo =~ s#/domain=([a-zA-Z0-9.-]+)##) {
-    $domain = $1;
+  while ($pathinfo =~ s#/domain=([^/]+)##) {
+    $tmp = $1;
+    next if ($tmp =~ /[^a-zA-Z0-9.-]/);
+    $domain = $tmp unless (length $domain);
   }
 
   $pathinfo = '';
-}
-
-unless ($domain) {
-  $domain = $cgi->param('d') || '';
 }
 
 # Clean up the URL by which this program was invoked.
@@ -110,10 +111,9 @@ else {
   &surrender($cgi, qq("$domain" is an invalid domain.));
 }
 
-
 #----- Make the Majordomo object -----#
 $mj = new Majordomo $::LISTDIR, $domain;
-&surrender($cgi, '', $mj) unless (ref $mj);
+&surrender($cgi, $mj) unless (ref $mj);
 
 #----- Generate the session information. -----#
 for $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
@@ -123,7 +123,7 @@ $sess .= "Date: " . scalar(localtime(time)) . "\n";
 
 #----- Connect to the server -----#
 ($ok, $mess) = $mj->connect('wwwconfirm', $sess);
-&surrender($cgi, '', $mess) unless $ok; 
+&surrender($cgi, $mess) unless $ok; 
 
 #----- Collect some useful substitution variables -----#
 $user   = "z$ENV{'REMOTE_ADDR'}\@example.com";
@@ -141,15 +141,16 @@ $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'   => $cgidata,
           'CGIURL'    => $cgiurl,
           'CMDPASS'   => '',
-          'COMMAND'   => $action,
-          'TOKEN'     => $token,
-          'USER'      => $user,
+          'COMMAND'   => Mj::Format::escape($action),
+          'TOKEN'     => Mj::Format::escape($token),
+          'USER'      => Mj::Format::escape($user),
         };
 
 #----- Determine what service was requested -----#
 if ($ptoken and not $token) {
   &login($mj, $cgi, $subs, 
-         $mj->format_error('invalid_token', 'GLOBAL', 'TOKEN' => $ptoken));
+         $mj->format_error('invalid_token', 'GLOBAL', 
+                           'TOKEN' => $ptoken));
 }
 elsif (! ($token or $action eq 'welcome')) {
   &login($mj, $cgi, $subs, '');
@@ -167,7 +168,8 @@ else {
 }
 
 unless (exists $commands{$func}) {
-  &usage($mj, $cgi, $subs, "$action is an unsupported command.");
+  &usage($mj, $cgi, $subs, 
+         qq(The "$action" command is not supported.));
 }
 
 if ($func eq 'welcome') {
@@ -237,9 +239,8 @@ else {
   print "$str\n";
 }
 
-  print "<pre>\n" if ($commands{$func}->[0]);
-  &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwconfirm', $request, $result);
-  print "</pre>\n" if ($commands{$func}->[0]);;
+  &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwconfirm', 
+                         $request, $result);
 
 unless ($func eq 'tokeninfo' 
         and $request->{'mode'} eq 'part'
@@ -259,7 +260,7 @@ sub login {
   my ($str, $tmp);
 
   print $cgi->header();
-  $subs->{'ERROR'} = $message;
+  $subs->{'ERROR'} = Mj::Format::escape($message);
   $subs->{'COMMAND'} = "tokeninfo"
    if ($subs->{'COMMAND'} eq "login");
 
@@ -288,7 +289,7 @@ sub usage {
   my ($str, $tmp);
 
   print $cgi->header();
-  $subs->{'ERROR'} = $message;
+  $subs->{'ERROR'} = Mj::Format::escape($message);
   $::log->message(50, "info", $message) if $message;
 
   $tmp = $mj->format_get_string('wwwconfirm', 'head');
@@ -307,10 +308,15 @@ sub usage {
 }
 
 sub surrender {
-  my ($cgi, $subs, $message) = @_;
-  $::log->message(50, "info", $message) if $message;
-  print $cgi->header(-expires => '+10s');
+  my ($cgi, $message) = @_;
   my $url = $cgi->script_name;
+
+  if ($message) {
+    $::log->message(50, "info", $message);
+    $message = Mj::Format::escape($message);
+  }
+  
+  print $cgi->header(-expires => '+10s');
 
   print <<EOM;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
@@ -320,24 +326,22 @@ sub surrender {
 </head>
 <body>
 <h2 align=center>Majordomo Error</h2>
-$message
+
+<pre>$message</pre>
+
+<p>
+Type a valid Majordomo domain name into the <b>Domain</b> box.
+Press the <b>Sign In</b> button to receive further instructions.
+</p>
+
 <form method="POST" action="$url">
   <input type="hidden" name="func" value="login">
-  Enter the domain name into the box, then press the <b>Sign In</b> button.<br>
+  Domain: 
   <input name="domain" size="45">
   <input type="submit" value="Sign In">
 </form>
+</body></html>
 EOM
-
-  if (defined $subs and exists $subs->{'MJOWNER'}) {
-    print <<EOM;
-Please contact 
-<a href="mailto:$subs->{'MJOWNER'}">$subs->{'MJOWNER'}</a>
- for assistance.
-EOM
-  }
-
-print "</body></html>\n";
 
   exit 0;
 }
