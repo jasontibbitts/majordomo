@@ -1039,7 +1039,7 @@ sub report {
   my ($ok, $mess) = @$result;
 
   unless ($ok > 0) {
-    eprint($out, $type, "Unable to create report\n");
+    eprint($out, $type, &indicate("Unable to create report\n", $ok));
     eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
     return $ok;
   }
@@ -1094,6 +1094,8 @@ sub report {
           $end .= " $data->[10]";
         }
 
+        # display the command, [list,] victim, result, time,
+        # and duration of each command.
         if ($request->{'list'} eq 'ALL') { 
           $mess = sprintf "%-11s %-16s %-30s %-7s %s\n", 
                           $data->[1], $data->[0], $victim,
@@ -1102,6 +1104,10 @@ sub report {
         else {
           $mess = sprintf "%-11s %-44s %-7s %s\n", $data->[1],
                   $victim, $outcomes{$data->[6]}, $end;
+        }
+        if ($request->{'mode'} =~ /full/) {
+          # display the session ID and interface.
+          $mess .= sprintf "  %s %s\n", $data->[8], $data->[5];
         }
      
         eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
@@ -2038,10 +2044,18 @@ $act controls the content of various messages; if eq 'sub', we used
 sub g_sub {
   my ($act, $mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$act, $type";
-  my ($addr, $i, $ok, @res);
+  my ($addr, $i, $list, $ok, @res);
+
+  $list = $request->{'list'};
+  if ((exists $request->{'sublist'}) and 
+      length ($request->{'sublist'}) and
+      $request->{'sublist'} ne 'MAIN') 
+  {
+    $list .= ":$request->{'sublist'}";
+  }
 
   if ($act eq 'sub') {
-    $act = 'added to LIST';
+    $act = "added to $list";
   }
   elsif ($act eq 'reg') {
     $act = 'registered'; 
@@ -2050,12 +2064,12 @@ sub g_sub {
     $act = 'unregistered and removed from all lists'; 
   }
   else {
-    $act = 'removed from LIST';
+    $act = "removed from $list";
   }
 
   @res = @$result;
   unless (scalar (@res)) {
-    eprint($out, $type, "No addresses found\n");
+    eprint($out, $type, "No addresses were found.\n");
     return 1;
   }
   # Now print the multi-address format.
@@ -2067,13 +2081,6 @@ sub g_sub {
     }
     for (@$addr) {
       my ($verb) = ($ok > 0)?  $act : "not $act";
-      $verb =~ s/LIST/$request->{'list'}/;
-      if ((exists $request->{'sublist'}) and 
-          length ($request->{'sublist'}) and
-          $request->{'sublist'} ne 'MAIN') 
-      {
-        $verb .= ":$request->{'sublist'}";
-      }
       eprint($out, $type, "$_ was $verb.\n");
     }
   }
