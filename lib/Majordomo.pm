@@ -3167,6 +3167,7 @@ sub _put {
   }
 
   unless ($self->{'lists'}{$list}->fs_legal_file_name($file)) {
+    # XLANG
     return (0, qq(The path "/$file" is not valid.\n));
   }
 
@@ -6978,6 +6979,10 @@ sub subscribe {
   # Do not add the -unsubscribe alias
   unless ($matches_list) {
     $tmp = new Mj::Addr("$request->{'list'}-unsubscribe\@$whereami");
+    $matches_list = $request->{'victim'} eq $tmp;
+  }
+  unless ($matches_list) {
+    $tmp = new Mj::Addr("$request->{'list'}-subscribe\@$whereami");
     $matches_list = $request->{'victim'} eq $tmp;
   }
 

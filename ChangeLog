@@ -1,3 +1,9 @@
+2003-02-11  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (subscribe)  Avoid subscription
+	of the list-subscribe address to a list.
+	Thanks to Brock Rozen.
+
 2003-02-07  Michael Yount <csf@moscow.com>
 
 	* Makefile.PL:  "make siteconfig" will allow some sitewide
