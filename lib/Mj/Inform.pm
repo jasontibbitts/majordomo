@@ -131,7 +131,7 @@ sub _inform_owner {
   my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, 
      $comment, $elapsed) = @_;
   my $log = new Log::In 150, "$list, $req";
-  my ($author, $strip);
+  my ($author, $strip, $victim);
 
   my $whereami = $self->_global_config_get('whereami');
   my $owner    = $self->_list_config_get($list, 'whoami_owner');
@@ -145,16 +145,24 @@ sub _inform_owner {
 
   return unless ($message);
 
-  if (ref $user) { 
+  if (ref $user eq 'Mj::Addr') {
     $strip = $user->strip;
+    $victim = $user->full;
   }
   else {
     $strip = $user;
+    $victim = $user;
   }
 
   $author = "$requ";
   if ($author =~ /^.([\d\.]+)\@example\.com$/) {
     $author = "IP address $1";
+  }
+  if ($strip =~ /^.([\d\.]+)\@example\.com$/) {
+    $strip = $1;
+  }
+  if ($victim =~ /^.([\d\.]+)\@example\.com$/) {
+    $victim = "IP address $1";
   }
   
   my $subs = {
@@ -170,8 +178,8 @@ sub _inform_owner {
                'STRIPUSER' => $strip,
                'TIME'      => $elapsed,
 	       'UCOMMAND'  => uc $req,
-	       'USER'      => "$user",
-	       'VICTIM'    => "$user",
+	       'USER'      => $victim,
+	       'VICTIM'    => $victim,
 	     };
 
   # Substitute in the header
