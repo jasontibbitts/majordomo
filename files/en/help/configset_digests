@@ -11,9 +11,9 @@ Password Notes: none
 
 EXAMPLE:
 configset listname digests << ENDTAG
-daily   | 5     | 20K, 5m  | 40K, 10m | 3d     | 1d       |        | mime
+daily  | 5      | 20K,5m | 40K,10m  | 3d | 1d | | mime  | thread | numbered
 The pre-dawn daily digest  | [\$LIST] Daily digest (\$MESSAGECOUNT messages)
-weekly  | fr(23) |20k, 5m   | 100k,30m |        |          |        | index
+weekly | fr(23) |20k,5m  | 100k,30m |    |    | | index |  |  |
 The listname weekly index, generated late friday night.
 ENDTAG
 
@@ -66,8 +66,15 @@ minage   - A digest will not be created if it most recent article is
            creation in the middle of active discussion.  The default
            is no minimum age.
 
-deftype -- This specifies the type of digest that new subscribers get
-           by default. The default is MIME. Choices are listed below.
+type     - This specifies the type of digest that new subscribers get
+           by default.  The default is MIME.  Choices are listed below.
+
+sort     - The order in which the messages in the digest are sorted.
+           The default is numeric.  Choices are listed below.
+
+index    - The format of the table of contents that lists the messages
+           in an issue.  The default is determined by the
+           digest_index_format configuration setting.
 
 The following criteria are used to determine if a digest should be sent:
 
@@ -189,8 +196,8 @@ This field uses the same format as the maxage field.
 
 The default value is no minimum age.
 
-deftype
--------
+type
+----
 When subscribers choose to receive messages in a digest, but
 do not specify which format they prefer, this field determines
 which format is used by default.  Three formats are supported:
@@ -204,6 +211,35 @@ which format is used by default.  Three formats are supported:
 See "help digest" for a detailed description of how to customize each
 format.
 
+sort
+----
+By default, the messages are listed in numeric order, the order in
+which they were delivered to subscribers who receive each message
+individually.  Changing this field will cause the order of the messages
+in each issue to be rearranged.  The choices include:
+
+  author  - sort the messages according to the e-mail address of the
+            author, by domain.
+
+  date    - sort the messages by date.  Message dates are determined
+            by the time of arrival or the time of delivery, as specified
+            in the archive_date configuration setting.
+
+  subject - sort the messages alphabetically by the contents of the
+            Subject header.
+
+  thread  - sort the messages so replies that form a conversation
+            are grouped together.
+
+index
+-----
+The index field determines what information to display about each
+message in the table of contents that lists the messages in a digest
+issue.  The default value is determined by the digest_index_format
+configuration setting.  Please see "help configset_digest_index_format"
+for a list of supported formats.
+
+
 It is possible to use comments before, between, and after the individual
 digest configuration settings, but not between the two lines that
 describe an individual digest.  Comments are lines that begin with a '#'.
@@ -211,6 +247,7 @@ describe an individual digest.  Comments are lines that begin with a '#'.
 
 See Also:
    help admin_delivery
+   help configset_archive_date
    help configset_digest_index_format 
    help configset_digest_issues (to see the current volume and issue numbers)
    help digest   (to check digest status or force the delivery of digests)
