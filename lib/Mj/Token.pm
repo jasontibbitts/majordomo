@@ -1,6 +1,6 @@
 =head1 NAME
 
-Token.pm - conformation token functions for Majordomo
+Token.pm - confirmation token functions for Majordomo
 
 =head1 SYNOPSIS
 
@@ -145,145 +145,15 @@ sub t_remove {
   $self->{'tokendb'}->remove("", $tok);
 }
 
-=head2 confirm(file, arghash)
 
-This adds a token to the database and mails out the confirmation notice.
+=head2 confirm(args)
 
-The chain fields make a chained confirm->consult, like
-subscribe_policy=closed+confirm.  The idea is that when the
-confirmation token is accepted, a consultation token is generated with
-the data in the chain fields (if any is present).
+This adds a token to the database and mails out a message to the 
+moderators, requester, or victim.
 
-Data we have to chain so we can generate a complete consultation
-token:
-
-filename, approval count, moderator group, group size (?)
-
-=cut
-use MIME::Entity;
-sub confirm {
-  my ($self, %args) = @_;
-
-  my $log  = new Log::In 50;
-  my (%file, $repl, $token, $data, $ent, $sender, $url, $file, $mj_addr,
-      $mj_owner, $expire, $expire_days, $desc, $remind, $remind_days,
-      $reminded, $permanent, $reasons, $i);
-  my $list = $args{'list'};
-  $list = 'GLOBAL' if ($list eq 'ALL');
-
-  return unless $self->_make_tokendb;
-  $args{'command'} =~ s/_(start|chunk|done)$//;
-
-  # Figure out when a token will expire
-  $permanent = 0;
-  $expire_days = $self->_list_config_get($list, "token_lifetime");
-  $expire = time+86400*$expire_days;
-  $remind_days = $self->_list_config_get($list, "token_remind");
-  if (!$remind_days or $remind_days < 0 or $remind_days > $expire_days) {
-    $remind_days = $expire_days;
-    $remind = 0;
-    $reminded = 1;
-  }
-  else {
-    $remind = time+86400*$remind_days;
-    $reminded = 0;
-  }
-
-  # Make a token and add it to the database
-  $token = $self->t_add('confirm', $args{'list'}, $args{'command'},
-        		$args{'user'}, $args{'victim'}, $args{'mode'},
-        		$args{'cmdline'}, $args{'approvals'},
-        		@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
-			$expire, $remind, $reminded, $permanent,
-                        $args{'reasons'});
-
-  $sender   = $self->_list_config_get($list, 'sender');
-  $mj_addr  = $self->_global_config_get('whoami');
-  $mj_owner = $self->_global_config_get('sender');
-  $url = $self->_global_config_get('confirm_url');
-  $url = $self->substitute_vars_string($url,
-        			       {'TOKEN' => $token,},
-        			      );
-
-  ($reasons = $args{'reasons'}) =~ s/\002/\n  /g;
-  $repl = {
-           $self->standard_subs($list),
-           'TOKEN'      => $token,
-           'URL'        => $url,
-           'EXPIRE'     => $expire_days,
-           'REMIND'     => $remind_days,
-           'REQUESTER'  => $args{'user'},
-           'REQUESTOR'  => $args{'user'},
-           'VICTIM'     => $args{'victim'},
-           'NOTIFY'     => $args{'notify'},
-           'APPROVALS'  => $args{'approvals'},
-           'CMDLINE'    => $args{'cmdline'},
-           'COMMAND'    => $args{'command'},
-           'SESSIONID'  => $self->{'sessionid'},
-           'ARG1'       => $args{'arg1'},
-           'ARG2'       => $args{'arg2'},
-	   'REASONS'    => $reasons,
-           'ARG3'       => $args{'arg3'},
-          };
-
-  # Extract the file from storage
-  ($file, %file) = $self->_list_file_get($list, $args{'file'}, $repl, 1);
-  $desc = $self->substitute_vars_string($file{'description'}, $repl);
-
-  # Send it off
-  $ent = build MIME::Entity
-    (
-     Path        => $file,
-     Type        => $file{'c_type'},
-     Charset     => $file{'charset'},
-     Encoding    => $file{'c_t_encoding'},
-     Filename    => undef,
-                    # Note explicit stringification
-     -To         => "$args{'notify'}", 
-     -From       => $sender,
-     -Subject    => $desc,
-     'Content-Language:' => $file{'language'},
-    );
-
-  return unless $ent;
-
-  for $i ($self->_global_config_get('message_headers')) {
-    $i = $self->substitute_vars_string($i, $repl);
-    $ent->head->add(undef, $i);
-  }
-
-  $self->mail_entity({addr => $mj_owner,
-		      type => 'T',
-		      data => $token,
-		     },
-		     $ent,
-		     $args{'notify'}
-		    );
-
-  $ent->purge;
-}
-
-=head2 consult
-
-This adds a token to the database and mails out a message to the moderator.
-
-If this is a post request, the message is used as the body with no
-substitutions instead of using a file of instructions.  Also, post requests
-go to the moderator while administrative requests go to the approval
-address.
-
-XXX Somehow communicate the reason the request was bounced?  This must go
-in the subject and must include the possibility of multiple bounce reasons.
-arg1 will be the name of the message file and arg2 will be the list of
-reasons, concatenated with \002.
-
-XXX Multiple moderators?  Choose from list of moderators?  The 'moderator'
-variable lists the moderator as normal.  The 'moderators' array allows the
-listing of several moderators.  When a message needs approval, it is sent
-to 'moderator_group' of them chosen at random, (or all of them, if
-'moderator_group' is zero or unset.
-
-XXX This really needs to be looked at very closely.
+Moderator addresses can be taken from auxiliary lists, from the
+moderators configuration setting, or from the moderator configuration
+setting.
 
 This function takes:
 
@@ -298,241 +168,317 @@ This function takes:
   approvals - number of approvals required
   args - listref of (currently 3) arguments for the real command
 
-Rearrange these.  Add moderator pool size.  Add some way to tell that the
-token came from a consultation, so that we can send the results to the
-proper place.
-
 =cut
 use MIME::Entity;
-sub consult {
+use Mj::Util qw(condense);
+sub confirm {
   my ($self, %args) = @_;
-  my $log  = new Log::In 50;
-  my (%file, @mod1, @mod2, $data, $desc, $ent, $expire, $expire_days,
-      $file, $group, $i, $mj_addr, $mj_owner, $remind, $remind_days, $repl,
-      $sender, $size, $subject, $tmp, $token, $url, $reminded, $permanent,
-      $reasons);
-  my $list = $args{'list'};
+  my $log  = new Log::In 50, "$args{'chain'}, $args{'expire'}";
+  my (%file, @headers, @notify, @remind, @recip, @tmp, $approvals, $curl,
+      $data, $desc, $dest, $ent, $envext, $expire, $expire_days, $file,
+      $hdr, $i, $j, $list, $mj_addr, $mj_owner, $owner, $permanent,
+      $realtoken, $reasons, $recip, $remind, $remind_days, $reminded,
+      $repl, $rd, $sender, $tmp, $tmpf, $token, $ttype, $url);
+
+  $log->abort("confirm called with no notify structures.\n")
+    unless (exists $args{'notify'} and 
+            ref($args{'notify'}) eq 'ARRAY' and
+            scalar(@{$args{'notify'}}) >= 1);
+
+  $list = $args{'list'};
   $list = 'GLOBAL' if ($list eq 'ALL');
 
   return unless $self->_make_tokendb;
   $args{'command'} =~ s/_(start|chunk|done)$//;
-  $args{'sessionid'} ||= $self->{'sessionid'};
 
   $permanent = 0;
-  $expire_days = $self->_list_config_get($list, "token_lifetime");
-  $expire = time+86400*$expire_days;
-  $remind_days = $self->_list_config_get($list, "token_remind");
-  if (!$remind_days or $remind_days < 0 or $remind_days > $expire_days) {
-    $remind_days = $expire_days;
-    $remind = 0;
-    $reminded = 1;
+  if (exists $args{'expire'} and $args{'expire'} >= 0) {
+    $expire = $args{'expire'};
+    $expire_days = int(($expire + 43200) / 86400);
+    $expire += time;
   }
   else {
-    $remind = time+86400*$remind_days;
-    $reminded = 0;
+    $expire_days = $self->_list_config_get($list, "token_lifetime");
+    $expire_days = 0 unless (defined($expire_days) and $expire_days > 0);
+    $expire = time + 86400 * $expire_days;
   }
 
-  # Make a token and add it to the database
-  $token = $self->t_add('consult', $args{'list'}, $args{'command'},
-        		$args{'user'}, $args{'victim'}, $args{'mode'},
-        		$args{'cmdline'}, $args{'approvals'},
-        		@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
-                        $expire, $remind, $reminded, $permanent,
-                        $args{'reasons'});
+  if (exists($args{'chain'}) and $args{'chain'} == 1) {
+    @notify = ($args{'notify'}->[0]);
+    @tmp = sort keys %Mj::Util::notify_var;
+    for ($i = 1; $i < scalar(@{$args{'notify'}}) && $i < 5 ; $i++) {
+      $args{"chain$i"} = condense($args{'notify'}->[$i], \@tmp);
+    }
+    for ( ; $i < 5 ; $i++) {
+      $args{"chain$i"} ||= '';
+    }
+  }
+  else {
+    @notify = @{$args{'notify'}};
+    for ($i = 1; $i < 5 ; $i++) {
+      $args{"chain$i"} ||= '';
+    }
+  }
 
-  $sender = $self->_list_config_get($list, 'sender');
+  $approvals = 0;
+  $ttype = 'confirm';
+  @remind = ();
+  $rd = $self->_list_config_get($list, "token_remind") || 0;
+
+  for $i (@notify) {
+    # use Data::Dumper; $log->message(3, 'debug', Dumper $i);
+    $approvals += $i->{'approvals'} 
+      if (exists($i->{'approvals'}) and $i->{'approvals'} > 0);
+    if ($i->{'fulfill'} == 1) {
+      $ttype = 'delay';
+    }
+    elsif (($i->{'group'} !~ /^(victim|requester)$/) and $ttype eq 'confirm') {
+      $ttype = 'consult';
+    }
+
+    if (exists $i->{'remind'} and $i->{'remind'} >= 0) {
+      $remind = $i->{'remind'};
+      $reminded = 1 if ($remind == 0);
+      $remind_days = int(($remind + 43200) / 86400);
+      $remind += time;
+    }
+    else {
+      if (defined($rd) and $rd > 0) {
+        $remind_days = $rd;
+        $remind = time + 86400 * $remind_days;
+        $reminded = 0;
+      }
+      else {
+        $remind_days = $expire_days;
+        $remind = 0;
+        $reminded = 1;
+      }
+    }
+
+    if ($remind > $expire) {
+      $remind_days = $expire_days;
+      $remind = 0;
+      $reminded = 1;
+    }
+    push @remind, [$remind, $reminded, $remind_days];
+  }
+ 
+  # Initialize variables and make substitutions.
+  ($reasons = $args{'reasons'}) =~ s/\002/\n  /g;
+  $sender   = $self->_list_config_get($list, 'sender');
+  $owner    = $self->_list_config_get($list, 'whoami_owner');
   $mj_addr  = $self->_global_config_get('whoami');
   $mj_owner = $self->_global_config_get('sender');
-  $url = $self->_global_config_get('confirm_url');
-  $url = $self->substitute_vars_string($url,
-        			       {'TOKEN' => $token,},
+  $curl = $self->_global_config_get('confirm_url');
+  @headers = $self->_global_config_get('message_headers');
+
+  # Make a token and add it to the database
+  $realtoken = 
+    $self->t_add($ttype, $args{'list'}, $args{'command'}, $args{'user'}, 
+                 $args{'victim'}, $args{'mode'}, $args{'cmdline'}, 
+                 $approvals, $args{'chain1'}, $args{'chain2'}, $args{'chain3'},
+                 $args{'chain4'}, $args{'arg1'}, $args{'arg2'}, $args{'arg3'}, 
+                 $expire, $remind[0]->[0], $remind[0]->[1], 
+                 $permanent, $args{'reasons'});
+
+  $url = $self->substitute_vars_string($curl,
+        			       {'TOKEN' => $realtoken,},
         			      );
 
+  $repl = {
+           $self->standard_subs($list),
+           'TOKEN'      => $realtoken,
+           'URL'        => $url,
+           'EXPIRE'     => $expire_days,
+           'FULFILL'    => scalar localtime($expire),
+           'REMIND'     => $remind[0]->[2],
+           'REQUESTER'  => $args{'user'},
+           'REQUESTOR'  => $args{'user'},
+           'VICTIM'     => $args{'victim'},
+           'NOTIFY'     => $args{'notify'},
+           'APPROVALS'  => $approvals,
+           'CMDLINE'    => $args{'cmdline'},
+           'COMMAND'    => $args{'command'},
+           'SESSIONID'  => $self->{'sessionid'},
+           'ARG1'       => $args{'arg1'},
+           'ARG2'       => $args{'arg2'},
+	   'REASONS'    => $reasons,
+           'ARG3'       => $args{'arg3'},
+          };
+   
+  # Determine which of the notify structures actually receives a message
+  for ($i = 0; $i < scalar @notify; $i++) {
+    $dest = $notify[$i];
+    @recip = ();
+    $recip = '';
+    # Determine the destination address(es).  If the group is "none,"
+    # no notice is sent.
+    if ($dest->{'group'} eq 'none') {
+      @recip = ([]);
+    }
+    elsif ($dest->{'group'} eq 'requester') {
+      @recip = (["$args{'user'}"]);
+      $recip = "$args{'user'}";
+    }
+    elsif ($dest->{'group'} eq 'victim') {
+      @recip = (["$args{'victim'}"]);
+      $recip = "$args{'user'}";
+    }
+    else {
+      @tmp = $self->get_moderators($args{'list'}, $dest->{'group'},
+                                   $dest->{'pool'});
+
+      if ($dest->{'approvals'} > 1) {
+        for $j (@tmp) {
+          push @recip, [$j];
+        }
+      }
+      else {
+        @recip = ([@tmp]);
+      }
+      $recip = $owner;
+    }
+
+    $repl->{'APPROVALS'} = $dest->{'approvals'};
+    $repl->{'REMIND'} = $remind[$i]->[2];
+    ($file, %file) = $self->_list_file_get($list, $dest->{'file'});
+
+    for $j (@recip) {
+      if ($dest->{'approvals'} > 1 or scalar(@notify) > 1) {
+        $token = 
+          $self->t_add('alias', $args{'list'}, $args{'command'}, $args{'user'}, 
+                 $args{'victim'}, $args{'mode'}, $args{'cmdline'}, 
+                 1, $realtoken, $dest->{'group'}, '',
+                 '', $args{'arg1'}, $args{'arg2'}, $args{'arg3'}, 
+                 $expire, $remind[$i]->[0], $remind[$i]->[1], 
+                 $permanent, $args{'reasons'});
+      }
+      else {
+        $token = $realtoken;
+      }
+
+      $repl->{'URL'} = 
+        $self->substitute_vars_string($curl, {'TOKEN' => $token,});
+      $repl->{'TOKEN'} = $token;
+
+      # Determine if a notification should be sent.
+      # It should not be sent for "delay" tokens if quiet mode is used.
+      # Nor if the "none" group was specified.
+      # Nor in response to a posted message if the ackstall flag is not
+      # set and the requester or victim is being notified.
+      next if (($ttype eq 'delay' and $args{'mode'} =~ /quiet/) or
+               (scalar(@$j) == 0) or
+               ($args{'command'} eq 'post' and 
+                (! $self->{'lists'}{$list}->should_ack(
+                     $args{'sublist'}, $args{'victim'}, 'b'))));
+   
+
+      # Extract the file from storage
+      $tmpf = $self->substitute_vars($file, $repl);
+      $desc = $self->substitute_vars_string($file{'description'}, $repl);
+
+      # Send it off
+      $ent = build MIME::Entity
+        (
+         Path        => $tmpf,
+         Type        => $file{'c_type'},
+         Charset     => $file{'charset'},
+         Encoding    => $file{'c_t_encoding'},
+         Filename    => undef,
+                        # Note explicit stringification
+                        # victim's address, requester's address, sender.
+         -To         => $recip, 
+         -From       => $sender,
+         -Subject    => $desc,
+         'Content-Language:' => $file{'language'},
+        );
+
+      next unless $ent;
+
+      for $hdr (@headers) {
+        $hdr = $self->substitute_vars_string($hdr, $repl);
+        $ent->head->add(undef, $hdr);
+      }
+
+      # Attach the message file if necessary.
+      if ($args{'command'} eq 'post' and exists($dest->{'attach'})
+          and $dest->{'attach'} == 1) 
+      {
+        $ent->make_multipart;
+        $ent->attach(Type        => 'message/rfc822',
+                     Description => 'Original message',
+                     Path        => $args{'arg1'},
+                     Filename    => undef,
+                    );
+      }
+
+
+      # Determine whether or not a bounce of the token would result
+      # in the token being deleted.
+      if (exists($dest->{'bounce'}) and $dest->{'bounce'} == 0) {
+        $envext = 'D';
+      }
+      else {
+        $envext = 'T';
+      }
+
+      $self->mail_entity({addr => $mj_owner,
+                          type => $envext,
+                          data => $token,
+                         },
+                         $ent,
+                         @$j
+                        );
+
+      unlink $tmpf;
+      # Do not purge the entity.  It might delete the spool file
+      # if a posted message is attached to the notice.
+      # $ent->purge;
+    }
+  }
+}
+
+=head2 get_moderators(list, moderator_group, pool_size)
+
+Obtain the e-mail addresses of one or more list moderators.
+If the moderator group is specified, the addresses will be taken
+from the auxiliary list of the same name.  If the pool size
+is greater than zero, a subset of the moderator group will be
+chosen randomly.
+
+=cut
+sub get_moderators {
+  my $self  = shift;
+  my $list  = shift;
+  my $group = shift || 'moderators';
+  my $size  = shift;
+
+  my (@mod1, @mod2, $i);
+
   # This extracts a list of moderators.  If a moderator group
-  # was specified, the addresses are taken from the subsidiary
+  # was specified, the addresses are taken from the auxiliary
   # list of the same name.  If no such list exists, the
-  # "moderators" subsidiary list and the "moderators," "moderator,"
+  # "moderators" auxiliary list and the "moderators," "moderator,"
   # and "sender" configuration setting are each consulted
   # in turn until an address is found.
-  $self->_make_list($list);
-  $group = $args{'group'} || 'moderators';
+  return unless ($self->_make_list($list));
   @mod1  = $self->{'lists'}{$list}->moderators($group);
 
   # The number of moderators consulted can be limited to a
   # certain (positive) number, in which case moderators
   # are chosen randomly.
-  $size  = $args{'size'} || 
-           $self->_list_config_get($list, 'moderator_group') || 0 ;
+  unless (defined($size) and $size >= 0) {
+    $size = $self->_list_config_get($list, 'moderator_group') || 0 ;
+  }
   if (($size > 0) and (scalar @mod1 > $size)) {
     for ($i = 0; $i < $size && @mod1; $i++) {
       push(@mod2, splice(@mod1, rand @mod1, 1));
     }
+    return @mod2;
   }
   else {
-    @mod2 = @mod1;
+    return @mod1;
   }
-
-  ($reasons = $args{'reasons'}) =~ s/\002/\n  /g
-    if ($args{'reasons'});
-  $reasons ||= '';
-
-  # Not doing a post, so we send a form letter.
-  # First, build our big hash of substitutions.
-  $repl = {
-           $self->standard_subs($list),
-           'TOKEN'      => $token,
-           'URL'        => $url,
-           'EXPIRE'     => $expire_days,
-           'REMIND'     => $remind_days,
-           'REQUESTER'  => $args{'user'},
-           'REQUESTOR'  => $args{'user'},
-           'VICTIM'     => $args{'victim'},
-           'APPROVALS'  => $args{'approvals'},
-           'CMDLINE'    => $args{'cmdline'},
-           'COMMAND'    => $args{'command'},
-           'SESSIONID'  => $self->{'sessionid'},
-           'ARG1'       => $args{'args'}[0],
-           'ARG2'       => $args{'args'}[1],
-           'REASONS'    => $reasons,
-           'ARG3'       => $args{'args'}[2],
-          };
-
-  # Extract the file from storage:
-  ($file, %file) = $self->_list_file_get($list, $args{'file'}, $repl, 1);
-  $desc = $self->substitute_vars_string($file{'description'}, $repl);
-
-  # Send it off
-  $ent = build MIME::Entity
-    (
-     Path        => $file,
-     Type        => $file{'c_type'},
-     Charset     => $file{'charset'},
-     Encoding    => $file{'c_t_encoding'},
-     Filename    => undef,
-     -To         => $sender,
-     -From       => $sender,
-     -Subject    => $desc,
-     'Content-Language:' => $file{'language'},
-    );
-
-  return unless $ent;
-
-  for $i ($self->_global_config_get('message_headers')) {
-    $i = $self->substitute_vars_string($i, $repl);
-    $ent->head->add(undef, $i);
-  }
-
-  if ($args{'command'} eq 'post') {
-    $ent->make_multipart;
-    $ent->attach(Type        => 'message/rfc822',
-                 Description => 'Original message',
-                 Path        => $args{'args'}[0],
-                 Filename    => undef,
-                );
-  }
-  $self->mail_entity($sender, $ent, @mod2);
-  # We do not want to unlink the spool file.
-  # $ent->purge;
-  unlink $file || $::log->abort("Couldn't unlink $file, $!");
-}
-
-=head2 delay(file, arghash)
-
-This adds a delay token to the database and mails out the delay notice.
-Requests in delay tokens are carried out when the token expires.
-
-=cut
-use MIME::Entity;
-sub delay {
-  my ($self, %args) = @_;
-
-  my $log  = new Log::In 50;
-  my (%file, $repl, $token, $data, $ent, $sender, $url, $file, $mj_addr,
-      $mj_owner, $expire, $expire_days, $desc, $permanent, $reasons, $i);
-  my $list = $args{'list'};
-  $list = 'GLOBAL' if ($list eq 'ALL');
-
-  return unless $self->_make_tokendb;
-  $args{'command'} =~ s/_(start|chunk|done)$//;
-
-  # Figure out when a token will expire
-  $permanent = 0;
-  $expire = time + $args{'delay'};
-
-  # Make a token and add it to the database
-  $token = $self->t_add('delay', $args{'list'}, $args{'command'},
-        		$args{'user'}, $args{'victim'}, $args{'mode'},
-        		$args{'cmdline'}, $args{'approvals'},
-        		@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
-			$expire, 0, 1, $permanent, $args{'reasons'});
-
-  # Do not inform the victim if "quiet" mode was specified
-  # or if the request was a posted message.
-  return 1 if ($args{'mode'} =~ /quiet/ or $args{'command'} eq 'post');
-
-  $sender   = $self->_list_config_get($list, 'sender');
-  $mj_addr  = $self->_global_config_get('whoami');
-  $mj_owner = $self->_global_config_get('sender');
-  $url = $self->_global_config_get('confirm_url');
-  $url = $self->substitute_vars_string($url,
-        			       {'TOKEN' => $token,},
-        			      );
-
-  ($reasons = $args{'reasons'}) =~ s/\002/\n  /g;
-  $repl = {
-           $self->standard_subs($list),
-           'TOKEN'      => $token,
-           'URL'        => $url,
-           'FULFILL'    => scalar localtime ($expire),
-           'REQUESTER'  => $args{'user'},
-           'REQUESTOR'  => $args{'user'},
-           'VICTIM'     => $args{'victim'},
-           'NOTIFY'     => $args{'notify'},
-           'APPROVALS'  => $args{'approvals'},
-           'CMDLINE'    => $args{'cmdline'},
-           'COMMAND'    => $args{'command'},
-	   'REASONS'    => $reasons,
-           'SESSIONID'  => $self->{'sessionid'},
-           'ARG1'       => $args{'args'}->[0],
-           'ARG2'       => $args{'args'}->[1],
-           'ARG3'       => $args{'args'}->[2],
-          };
-
-  # Extract the file from storage
-  ($file, %file) = $self->_list_file_get($list, $args{'file'}, $repl, 1);
-  $desc = $self->substitute_vars_string($file{'description'}, $repl);
-
-  # Send it off
-  $ent = build MIME::Entity
-    (
-     Path        => $file,
-     Type        => $file{'c_type'},
-     Charset     => $file{'charset'},
-     Encoding    => $file{'c_t_encoding'},
-     Filename    => undef,
-                    # Note explicit stringification
-     -To         => "$args{'notify'}", 
-     -From       => $sender,
-     -Subject    => $desc,
-     'Content-Language:' => $file{'language'},
-    );
-
-  return unless $ent;
-
-  for $i ($self->_global_config_get('message_headers')) {
-    $i = $self->substitute_vars_string($i, $repl);
-    $ent->head->add(undef, $i);
-  }
-
-  $self->mail_entity({addr => $mj_owner,
-		      type => 'D',
-		      data => $token,
-		     },
-		     $ent,
-		     $args{'notify'}
-		    );
-
-  $ent->purge;
 }
 
 =head2 t_accept(token)
@@ -557,9 +503,11 @@ to load the MIME stuff.
 
 =cut
 use Mj::MIMEParser;
+use Mj::Addr;
 use Mj::File;
 use Mj::Format;
 use Mj::MailOut;
+use Mj::Util qw(n_defaults reconstitute);
 sub t_accept {
   my $self  = shift;
   my $token = shift;
@@ -567,8 +515,9 @@ sub t_accept {
   my $comment = shift;
   my $delay = shift;
   my $log   = new Log::In 50, $token;
-  my (%file, @out, $data, $ent, $ffunc, $func, $line, $mess, $ok, $outfh,
-      $req, $sender, $server, $tmp, $tmpdir, $vict, $repl, $whoami);
+  my (%file, @out, @tmp, $data, $ent, $ffunc, $func, $line, $mess, 
+      $notify, $ok, $outfh, $repl, $req, $rf, $sender, $server, 
+      $tmp, $tmpdir, $vict, $whoami);
 
   $self->_make_tokendb;
   $data = $self->{'tokendb'}->lookup($token);
@@ -578,7 +527,7 @@ sub t_accept {
   $data->{'approvals'}--;
 
   # If a delay was requested, change the token type and return.
-  if ($data->{'type'} eq 'consult' and defined $delay and $delay > 0) {
+  if ($data->{'type'} eq 'consult' and defined($delay) and $delay > 0) {
     $data->{'expire'} = time + $delay;
     $data->{'type'} = 'delay';
     $data->{'reminded'} = 1;
@@ -592,7 +541,15 @@ sub t_accept {
     return (-1, "$data->{'approvals'} approvals are still required", 
             $data, [-1]);
   }
-  
+ 
+  # Deal with alias tokens:  remove the token and accept
+  # the new token recursively.
+  if ($data->{'type'} eq 'alias') {
+    $self->t_remove($token);
+    $token = $data->{'chain1'};
+    return $self->t_accept($token, $mode, $comment, $delay);
+  }
+ 
   # Allow "accept-archive" to store a message in the archive but
   # not distribute it on to a mailing list.  Note that this could
   # have interesting side effects, good and bad, if used in
@@ -618,46 +575,64 @@ sub t_accept {
   # chained token where we need to generate yet another token and send it
   # to another source.
   if ($data->{'chain1'}) {
-    if ($data->{'chain2'} eq 'requester') {
-      $self->confirm('chained'   => 1,
-        'file'      => $data->{'chain1'},
-        'group'     => $data->{'chain2'},
-        'list'      => $data->{'list'},
-        'command'   => $data->{'command'},
-        'user'      => $data->{'user'},
-        'victim'    => $data->{'victim'},
-        'notify'    => $data->{'user'},
-        'mode'      => $data->{'mode'},
-        'reasons'   => $data->{'reasons'},
-        'cmdline'   => $data->{'cmdline'},
-        'sessionid' => $data->{'sessionid'},
-        'approvals' => $data->{'chain3'},
-        'args'      => [$data->{'arg1'}, $data->{'arg2'}, $data->{'arg3'}],
-      );
+
+    # New style
+    if ($data->{'chain1'} =~ /\002/) {
+      @tmp = sort keys %Mj::Util::notify_var;
+      $tmp = reconstitute($data->{'chain1'}, \@tmp);
+      $data->{'chain1'} = $data->{'chain2'};
+      $data->{'chain2'} = $data->{'chain3'};
+      $data->{'chain3'} = $data->{'chain4'};
+      $data->{'chain4'} = '';
+    }
+    # Old style
+    else {
+      if ($data->{'chain2'} eq 'requester') {
+        $tmp = n_defaults('confirm');
+        $tmp->{'group'} = 'requester';
+      }
+      else {
+        $tmp = n_defaults('consult');
+      }
+
+      if (defined($data->{'chain1'}) and length($data->{'chain1'})) {
+        $tmp->{'file'} = $data->{'chain1'};
+      }
+      if (defined($data->{'chain2'}) and length($data->{'chain2'})) {
+        $tmp->{'group'} = $data->{'chain2'};
+      }
+      if (defined($data->{'chain3'}) and length($data->{'chain3'})) {
+        $tmp->{'approvals'} = $data->{'chain3'};
+      }
+      delete $data->{'chain1'};
+      delete $data->{'chain2'};
+      delete $data->{'chain3'};
+      delete $data->{'chain4'};
+      delete $data->{'expire'};
+      delete $data->{'remind'};
+      delete $data->{'reminded'};
     }
 
-    # We have a confirm+consult token, the first half was just accepted.
-    # Generate the new consult token
-    else {
-      $self->consult('chained'   => 1,
-        	   'file'      => $data->{'chain1'},
-        	   'group'     => $data->{'chain2'},
-        	   'list'      => $data->{'list'},
-        	   'command'   => $data->{'command'},
-        	   'user'      => $data->{'user'},
-        	   'victim'    => $data->{'victim'},
-        	   'mode'      => $data->{'mode'},
-                   'reasons'   => $data->{'reasons'},
-        	   'cmdline'   => $data->{'cmdline'},
-        	   'sessionid' => $data->{'sessionid'},
-        	   'approvals' => $data->{'chain3'},
-        	   'args'      => [$data->{'arg1'}, $data->{'arg2'}, $data->{'arg3'}],
-        	  );
+    # Which reply file should be sent?
+    if ($tmp->{'group'} eq 'requester') {
+      $rf = 'repl_confirm';
     }
+    else {
+      $rf = 'repl_chain';
+    }
+
+    $self->confirm(%$data, 
+                   'chain'   => 1,
+                   'notify'  => [$tmp],
+                  );
+
+    # XXX What if the confirm method fails?
     $self->t_remove($token);
 
+    # Determine which file to send.  chain4 or repl_something
+    # based upon notify->{'group'}.
 
-    my ($file) = $self->_list_file_get($data->{'list'}, $data->{'chain4'});
+    my ($file) = $self->_list_file_get($data->{'list'}, $rf);
     $file = $self->substitute_vars($file, $repl);
     my $fh = new Mj::File "$file"
       or $log->abort("Cannot read file $file, $!");
@@ -691,7 +666,12 @@ sub t_accept {
     my ($origtype) = $data->{'type'};
     $data->{'type'} = 'async';
     $data->{'reminded'} = 1;
-    $self->{'tokendb'}->replace('', $token, $data);
+    while (1) {
+      $tmp = $self->t_gen;
+      ($ok, undef) = $self->{'tokendb'}->add('', $tmp, $data);
+      last if $ok;
+    }
+    $self->t_remove($token);
 
     $sender = $self->_global_config_get('sender');
     $server = $self->_global_config_get('whoami');
@@ -700,7 +680,7 @@ sub t_accept {
        'Subject'  => "Forwarded approval from $server\n",
        'From'     => "$server\n",
        'Reply-To' => "$server\n",
-       'Data'     => ["accept $token\n"],
+       'Data'     => ["accept $tmp\n"],
       );
 
     $self->mail_entity($sender, $ent, $server) if ($server and $ent);
@@ -798,7 +778,12 @@ sub t_reject {
   return (0, "Token $token is unavailable.\n")
     unless $data;
 
-  # XXX Notify/requester the owner unless $quiet
+  # If we are removing an alias token, find the real
+  # token and eliminate it, too.
+  if ($data->{'type'} eq 'alias') {
+    $token = $data->{'chain1'};
+    return $self->t_reject($token);
+  }
   
   return (1, $data);
 }
@@ -833,8 +818,8 @@ sub t_remind {
   my $self = shift;
   my $log  = new Log::In 60;
   my $time = time;
-  my (%file, @reminded, @tmp, $data, $desc, $ent, $expire, $file, $gurl, 
-      $i, $mj_addr, $mj_owner, $reasons, $repl, $sender, $token, $url);
+  my (%file, @mod, @reminded, @tmp, $data, $desc, $ent, $expire, $file, $gurl, 
+      $i, $mj_addr, $mj_owner, $reasons, $repl, $sender, $tmp, $token, $url);
 
   my $mogrify = sub {
     my $key  = shift;
@@ -862,7 +847,15 @@ sub t_remind {
     $mj_owner = $self->_global_config_get('sender');
     $gurl = $self->_global_config_get('confirm_url');
 
-    while (($token, $data) = splice(@reminded, 0, 2)) {
+    while (($token, $data) = splice(@tmp, 0, 2)) {
+      # For alias tokens, remove the token unless the original exists.
+      if ($data->{'type'} eq 'alias') {
+        $tmp = $self->{'tokendb'}->lookup($data->{'chain1'});
+        unless (defined $tmp) {
+          $self->t_remove($token);
+          next;
+        }
+      }
       # Extract the file from storage
       ($file, %file) = $self->_list_file_get($data->{'list'}, "token_remind");
 
@@ -883,6 +876,7 @@ sub t_remind {
                TOKEN      => $token,
                URL        => $url,
                EXPIRE     => $expire,
+               FULFILL    => scalar localtime($data->{'expire'}),
                REQUESTER  => $data->{'user'},
                REQUESTOR  => $data->{'user'},
                VICTIM     => $data->{'victim'},
@@ -926,6 +920,22 @@ sub t_remind {
         $ent->head->replace('To', $data->{'victim'});
         $self->mail_entity($mj_owner, $ent, $data->{'victim'});
       }
+      elsif ($data->{'type'} eq 'alias') {
+        $ent->head->replace('To', $sender);
+        if ($data->{'chain2'} eq 'none') {
+          next;
+        }
+        elsif ($data->{'chain2'} eq 'victim') {
+          @mod = ($data->{'victim'});
+        }
+        elsif ($data->{'chain2'} eq 'requester') {
+          @mod = ($data->{'user'});
+        }
+        else {
+          @mod = $self->get_moderators($data->{'list'}, $data->{'chain2'}, -1);
+        }
+        $self->mail_entity($mj_owner, $ent, @mod) if (scalar @mod);
+      }  
       else {
         $ent->head->replace('To', $sender);
         $self->mail_entity($mj_owner, $ent, $sender);
