@@ -195,13 +195,12 @@ sub owner_done {
 		      $self->_site_config_get('mta_separator')
 		     );
 
-  if ($bounce eq 'warning' || $bounce eq 'bounce') {
+  if ($bounce eq 'unknown' || $bounce eq 'warning' || $bounce eq 'bounce') {
     # Build a new message which includes the explanation from the bounce
     # parser and attach the original message.
     $nent = build MIME::Entity
       (
-       Data     => [ "Majordomo detected a bounce message.\n",
-		     $mess,
+       Data     => [ $mess,
 		     "The message is attached below.\n\n",
 		   ],
        -Subject => "Bounce detected",

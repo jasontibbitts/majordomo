@@ -57,11 +57,13 @@ sub new {
   return $val if ref($val) eq 'Mj::Mode';
 
   $self->{'string'} = $val;
-  return undef unless $self->{'full'};
 
   bless $self, $class;
 
-  # Parse apart the mode string 
+  # Take apart the string
+  $self->parse();
+
+  $self;
 }
 
 =head2 stringify

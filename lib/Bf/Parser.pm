@@ -49,17 +49,38 @@ sub parse {
   my $list = shift;
   my $sep  = shift;
 
-  my ($left, $right, $to);
+  my ($info, $msgno, $to, $user);
 
   # Look for useful bits in the To: header
   $to = $ent->head->get('To');
 
-  # Should use Bf::Sender::parse_to($to)
-  ($left) = $to =~ /\Q${list}\E-owner\Q${sendsep}\E([^@]+)\@/;
+  # Look at the left hand side.  We expect to see the list name, followed
+  # by '-owner', followed by the MTA-dependent separator followed by some
+  # stuff.
+  ($info) = $to =~ /\Q${list}\E-owner\Q${sep}\E([^@]+)\@/;
 
-  return ('unknown');
-#  return ('bounce', '', "Detected a bounce.\n");
+  return ('none') unless $info;
 
+  # We know the message is special.  Look for:
+  # M\d{1,5}
+  # M\d{1,5}=user=host
+  # various other special types which we don't use right now.
+  if ($info =~ /M(\d{1,5})=([^=]+)=([^=]+)/) {
+    $msgno = $1;
+    $user  = "$3\@$2";
+    return ('bounce', $user,
+	    "Detected a bounce of message #$msgno from $user.\n");
+  }
+  elsif ($info =~ /M(\d{1,5})/) {
+    $msgno = $1;
+    $user = undef;
+    return ('bounce', '',
+	    "Detected a bounce of message #$msgno but could not determine the user.\n");
+  }
+  else {
+    return ('unknown', '',
+	    "Detected a special return message but could not discern its type.\n");
+  }
 }
 
 =head1 COPYRIGHT
