@@ -1,53 +1,110 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-unregister[-pattern][-regex][-allmatching] address
+unregister [address]
+unregister-pattern[-allmatching] pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-address, required, is a previously registered address
--regex,   if specified, treats the address as a pattern (see "help patterns")
--pattern, if specified, treats the address as a pattern (see "help patterns")
--allmatching, if specified, operates on every address that matches
+address, if specified, is an e-mail address that is already registered.
+pattern, if specified, is a Majordomo pattern (see "help patterns")
+-pattern, if specified, removes addresses that match a pattern
+-allmatching, if specified, unregisters every address that matches
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "register" command adds an "address" to the registration database
-without adding it to any lists. When an address is first subscribed to
-any list at this site, it is automatically put in the registration
-database. Unregistering will automatically remove that address from all
-lists at this site.
+The unregister command will remove one or more e-mail addresses from the
+registration database.  All of the subscriptions and aliases belonging
+to an address that is unregistered will be removed automatically.
 
-Unless the command is "approve"d in advance, a confirmation token will
-be sent to the given "address" to verify this action, and must be replied
-to with an "accept" command. Users can pre-approve unregistering
-individual addresses, but the site password is required for "-regex".
+The simplest way for you to unregister is to send the following command
+in the body of an e-mail message to $MJ:
+  unregister
+(A confirmation message may be sent to your e-mail address.)
 
-When -regex is used to unregister addresses with wild cards, the site
-password is required and confirmations will not be requested. Without
-"-allmatching", only the first matching address is removed.
+If the address from which you are sending the message is different from
+the address that is registered, use the following command:
+  unregister ADDRESS
+(Substitute the e-mail address you wish to unregister for ADDRESS.)
 
+
+                        Notes for administrators
+
+Patterns
+--------
+If the "pattern" command mode is used, you must specify a pattern on the
+command line.  See "help patterns" for an introduction Majordomo
+matching pattern.  A domain or site administrative password is required
+to use the "pattern" mode.  The "regex" mode is identical to the
+"pattern" mode.
+
+If the "allmatching" command mode is also used, every address that
+matches the pattern will be unregistered.  Otherwise, only the
+first address that matches the pattern will be removed.
+
+
+Pattern examples
+----------------
+The following command will remove the first address that matches
+"example.net" from the registry:
+
+  unregister-pattern example.net
+
+
+The following command will remove every address that matches
+"example.edu" from the registry:
+
+  unregister-pattern-allmatching example.edu
+
+
+The following command will remove all of the addresses from the
+registration database, along with all of their subscriptions and
+aliases:
+
+  unregister-pattern-allmatching ALL
+
+
+Canonical Addresses
+-------------------
 Each address has an original and a canonical form.  Usually these
-addresses are the same, but if the original address (the one
-that was used to subscribe to a mailing list) is an alias for
-another address, the latter address is the canonical address.
+addresses are the same, but if the original address (the one that was
+used to subscribe to a mailing list or register) is an alias for another
+address, the latter address is the canonical address.
 
-When the "pattern" command mode is used, the canonical addresses are
-compared to the pattern.  This may cause some surprising results
-when an original address that does not match the pattern is
-reported to have been unsubscribed.
+When the "pattern" mode is used, the canonical addresses are compared to
+the pattern.  This may cause some surprising results when an original
+address that does not match the pattern is reported to have been
+unregistered.
 
-If the "allmatching" command mode is used with the "pattern" command
-mode, every address that matches the pattern will be removed from the
-registry (and automatically unsubscribed from every list).
 
-The "regex" command mode is identical to the "pattern" command mode.
+Here documents
+--------------
+List owners can unregister more than one address or pattern using a
+"here document".  For example, to unregister the addresses
+"a@example.com" and "b@example.com", a domain administrator could use
+the following command:
+
+unregister <<ABC
+a@example.com
+b@example.com
+ABC
+
+See "help here_document for more details.
+
 
 It is only possible to unregister an invalid address using the
 "pattern" or "regex" command mode.  Registered addresses can become
 invalid, for example, if the GLOBAL configuration settings that affect
 the validity of e-mail addresses are made stricter.
 
+
+$INCLUDE-help/admin_modes
+
+
 See Also:
    help access_variables
    help admin_subscribers
+   help auxiliary_list
    help changeaddr  (which replaces one address with another)
-   help register    (which adds an address to the database)
+   help configset_access_rules  (to restrict access to this command)
+   help configset_addr_xforms
+   help here_document
+   help register    (which adds an address to the Majordomo registry)
    help subscribe   (which adds an address to a list)
    help unsubscribe (which removes an address from one list)
 

@@ -1,6 +1,6 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 unsubscribe[-farewell] listname [address]
-unsubscribe[-pattern[-allmatching]][-farewell] listname pattern
+unsubscribe-pattern[-allmatching][-farewell] listname pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 address,  if specified, is an email address 
 listname, required, is the name of a mailing list at this domain
@@ -41,9 +41,8 @@ address separately.  See "help changeaddr" for more details.
 If you wish to stop receiving mail temporarily, you can change all of 
 your subscriptions to "nomail" mode with the following command:
   set ALL nomail
-
-When you are ready to start receiving mail again, use the following
-command:
+Then, when you are ready to start receiving mail again, use the
+following command:
   set ALL nomail-return
 See "help set" for more details.
 
@@ -61,9 +60,9 @@ resubscribing or unregistering.
 Patterns
 --------
 If the "pattern" command mode is used, you must specify a pattern on the
-command line.  See "help patterns" for an introduction Majordomo
-matching pattern.  An administrative password is required to use the
-"pattern" mode.  The "regex" mode is identical to the "pattern" mode.
+command line.  See "help patterns" for an introduction to Majordomo
+patterns.  An administrative password is required to use the "pattern"
+mode.  The "regex" mode is identical to the "pattern" mode.
 
 If the "allmatching" command mode is also used, every address that
 matches the pattern will be removed from the list.  Otherwise, only the
@@ -92,23 +91,30 @@ LISTNAME mailing list:
 
 Canonical Addresses
 -------------------
-Each address has an original and a canonical form.  Usually these
+Each e-mail address has an original and a canonical form.  Usually these
 addresses are the same, but if the original address (the one that was
 used to subscribe to a mailing list) is an alias for another address,
-the latter address is the canonical address.
+the latter address is the canonical address.  (See "help alias" for more
+details on aliases.)
 
 When the "pattern" mode is used, the canonical addresses are compared to
 the pattern.  This may cause some surprising results when an original
 address that does not match the pattern is reported to have been
 unsubscribed.
 
+For example, assume "fred@example.net", an alias for "frog@example.edu",
+is subscribed to the "greenback" mailing list.  The following command:
+  unsubscribe-pattern-allmatching greenback frog
+will remove the canonical address, frog@example.edu, because it matches
+the pattern.  However, the results of the command will say that
+fred@example.net was removed from the greenback mailing list.
+
 
 Here documents
 --------------
-List owners can unsubscribe more than one address or pattern from a 
-mailing list using a "here document" or "here file" (see "help commands" 
-for a description of here files.)  For example, to remove the
-addresses a@example.com and b@example.com from a list, the owner
+List owners can unsubscribe more than one address or pattern from a
+mailing list using a here document.  For example, to remove the
+addresses "a@example.com" and "b@example.com" from a list, the owner
 could use the following command:
 
 unsubscribe-farewell LISTNAME <<ABC
@@ -116,14 +122,16 @@ a@example.com
 b@example.com
 ABC
 
+See "help here_document" for more details.
+
 
 Auxiliary lists
 ---------------
 List owners can also remove addresses from a collection called an
 "auxiliary list" (see "help auxiliary_list" for more details.)  The
-farewell command mode works with auxiliary lists, but only if the
+unsubscribe-farewell command works with auxiliary lists, but only if the
 address in question is registered in this domain (see "help register"
-for more information about the Majordomo registry).
+for more information about the registration database).
 
 It is only possible to unsubscribe an invalid address using the
 "pattern" or "regex" command mode.  Subscribers' addresses can become
@@ -138,9 +146,9 @@ See Also:
    help admin_subscribers
    help auxiliary_list (which is used to manage a set of addresses)
    help changeaddr  (which replaces one address with another)
-   help commands    (for an explanation of "here files")
    help configset_access_rules  (to restrict access to this command)
    help configset_unsubscribe_policy
+   help here_document
    help password    (which changes an individual's password)
    help patterns    (for simple and complex regular expressions)
    help register    (which adds an address to the Majordomo registry)
