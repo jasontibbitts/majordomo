@@ -17,23 +17,18 @@ weekly  | fr(23) |20k, 5m   | 100k,30m |        |          |        | index
 The listname weekly index, generated late friday night.
 ENDTAG
 
-Data on the various digests that the list supports (not supported for sublists!).
-Each digest is defined by two lines.  The first line contains data in the
-following order, separated by vertical bars ('|') or colons:
-  name    | times  | minsizes | maxsizes | maxage | separate | minage | deftype
-The second line holds a description of the digest and an optional subject
-header for the digest, separated by a vertical bar ('|') or colon.
+$INCLUDE-config/digests
 
-A digest is defined by a name, a description, possibly a subject header to
-be used for the generated digests, and several pieces of data that tell
-Majordomo when an issue should be generated.
+A digest is defined by a name, a description, possibly a subject header
+to be used for the generated digests, and several pieces of data that
+tell Majordomo when an issue should be generated.
 
-The following substitutions are available in the subject header:
+The following substitutions are available in the subject field:
 
 \$LIST         - The name of the list
 \$DIGESTNAME   - The name of the digest
 \$DIGESTDESC   - The description of the digest
-\$DIGESTTYPE   - The type of the digest; see DEFTYPE below
+\$DIGESTTYPE   - The type of the digest; see the "deftype" section below
 \$MESSAGECOUNT - The number of messages included in the digest
 \$VOLUME       - The current volume number
 \$ISSUE        - The current issue number
@@ -44,23 +39,26 @@ more details below:
 name     - A one-word name given to the digest.  It is unwise to name
            the digest "mime", "text" or "index".
 
-times    - The times field follows the standard Majordomo syntax (see "help times").
-           The times that digests are allowed to be created. The default is "always",
-           which allows digest creation any time it is needed (based on maxsizes, maxage).
+times    - The times field is a list of days and hours during which a
+           digest will be issued (see "help times" for details on the
+           format).  The default is "always", which allows digest creation 
+           at any time, depending upon the other time and size 
+           constraints.
 
-minsizes - The minimum amount of data (measured in messages or
+minsize  - The minimum amount of data (measured in messages or
            kilobytes) which must be collected before a digest will be
            generated.  The default is no minimum.
 
-maxsizes - The maximum size of digest that will be created.  Specify
-           either messages or kilobytes or both as with minsizes.  The
+maxsize  - The maximum size of digest that will be created.  Specify
+           either messages or kilobytes or both as with minsize.  The
            default is no maximum.
 
 maxage   - If an article is older than this, a digest will be created
            even if enough messages have not been collected.  This
            prevents messages from becoming "stale" on low traffic lists.
 
-separate - The minimum amount of time that separates digests.
+separate - The minimum amount of time that separates digests.  The
+           default is 15 minutes.
 
 minage   - A digest will not be created if it most recent article is
            younger than this.  This is intended to prevent digest
@@ -70,86 +68,154 @@ minage   - A digest will not be created if it most recent article is
 deftype -- This specifies the type of digest that new subscribers get
            by default. The default is MIME. Choices are listed below.
 
-These settings take precedence in the following order:
+The following criteria are used to determine if a digest should be sent:
 
-  A digest is always created when triggered if there is a waiting
-  message older than 'maxage', even if this means violating minimum
-  size limits.
+  * The digest is never sent if the current time is not within the
+  limits of the "times" field.
 
-  Otherwise, digests will only be created if there are enough messages
-  (minsizes), the last mesage which would be included in the digest is
-  old enough (minage) and the time is right (time), meaning that the
-  day is proper and either the hour is in a given range or a single
-  hour was given and no digest has been triggered in that hour.
+  * The digest is never sent if the elapsed time since the last delivery
+  is less than the time given in the "separate" field.
 
+  If the "times" and "separate" criteria are met:
+      
+  * A digest is sent if there is a waiting message older than "maxage", 
+  even if this means violating "minsize" and "minage" field limits.
 
-NAME: You can specify a "name" of any single word, but don't use words
-      that look like other important keywords (like "mime") and keep
-      in mind that users will be typing the name into a "set" command
-      (so it should make sense on its own).
+  * Otherwise, a digest is sent only if: 
+    + the combined size of the messages meets or exceeds the limit in the 
+      "minsize" field, and
 
-TIMES: see "help times" for syntax.
+    + the number of messages meets or exceed the limit in the "minsize" 
+      field, and
 
-MINSIZES: You can specify "minsizes" in messages or kilobytes
-     or BOTH. A digest will be distributed only after it reaches
-     this size, subject to "maxage":
-
-     10m gives a minimum size of 10 messages;
-
-     20k gives a minimum size of 20 kilobytes;
-
-     and 10m, 20k will create a digest when either 10 messages
-     or 20 kilobytes of message data have been collected.
-
-MAXSIZES: see "minsizes" above for syntax
-
-MAXAGE: You can keep digests from getting stale by forcing them
-     to be distributed whenever they reach this age, regardless
-     of whether the other limits have been reached:
-
-     Specify hours like 12h, days like 4d and weeks like 2w.
-
-     The default is no maximum age.
-
-SEPARATE: You can choose to "separate" digests by delaying them:
-
-     When messages come in quickly, or when a body of messages
-     builds up during the times that digests are not allowed to be
-     generated, it is possible that there are too many messages
-     to be sent in a single digest and perhaps enough messages
-     to fill more than one digest.  To prevent multiple digests
-     from being generated too close to one another, set this to
-     some amound of time.  To generate as many digests as
-     necessary to clear out the backlog, leave this unset.
-
-MINAGE: see "maxage" above for syntax
-
-DEFTYPE: You can choose the type of digest for users who do not
-     specify it on their "set" command line. Choose from:
-
-     MIME - each post is a separate part of a MIME formatted message
-
-     text - all posts are concatenated in a plain text message
-
-     index - only a summary of posts is sent, like from "index listname"
-
-     numbered - shows the message number, subject, and author only
-                (message number can be used directly with "archive-get")
+    + the newest message awaiting delivery is older than the "minage"
+      field limit.
 
 
-At the top of this help is an example which defines two digests.
+Each field is described in more detail in the following sections:
+
+name
+----
+The name of a digest can be any single word, with some exceptions:
+
+  * It should not be the same as a digest type (index, mime, or text).
+
+  * It should not contain spaces, commas(','), colons (':'), or pipes ('|').
+
+Digest names are case-insensitive.
+
+times
+-----
+The times field lists days and hours during which digests are permitted
+to be delivered.  The full syntax is described in the "Scheduled times" 
+section of the "help times" document.  For example,
+
+  15th(6-8) 
+
+would allow the digest to be delivered between 6 AM and 8 AM on the 15th
+day of every month.
+
+minsize
+-------
+The minsize field limits the minimum size of a digest.  Each size
+can be in messages or kilobytes.  More than one size can be specified
+by separating the sizes with commas.  For example,
+
+  10m requires a minimum number of 10 posted messages.
+
+  20k gives a minimum combined size of 20 kilobytes for the messages;
+
+  10m,20k requires that a digest meet both criteria, 10 messages and
+  20 kilobytes of message data.
+
+The default values are at least one message, and no size limit.
+
+maxsize
+-------
+The maxsize field limits the number and combined size of messages
+in one issue of a digest.  This field has no bearing on whether
+or not a digest is issued; it only limits the contents of a particular
+issue of a digest.  A digest will be issued if adding an additional
+message would exceed either the number or combined size limit.  The
+number limit is inclusive; for example, a limit of "10m" would mean
+"10 messages or fewer," not "fewer than 10 messages."
+
+The syntax is identical to the minsize field.
+
+At least one message will be sent in every issue, even if that message
+exceeds the size limit.
+
+The default limits are 4 megabytes per issue, and 200 messages per
+issue.
+
+maxage
+------
+You can keep digests from getting stale by forcing them to be
+distributed whenever they reach this age, regardless of whether the
+minsize and minage limits have been reached.  For example, the value
+
+  3d
+
+would cause a digest to be delivered if the age of the oldest message is
+greater than three days.
+
+The syntax of this field is detailed in the "Time spans" section of the
+"help times" document.
+
+The default is no maximum age.
+
+separate
+--------
+
+When messages come in quickly, or when a body of messages builds up
+during the times that digests are not allowed to be generated, it is
+possible that there are too many messages to be sent in a single digest
+and perhaps enough messages to fill more than one digest.  By default,
+no more than one issue of a particular digest will be delivered per
+hour.  This allows digest deliveries to occur more evenly.
+
+If this value is set to zero, multiple issues of a digest may be mailed
+within a short period of time.  This is useful, for example, if you
+maintain a weekly digest, and wish all issues of the digest to be
+delivered together.
+
+This field uses the same format as the maxage field.
+
+The default value is 15 minutes.
+
+minage
+------
+This field uses the same format as the maxage field.
+
+The default value is no minimum age.
+
+deftype
+-------
+
+When subscribers choose to receive messages in a digest, but
+do not specify which format they prefer, this field determines
+which format is used by default.  Three formats are supported:
+
+  index - a summary is mailed, but the message bodies are omitted.
+
+  mime - each post is a separate part of a MIME formatted message.
+
+  text - all posts are concatenated in a plain text message.
+
+See "help digest" for a detailed description of how to customize each
+format.
 
 It is possible to use comments before, between, and after the individual
 digests, but not within digests.  Comments are lines that begin with a '#'.
 
 
 See Also:
+   help admin_delivery
+   help configset_digest_index_format 
    help configset_digest_issues (to see the current volume and issue numbers)
    help digest   (to check digest status or force the delivery of digests)
    help put      (for how to create the archive directory)
-   help substitutions (for how to use substitutions in the subject)
    help times
+   help variables (for how to use substitutions in the subject)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
