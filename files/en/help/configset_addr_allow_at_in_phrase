@@ -11,9 +11,27 @@ EXAMPLE:
 configset GLOBAL addr_allow_at_in_phrase = no
 
 
-If this is true, Majordomo will allow an @ symbol in the phrase, or
-unbracketed portion of an address.
+$INCLUDE-config/addr_allow_at_in_phrase
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+Normally, the '@' symbol is only allowed to separate the local part
+and domain of an address.  Any addresses with '@' symbols in the
+phrase (the "comment" portion of the address) are invalid.  For
+example, the following address would be invalid:
+
+  "J.Q. Someone @ work" <someone@example.com>
+
+Changing this setting to "yes" would make the address in the previous
+example valid.
+
+
+See Also:   
+   help admin_domain
+   help admin_subscribers
+   help configset_addr_allow_bang_paths
+   help configset_addr_allow_comments_after_route
+   help configset_addr_allow_ending_dot
+   help configset_addr_limit_length
+   help configset_addr_require_fqdn
+   help configset_addr_strict_domain_check
+
+$INCLUDE-help/foot

@@ -11,10 +11,16 @@ EXAMPLE:
 configset GLOBAL addr_limit_length = 1
 
 
-If this is true, Majordomo will verify that all address contain a user name
-no longer than 64 characters and a host name no longer than 64 characters.
-To enable the use of extremely long user or host names, set this to false.
+$INCLUDE-config/addr_limit_length
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+See Also:   
+   help admin_domain
+   help admin_subscribers
+   help configset_addr_allow_at_in_phrase
+   help configset_addr_allow_bang_paths
+   help configset_addr_allow_comments_after_route
+   help configset_addr_allow_ending_dot
+   help configset_addr_require_fqdn
+   help configset_addr_strict_domain_check
+
+$INCLUDE-help/foot

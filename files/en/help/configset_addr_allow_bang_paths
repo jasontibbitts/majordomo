@@ -11,8 +11,16 @@ EXAMPLE:
 configset GLOBAL addr_allow_bang_paths = 1
 
 
-If this is true, Majordomo will allow old-style UUCP or "bang" addresses.
+$INCLUDE-config/addr_allow_bang_paths
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+See Also:   
+   help admin_domain
+   help admin_subscribers
+   help configset_addr_allow_at_in_phrase
+   help configset_addr_allow_comments_after_route
+   help configset_addr_allow_ending_dot
+   help configset_addr_limit_length
+   help configset_addr_require_fqdn
+   help configset_addr_strict_domain_check
+
+$INCLUDE-help/foot

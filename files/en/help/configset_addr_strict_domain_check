@@ -11,10 +11,16 @@ EXAMPLE:
 configset GLOBAL addr_strict_domain_check = 1
 
 
-If this is true, addresses are verified to be in one of the legal top-level
-domains.  New domains are occasionally added; if Majordomo's internal list
-becomes outdated, set this to false to turn off strict domain checking.
+$INCLUDE-config/addr_strict_domain_check
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+See Also:   
+   help admin_domain
+   help admin_subscribers
+   help configset_addr_allow_at_in_phrase
+   help configset_addr_allow_bang_paths
+   help configset_addr_allow_comments_after_route
+   help configset_addr_allow_ending_dot
+   help configset_addr_limit_length
+   help configset_addr_require_fqdn
+
+$INCLUDE-help/foot
