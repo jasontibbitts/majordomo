@@ -27,7 +27,7 @@ use strict;
 
 use AutoLoader 'AUTOLOAD';
 
-=head2 inform(list, request, requester, user, cmdline, success, override, comment)
+=head2 inform(list, request, requester, user, cmdline, success, override, comment,elapsed)
 
 This is the general-purpose information routine.  It makes use of the
 inform variable, which should be the parsed version of the list config
@@ -58,9 +58,13 @@ override controls under what circumstances a message is sent to the owner:
 
 comment is an explanation of what took place.
 
+elapsed is the amount of time required for the command to execute
+since the start of the session.
+
 =cut
 sub inform {
-  my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, $over, $comment) = @_;
+  my($self, $list, $req, $requ, $user, $cmd, $int, 
+     $stat, $pass, $over, $comment, $elapsed) = @_;
   my $log  = new Log::In 150, "$list, $req";
 
   my $file = "$self->{'ldir'}/GLOBAL/_log";
@@ -74,7 +78,7 @@ sub inform {
 
   # Log the data
   my $line = join("\001", $list, $req, $requ, $user, $cmd, $int, $stat,
-		  $pass, $self->{'sessionid'}, time);
+		  $pass, $self->{'sessionid'}, time, $elapsed);
   $line =~ tr/\n\t//d;
   $fh->print("$line\n") ||
     $log->abort("Cannot append to $file, $!");
@@ -95,7 +99,7 @@ sub inform {
   # Inform the owner (1 is report, 2 is inform); we inform on accepts
   # elsewhere.
   if (((($inf & 2) && !$over) || ($over < 0)) && $req ne 'reject') {
-    $self->_inform_owner($list, $req, $requ, $user, $cmd, $int, $stat, $pass, $comment);
+    $self->_inform_owner($list, $req, $requ, $user, $cmd, $int, $stat, $pass, $comment, $elapsed);
   }
   1;
 }
@@ -112,7 +116,8 @@ have to be loaded for every log entry.
 =cut
 use MIME::Entity;
 sub _inform_owner {  
-  my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, $comment) = @_;
+  my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, 
+     $comment, $elapsed) = @_;
   my $log = new Log::In 150, "$list, $req";
 
   my $whereami = $self->_global_config_get('whereami');
@@ -145,6 +150,7 @@ sub _inform_owner {
 				     'INTERFACE' => $int,
 				     'SESSIONID' => $self->{'sessionid'},
                                      'COMMENT'   => $comment,
+                                     'TIME'      => $elapsed,
 				     },
 				   );
   my $ent = build MIME::Entity
