@@ -78,9 +78,9 @@ $Mj::Config::default_string = q(
  'advertise'            => [],
  'advertise_subscribed' => 1,
  'aliases'              => [qw(owner request resend)],
- 'allowed_classes'      => [qw(each digest nomail unique)],
+ 'allowed_classes'      => [qw(each digest mail nomail unique)],
  'allowed_flags'        => [qw(ackdeny ackpost ackreject ackstall eliminatecc 
-                               hideaddress hideall prefix replyto 
+                               hideaddress hideall hidepost prefix replyto 
                                rewritefrom selfcopy)],
  'archive_access'       => "list+password",
  'archive_date'         => 'delivery',
@@ -163,6 +163,12 @@ $Mj::Config::default_string = q(
  'moderator_group'      => 0,
  'moderators'           => [],
  'noadvertise'          => [],
+ 'noarchive_body'       => [],
+ 'noarchive_headers'    => (
+			    ($list eq 'GLOBAL') ? 
+			    ['/^x-no-archive:\s*yes/i',
+			     '/^restrict:\s*no-external-archive/i',
+			    ] : []),
  'nonmember_flags'      => [qw(ackdeny ackreject ackstall)],
  'override_reply_to'    => 0,
  'owners'               => ($list eq 'GLOBAL') ? [$subs->{'owners'}] : [],

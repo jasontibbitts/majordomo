@@ -236,7 +236,7 @@ package Mj::Config;
    {
     'type'   => 'enum_array',
     'values' => [qw(ackstall ackdeny ackpost ackreject eliminatecc 
-                    hideaddress hideall postblock prefix replyto 
+                    hideaddress hideall hidepost postblock prefix replyto 
                     rewritefrom selfcopy)],
     'groups' => [qw(reply deliver)],
     'local'  => 1,
@@ -246,7 +246,7 @@ package Mj::Config;
    'nonmember_flags' =>
    {
     'type'   => 'enum_array',
-    'values' => [qw(ackstall ackdeny ackpost ackreject postblock)],
+    'values' => [qw(ackstall ackdeny ackpost ackreject hidepost postblock)],
     'groups' => [qw(reply deliver)],
     'local'  => 1,
     'visible'=> 1,
@@ -256,7 +256,7 @@ package Mj::Config;
    {
     'type'   => 'enum_array',
     'values' => [qw(ackdeny ackpost ackreject ackstall eliminatecc 
-                    hideaddress hideall postblock prefix 
+                    hideaddress hideall hidepost postblock prefix 
                     replyto selfcopy rewritefrom)],
     'groups' => [qw(reply deliver)],
     'local'  => 1,
@@ -274,7 +274,7 @@ package Mj::Config;
    'allowed_classes' =>
    {
     'type'   => 'enum_array',
-    'values' => [qw(all digest each nomail unique)],
+    'values' => [qw(all digest each mail nomail unique)],
     'groups' => [qw(deliver)],
     'local'  => 1,
     'visible'=> 0,
@@ -722,6 +722,24 @@ package Mj::Config;
    {
     'type'   => 'taboo_headers',
     'groups' => [qw(access)],
+    'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+   },
+   'noarchive_headers' =>
+   {
+    'type'   => 'taboo_headers',
+    'groups' => [qw(archive moderate)],
+    'local'  => 1,
+    'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+   },
+   'noarchive_body' =>
+   {
+    'type'   => 'taboo_body',
+    'groups' => [qw(archive moderate)],
+    'local'  => 1,
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
