@@ -481,7 +481,7 @@ sub handle_bounce_user {
 
     # Add the new bounce event to the collected bounce data
     if ($list ne 'GLOBAL') {
-      $bdata = $self->{lists}{$list}->bounce_add($user, time, $type, $msgno);
+      $bdata = $self->{lists}{$list}->bounce_add($user, time, $type, $msgno, $args{'diag'});
     }
     $mess .= "  User:        $user\n";
     $mess .= "  Subscribed:  " .($bdata?'yes':'no')."\n" if $list ne 'GLOBAL';
@@ -499,7 +499,7 @@ sub handle_bounce_user {
 	if $stats->{month};
       $mess .= "    Consecutive messages bounced:   $stats->{consecutive}\n"
 	if $stats->{consecutive};
-      $mess .= "    Precentage of messages bounced: $stats->{bouncedpct}\n"
+      $mess .= "    Percentage of messages bounced: $stats->{bouncedpct}\n"
 	if $stats->{bouncedpct};
 
       # Make triage decision
