@@ -32,107 +32,11 @@ New password:
 <input type="submit" name="func" value="password">
 
 <p>
-To $HELP:UNREGISTER, leave the box empty and press the <b>unregister</b>
-button.  All of your subscriptions and aliases will be removed, and
+To $HELP:UNREGISTER, press the <b>unregister</b> button.  
+All of your subscriptions and aliases will be removed, and
 your password will be invalidated.<br>
   <input type="submit" name="func" value="unregister">
 </form>
-
-<h4 align=center>What do the settings mean?</h4>
-<dl>
-  <dt>delivery class 
-  <dd>This setting determines how the messages posted to the list are 
-      delivered to you.
-    <dl>
-      <dt>each message as it is posted (<b>each</b>)
-      <dd>You will receive a separate copy of each message
-
-      <dt>each unique message (<b>unique</b>)
-      <dd>You will receive a separate copy of each message
-      unless it has already been posted to another mailing
-      list at $SITE to which you are subscribed.
-
-      <dt>no messages (<b>nomail</b>)
-      <dd>You will receive no mail at all from the list.
-
-      <dt>resume receiving messages (<b>mail</b>)
-      <dd>If the current delivery class is <b>nomail</b>, you
-      will begin receiving messages again.  Otherwise, this
-      setting has no effect.
-
-      <dt>anything else...(<b>digest</b>)
-      <dd>You will receive the messages in a digest.  The names
-      of the digests are determined by the list owners, in the
-      $HELP:DIGESTS
-      configuration setting.  See the 
-      $HELP:SET help page for more details on digests.
-    </dl>
-
-  <dt>ackdeny
-  <dd>  Select this to be notified when your
-  posted messages are denied by the configuration settings of a list.
-
-  <dt>ackpost
-  <dd>  Select this to be notified when your
-  posted messages have been accepted and are being delivered.
-
-  <dt>ackreject
-  <dd>  Select this to be notified when your
-  posted messages or majordomo requests are rejected by one of
-  the list moderators.
-
-  <dt>ackstall
-  <dd>  Select this to be notified when your
-  posted messages are being reviewed by the list moderators
-  before they appear on a mailing list.
-
-  <dt>eliminatecc
-  <dd>  Select this if you do not want two copies
-  when someone sends a message both to you and to the list.
-
-  <dt>hideaddress
-  <dd>  Select this if you do not want your address to appear
-  when someone reviews the list of subscribers with the 
-  $HELP:WHO command.
-
-  <dt>hideall
-  <dd>  Select this if you do not want your name or address 
-  to appear when someone reviews the list of subscribers
-  with the
-  $HELP:WHO command.
-
-  <dt>hidepost
-  <dd>  Select this is you do not want messages that you post
-  to the mailing list to appear in a public archive.
-
-  <dt>postblock
-  <dd>  This flag is set if the list moderators have decided to
-  moderate or deny your posted messages by default.  Normally,
-  only the list moderators can change this setting.  Questions
-  about this setting should be addressed to 
-  <a href="mailto:$OWNER">$OWNER</a>.
-
-  <dt>prefix
-  <dd>  Select this if you want to see a prefix which indicates
-  the name of the mailing list in the Subject header of every message.
-  This only matters if the list owners have configured the list to
-  create a prefix.
-
-  <dt>replyto
-  <dd>  Select this if you want your replies to go to the
-  mailing list instead of to the person who wrote the original message.
-  This only matters if the list owners have configured the list to
-  allow replies to go to the list.
-
-  <dt>rewritefrom
-  <dd>Select this if you want to change the From header
-  in messages you send to the list.  The From header will then be
-  rewritten to appear as it did when you subscribed to the list.
-
-  <dt>selfcopy
-  <dd> Select this if you want to receive a copy of messages
-  that you post to the mailing list.
-</dl>
 
 <p>
 Normally, each setting is represented by a checkbox, but the 
