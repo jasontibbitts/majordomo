@@ -3125,6 +3125,7 @@ sub _auxwho {
 
 sub auxwho_chunk {
   &who_chunk(@_);
+}
 
 sub auxwho_done {
   &who_done(@_);
@@ -5104,10 +5105,11 @@ sub which {
 
   # Loop over the lists that the user can see
  LIST:
-  for $request->{'list'} 
+  for $list 
     ($self->get_all_lists($request->{'user'}, $request->{'password'})) {
     
     # Check access for this list, 
+    $request->{'list'} = $list;
     ($max_list_hits, $err) =
       $self->list_access_check($request);
 
