@@ -1,2 +1,5 @@
-If this is on, new subscribers (or registered users) will be sent a
-welcome message.
+For ordinary mailing lists, a welcome message will be mailed to 
+new subscribers if the welcome setting is turned on.
+
+For the GLOBAL pseudo-list, a welcome message will be sent to people
+new registrants if the welcome setting is turned on.

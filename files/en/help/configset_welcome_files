@@ -21,37 +21,49 @@ Common Sense Rules at Nowhere.Org - please save!
 public/rules.txt : NS
 ENDTAG
 
+$INCLUDE-config/welcome_files
 
-A table containing a list of files and descriptions that should be
-sent to new subscribers.
+The first line of each file description will be displayed in the Subject
+header of a message if the file is the first file to appear in a welcome
+message.  Otherwise, the first line will appear in a Content-Description
+header of an attachment to the welcome message.
 
-Each table record takes two lines.  The first should be an explanatory
-message, which will go in the subject or content-description header as
-appropriate.  (If this is empty, the file's description will be used.)
-The second is broken into a filename and a flag field by ":" or "|".
+The first field of the second line of a file description is a file name.
+The file must already be present in the file space of your mailing list.
+The "get" command can be used to verify that the file exists:
 
-The first field on the second line of a record is the name of the file,
-in the file space of the list. The second should be either "N", meaning
-that the file will be sent as a separate piece of mail, or "P", meaning
-that the file will be attached to the previous file.  The default is "N".
+  get-immediate LISTNAME FILENAME
 
-If the "N" or "P" in the second field of the second line is followed by
-an "S", the file will undergo variable substitution (and possibly
-auto-inclusion of OTHER files).  The variables supported include 
-the standard substitutions, plus USER and PASSWORD.  See "help variables" 
-for a description of each substitution variable, but be aware that without 
-the "S" no substitutions will be done on the subject or body of the message.
+Files can be created in the file space using the "put" command.
+
+The second field of the second line of a file description is an optional
+flag field.  Two flags are supported:  an 'N' indicates that the file
+should be the first part of a new welcome message; an 'S' causes the
+file to undergo variable substitution (and possibly auto-inclusion of
+additional files).  The variables supported include the standard
+substitutions, plus USER and PASSWORD.  See "help variables" for a
+description of each substitution variable.  Regardless of whether the
+'S' flag is present, the substitutions will be applied to the subject
+from the first line of the description.
 
 Here is another example:
 
 configset LISTNAME welcome_files <<END
-Welcome to the mailing list!
+Welcome to the $LIST mailing list!
 welcome
 Picture of the list owner!
-owner.jpg : P
-Mailing list FAQ
-faq.txt
+owner.jpg 
+Q and A for the $LIST mailing list
+/faq : NS
 END
+
+In this example, two welcome messages will be sent to new subscribers.
+The first welcome message consists of a file called "welcome" and an
+attached photograph called "owner.jpg".  The second welcome message
+consists of a single file called "/faq".
+
+The GLOBAL welcome_files setting only applies to messages that are sent
+when someone uses the "register" command.
 
 It is possible to use comments before, between, and after the individual
 rules, but not within rules.  Comments are lines that begin with a '#'.
@@ -60,11 +72,12 @@ it was chosen, but comments have no impact on how the setting works.
 
 
 See Also:
+   help admin_documents   (for an introduction to the file space)
    help configset_welcome (determines if welcome messages are sent)
    help get               (to retrieve files from the list's file space)
    help put               (to store files in the list's file space)
+   help register
+   help subscribe
    help variables         (for an explanation of substitution variables)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
