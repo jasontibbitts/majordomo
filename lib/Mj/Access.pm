@@ -479,6 +479,8 @@ sub list_access_check {
     return (0, "Invalid password.\n")
       unless $args{'master_password'} || $args{'user_password'};
   }
+  return (0, "The master password is required to use regular expressions.\n")
+    if ($args{'regexp'} and not $args{'master_password'});
   
   # If we got a good master password _and_ it overrides access
   # restrictions, we're done.
