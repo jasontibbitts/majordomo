@@ -19,7 +19,6 @@ README.DEBUGGING
 README.DIRECTORIES
 README.EXIM
 README.INTERNALS
-README.LINUX
 README.POSTFIX
 README.QMAIL
 README.QUEUEING
@@ -155,6 +154,7 @@ files/en/.ack_rejection
 files/en/.ack_stall
 files/en/.ack_success
 files/en/.ack_timeout
+files/en/.bounceprobe
 files/en/.config
 files/en/.confirm
 files/en/.confirm_noweb
@@ -200,6 +200,7 @@ files/en/ack_rejection
 files/en/ack_stall
 files/en/ack_success
 files/en/ack_timeout
+files/en/bounceprobe
 files/en/config/.access_password_override
 files/en/config/.access_rules
 files/en/config/.ack_attach_original
@@ -381,6 +382,7 @@ files/en/config/category
 files/en/config/chunksize
 files/en/config/comments
 files/en/config/config_access
+files/en/config/config_defaults
 files/en/config/confirm_url
 files/en/config/database_backend
 files/en/config/debug
@@ -476,6 +478,7 @@ files/en/delay_noweb
 files/en/digest_preindex
 files/en/error/.invalid_command
 files/en/error/.invalid_mode
+files/en/error/.invalid_password
 files/en/error/.make_list
 files/en/error/.no_password
 files/en/error/.no_visible
@@ -483,9 +486,11 @@ files/en/error/.not_extracted
 files/en/error/.password_length
 files/en/error/.password_level
 files/en/error/.unknown_setting
+files/en/error/.unknown_token
 files/en/error/.unregistered
 files/en/error/invalid_command
 files/en/error/invalid_mode
+files/en/error/invalid_password
 files/en/error/make_list
 files/en/error/no_password
 files/en/error/no_visible
@@ -493,6 +498,7 @@ files/en/error/not_extracted
 files/en/error/password_length
 files/en/error/password_level
 files/en/error/unknown_setting
+files/en/error/unknown_token
 files/en/error/unregistered
 files/en/faq
 files/en/farewell
@@ -1009,6 +1015,7 @@ files/en/help/configset_category
 files/en/help/configset_chunksize
 files/en/help/configset_comments
 files/en/help/configset_config_access
+files/en/help/configset_config_defaults
 files/en/help/configset_confirm_url
 files/en/help/configset_database_backend
 files/en/help/configset_debug
