@@ -2,7 +2,6 @@ sub ask_qmail {
   my($config) = @_;
 
   $msg = <<EOM;
-
 Should Majordomo maintain .qmail-default files automatically?
  Majordomo can hook into the .qmail-default mechanism and can maintain the
   necessary .qmail-default files for you.  Note that if you have other
@@ -15,7 +14,6 @@ EOM
   $config->{'maintain_mtaconfig'} = get_bool($msg, $def);
 
   $msg = <<EOM;
-
 What is the path to the qmail binaries?
 EOM
   $def = ($config->{'qmail_path'} ||
@@ -28,7 +26,6 @@ sub ask_qmail_domain {
   my($config, $dom) = @_;
 
   $msg = <<EOM;
-
 What is the qmail directory for $dom?
  Majordomo will create an appropriate configuration file in this directory.
 EOM
@@ -36,7 +33,6 @@ EOM
   $config->{'domain'}{$dom}{'qmaildir'} = get_dir($msg, $def);
 
   $msg = <<EOM;
-
 What is the name of the qmail default file for $dom?
 EOM
   $def = $config->{'domain'}{$dom}{'qmailfile'};

@@ -1,9 +1,18 @@
 sub ask_basic {
   $config = shift;
 
-  #---- Ask for startperl
+  #---- Ask about clearing screen
+  $nosep = 1; $sepclear = 0;
   $msg = <<EOM;
 
+Clear the screen before each question?
+EOM
+  $def = defined($config->{'sepclear'}) ? $config->{sepclear} : 0;
+  $config->{sepclear} = get_bool($msg, $def);
+  $sepclear = $config->{sepclear}; $nosep = 0;
+
+  #---- Ask for startperl
+  $msg = <<EOM;
 Where is Perl located on this system?
 EOM
   $def = $config->{startperl};
@@ -27,7 +36,6 @@ Your installation does not seem to be correct.
 
   #---- Ask for UID
   $msg = <<EOM;
-
 What is the user ID that Majordomo will run as?
  Either the numeric ID or the user name is fine.
 EOM
@@ -38,7 +46,6 @@ EOM
 
   #---- Ask for GID
   $msg = <<EOM;
-
 What is the group ID that Majordomo will run as?
  Either the numeric ID or the group name is fine.
 EOM
@@ -49,7 +56,6 @@ EOM
 
   #---- Ask about wrappers
   $msg = <<EOM;
-
 Should the SETID wrappers be installed?
  Majordomo needs to be able to run as the proper user no matter who is
   running it.  This requires that it be installed SETID.  On some systems,
@@ -61,7 +67,6 @@ Should the SETID wrappers be installed?
   There is no loss of functionality when the wrappers are enabled.  Curious
   users may want to answer NO; if wrappers are required, the installation
   process will fail later.
-
 Install the wrappers? 
 EOM
   $def = defined($config->{'wrappers'}) ? $config->{'wrappers'} : 1;
@@ -69,7 +74,6 @@ EOM
 
   #---- Ask for umask
   $msg = <<EOM;
-
 What umask should Majordomo use?
  The umask is the Unix method of restricting the permissions on newly
   created files and directories.
@@ -87,7 +91,6 @@ EOM
 
   #---- Ask for insecure stored passwords
   $msg = <<EOM;
-
 For developers: the install process needs to know various passwords.
  They can either be saved along with the rest of your install
   configuration, or prompted for at the end of the installation.  Saving
@@ -110,14 +113,12 @@ EOM
   }
 
   #---- Get site password
-    $msg = <<EOM;
-
+  $msg = <<EOM;
 Please choose a site password.
   Majordomo allows a single site password that allows the holder to perform
   any function on any list in any virtual domain at the site, in addition
   to various more specific passwords.  It should be chosen with care.  It
   can be of arbitrary length, but cannot contain spaces.
-
 EOM
   $def = $config->{'site_password'};
   if ($config->{save_passwords}) {
@@ -129,7 +130,6 @@ EOM
 
   #---- Ask for default install location
   $msg = <<EOM;
-
 Where will the Majordomo libraries, executables and documentation be kept?
  This could be something like \"/usr/local/majordomo\"; Majordomo will make
    this directory and several directories under it to hold its various
@@ -141,7 +141,6 @@ EOM
 
   #---- Ask for list directory
   $msg = <<EOM;
-
 Where will the Majordomo list data be kept?
  Note that under this directory will be a directory for each domain your
    site supports, and under that a directory for each list at your site.
@@ -154,7 +153,6 @@ EOM
 
   #---- Ask for writable temporary dir
   $msg = <<EOM;
-
 Where can Majordomo place temporary files?
  Majordomo occasionally needs to write out short-lived files in a place
    that all users can write to.  These files are generally small and are
@@ -165,7 +163,6 @@ EOM
 
   #---- Ask for secure temporary dir
   $msg = <<EOM;
-
 Where can Majordomo place secure temporary files?
   Majordomo also needs to write out private temporary files.  For maximum
     security, this should be a special directory that is neither readable
@@ -182,7 +179,6 @@ EOM
 
   #---- Ask for cgi-bin directory
   $msg = <<EOM;
-
 Where is the web server\'s cgi-bin directory?
   Majordomo comes with a program that enables users to conform operations
     such as subscriptions by using a web page.  It needs to put this program
@@ -197,7 +193,6 @@ EOM
 
   #---- Ask if we can link to cgi-bin
   $msg = <<EOM;
-
 Can Majordomo make a link to the program in cgi-bin?
   Some web servers will allow a link to the file in cgi-bin; others require
     a separate copy.  Majordomo tries to avoid confusion by keeping all of
@@ -212,7 +207,6 @@ EOM
 
   #---- Ask about queueing
   $msg = <<EOM;
-
 Would you like to run Majordomo in queueing mode, or in direct mode?
   Majordomo can be run in two modes:
     In direct mode, every message that comes in is fully processed and
@@ -239,7 +233,6 @@ EOM
 
   #---- Ask for MTA
   $msg = <<EOM;
-
 What Mail Transfer Agent will be feeding mail to Majordomo?
  Majordomo needs to know the MTA that you\'re running so that it can suggest
   configuration details.
@@ -277,7 +270,6 @@ EOM
 
   #---- Ask for virtual domains
   $msg = <<EOM;
-
 Which domains will this Majordomo installation support?
   Majordomo 2 includes support for virtual domain setups, where one machine
     serves several distinct sets of lists.  You can name these collections
@@ -295,9 +287,9 @@ EOM
 
   require "setup/ask_domain.pl";
   for $i (@{$config->{'domains'}}) {
-    print "\nConfiguring the domain: $i\n";
     ask_domain($config, $i);
   }
+  sep();
 }
 
 =head1 COPYRIGHT

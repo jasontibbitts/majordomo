@@ -3,7 +3,6 @@ sub ask_sendmail {
 
     #---- Ask if aliases should be maintained
     $msg = <<EOM;
-
 Should Majordomo maintain your aliases automatically?
  Majordomo can automatically maintain your Sendmail aliases for you.  You
   still have to do some manual setup (see README.SENDMAIL) but this only
@@ -17,7 +16,6 @@ EOM
 
     #---- Ask about virtuser files as well
     $msg = <<EOM;
-
 Should Majordomo maintain VirtUserTable files as well?
  Majordomo can also automatically maintain VirtUserTable files for handling
   virtual domains.  If you answer 'yes', these files will be generated and
@@ -28,7 +26,6 @@ EOM
 
     #---- Ask about making links
     $msg = <<EOM;
-
 Should Majordomo make links to alias and virtuser files?
  Some Sendmail versions will complain about permission problems with
   Majordomo-generated alias files; this attempts to work around that by
@@ -40,7 +37,6 @@ EOM
     if ($config->{'sendmail_make_symlinks'}) {
       #---- Ask about link location
       $msg = <<EOM;
-
 Where should these links be made?
  This needs to be a root-owned directory with sufficiently restrictive
   permissions to appease Sendmail.

@@ -1,5 +1,10 @@
 Sun Jun 20 13:34:52 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* bin/mj_queueserv: Sed $SIG{CHLD} based on the value of
+ 	$::SIG_CHLD_IGNORE.
+
+	* installbin: Substitute $::SIG_CHLD_IGNORE.
+
 	* setup/setup_func.pl (do_site_config): Just put all info from all
  	available MTAs into the config; it can't hurt to be there and
  	eliminates the possibility of making some stupid errors.

@@ -3,7 +3,6 @@ sub ask_exim {
 
     #---- Ask if aliases should be maintained
     $msg = <<EOM;
-
 Should Majordomo maintain your aliases automatically?
  Majordomo can automatically maintain your Exim aliases for you.  You
   still have to do some manual setup (see README.EXIM) but this only

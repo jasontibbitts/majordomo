@@ -39,6 +39,8 @@ while (($src,$dst) = splice(@ARGV,0,2)) {
 	if $config->{'queue_timeout'};
       $line =~ s!(^  \$::CONCURRENCY\s*= ).*!$1$config->{'queue_concurrency'};!
 	if $config->{'queue_concurrency'};
+      $line =~ s!(^  \$::SIG_CHLD_IGNORE\s*= ).*!$1$config->{'queue_chld_ignore'};!
+	if defined($config->{'queue_chld_ignore'});
 
       # Fcntl and flock constants hardcoded for speed
       $lock_ex = LOCK_EX; $lock_nb = LOCK_NB; $lock_un = LOCK_UN;

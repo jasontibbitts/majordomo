@@ -1,9 +1,11 @@
 sub ask_domain {
   my($confg, $i) = @_;
+  my $hdr = "Configuring the domain: $i.";
 
   #---- Ask for global configuration information:
   #---- name of majordomo
   $msg = <<EOM;
+$hdr
 
 What is the name of Majordomo installation at $i?
  The installation can be given a name that is used as a title for reports,
@@ -14,6 +16,7 @@ EOM
   
     #---- Ask for the actual address that Majordomo will receive mail at
   $msg = <<EOM;
+$hdr
 
 What address will the Majordomo at $i receive mail at?
  This is normally "majordomo" but if you are running a Majordomo1
@@ -24,6 +27,7 @@ EOM
   
   #---- owner address, for alias construction
   $msg = <<EOM;
+$hdr
 
 What is the email address of the owner of this Majordomo installation?
 EOM
@@ -34,6 +38,7 @@ EOM
   
   #---- Get global password
   $msg = <<EOM;
+$hdr
 
 Please choose a password.
   Each domain is given a single global password that can be used for all
@@ -49,7 +54,6 @@ EOM
   
   #---- Ask for location of old (1.x) lists
 #   $msg = <<EOM;
-
 # Where are the Majordomo 1.x lists for $i stored?
 #   If you have lists that were maintained by Majordomo 1.x, you can convert
 #     them for use by Majordomo 2.0.  You will be given the option to do this

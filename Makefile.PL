@@ -13,7 +13,7 @@ BEGIN {
 
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
-my $config_version = 5;
+my $config_version = 6;
 my(@SIDSCRIPTS, @SCRIPTS, @EXES);
 
 # MakeMaker has begun to displease me
@@ -166,6 +166,7 @@ Now you should do the following:
   make (expect several warnings about truncation to 8 characters)
   make test (if you wish to run the paltry tests)
   make install (as root) and answer any questions that appear
+
 EOM
 
 exit;
@@ -294,7 +295,6 @@ sub configure {
     {
       print "\nFound existing configuration:\n";
       printhash($config);
-      print "\n";
       $msg = "Do you want to modify your configuration?\n";
       return $config unless get_bool($msg, 0);
     }
@@ -303,15 +303,14 @@ sub configure {
   }
   else {
     $config = {};
-    print <<EOM
+  }
+  print <<EOM;
 
 Welcome to the Majordomo automatic configuration system!
 
 This script will guide you through some of the Majordomo configuration
 process.  Of course, it isn\'t finished....
-
 EOM
-  }
   require "setup/ask_basic.pl";
   ask_basic($config);
 

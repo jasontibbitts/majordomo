@@ -1,5 +1,6 @@
 # Nipped from MakeMaker.
 sub prompt ($;$) {
+  sep();
   my($mess,$def)=@_;
   my $ISA_TTY = -t STDIN && -t STDOUT ;
   Carp::confess("prompt function called without an argument") unless defined $mess;
@@ -140,6 +141,8 @@ sub get_bool {
 sub get_list {
   my ($msg, $def, $empty) = @_;
   my ($elem, $list);
+  sep();
+  local $nosep = 1;
   $list = [];
   print $msg;
 
@@ -156,7 +159,15 @@ sub get_list {
   }
   $list;
 }
-  
+
+sub sep {
+  return if $nosep;
+  if ($sepclear) {
+    print `clear`;
+    return;
+  }
+  print "\n", '-'x76, "\n";
+}
 
 =head1 COPYRIGHT
 

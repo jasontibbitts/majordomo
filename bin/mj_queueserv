@@ -1,20 +1,12 @@
 #!/usr/bin/perl -wT
 BEGIN {
   $::BINDIR = "/path/to/bin";
-#  $::LIBDIR = "/path/to/lib";
-#  $::LISTDIR= "/path/to/lists";
-#  $::DEFDOM = "some.dom.ain";
-#  $::LOCKDIR= "blah";
   $::TMPDIR = "/tmp/mj";
-#  $::WTMPDIR= "/tmp";
-#  $::UMASK  = "007";
-#  $Exporter::Verbose = 1;
-#  $AutoLoader::Verbose = 1;
-#  $AutoLoader::Notruncate = 1;
   $::UID    = "baduid";
   $::GID    = "badgid";
   $::TIMEOUT = 30;
   $::CONCURRENCY = 5;
+  $::SIG_CHLD_IGNORE = 1;
   $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 
   # Redirect standard error output.
@@ -55,9 +47,14 @@ exit if $pid;
 die "Couldn't fork: $!" unless defined($pid);
 POSIX::setsid() or die "Can't start a new session: $!";
 
-$SIG{CHLD} = sub {wait};
-#$SIG{CHLD} = 'DEFAULT';
+# Set up a bit of signal handling
 $SIG{PIPE} = 'IGNORE';
+if ($::SIG_CHLD_IGNORE) {
+  $SIG{CHLD} = 'IGNORE';
+}
+else {
+  $SIG{CHLD} = sub {wait};
+}
 
 logmsg("Majordomo Queue Server - ".scalar(localtime));
 

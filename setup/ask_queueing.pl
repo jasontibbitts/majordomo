@@ -2,7 +2,6 @@ sub ask_queueing {
   my($config) = @_;
 
   $msg = <<EOM;
-
 How many queue servicing processes do you want to run concurrently?
   Queue runners will be created as necessary (not all at once), but under
   no circumstances will more than this number exist at the same time.
@@ -12,14 +11,28 @@ EOM
   $config->{'queue_concurrency'} = get_str($msg, $def);
 
   $msg = <<EOM;
-
 How long should queue servicing processes wait without doing any work
-before they exit?
-  The queue runners will automatically exit after this many seconds of
+ before they exit?
+ The queue runners will automatically exit after this many seconds of
   inactivity.
 EOM
   $def = $config->{'queue_timeout'} || 120;
   $config->{'queue_timeout'} = get_str($msg, $def);
+
+  #---- Ask about child process reaping
+  $msg = <<EOM;
+Does \$SIG{CHLD} = 'IGNORE' reap children on your system?
+ On most systems, simply ignoring signals about the status of child
+  processes will cause the system to clean them up for you.  On some,
+  however, this will not happen and Majordomo must use a slightly messier
+  method.
+ If you do not know the answer, say yes.  If mj_queueserv starts to
+  accumulate zombie children then reinstall and answer no.
+
+EOM
+  $def = defined($config->{'queue_chld_ignore'}) ?
+    $config->{'queue_chld_ignore'} : 1;
+  $config->{'queue_chld_ignore'} = get_bool($msg, $def);
 }
 
 =head1 COPYRIGHT
