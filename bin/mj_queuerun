@@ -376,7 +376,10 @@ sub run_queue {
             # been moved to some other location (if it was spooled, for
             # instance).
             if (-s $file) {
-              unlink $statfile; unlink $file;
+              unlink $file;
+            }
+            if (-s $statfile) {
+              unlink $statfile;
             }
             close MSG;
             $::log->set_level($debug1);
