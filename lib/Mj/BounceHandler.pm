@@ -299,7 +299,7 @@ sub handle_bounce_token {
 		$data->{'victim'}, "reject $args{'token'}",
 		$self->{'interface'}, $ok, 0, 0, 
 		qq(A confirmation message could not be delivered.),
-		$::log->elapsed - $time);
+		$::log->elapsed - $time) if (exists $data->{'victim'});
       last;
     }
   }
@@ -307,6 +307,9 @@ sub handle_bounce_token {
   unless ($del) {
     ($ok, $data) = $self->t_info($args{'token'});
   }
+
+  return 1 unless ($ok and ref ($data) eq 'HASH');
+  $data->{'list'} ||= 'GLOBAL';
 
   unless (($i) = $self->_make_list($data->{'list'})) {
     return 1;
