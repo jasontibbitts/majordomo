@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200205310";
+$VERSION = "0.1200211280";
 $unique = 'AAA';
 
 use strict;
@@ -286,24 +286,29 @@ sub connect {
   my $addr = shift || 'unknown@anonymous';
   my $pw   = shift || '';
   my $log = new Log::In 50, "$int, $addr";
-  my ($dir1, $dir2, $err, $expire, $id, $ok, $path, $pdata, $req, $sfile,
-      $user);
+  my ($dir1, $dir2, $err, $expire, $id, $loc, $ok, $path, $pdata, 
+      $req, $sfile, $tmp, $user);
 
   $user = new Mj::Addr($addr);
 
   unless ($int eq 'resend' or $int eq 'owner' or $int eq 'shell') {
     if (! defined $user) {
-      ($ok, $err) = (0, "The address is undefined.\n"); # XLANG
+      ($ok, $err) = (0, $self->format_error('undefined_address', 'GLOBAL'));
     }
     else {
-      ($ok, $err) = $user->valid;
+      ($ok, $err, $loc) = $user->valid;
+      unless ($ok) {
+        $tmp = $self->format_error($err, 'GLOBAL');
+        $err = $self->format_error('invalid_address', 'GLOBAL', 
+                                   'ADDRESS' => $addr, 'ERROR' => $tmp,
+                                   'LOCATION' => $loc);
+      }
     }
 
     unless ($ok) {
-      $err = qq(The address "$addr" is invalid:\n$err); #XLANG
       $self->inform('GLOBAL', 'connect', $addr, $addr, 'connect',
                     $int, $ok, '', 0, $err, $::log->elapsed);
-      return (undef, $err) unless $ok;
+      return (undef, $err);
     }
   }
 
@@ -369,8 +374,8 @@ sub connect {
   # Do not log "Approved:" passwords
   $sess =~ s/^(approved:[ \t]*)(\S+)/$1PASSWORD/gim;
 
-  print {$self->{sessionfh}} "Source: $int\n"; #XLANG
-  print {$self->{sessionfh}} "PID:    $$\n\n"; #XLANG
+  print {$self->{sessionfh}} "Source: $int\n";
+  print {$self->{sessionfh}} "PID:    $$\n\n";
   print {$self->{sessionfh}} "$sess\n";
 
   # Now check if the client has access.  (Didn't do it earlier because we
@@ -447,8 +452,8 @@ processing done at the beginning.
 sub dispatch {
   my ($self, $request, $extra) = @_;
   my (@addr, @canon, @modes, @res, @tmp, $addr, $base_fun, $comment,
-      $continued, $data, $elapsed, $func, $l, $modelist, $mess, $ok, $out,
-      $over, $sl, $validate);
+      $continued, $data, $elapsed, $func, $l, $loc, $modelist, $mess, 
+      $ok, $out, $over, $sl, $tmp, $validate);
   my $level = 29;
   $level = 500 if ($request->{'command'} =~ /_chunk$/);
 
@@ -470,7 +475,7 @@ sub dispatch {
 
   my $log  = new Log::In $level, "$request->{'command'}, $request->{'user'}";
 
-  $log->abort('Not yet connected!') unless $self->{'sessionid'}; # XLANG
+  $log->abort('Not yet connected!') unless $self->{'sessionid'};
 
   unless (function_legal($request->{'command'})) {
     return [0, $self->format_error('invalid_command', 'GLOBAL',
@@ -568,13 +573,18 @@ sub dispatch {
   $request->{'user'} = new Mj::Addr($addr);
   if ($validate) {
     if (! defined $request->{'user'}) {
-      ($ok, $mess) = (0, "The address is undefined.\n"); # XLANG
+      ($ok, $mess) = (0, $self->format_error('undefined_address', 'GLOBAL'));
     }
     else {
-      ($ok, $mess) = $request->{'user'}->valid;
+      ($ok, $mess, $loc) = $request->{'user'}->valid;
+      unless ($ok) {
+        $tmp = $self->format_error($mess, 'GLOBAL');
+        $mess = $self->format_error('invalid_address', 'GLOBAL', 
+                                    'ADDRESS' => $addr, 'ERROR' => $tmp,
+                                    'LOCATION' => $loc);
+      }
     }
-    return [0, qq(The address "$addr" is invalid:\n$mess)]
-      unless $ok; #XLANG
+    return [0, $mess] unless $ok;
   }
 
   # Each of the victims must be verified.
@@ -635,13 +645,19 @@ sub dispatch {
     $request->{'victim'} = $addr;
     if ($validate and $request->{'mode'} !~ /regex|pattern/) {
       if (! defined $addr) {
-        ($ok, $mess) = (0, "The address is undefined.\n"); # XLANG
+        ($ok, $mess) = (0, $self->format_error('undefined_address', 'GLOBAL'));
       }
       else {
-        ($ok, $mess) = $addr->valid;
+        ($ok, $mess, $loc) = $addr->valid;
+        unless ($ok) {
+          $tmp = $self->format_error($mess, 'GLOBAL');
+          $mess = $self->format_error('invalid_address', 'GLOBAL', 
+                                      'ADDRESS' => "$addr", 'ERROR' => $tmp,
+                                      'LOCATION' => $loc);
+        }
       }
       unless ($ok) {
-        push @$out, (0, qq(The address "$addr" is invalid:\n$mess)); # XLANG
+        push @$out, (0, $mess);
         next;
       }
     }
@@ -653,7 +669,8 @@ sub dispatch {
     }
     else {
       # Last resort; we found _nothing_ to call
-     return [0, "No action implemented for $request->{'command'}"]; #XLANG
+     return [0, $self->format_error('invalid_command', 'GLOBAL',
+                                    'COMMAND' => $request->{'command'})];
     }
 
     $comment = '';
@@ -746,12 +763,14 @@ sub _make_list {
 		 backend   => $self->{backend},
 		 callbacks =>
 		 {
-		  'mj.list_file_get' =>
+		  'mj._list_file_get' =>
 		  sub { $self->_list_file_get(@_) },
 		  'mj._global_config_get' =>
 		  sub { $self->_global_config_get(@_) },
 		  'mj._list_config_search' =>
 		  sub { $self->_list_config_search(@_) },
+		  'mj._list_file_get_string' =>
+		  sub { $self->_list_file_get_string(@_) },
 		 },
 		);
   return unless $tmp;
@@ -1064,7 +1083,7 @@ sub substitute_vars {
   # always open a new input file
   $in  = gensym();
   open ($in, "< $file")
-    or $::log->abort("Cannot read file $file, $!"); #XLANG
+    or $::log->abort("Cannot read file $file: $!");
 
   # open a new output file if one is not already open (should be at $depth of 0)
   $tmp = $tmpdir;
@@ -1072,7 +1091,7 @@ sub substitute_vars {
   unless (defined $out) {
     $out = gensym();
     open ($out, "> $tmp") or
-      $::log->abort("Cannot write to file $tmp, $!"); #XLANG
+      $::log->abort("Cannot write to file $tmp: $!");
   }
 
   while (defined ($i = <$in>)) {
@@ -2103,11 +2122,13 @@ sub list_config_set_to_default {
 
   return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
+
   return (0, "Unable to access configuration file $list:$sublist")
     unless $self->{'lists'}{$list}->valid_config($sublist); #XLANG
 
   if (!defined $passwd) {
-    return (0, "No password was supplied.\n"); #XLANG
+    return (0, $self->format_error('no_password', $list,
+                                   'COMMAND' => 'configdef')); 
   }
 
   @groups = $self->config_get_groups($var);
@@ -2116,12 +2137,6 @@ sub list_config_set_to_default {
                                    'SETTING' => $var));
   }
   $level = $self->config_get_mutable($list, $var);
-
-  $user = new Mj::Addr($user);
-  ($ok, $mess) = $user->valid;
-  unless ($ok) {
-    return (0, "$user is invalid:\n$mess"); #XLANG
-  }
 
   # Validate by category.
   # Validate passwd, check for proper auth level.
@@ -2561,7 +2576,7 @@ sub config_get_vars {
   $hidden = ($ok > 0) ? $ok : 0;
   @out = $self->{'lists'}{$list}->config_get_vars($var, $hidden,
                                                   ($list eq 'GLOBAL'));
-  $::log->out(($ok > 0)? "validated" : "not validated"); #XLANG
+  $::log->out(($ok > 0)? "validated" : "not validated");
   @out;
 }
 
@@ -3538,7 +3553,7 @@ sub _get_stock {
       ($self->{'sitedata'}{'noweb'})
         = do "$self->{'sitedir'}/files/INDEX.pl";
       $log->abort("Can't load index file $self->{'sitedir'}/files/INDEX.pl!")
-        unless $self->{'sitedata'}{'noweb'}; #XLANG
+        unless $self->{'sitedata'}{'noweb'};
     }
 
     # XXX This change should be made at a higher level.
@@ -3576,7 +3591,7 @@ sub _fill_lists {
   my ($list, @lists);
 
   my $listdir = $self->{'ldir'};
-  opendir($dirh, $listdir) || $::log->abort("Error opening $listdir: $!"); #XLANG
+  opendir($dirh, $listdir) || $::log->abort("Error opening $listdir: $!");
 
   if ($self->{'sdirs'}) {
     while (defined($list = readdir $dirh)) {
@@ -3886,19 +3901,22 @@ elsewhere will want to add aliases, so the checks still make sense.
 sub alias {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'newaddress'}, $request->{'user'}";
-  my ($a2, $ok, $mess);
+  my ($a2, $loc, $mess, $ok, $tmp);
 
-  return (0, "No address was supplied.\n")
-    unless (length $request->{'newaddress'}); #XLANG
+  return (0, $self->format_error('undefined_address', 'GLOBAL'))
+    unless (length $request->{'newaddress'});
 
   $a2 = new Mj::Addr($request->{'newaddress'});
 
-  return (0, "$request->{'newaddress'} is an invalid address.\n")
-    unless (defined $a2); #XLANG
+  return (0, $self->format_error('undefined_address', 'GLOBAL'))
+    unless (defined $a2);
 
-  ($ok, $mess) = $a2->valid;
-  return (0, "$request->{'newaddress'} is an invalid address.\n$mess")
-    unless ($ok > 0); #XLANG
+  ($ok, $mess, $loc) = $a2->valid;
+  $tmp = $self->format_error($mess, 'GLOBAL');
+  return (0, $self->format_error('invalid_address', 'GLOBAL', 
+                                 'ADDRESS' => $request->{'newaddress'},
+                                 'ERROR'   => $tmp, 'LOCATION' => $loc,))
+    unless ($ok > 0);
 
   ($ok, $mess) = $self->list_access_check($request);
 
@@ -4302,8 +4320,9 @@ sub archive_chunk {
   $list = $self->{'lists'}{$request->{'list'}};
 
   if ($request->{'mode'} =~ /sync/) {
-    return (0, "Permission denied.  An administrative password is required.\n")
-      unless (exists $self->{'arcadmin'}); # XLANG
+    return (0, $self->format_error('no_password', $request->{'list'},
+                                   'COMMAND' => 'archive-sync'))
+      unless (exists $self->{'arcadmin'});
     @msgs = @$result;
     for $i (@msgs) {
       push @out, $list->archive_sync($i, $tmpdir);
@@ -4325,8 +4344,9 @@ sub archive_chunk {
     return (1, $buf);
   }
   elsif ($request->{'mode'} =~ /delete/) {
-    return (0, "Permission denied.  An administrative password is required.\n")
-      unless (exists $self->{'arcadmin'}); # XLANG
+    return (0, $self->format_error('no_password', $request->{'list'},
+                                   'COMMAND' => 'archive-delete'))
+      unless (exists $self->{'arcadmin'});
     $buf = '';
     @msgs = @$result;
 
@@ -4361,7 +4381,7 @@ sub archive_chunk {
           $buf .= "Part $request->{'part'} of message $j was deleted.\n"; # XLANG
         }
         else {
-          return (0, "Part $request->{'part'} of message $j was not deleted.\n$out\n");
+          return (0, "Part $request->{'part'} of message $j was not deleted.\n$out\n"); # XLANG
         }
       }
       else {
@@ -4411,7 +4431,6 @@ Contents:
     }
   }
   elsif ($request->{'mode'} =~ /part/) {
-    # XLANG
     return (0, undef) unless (exists $self->{'msg_data'});
 
     return (0, undef)
@@ -4782,8 +4801,8 @@ sub createlist {
 
     my $log = new Log::In 50, "$request->{'newlist'}, $request->{'owners'}->[0]";
 
-    # XLANG
-    return (0, "Illegal list name: $request->{'newlist'}")
+    return (0, $self->format_error('invalid_list', 'GLOBAL',
+                                   'LIST' => $request->{'newlist'}))
       unless ($ok = legal_list_name($request->{'newlist'}));
 
     $request->{'newlist'} = $ok;
@@ -4820,9 +4839,9 @@ sub _createlist {
 
   my (%args, %data, @defaults, @lists, @owners, @tmp, $aliases, $bdir,
       $desc, $digests, $dir, $dom, $debug, $ent, $file, $i, $j, $k,
-      $mess, $mta, $mtaopts, $newlist, $ok, $priority, $pwl, $regsub,
+      $loc, $mess, $mta, $mtaopts, $newlist, $ok, $priority, $pwl, $regsub,
       $result, $sender, $setting, $shpass, $sources, $sublists, $subs,
-      $who);
+      $tmp, $who);
 
   $mta   = $self->_site_config_get('mta');
   $dom   = $self->_global_config_get('whereami') || $self->{'domain'};
@@ -4919,7 +4938,8 @@ sub _createlist {
 
     # new list name must be valid
     # XLANG
-    return (0, "Illegal list name: $pw\n")
+    return (0, $self->format_error('invalid_list', 'GLOBAL', 
+                                   'LIST' => $pw))
       unless ($newlist = legal_list_name($pw));
 
     # new list must not exist
@@ -5061,11 +5081,13 @@ sub _createlist {
   for $owner (@tmp) {
     $i = new Mj::Addr($owner);
     # XLANG
-    return (0, "The owner address \"$owner\" is invalid.\n")
-      unless $i;
-    ($ok, $mess) = $i->valid;
-    # XLANG
-    return (0, "The owner address \"$owner\" is invalid.\n$mess")
+    return (0, $self->format_error('undefined_address', 'GLOBAL'))
+      unless (defined $i);
+    ($ok, $mess, $loc) = $i->valid;
+    $tmp = $self->format_error($mess, 'GLOBAL');
+    return (0, $self->format_error('invalid_address', 'GLOBAL', 
+                                   'ADDRESS' => $owner,
+                                   'ERROR'   => $tmp, 'LOCATION' => $loc))
       unless $ok;
     push @owners, $i;
   }
@@ -5096,13 +5118,10 @@ sub _createlist {
       $self->{'lists'}{$list} = undef;
 
       unless (-d $dir) {
-        # XLANG
 	mkdir $dir, 0777
 	  or $log->abort("Couldn't make $dir, $!");
-        # XLANG
 	mkdir "$dir/files", 0777
 	  or $log->abort("Couldn't make $dir/files, $!");
-        # XLANG
 	mkdir "$dir/files/public", 0777
 	  or $log->abort("Couldn't make $dir/files/public, $!");
       }
