@@ -1367,19 +1367,25 @@ sub set {
   $files = {
             'error' => $mj->format_get_string($type, 'set_error'),
             'head' => $mj->format_get_string($type, 'set_head'),
-            'main' => $mj->format_get_string($type, 'set'),
             'foot' => $mj->format_get_string($type, 'set_foot'),
            };
 
-  $str = $mj->substitute_vars_format($files->{'head'}, $subs);
-  print $out "$str\n";
-  $lsubs = { 
-            %$subs, 
-            'SETTINGS' => [],
-           };
+  if ($request->{'mode'} =~ /check/) {
+    $files->{'main'} = $mj->format_get_string($type, 'set_check');
+    $str = $mj->substitute_vars_format($files->{'head'}, $subs);
+    print $out "$str\n";
+  }
+  else {
+    $files->{'main'} = $mj->format_get_string($type, 'set');
+  }
 
   while (@changes) {
     ($ok, $change) = splice @changes, 0, 2;
+    $lsubs = { 
+              %$subs, 
+              'SETTINGS' => [],
+             };
+
     if ($ok > 0) {
       $count++;
       $list = $change->{'list'};
@@ -1470,9 +1476,11 @@ sub set {
     }
   }
 
-  $subs->{'COUNT'} = $count;
-  $str = $mj->substitute_vars_format($files->{'foot'}, $subs);
-  print $out "$str\n";
+  if ($request->{'mode'} =~ /check/) {
+    $subs->{'COUNT'} = $count;
+    $str = $mj->substitute_vars_format($files->{'foot'}, $subs);
+    print $out "$str\n";
+  }
 
   $ok;
 }
