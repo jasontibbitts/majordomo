@@ -105,19 +105,34 @@ the mj_shell program to process your changes, use this command:
 
   default display editor
 
-(This feature is used automatically with the configedit and get-edit
-commands.)
+(This feature is used automatically with the configedit, faq-edit, 
+get-edit, info-edit, and intro-edit commands.)
 
 The pager or editor can be turned off with the following command:
 
   default display
 
 
+A note on the libraries
+-----------------------
+
+If the mj_shell program is using the Stub library, your system
+administrators should consider installing the Term::ReadLine::Gnu or
+Term::ReadLine::Perl library.   These libraries are available from any
+CPAN archive (visit http://www.cpan.org/ for more details.)  Once one of
+these libraries is installed at your site, the mj_shell program will
+begin to use it automatically.
+
 See Also:
    help admin
    help command_parser
+   help configedit
    help default
+   help faq
+   help get
    help here_document
+   help info
+   help intro
    help mj_shell
    help overview
 
