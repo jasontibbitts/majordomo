@@ -4,12 +4,24 @@ sessioninfo sessionid
 sessionid, required, is a 32-digit ID from a previous server command
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This returns session data.  Every connection to the Majordomo server gets a
-session and everything done in that session os recorded in a file, along
-with things like the headers or the CGI environment.  Just run
-  sessioninfo sessionid
-where sessionid is a string of exactly 32 hex digits in lower case,
-to get information on a previous Mj2 session.
+This command returns session data. The sessionid is a string of exactly
+32 hex digits in lower case, to get information on a previous Mj2 session.
+
+Every "connection" to Majordomo (i.e. every email sent, mj_shell started,
+etc.) is called a session.  Each session gets a unique random identifier
+(a 128 bit hex number) and all available information about that session
+(message headers, relevant bits from the shell environment, etc.) along
+with a log of each command that was executed is stored in a file with
+things like the headers or the CGI environment..  This information can
+be retrieved using the sessioninfo command.
+
+Session files are deleted after the amount of time specified in
+session_lifetime.  They are extremely useful in tracking down the source
+of things like forged subscription requests and spam (particularly on a
+list that strips Received: headers).  The relevant session data is also
+sent out when someone rejects a confirmation token.  (The assumption is
+that the request may have been forged, so everything available for
+tracking the forgery is automatically sent out.)
 
 Where do you get session IDs from? The server will mail you confirmation
 messages (if configured to do so) that include lines like this:
@@ -40,6 +52,12 @@ This output shows that a message was mailed to test-owner.  You have the
 headers, the PID of the injecting process, the action that was performed
 and its return status (1, meaning success).
 
+
+See Also:
+   help tokeninfo        (another way to get info similar to sessioninfo)
+   help showtokens       (for a list of unapproved requests)
+   help variables        (for how to insert the session ID into an "inform" msg)
+   help configset session_lifetime (for how long session info is kept around)
 
 For a list of all help topics send this one-line message
    help topics
