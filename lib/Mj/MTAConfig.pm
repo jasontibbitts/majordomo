@@ -180,7 +180,7 @@ sub add_alias {
   
 
   if ($args{options}{maintain_vut}) {
-    $vut = "-$dom";
+    $vut = "-$mdom";
   }
   else {
     $vut = '';
