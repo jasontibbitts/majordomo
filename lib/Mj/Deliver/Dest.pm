@@ -109,8 +109,7 @@ sub new {
     $self->{'method'} = 'maxaddrs';
     $self->{'size'} = $data->{'maxaddrs'} || 20;
   }
-  # This covers $data->{'numbatches'}, $data->{'nobatch'}, and none
-  # specified
+  # This covers $data->{'numbatches'} or none specified.
   else {
     $self->{'method'} = 'maxaddrs';
 
