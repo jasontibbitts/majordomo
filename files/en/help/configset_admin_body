@@ -20,9 +20,7 @@ configset GLOBAL admin_body << ENDTAG
 /X-Loop: / 0,1,xloop
 ENDTAG
 
-
-If any line of the body matches one of these regexps, then the message
-will be bounced (sent to the list owner) for review.
+$INCLUDE-config/admin_body
 
 NOTE 1: The information below applies to "taboo_body" also, just
 substitute the string "taboo_" wherever you see "admin_" below.
