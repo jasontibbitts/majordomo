@@ -2819,19 +2819,29 @@ sub changeaddr {
 sub _changeaddr {
   my($self, $list, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, "$vict, $requ";
-  my(@out, @aliases, $data, $key, $l, $lkey, $ldata);
+  my(@out, @aliases, @lists, %uniq, $data, $key, $l, $lkey, $ldata);
 
   ($key, $data) = $self->{'reg'}->remove($mode, $vict->canon);
 
   unless ($key) {
     $log->out("failed, nomatching");
-    return (0, "No matching addresses.\n");
+    return (0, "No address matched $vict->{'canon'}.\n");
   }
+
 
   push @out, $data->{'fulladdr'};
   $data->{'fulladdr'} = $requ->full;
   $data->{'stripaddr'} = $requ->strip;
-  $self->{'reg'}->add('', $requ->canon, $data);
+
+  # Does the address already exist in the registry?  
+  # If so, combine the list data.
+  if ($ldata = $self->{'reg'}->lookup($requ->canon)) {
+    @lists = split ("\002", $ldata->{'lists'});
+    push @lists, split ("\002", $data->{'lists'});
+    @uniq{@lists} = ();
+    $data->{'lists'} = join "\002", sort keys %uniq;
+  }
+  $self->{'reg'}->add('force', $requ->canon, $data);
 
   $key = new Mj::Addr($key);
 
@@ -3516,11 +3526,11 @@ sub set {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $addr, $setting) = @_;
   my $log = new Log::In 30, "$list, $addr, $setting";
-  my ($isflag, $ok, $mess, $raction);
+  my ($ok, $mess);
 
-  $list = 'GLOBAL' if $list eq 'ALL';
- 
-  $self->_make_list($list);
+  return (0, "The set command is not supported for the $list list.\n")
+    if ($list eq 'GLOBAL' or $list eq 'DEFAULT'); 
+
   ($ok, $mess) =
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
                  $list, 'set', $user, $addr, $setting, '', '');
@@ -3534,18 +3544,19 @@ sub set {
 
 sub _set {
   my ($self, $list, $user, $addr, $mode, $cmd, $setting) = @_;
-  my ($data, $l, $mess, $ok, $tmp, @out);
+  my ($data, $l, $ok, $tmp, @out);
 
   @out = (1);
-  if ($list eq 'GLOBAL') {
-    $mess = '';
+  if ($list eq 'ALL') {
     $data = $self->{'reg'}->lookup($addr->canon);
+    return (0, "Unable to find data for $addr->canon.\n") unless $data;
     for $l (split("\002", $data->{'lists'})) {
       $self->_make_list($l);
       push @out, $self->{'lists'}{$l}->set($addr, $setting), $l;
     }
   }
   else {
+    $self->_make_list($list);
     push @out, $self->{'lists'}{$list}->set($addr, $setting), $list;
   }
   @out;
