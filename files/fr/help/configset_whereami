@@ -1,0 +1,52 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  whereami = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : $DOMAIN
+Type de donnée    : mot
+Catégorie         : miscellany
+Mot de passe      : Visible avec un mot de passe. Modifiée avec le mot
+                    de passe global.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE:
+configset GLOBAL whereami = example.org
+
+
+$INCLUDE-config/whereami
+
+D'autres paramètres de configuration ("bounce_recipients",
+"moderator", "moderators", "owners", "sender", "whoami",
+"whoami_owner") peuvent contenir des adresses email sans noms de
+domaines, par exemple :
+ 
+  configset maliste whoami = maliste
+
+Dans ce cas, le contenu du paramètre "whereami" sera ajouté a
+l'adresse email automatiquement.
+
+La valeur de ce paramètre est utilisée dans les commandes EHLO/HELO
+durant les échanges entre Majordomo et le serveur de courrier.
+
+Le paramètre "whereami" est aussi substitué à la variable \$WHEREAMI
+la ou les substitutions sont utilisées. Référez vous à "help
+variables" pour plus de détails.
+
+Si vous changez la valeur de ce paramètre, vous devriez lancer la
+commande "createlist-regen" par la suite pour régénérer les fichiers
+de configurations et les aliases pour toutes les listes.
+
+
+Référez vous aussi à :
+   help admin_domain
+   help configset_bounce_recipients
+   help configset_moderators
+   help configset_owners
+   help configset_reply_to
+   help configset_resend_host
+   help configset_sender
+   help configset_whoami
+   help configset_whoami_owner
+   help createlist
+   help variables
+
+$INCLUDE-help/foot
