@@ -2908,12 +2908,15 @@ sub parse_regexp_array {
 =head2 parse_restrict_post
 
 This parses a restrict_post array, which is like a string_array except that
-the first idem is split on whitespace and the result inserted at the top of
-the list.
+each item is split on whitespace.
 
-Note that the old colon separation conflicts with the new list:auxlist
-notation.  Sigh.  I don''t see this as a huge problem, as convertlist will
-take care of it and whitespace is the commonly used separator.
+Mj1 used colons to separate file names, which conflicts with the Mj2
+list:auxlist notation.  The convertlist script should compensate for
+this automatically when Mj1 lists are imported into Mj2.
+
+Naming a list that does not exist results in an error, but a
+non-existent sublist will be accepted if the sublist name is valid
+(consisting of letters, numerals, period, hyphen, or underscore).
 
 =cut
 sub parse_restrict_post {
@@ -2921,11 +2924,40 @@ sub parse_restrict_post {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my $out = [];
+  my (@lists, $i, $list, $mess, $out, $sublist, $test);
+  $out = [];
 
-  push(@$out, split(/\s+/, $arr->[0])) if @$arr;
-  for (my $i = 1; $i < @$arr; $i++) {
-    push @$out, $arr->[$i];
+  for ($i = 0; $i < @$arr; $i++) {
+    if ($arr->[$i] =~ /\S\s+\S/) {
+      push @lists, split(/\s+/, $arr->[$i]);
+    }
+    else {
+      push (@lists, $arr->[$i]) if ($arr->[$i] =~ /\S/);
+    }
+  }
+
+  for ($i = 0; $i < @lists; $i++) {
+
+    $test = $lists[$i];
+
+    ($list, $sublist, $mess) =
+      &{$self->{'callbacks'}{'mj.valid_list'}}($test, 0, 1);
+
+    # Cope with LIST[.-_]digest for Mj1 compatibility.
+    if ($test =~ /(\Q$self->{'list'}\E)[.-_](.+)$/ and ! defined $list) 
+    {
+      if ($2 eq 'digest') {
+        $test = $1;
+      }
+      else {
+        $test = "$1:$2";
+      }
+      ($list, $sublist, $mess) =
+        &{$self->{'callbacks'}{'mj.valid_list'}}($test, 0, 1);
+    }
+
+    return (0, $mess) unless (defined $list and length $list);
+    push @$out, $test;
   }
 
   return (1, '', $out);
@@ -4156,11 +4188,10 @@ sub _compile_rule {
  	(?:
  	 (>=|<=|==|<>|=|!=|<|>) # any legal op
  	 \s*                    # possible whitespace
- 	 ([^\s]+)               # the value, ends at space
+ 	 ([^\s]*[^\s\)])        # the value, ends at space or close
  	)?                      # but maybe not "op value"
  	\s*                     # Trim any trailing whitespace
- 	#	   ($|[\s\)])              # End with the end or some space
- 	//x)                    # or a close
+ 	//x)                    
       {
 	($var, $op, $arg) = ($1, $2, $3);
 #warn "var comparison V$var O$op A$arg";
