@@ -21,14 +21,25 @@ use MIME::Parser;
 
 # This is based on MIME::Parser::output_path
 sub output_path {
-    my ($self, $head) = @_;
-    my ($dir, $name);
+  my ($self, $head) = @_;
+  my ($dir, $name);
 
-    $output_path_counter++;
-    $name = ($self->output_prefix . "$$.$output_path_counter.mime");
-    $dir = $self->output_dir;
-    $dir = '.' if (!defined($dir) || ($dir eq ''));  # just to be safe
-    "$dir/$name";  
+  $output_path_counter++;
+  $name = ($self->output_prefix . "$$.$output_path_counter.mime");
+  $dir = $self->output_dir;
+  $dir = '.' if (!defined($dir) || ($dir eq ''));  # just to be safe
+  "$dir/$name";  
+}
+
+sub parse_open {
+  my $self = shift;
+  
+  if ($MIME::Tools::VERSION < 5) {
+    return $self->SUPER::parse_in(@_);
+  }
+  else {
+    return $self->SUPER::parse_open(@_);
+  }
 }
 
 use AutoLoader 'AUTOLOAD';

@@ -1,3 +1,13 @@
+2003-10-29  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/MIMEParser.pm:  (parse_open)  Bugfix:  Call
+	parse_in() instead of parse_open() as needed to allow
+	Mj2 to work with MIME::Tools version 4 again.
+
+	* lib/Mj/Resend.pm:  (_r_ck_header)  Bugfix:  Initialize
+	the dup_msg_id access variable correctly to avoid 
+	tickling the tainting bug in perl 5.5 and earlier versions.
+
 2003-10-28  Michael Yount <csf@moscow.com>
 
 	* bin/mj_enqueue:  Cope better with empty messages.
@@ -20,6 +30,7 @@
 
 	* lib/Mj/SimpleDB/Text.pm:  (get_matching*regexp)  Bugfix:
 	Remove anchors before calling Mj::File::search().
+	Thanks to Eric Luhrs.
 
 2003-10-07  Michael Yount <csf@moscow.com>
 
