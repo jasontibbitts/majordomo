@@ -25,7 +25,6 @@ at $SITE.  A summary of the message appears below.
 ?WILLACK <input type="submit" name="func" value="reject-quiet">
 <br>
 <input type="hidden" name="extra" value="$TOKEN">
-<input type="hidden" name="domain" value="$DOMAIN">
 <input type="hidden" name="list" value="$LIST">
 <input type="hidden" name="user" value="$USER">
 <input type="hidden" name="passw" value="$CMDPASS">

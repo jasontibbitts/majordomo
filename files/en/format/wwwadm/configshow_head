@@ -23,7 +23,7 @@
   Clicking the name of a configuration setting will display the
   help page for that setting in a separate window.
 </p>
-<form method=POST action="$CGIURL">
+<form method="POST" action="$CGIURL">
   <input type="hidden" name="list" value="$LIST">
   <input type="hidden" name="passw" value="$CMDPASS">
   <input type="hidden" name="user" value="$USER">

@@ -69,7 +69,7 @@ Optionally, type the subscriber's name into the <b>Name</b> box.
 Then press the <b>subscribe</b> button.  
 
 <form method="POST" action="$CGIURL">
-  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="user" value="$USER">
   <input type="hidden" name="passw" value="$CMDPASS">
   <input type="hidden" name="list" value="$LIST">
   Address: <input size="36" name="victims" value=""><br>
@@ -102,6 +102,9 @@ List of Lists
 
 <td>
 <a href="$CGIURL?$CGIDATA&func=lists-long&list=$LIST">
- View every mailing list for which access is authorized.</a>
+ View every mailing list for which access is authorized.</a><br>
+<a href="$CGIURL?$CGIDATA&list=$LIST&func=newlist">
+ Create, Rename, or Destroy a mailing list.
+</a>
 </td>
 </tr>

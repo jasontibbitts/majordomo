@@ -8,13 +8,12 @@
 ?WILLACK <input type="submit" name="func" value="reject-quiet">
   <input type="submit" name="func" value="tokeninfo-remind">
   <input type="hidden" name="extra" value="$TOKEN">
-  <input type="hidden" name="domain" value="$DOMAIN">
   <input type="hidden" name="list" value="$LIST">
   <input type="hidden" name="passw" value="$CMDPASS">
 <p>
 To send an e-mail reminder about this message, type an address into the
-<b>address</b> box, then press the <b>tokeninfo-remind</b> button.<br>
-address:
+<b>Address</b> box, then press the <b>tokeninfo-remind</b> button.<br>
+Address:
   <input size="48" name="user" value="$USER">
 </p>
 
