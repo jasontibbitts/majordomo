@@ -419,6 +419,7 @@ elsif ($commands{$func}->[3] ne $func) {
     $request->{'list'} = $lists[0];
     $request->{'chunksize'} = $cgi->param('chunksize') || 20;
     $request->{'start'} = $cgi->param('start') || 1;
+    $request->{'regexp'} = $cgi->param('pattern');
   }
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
