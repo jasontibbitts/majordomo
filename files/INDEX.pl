@@ -88,6 +88,18 @@ $files =
    ['Error format.  Warns that a command mode is invalid.',
     'us-ascii', '7bit'],
 
+   'en/error/make_list'                        => 
+   ['Error format.  Warns that a list could not be initialized.',
+    'us-ascii', '7bit'],
+
+   'en/error/no_password'                      => 
+   ['Error format.  Warns that a password is required to change a setting.',
+    'us-ascii', '7bit'],
+
+   'en/error/not_extracted'                    => 
+   ['Error format.  Warns that a setting fragment could not be extracted.',
+    'us-ascii', '7bit'],
+
    'en/error/password_length'                  => 
    ['Error format.  Warns that a password is too short.',
     'us-ascii', '7bit'],

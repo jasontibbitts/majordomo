@@ -238,6 +238,9 @@ files/en/delay_noweb
 files/en/digest_preindex
 files/en/error/invalid_command
 files/en/error/invalid_mode
+files/en/error/make_list
+files/en/error/no_password
+files/en/error/not_extracted
 files/en/error/password_length
 files/en/error/unknown_setting
 files/en/error/unregistered
