@@ -24,6 +24,7 @@ size reasons.
 package Mj::Access;
 use Mj::Config qw(parse_table);
 use Mj::CommandProps qw(:rules);
+use Mj::MIMEParser;
 use strict;
 use vars qw($skip $victim $passwd @permitted_ops %args %memberof %requests);
 
@@ -826,6 +827,7 @@ sub _a_consult {
   ($file, $arg, $group, $size) = split(/\s*,\s*/,$arg || "");
   $self->consult('file'      => $file || "consult",
 		 'group'     => $group || 'default',
+		 'size'      => $size || 0,
 		 'list'      => $list,
 		 'command'   => $request,
 		 'user'      => $requester,
@@ -844,14 +846,63 @@ sub _a_forward {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
 
-  my $ent = new MIME::Entity 
-    [
-     "Subject: Forwarded request from $requester\n",
-     "Reply-To: $requester\n",
-     "\n",
-     "$cmdline\n",
-    ];
-  $self->mail_entity($mj_owner, $ent, $arg);
+  my (%avars, $ent, $fh, $parser, $subject, $tmpdir, $whoami);
+  
+
+  if ($request ne 'post') {
+    $whoami = $self->global_config_get(undef, undef, 'whoami');
+    if (lc $whoami eq lc $arg) {
+      # Mail Loop!  Send to owners instead.
+      $arg = $self->list_config_get(undef, undef, $list, 'whoami_owner');
+      $cmdline .= "\nUnable to forward to $arg due to apparent mail loop.";
+    }
+      
+    $ent = new MIME::Entity 
+      [
+       "Subject: Forwarded request from $requester\n",
+       "From: $requester\n",
+       "Reply-To: $requester\n",
+       "\n",
+       "$cmdline\n",
+      ];
+  } 
+  else {
+    # Reconstruct the list address
+    %avars = split("\002", $arg3);
+    $whoami = $list;
+    if ($avars{'sublist'} ne '') {
+      $whoami .=  "-$avars{'sublist'}";
+    }
+    $whoami .=  '@' . $self->list_config_get(undef, undef, $list, 'whereami');
+
+    # Create an entity from the spool file.
+    $tmpdir = $self->_global_config_get("tmpdir");
+
+    $parser = new Mj::MIMEParser;
+    $parser->output_to_core($self->_global_config_get("max_in_core"));
+    $parser->output_dir($tmpdir);
+    $parser->output_prefix("mjr");
+    
+    $fh = new IO::File "<$arg1";
+    $ent = $parser->read($fh);
+    # This should be safe, because the file has already
+    # been moved from the queue to the spool.
+    $fh->close;
+
+    if (lc $whoami eq lc $arg) {
+      # Mail Loop!  Send to owners instead.
+      if ($ent) {
+        $subject = $ent->head->get('subject');
+        $subject = "Forwarding loop detected for $arg (was $subject)";
+        $ent->head->replace('subject', $subject);
+      }
+      $arg = $self->list_config_get(undef, undef, $list, 'whoami_owner');
+    }
+  }
+  $self->mail_entity($mj_owner, $ent, $arg) if ($ent and $arg);
+  $ent->purge if $ent;
+  # Cannot unlink spool file now, because it may be attached
+  # to the reply message.
   return (-1, 'repl_forward');
 }
 
