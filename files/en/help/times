@@ -1,0 +1,70 @@
+This file is specific to administrators! To get suggestions from a
+user's perspective (as a list subscriber) send "help overview" or
+"help commands" to the server at $MJ
+
+This file describes the general format that Majordomo uses for specifying
+the time at which an event happens. For list configurations that need
+a time specification, you can use any of the following forms:
+
+1. HOUR: an integer from 0 to 23
+   - 0 is midnight, 12 is noon
+   - the action will be taken only during this hour of each day
+      (at whatever minute is convenient for the software)
+
+2. HOUR RANGE: two integers separated by a dash
+   - the action will be taken anytime between these two hours each day
+   - if the second number is less than the first, the range continues
+      into the next day (wraps around midnight)
+
+3. HOUR LIST: two or more integers separated by commas (and perhaps dashes)
+   - the action will be taken during each of these hours each day, as needed
+   - can be combined with HOUR RANGE: 6,18 and 6,15-20 are both valid
+      (for example, 6,12-14 would act every day at 6am, noon, 1pm, and 2pm.)
+
+4. WEEK DAY: the name or number representing a day of the week
+   - the action will be taken anytime during that day
+      (early in the day unless an HOUR spec is also used)
+   - can use standard English day names: Monday, Tuesday, etc
+   - can use unique portion of standard day names: mon, tue, etc
+   - can use a number followed by 'w': 1w for sun, 2w for mon, 3w for tue, etc.
+   - can use "daily":  the same as "sun,mon,tue,wed,thu,fri,sat" (see below)
+   - can use "weekly": the same as "sun" (see below)
+
+5. MONTH DAY: the name or number representing a day of the month
+   - the action will be taken anytime during that day
+      (early in the day unless an HOUR spec is also used)
+   - can use ordinals: 1st, 2nd, 26th, etc
+   - can use a number followed by 'm': 1m for 1st, 2m for 2nd, 3m for 3rd, etc.
+   - can use "monthly": the same as "1st" (see below)
+
+6. HOUR OF DAY: combines day and hour specs (separately described above)
+   - WEEK DAY or MONTH DAY is followed by HOUR or HOUR RANGE or HOUR LIST in parentheses
+   - a spec like fri(6) or 6w(6) limits the action to a specific hour of a specific day
+   - a spec like fri(6,18) limits the action to several specific hours of a specific day
+   - a spec like 22nd(12-18) limits the action to a range of hours on a specific day
+
+7. SPECIAL NAMES: these can be used as alternatives to the DAY specs above
+   - always:    take the action whenever possible (cron usually runs triggers hourly)
+   - anytime:   same as 'always'
+   - never:     never take this action even if the opportunity arises
+   - none:      same as 'never'
+   - daily:     the action is taken early every morning.
+   - weekly:    the action is taken every Sunday.
+   - monthly:   the action is taken on the first of every month.
+   - quarterly: the action is taken on the first day of each quarter
+                     (the first of January, April, July, and October)
+   - yearly:    the action is taken on every first of January.
+
+
+NOTE: Commas can be used to make lists of hours or days, so you
+      can have: mo(6,8,10), tu(12-18,22-6), we, 3rd(4,10-14)
+
+
+See Also:
+   help configset digests
+   help configset triggers
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
+

@@ -31,11 +31,9 @@ of the data that can be given, with more details below:
 name     - A one-word name given to the digest.  It is unwise to name
            the digest "mime", "text" or "index".
 
-times    - The times that digests are allowed to be created.  Times are
-           specified as day of the week, day of the month, hour, etc
-           (see below for details), the string "always" or the string
-           "never".  The default is "always", which allows digest creation
-           any time it is needed (based on maxsizes, maxage).
+times    - The times field follows the standard Majordomo syntax (see "help times").
+           The times that digests are allowed to be created. The default is "always",
+           which allows digest creation any time it is needed (based on maxsizes, maxage).
 
 minsizes - The minimum amount of data (measured in messages or
            kilobytes) which must be collected before a digest will be
@@ -77,26 +75,7 @@ NAME: You can specify a "name" of any single word, but don't use words
       in mind that users will be typing the name into a "set" command
       (so it should make sense on its own).
 
-TIMES: You can specify "times" in any of the following forms:
-
-     an integer from 0 to 23: digests will be created only
-     during this hour of the day.  (0 is midnight.)
-
-     two integers separated by a dash: digests will be created
-     anytime between these two hours.  If the second number is
-     less than the first, the range continues into the next day.
-
-     the name (or a unique portion) of a day of the week, or a
-     day of the month (as an ordinal): digests will be created
-     anytime during that day.  fri, tue, 1st, 26th
-
-     a construct like fri(6) or 22nd(12-18) limits digest
-     creation to those hours on those days.
-
-     Commas can be used to make lists of hours or days, so you
-     can have: mo(6,8,10), tu(12-18,22-6), we, 3rd(4,10-14)
-
-     The default is to allow digest creation anytime.
+TIMES: see "help times" for syntax.
 
 MINSIZES: You can specify "minsizes" in messages or kilobytes
      or BOTH. A digest will be distributed only after it reaches
@@ -151,6 +130,7 @@ At the top of this help is an example which defines two digests.
 See Also:
    help digest   (for managing digests once enabled)
    help put      (for how to create archive directory)
+   help times
 
 For a list of all help topics send this one-line message
    help topics

@@ -43,29 +43,9 @@ that cron job triggers a check of various time-based actions, any
 action which is due or overdue will be performed. Digests are ALWAYS
 checked during the hourly trigger.
 
-The times follow the same syntax as the "times" portion of the digests
-configuration setting.  There are several ways to indicate times:
-
-always or anytime  - Always issue this trigger whenever cron runs any trigger.
-never or none      - Never issue this trigger regardless of calls to mj_trigger.
-yearly             - Issue this trigger once on the first of January.
-quarterly          - Issue this trigger once on the first day of each quarter
-                     (the first of January, April, July, and October)
-monthly            - Issue this trigger once on the first of every month.
-weekly             - Issue this trigger once every Sunday.
-daily              - Issue this trigger early every morning.
-hour or hour range - Hours during which to run the trigger every day
-                     (for example, 6,12-14 would invoke the trigger
-                      every day at 6 am, noon, and 2 pm.)
-day of the week    - The English name of the weekday, or a number 
-                     followed by the letter "w", optionally followed
-                     by hours or hour ranges within parentheses.
-day of the month   - The English abbreviation of the day of the month,
-                     or a number followed by the letter "m", 
-                     optionally followed by hours or hour ranges within
-                     parentheses (for example, 2nd,10th,18th,26th
-                     would invoke the trigger every hour during the second,
-                     tenth, eighteenth, and twenty-fourth day of every month.)
+The times field follows the standard Majordomo syntax (see "help times").
+Note the special cases of "always" which issues the specified trigger
+whenever cron runs ANY trigger, and "never" which skips the specified trigger.
 
 
 See Also:
@@ -76,6 +56,7 @@ See Also:
    help configset post_limits
    help configset session_lifetime
    help configset token_lifetime
+   help times
 
 For a list of all help topics send this one-line message
    help topics
