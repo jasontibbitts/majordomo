@@ -139,7 +139,7 @@ sub add_alias {
 # Aliases for Majordomo at $dom
 $who$vut:       "|$bin/mj_email -m -d $dom$debug"
 $who$vut-owner: "|$bin/mj_email -o -d $dom$debug"
-owner-$who$vut: majordomo-owner,
+owner-$who$vut: $who$vut-owner,
 # End aliases for Majordomo at $dom
 EOB
     $vblock = <<"EOB";
