@@ -168,7 +168,7 @@ sub remove {
   # First, take care of the simple case.  Note that we don't allow
   # duplicates, but if we did there would be a problem with the del method
   # automatically removing all keys present.
-  if ($mode !~ /regex/) {
+  if ($mode !~ /regex|pattern/) {
     # Perhaps the key exists; look it up
     $data = $self->_lookup($db, $key);
 
@@ -239,7 +239,7 @@ sub replace {
   my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
 
   # Take care of the easy case first.  Note that we don't allow duplicates, so there's no need to loop nere.
-  if ($mode !~ /regex/) {
+  if ($mode !~ /regex|pattern/) {
     $data = $self->_lookup($db, $key);
     return unless $data;
     # Update the value, and the record.

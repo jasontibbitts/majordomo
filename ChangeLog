@@ -1,5 +1,8 @@
 2001-08-21  Michael Yount <csf@moscow.com>
 
+	* lib/Majordomo.pm:  (_unregister)  Bugfix:  treat "regex"
+	and "pattern" modes identically.
+
 	* lib/Mj/Format.pm:  (show)  Escape HTML special characters
 	in registration data substitutions.
 

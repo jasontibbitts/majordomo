@@ -6375,10 +6375,12 @@ sub _unregister {
   my(@out, @removed, @aliases, $data, $key, $l, $tmp);
 
   if ($mode =~ /regex|pattern/) {
-    (@removed) = $self->{'reg'}->remove($mode, $vict);
+    $tmp = 'regex';
+    $tmp .= '-allmatching' if ($mode =~ /allmatching/);
+    (@removed) = $self->{'reg'}->remove($tmp, $vict);
   }
   else {
-    (@removed) = $self->{'reg'}->remove($mode, $vict->canon);
+    (@removed) = $self->{'reg'}->remove('', $vict->canon);
   }
 
   unless (@removed) {

@@ -153,7 +153,7 @@ sub remove {
 
   $fh = new Mj::FileRepl($self->{name}, $self->{lock});
   
-  if ($mode =~ /regex/) {
+  if ($mode =~ /regex|pattern/) {
     while (1) {
       # Note that lookup on a FileRepl automatically copies for us, unless
       # the match is false (matches in the line but doesn't match the key).
@@ -225,7 +225,7 @@ sub replace {
   $fh = new Mj::FileRepl($self->{name}, $self->{lock});
   $matches = 0;
   
-  if ($mode =~ /regex/) {
+  if ($mode =~ /regex|pattern/) {
     while (1) {
       # Note that lookup implicitly copies for us.
       ($match, $data) = $self->lookup_regexp($key, $fh);
