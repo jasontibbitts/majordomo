@@ -2983,20 +2983,23 @@ sub g_sub {
 sub cgidata {
   my $mj = shift;
   my $request = shift;
-  my ($addr, $out);
+  my (%esc, $addr, $i, $pass);
 
   return unless (ref $mj and ref $request);
-  $addr = &escape("$request->{'user'}");
-  
-  $out = sprintf 'user=%s&passw=%s',
-           $addr, $request->{'password'};
 
-  $out = &uescape($out);
-  return $out;
+  for $i (0..255) {
+    $esc{chr($i)} = sprintf("%%%02X", $i);
+  }
+
+  $addr = $request->{'user'};
+  $addr =~ s/([^A-Za-z0-9\.\-_])/$esc{$1}/g;
+ 
+  $pass = $request->{'password'}; 
+  $pass =~ s/([^A-Za-z0-9\.\-_])/$esc{$1}/g;
+  
+  return sprintf ('user=%s&passw=%s', $addr, $pass);
 }
 
-
-  
 sub eprint {
   my $fh   = shift;
   my $type = shift;
@@ -3071,7 +3074,7 @@ sub indicate {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-2000 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
