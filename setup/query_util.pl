@@ -171,6 +171,12 @@ sub get_list {
       print "Empty list not allowed!\n";
       next;
     }
+    # Hack to test for valid domains
+    if ($elem =~ /[^a-zA-Z0-9\.\-]/) {
+      print "Invalid domain name.\n";
+      print "Only letters, digits, period and hyphen are allowed.\n";
+      next;
+    }
     push @{$list}, $elem;
   }
   $list;
