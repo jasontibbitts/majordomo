@@ -397,8 +397,8 @@ sub dispatch {
       # Last resort; we found _nothing_ to call
      return [0, "No action implemented for $request->{'command'}"];
     }
-    if ($base_fun eq 'post' and defined $out->[2]) {
-      $request->{'user'} = $out->[2];
+    if ($base_fun eq 'post' and defined $out->[1]) {
+      $request->{'user'} = $out->[1];
     }
     # Inform unless overridden or continuing an iterator
     unless ($over == 2 || $request->{'command'} =~ /_(chunk|done)$/) {
@@ -515,6 +515,7 @@ sub gen_cmdline {
     for $variable (sort keys %$arguments) {
       next if ($variable eq 'optmode' or $variable eq 'split');
       next if (!$useopts and ($arguments->{$variable} =~ /OPT/));
+      # next if ($variable eq 'newpasswd');
       if ($variable eq 'victims' and defined $request->{'victim'}) {
         $cmdline .= " $request->{'victim'}";
         next;
@@ -1029,29 +1030,23 @@ sub list_config_set {
   my ($self, $user, $passwd, $auth, $int, $list, $var) =
     splice(@_, 0, 7);
   my $log = new Log::In 150, "$list, $var";
-  my (@groups, @out, $i, $mess, $ok, $global_only);
+  my (@groups, $i, $mess, $ok, $global_only);
 
   $self->_make_list($list);
 
   if (!defined $passwd) {
-    $self->inform($list, 'config_set', $user, $user, "configset $list $var",
-		  $int, 0, 0, 0, '');
     return (0, "No passwd supplied.\n");
   }
 
   $user = new Mj::Addr($user);
   ($ok, $mess) = $user->valid;
   if (!$ok) {
-    $self->inform($list, 'config_set', $user, $user, "configset $list $var",
-		  $int, 0, 0, 0, '');
     return (0, "$user is invalid\n$mess");
   }
 
 
   @groups = $self->config_get_groups($var);
   if (!@groups) {
-    $self->inform($list, 'config_set', $user, $user, "configset $list $var",
-		  $int, 0, 0, 0, '');
     return (0, "Unknown variable \"$var\".\n");
   }
   $global_only = 1;
@@ -1070,8 +1065,6 @@ sub list_config_set {
 				 $list, "config_$var", $global_only);
   }
   unless ($ok > 0) {
-    $self->inform($list, 'config_set', $user, $user, "configset $list $var",
-		  $int, 0, 1, 0, '');
     return (0, "Password does not authorize $user to alter $var.\n");
   }
 
@@ -1092,17 +1085,14 @@ sub list_config_set {
   ($ok, $mess) = $self->_list_config_set($list, $var, @_);
   $self->_list_config_unlock($list);
   if (!$ok) {
-    @out = (0, "Error parsing $var:\n$mess");
+    return (0, "Error parsing $var:\n$mess");
   }
   elsif ($mess) {
-    @out = (1, "Warnings parsing $var:\n$mess");
+    return (1, "Warnings parsing $var:\n$mess");
   }
   else {
-    @out = (1);
+    return 1;
   }
-  $self->inform($list, 'config_set', $user, $user, "configset $list $var",
-		$int, $out[0], !!$passwd+0, 0, '');
-  @out;
 }
 
 =head2 list_config_set_to_default
@@ -3030,7 +3020,7 @@ sub configshow {
       {
         push (@hereargs, "$_\n") if defined $_;
       }
-      push @out, [$auto, $comment, $var, [@hereargs]];
+      push @out, [$auto, $comment, $var, \@hereargs];
     }
     else {
       # Process as a simple variable
@@ -3040,7 +3030,7 @@ sub configshow {
       push @out, [$auto, $comment, $var, $val];
     }
   }
-  return (@out);
+  return (1, @out);
 }
 
 =head2 changeaddr
@@ -3740,8 +3730,8 @@ sub sessioninfo {
   return (0, "You must supply a session identifier.\n")
     unless ($request->{'sessionid'});
 
-  if ($sessionid !~ /^[0-9a-f]{32}$/) {
-    return (0, "Illegal session identifier $sessionid.\n");
+  if ($request->{'sessionid'} !~ /^[0-9a-f]{32}$/) {
+    return (0, "Illegal session identifier $request->{'sessionid'}.\n");
   }
 
   # spoolfile should only be defined if invoked by tokeninfo. 
