@@ -17,9 +17,10 @@ use Mj::Log;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(condense enriched_to_hyper ep_convert ep_recognize 
-                gen_pw in_clock n_build n_defaults n_validate 
-                plain_to_hyper process_rule re_match reconstitute
-                reflow_plain str_to_time time_to_str);
+                find_thread_root gen_pw in_clock n_build n_defaults 
+                n_validate plain_to_hyper process_rule re_match 
+                reconstitute reflow_plain sort_msgs str_to_time 
+                time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
@@ -845,4 +846,160 @@ sub reflow_plain {
   }
 
   $repl->commit;
+}
+
+sub sort_msgs {
+  my ($msgs, $mode, $re_pattern) = @_;
+  return unless (ref($msgs) eq 'ARRAY' and scalar(@$msgs));
+  my (@msgs, @refs, $ct, $data, $i, $j, $key, $order, $re_mods, $subj);
+
+  @msgs = @$msgs;
+  if ($mode =~ /author/) {
+    @msgs = sort {
+                  my ($a1, $a2);
+                  $a1 = new Mj::Addr($a->[1]->{'from'});
+                  $a2 = new Mj::Addr($b->[1]->{'from'});
+                  reverse($a1->canon) cmp reverse($a2->canon);
+                 } @msgs;
+  }
+  elsif ($mode =~ /date/) {
+    @msgs =
+      sort { $a->[1]->{'date'} <=> $b->[1]->{'date'} } @msgs;
+  }
+  elsif ($mode =~ /subject/) {
+    $re_pattern =~ s!^/(.*)/([ix]*)$!$1!;
+    $re_mods = $2 || '';
+    $re_mods .= 's';
+
+    @msgs = 
+      sort {
+             my ($s1, $s2) = ($a->[1]->{'subject'}, $b->[1]->{'subject'});
+             (undef, $s1) =
+               re_match("/^($re_pattern)?\\s*(.*)\$/$re_mods", $s1, 1);
+             (undef, $s2) =
+               re_match("/^($re_pattern)?\\s*(.*)\$/$re_mods", $s2, 1);
+             $s1 cmp $s2;
+           } @msgs;
+  }
+  elsif ($mode =~ /thread/) {
+    eval ("use Mj::Util qw(find_thread_root);");
+    $ct = 0; 
+    $order = length(scalar(@msgs));
+    $subj = {};
+    $re_pattern =~ s!^/(.*)/([ix]*)$!$1!;
+    $re_mods = $2 || '';
+    $re_mods .= 's';
+
+    for $i (@msgs) {
+      if (defined ($i->[1]->{'msgid'})) {
+        $key = $i->[1]->{'msgid'};
+      }
+      else {
+        $key = $i->[0];
+      }
+      @refs = split ("\002", $i->[1]->{'refs'});
+      $j = $i->[1]->{'subject'};
+      (undef, $j) =
+        re_match("/^($re_pattern)?\\s*(.*)\$/$re_mods", $j, 1);
+     
+      $data->{$key} = 
+        {
+         'posn' => sprintf ("%.${order}d", $ct),
+         'refs' => [ @refs ],
+         'subject' => $j,
+        };
+      $ct++;
+    }
+    for $i (sort { 
+                   $data->{$a}->{'posn'} cmp $data->{$b}->{'posn'} 
+                 } keys %$data) {
+      &find_thread_root($data, $i, [], $subj);
+    }
+
+    @msgs =
+      sort {
+            my ($k1, $k2);
+            if (defined ($a->[1]->{'msgid'})) {
+              $k1 = $a->[1]->{'msgid'};
+            }
+            else {
+              $k1 = $a->[0];
+            }
+            if (defined ($b->[1]->{'msgid'})) {
+              $k2 = $b->[1]->{'msgid'};
+            }
+            else {
+              $k2 = $b->[0];
+            }
+
+            if ($data->{$k1}->{'root'} eq $data->{$k2}->{'root'}) {
+              return ($data->{$k1}->{'level'} cmp
+                      $data->{$k2}->{'level'});
+            }
+            else {
+              return ($data->{$k1}->{'root'} cmp
+                      $data->{$k2}->{'root'});
+            }
+      } @msgs;
+  }
+
+  if ($mode =~ /reverse/) {
+    @msgs = reverse @msgs;
+  }
+
+  @msgs;
+}
+=head2 find_thread_root(msgs, id, seen, subj)
+
+This function finds a reference/subject-based thread root within
+a collection of messages.  Previously seen messages are recorded
+to prevent cycles.  The message "root" (top of the thread) and
+"level" (path of the thread) are recorded in a way that makes the
+result easy to sort lexically.
+
+=cut
+sub find_thread_root {
+  my ($msgs, $id, $seen, $subj) = @_;
+  my ($curl, $curr, $i, $l, $r, $s);
+  return ("-1", 0) unless (exists $msgs->{$id});
+
+  $s = $msgs->{$id}->{'subject'};
+
+  if (exists $msgs->{$id}->{'root'}) {
+    # fall through
+  }
+  elsif (grep { $_ eq $id } @$seen) {
+    return ("-1", 0);
+  }
+  elsif (! scalar @{$msgs->{$id}->{'refs'}}) {
+    if (exists $subj->{$s}) {
+      $msgs->{$id}->{'root'} = $msgs->{$subj->{$s}}->{'root'};
+      $msgs->{$id}->{'level'} = $msgs->{$subj->{$s}}->{'level'} . "Z";
+    }
+    else {
+      $msgs->{$id}->{'root'} = "$msgs->{$id}->{'posn'}";
+      $msgs->{$id}->{'level'} = "0";
+    }
+  }
+  else {
+    $curl = "0"; $curr = $msgs->{$id}->{'posn'};
+    for $i (@{$msgs->{$id}->{'refs'}}) {
+      next if ($i eq $id);
+      ($r, $l) = &find_thread_root($msgs, $i, $seen, $subj);
+      next if ($r eq "-1");
+      if ($curl eq '0' or
+          ($r lt $curr) or ($r eq $curr and $l gt $curl)) {
+        $curr = "$r";
+        $curl = "$l";
+      }
+    }
+    $msgs->{$id}->{'root'} = "$curr";
+    $msgs->{$id}->{'level'} = "$curl" . $msgs->{$id}->{'posn'};
+  }
+
+  unless (exists $subj->{$s}) {
+    $subj->{$s} = "$id";
+  }
+  push @$seen, $id;
+  return ($msgs->{$id}->{'root'}, $msgs->{$id}->{'level'});
 }
