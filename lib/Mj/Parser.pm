@@ -43,15 +43,25 @@ sub parse_entity {
   my $mj        = shift;
   my %args      = @_;
   my $entity    = $args{'entity'};
+  my (%breaks, @attachments, @ents, @entities, @parts, $body, $count, 
+      $formatter, $i, $infh, $list, $name, $outfh, $ok, $tree, $txtfile, 
+      $type);
 
   $args{'title'} ||= 'toplevel';
-
-  my (@attachments, @ents, @entities, @parts, $body, $count, $formatter, 
-      $i, $infh, $name, $outfh, $ok, $tree, $txtfile, $type);
-
   $::log->in(30, undef, "info", "Parsing entity $args{'title'}");
-  @parts = $entity->parts;
+
+  if (defined $args{'deflist'} and length $args{'deflist'}) {
+    $list = $args{'deflist'};
+  }
+  else {
+    $list = 'GLOBAL';
+  }
+
+  return(0, $mj->format_error('unparsed_entity', $list)) 
+    unless (defined $entity);
+
   @entities = ();
+  @parts = $entity->parts;
 
   if (@parts) {
     # Loop over the parts, looking for one that has real commands in it.
@@ -84,7 +94,8 @@ sub parse_entity {
       (
        Description => "Ignored part.",
        Top         => 0,
-       Data        => ["Ignoring part of type $type.\n"]
+       Data        => [ $mj->format_error('ignored_part', $list,
+                                          'CONTENT_TYPE' => $type) ],
       );
     $ok = 0;
   }
@@ -104,27 +115,27 @@ sub parse_entity {
 
       $txtfile = "$args{'tmpdir'}/mje." . Majordomo::unique() . ".in";
       $outfh = new IO::File "> $txtfile";
-      $::log->abort("Could not open file $txtfile: $!") unless ($outfh);
-      my (%breaks) =  ( 
-                        'blockquote' => 3,
-                        'body' => 2,
-                        'br' => 1,
-                        'h1' => 3,
-                        'h2' => 3,
-                        'h3' => 3,
-                        'h4' => 3,
-                        'h5' => 3,
-                        'h6' => 3,
-                        'hr' => 1,
-                        'li' => 1,
-                        'p'  => 2,
-                        'pre' => 3,
-                        'tr' => 1,
-                      );
+      $::log->abort("Unable to open file $txtfile: $!") unless ($outfh);
+      %breaks =  ( 
+                  'blockquote' => 3,
+                  'body' => 2,
+                  'br' => 1,
+                  'h1' => 3,
+                  'h2' => 3,
+                  'h3' => 3,
+                  'h4' => 3,
+                  'h5' => 3,
+                  'h6' => 3,
+                  'hr' => 1,
+                  'li' => 1,
+                  'p'  => 2,
+                  'pre' => 3,
+                  'tr' => 1,
+                 );
 
       $tree->traverse(
         sub {
-            my($node, $start, $depth) = @_;
+            my ($node, $start, $depth) = @_;
             if (ref $node) {
               my $tag = $node->tag;
               if (defined($tag) and exists($breaks{$tag})) {
@@ -150,8 +161,12 @@ sub parse_entity {
     else {
       # We have a plain text part; parse it.
       $body = $entity->bodyhandle;
-      $infh = $body->open("r") or
-        $::log->abort("Hosed! Couldn't open body part, $!");
+      if ($body) {
+        $infh = $body->open("r");
+      }
+      unless ($body and $infh) {
+        $::log->abort("Unable to open body part: $!");
+      }
     }
 
     # Open handles for all of the attachments to this part
@@ -166,7 +181,7 @@ sub parse_entity {
     # Open a file to stuff the output in
     $name = "$args{'tmpdir'}/mje." . Majordomo::unique() . ".out";
     $outfh = new IO::File "> $name" or
-      $::log->abort("Hosed! Couldn't open output file $name, $!");
+      $::log->abort("Unable to open output file $name: $!");
 
     # XXX parse_part expects a hashref of "extra stuff" as its last
     # argument.  We just happen to have all of that in our argument hash,
@@ -185,13 +200,16 @@ sub parse_entity {
       $i->close;
     }
 
-    push @entities, build MIME::Entity(
-				       Path        => $name,
-				       Filename    => undef,
-				       Encoding    => '8bit',
-				       Description => "Results from $args{'title'}",
-				       Top         => 0,
-				      );
+    if (-s $name) {
+      # XLANG
+      push @entities, 
+        build MIME::Entity(Path        => $name,
+                           Filename    => undef,
+                           Encoding    => '8bit',
+                           Description => "Results from $args{'title'}",
+                           Top         => 0,
+                          );
+    }
 
     # We could also add an entity containing the original message.  We could
     # also do a separate entity for each command, or for those which produce
@@ -229,23 +247,24 @@ use MIME::Entity;
 sub parse_part {
   my $mj         = shift;
   my %args       = @_;
-
-#use Data::Dumper;
-#warn Dumper $mj;
-#warn Dumper $args{'mj'};
-
   my $inhandle    = $args{'infh'};
   my $outhandle   = $args{'outfh'};
   my $title       = $args{'title'};
   my $interface   = $mj->{'interface'};
   my $attachments = $args{'attachments'};
+  my $list        = $args{'list'} || 'GLOBAL';
 
   my $log         = new Log::In 50, "$interface, $title";
   my (@arglist, @help, $action, $cmdargs, $attachhandle, $command, $count,
-      $delay, $ent, $fail_count, $function, $garbage, $list, $mess,
+      $delay, $ent, $fail_count, $function, $garbage, $mess,
       $mode, $name, $ok, $ok_count, $out, $outfh, $password, 
-      $pend_count, $replacement, $sigsep, $sublist, $tlist, 
-      $true_command, $unk_count, $user);
+      $pend_count, $replacement, $request, $result, $sender, $sigsep, 
+      $subject, $sublist, $subs, $tlist, $tmpdir, $true_command, 
+      $unk_count, $user);
+
+# use Data::Dumper;
+# warn Dumper $mj;
+# warn Dumper $args{'mj'};
 
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
   $delay = 0;
@@ -263,15 +282,16 @@ sub parse_part {
     next if /^\s*$/;
 
     if (re_match($sigsep, $_)) {
-      print $outhandle ">>>> $_";
-      print $outhandle "Stopping at signature separator.\n\n";
+      chomp $_;
+      print $outhandle $mj->format_error('signature_separator', $list,
+                                         'SEPARATOR' => $_); 
       last CMDLINE;
     }
 
     # request is a reference to a hash that is used
     # to marshal arguments for a call to majordomo core
     # functions via dispatch().
-    my ($request) = {};
+    $request = {};
 
     # We have something that looks like a command.  Process it and any here
     # arguments that may follow.
@@ -281,13 +301,14 @@ sub parse_part {
     # If we hit EOF while processing the command line, we ignore it and let
     # the loop run its course.
     unless (defined $command) {
+      print $outhandle $out if (defined $out and length $out);
       next CMDLINE;
     }
 
     # Check for legality of command
     if ($command eq '') {
       print $outhandle $out;
-      print $outhandle "Found empty command!\n";
+      print $outhandle $mj->format_error('empty_command', $list);
       next CMDLINE;
     }
 
@@ -298,14 +319,16 @@ sub parse_part {
 
     $true_command = command_legal($command);
     $log->message(50, "info", "$command aliased to $true_command.")
-      if defined $true_command and $command ne $true_command;
+      if (defined $true_command and $command ne $true_command);
+
     unless (defined($true_command) &&
             (command_prop($true_command, $interface) ||
             (command_prop($true_command, "${interface}_parsed"))))
       {
         unless ($garbage) {
           print $outhandle $out;
-          print $outhandle "**** Illegal command!\n\n";
+          print $outhandle $mj->format_error('invalid_command', $list,
+                                               'COMMAND' => $command);
         }
         $garbage++;
         next CMDLINE;
@@ -314,9 +337,8 @@ sub parse_part {
     # The command is pretty close to legal; go ahead and print the line and
     # a message if we skipped any garbage.
     if ($garbage > 1) {
-      printf $outhandle (
-        "**** Skipped %d additional line%s of unrecognized text.\n\n",
-        $garbage - 1, $garbage == 2 ? "" : "s");
+      print $outhandle $mj->format_error('skipped_lines', $list,
+                                           'LINES' => $garbage - 1);
     }
     $garbage = 0;
     print $outhandle $out;
@@ -329,14 +351,12 @@ sub parse_part {
       ($password, $command, $cmdargs) = split(" ", $cmdargs, 3);
 
       unless (defined $password) {
-        print $outhandle 
-          qq(The "approve" command must be followed by a password.\n\n); #XLANG
+        print $outhandle $mj->format_error('approve_no_password', $list);
         next CMDLINE;
       }
 
       unless (defined $command) {
-        print $outhandle 
-          qq(The "approve" command must be followed by a command.\n\n); #XLANG
+        print $outhandle $mj->format_error('approve_no_command', $list);
         next CMDLINE;
       }
 
@@ -352,14 +372,15 @@ sub parse_part {
       unless (defined($true_command) &&
               command_prop($true_command, $interface))
         {
-          print $outhandle qq(The "$command" command is invalid.\n\n);
+          print $outhandle $mj->format_error('invalid_command', $list,
+                                             'COMMAND' => $command);
           next CMDLINE;
         }
     }
 
     # Deal with "end" command; again, this can be aliased
     if ($true_command eq "end") {
-      print $outhandle "End of commands.\n";
+      print $outhandle $mj->format_error('end_command', $list);
       last CMDLINE;
     }
 
@@ -369,7 +390,8 @@ sub parse_part {
       $cmdargs = add_deflist($mj, $cmdargs, $args{'deflist'}, $args{'reply_to'});
       ($tlist, $cmdargs) = split(" ", $cmdargs, 2);
       unless (defined($tlist) && length($tlist)) {
-        print $outhandle "A list name is required.\n";
+        print $outhandle $mj->format_error('no_list', 'GLOBAL',
+                                           'COMMAND' => $command);
         next CMDLINE;
       }
       ($list, $sublist, $mess) = $mj->valid_list($tlist,
@@ -388,7 +410,8 @@ sub parse_part {
     if (command_prop($true_command, "nohereargs") &&
         (@arglist || $attachhandle))
       {
-        print $outhandle "Command $command doesn't take arguments with << TAG or <@.\n";
+        print $outhandle $mj->format_error('invalid_hereargs', $list,
+                                           'COMMAND' => $command);
         next CMDLINE;
       }
 
@@ -396,12 +419,15 @@ sub parse_part {
     if (command_prop($true_command, "noargs") &&
 	($cmdargs || @arglist || $attachhandle))
       {
-        print $outhandle "Command $command will ignore any arguments.\n";
+        print $outhandle $mj->format_error('invalid_arguments', $list,
+                                           'COMMAND' => $command);
       }
 
     # Warn of obsolete usage
     if ($replacement = command_prop($true_command, "obsolete")) {
-      print $outhandle "Command $command is obsolete; use $replacement instead.\n\n";
+      print $outhandle $mj->format_error('obsolete_command', $list,
+                                         'COMMAND' => $command,
+                                         'NEWCOMMAND' => $replacement);
       next CMDLINE;
     }
 
@@ -414,15 +440,20 @@ sub parse_part {
       ($action, $cmdargs) = split(" ", $cmdargs, 2);
       if ($action eq 'list') {
 	$args{'deflist'} = $cmdargs;
-	print $outhandle "Default list set to \"$cmdargs\".\n";
+	print $outhandle $mj->format_error('default_set', $list, 
+                                           'SETTING' => 'list',
+                                           'VALUE' => $cmdargs);
       }
       elsif ($action =~ /^password|passwd$/) {
 	$args{'password'} = $cmdargs;
 	if (length($cmdargs)) {
-	  print $outhandle "Default password set to \"$args{'password'}\".\n";
+          print $outhandle $mj->format_error('default_set', $list, 
+                                             'SETTING' => 'password',
+                                             'VALUE' => $cmdargs);
 	}
 	else {
-	  print $outhandle "Default password canceled.\n";
+          print $outhandle $mj->format_error('default_reset', $list, 
+                                             'SETTING' => 'password');
 	}
       }
       elsif ($action eq 'user') {
@@ -432,7 +463,9 @@ sub parse_part {
         else {
           $user = $args{'reply_to'};
         }
-        print $outhandle "User set to \"$user\".\n";
+        print $outhandle $mj->format_error('default_set', $list, 
+                                           'SETTING' => 'password',
+                                           'VALUE' => $user);
       }
       elsif ($action eq 'delay') {
         if ($cmdargs) {
@@ -441,10 +474,13 @@ sub parse_part {
         else {
           $delay = 0;
         }
-        print $outhandle "Delay set to $delay seconds.\n";
+        print $outhandle $mj->format_error('default_set', $list, 
+                                           'SETTING' => 'password',
+                                           'VALUE' => $user);
       }
       else {
-        print $outhandle "Illegal action \"$action\" for default.\n";
+        print $outhandle $mj->format_error('invalid_default', $list,
+                                           'SETTING' => $action);
         $ok_count--;
         $fail_count++;
       }
@@ -456,17 +492,12 @@ sub parse_part {
           $cmdargs = "$args{'token'} $cmdargs";
         }
       }
-      elsif ($true_command =~ /newfaq/) {
-        $cmdargs = "/faq Frequently Asked Questions";
+      elsif ($true_command =~ /new(faq|info|intro)/) {
+        $cmdargs = "/$1 default";
         $true_command = "put";
       }
-      elsif ($true_command =~ /newinfo/) {
-        $cmdargs = "/info List Information";
-        $true_command = "put";
-      }
-      elsif ($true_command =~ /newintro/) {
-        $cmdargs = "/intro List Introductory Information";
-        $true_command = "put";
+      elsif ($true_command =~ /configedit/) {
+        $true_command = "configshow";
       }
 
       $cmdargs ||= '';
@@ -487,15 +518,15 @@ sub parse_part {
       if (function_prop($true_command, 'iter')) {
         $request->{'command'} .= '_start';
       }
-      my $result = $mj->dispatch($request);
+      $result = $mj->dispatch($request);
 
       # If a new identity has been assumed, send the output
       # of the command to the new address.
       if ($user ne $args{'reply_to'}) {
-        my $tmpdir = $mj->_global_config_get('tmpdir');
+        $tmpdir = $mj->_global_config_get('tmpdir');
         $name = "$tmpdir/mje." . Majordomo::unique() . ".out";
         $outfh = new IO::File "> $name" or
-          $::log->abort("Hosed! Couldn't open output file $name, $!");
+          $::log->abort("Unable to open file $name: $!");
       }
       else {
         $outfh = $outhandle;
@@ -510,7 +541,21 @@ sub parse_part {
         $outfh->close()
           or $::log->abort("Unable to close file $name: $!");
 
-        my $sender = $mj->_global_config_get('sender');
+        $sender = $mj->_list_config_get('sender', $request->{'list'});
+
+        if ($result->[0] and ref($result->[1]) eq 'HASH' and
+            exists ($result->[1]->{'description'})) {
+          # Use the file description in the title of the results.
+          $subs = {
+                    $mj->standard_subs($request->{'list'}),
+                  };
+          $mess = $mj->substitute_vars_string($result->[1]->{'description'},
+                                              $subs);
+        }
+        else {
+          $mess = $mj->format_error('command_results', $list,
+                                    'COMMAND' => $true_command);
+        }
         $ent = build MIME::Entity
           (
            From     => $args{'reply_to'},
@@ -519,14 +564,19 @@ sub parse_part {
            To       => $user,
            'Reply-To' => $sender,
 	   Encoding => '8bit',
-           Subject  => "Results from Majordomo Command \"$true_command\"",
+           Subject  => $mess,
            'MIME-Version' => "1.0",
           );
-        $mj->mail_entity($sender, $ent, $user) if $ent;
+        $mj->mail_entity($sender, $ent, $user) if ($ent and $sender);
         $ent->purge if $ent;
         unlink $name;
-        print $outhandle $ok>0? "Succeeded" : $ok<0 ? "Stalled" : "Failed";
-        print $outhandle ".  The results were mailed to $user.\n";
+        print $outhandle 
+          $mj->format_error('results_mailed', $list,
+                            'USER' => $user,
+                            'SUCCEED' => $ok >0 ? " " : '',
+                            'STALL'   => $ok <0 ? " " : '',
+                            'FAIL'    => $ok==0 ? " " : '',
+                           );
       }
 
       if (!defined $ok) {
@@ -544,12 +594,19 @@ sub parse_part {
     }
     print $outhandle "\n";
   } # CMDLINE
+
   if ($garbage > 1) {
-    printf $outhandle ("**** Skipped %d line%s of trailing unparseable text.\n\n",
-		       $garbage-1, $garbage==2?"":"s")
+    print $outhandle $mj->format_error('skipped_lines', $list,
+                                         'LINES' => $garbage - 1);
   }
-  printf $outhandle "%s valid command%s processed",
-    ("$count" || "No"), $count==1?"":"s";
+
+  print $outhandle
+    $mj->format_error('commands_processed', $list,
+                      'COUNT' => $count,
+                      'FAIL'  => $fail_count,
+                      'STALL' => $pend_count,
+                      'SUCCEED' => $ok_count,
+                     );
   if ($count == 0) {
     # No commands were found; log as an error under "parse".
     $mj->inform('GLOBAL', 'parse', $user, $user, '(no valid commands)',
@@ -557,77 +614,6 @@ sub parse_part {
                 $::log->elapsed);
 
   }
-  elsif ($count == 1) {
-    if ($fail_count == 1) {
-      printf $outhandle "; it failed",
-    }
-    elsif ($pend_count == 1) {
-      printf $outhandle "; it is pending",
-    }
-    elsif ($ok_count == 1) {
-      printf $outhandle "; it was successful";
-    }
-    elsif ($unk_count == 1) {
-      printf $outhandle "; its status is indeterminate";
-    }
-    else { # Huh?
-      printf $outhandle "; we can't count";
-    }
-  }
-  # We have a number of processed commands; some may be ok, pending,
-  # mixed, or failed
-  else {
-    # Do $ok_count
-    if ($ok_count == 0) {
-      print $outhandle "; none were successful";
-    }
-    elsif ($ok_count == 1) {
-      print $outhandle "; 1 was successful";
-    }
-    elsif ($ok_count == $count) {
-      print $outhandle "; all were successful";
-    }
-    else {
-      print $outhandle "; $ok_count were successful";
-    }
-    # Do $fail_count
-    if ($fail_count == 0) {
-      # Nothing
-    }
-    elsif ($fail_count == $count) {
-      print $outhandle "; all failed";
-    }
-    else {
-      print $outhandle "; $fail_count failed";
-    }
-    # Do $pend_count
-    if ($pend_count == 0) {
-      # Nothing
-    }
-    elsif ($pend_count == 1) {
-      print $outhandle "; 1 is pending";
-    }
-    elsif ($pend_count == $count) {
-      print $outhandle "; all are pending";
-    }
-    else {
-      print $outhandle "; $pend_count are pending";
-    }
-    # Do $unk_count
-    if ($unk_count == 0) {
-      # Nothing
-    }
-    elsif ($unk_count == 1) {
-      print $outhandle "; 1 was mixed";
-    }
-    elsif ($unk_count == $count) {
-      print $outhandle "; all were mixed";
-    }
-    else {
-      print $outhandle "; $unk_count were mixed";
-    }
-  }
-  print $outhandle ".\n";
   return $count;
 }
 
@@ -673,19 +659,21 @@ sub parse_line {
   s/\\\\$/\\/; 
 
   # Echo the line
-  $out .= ">>>> $_\n";
+  $out .= ">>>> $_\n" if (length $_);
 
   # Process an attachment with <@ num, where num is the attachment num.
   # <@1 would pull from the attachment immediately following this one.
   if (/^(.*)\s+<@\s*(\d*)$/) {
     $_    = $1;
-    $used = ($2 || 1) -1;
+    $used = ($2 || 1);
     if ($used > @{$attachments}) {
-      $out .= "**** Illegal attachment specified!\n";
+      $out .= $mj->format_error('invalid_attachment', 'GLOBAL',
+                                'COUNT' => scalar @$attachments,
+                               );
       return $out;
     }
     $log->message(80, "info", "Parsing attachment argument, #$used, rest $_.");
-    $attachhandle = $attachments->[$used];
+    $attachhandle = $attachments->[$used - 1];
   }
 
   # Handle a possible << STOP token.  We do this now because otherwise an
@@ -722,8 +710,8 @@ sub parse_line {
 
       # Did we run out of input?
       unless (defined $line) {
-        $out .= "Reached EOF without seeing tag $tag!\n";
-        # XXX Better return value is needed here.
+        $out .= $mj->format_error('missing_tag', 'GLOBAL', 
+                                  'TAG' => $tag);
         return $out;
       }
       chomp $line;
@@ -741,7 +729,7 @@ sub parse_line {
 
       # Did we find the tag?
       if ($line eq $tag) {
-        $out .= ">>>> Found tag $tag.\n";
+        $out .= $mj->format_error('found_tag', 'GLOBAL', 'TAG' => $tag);
         last;
       }
 
