@@ -4138,8 +4138,8 @@ sub _report {
     $date =~ s/[\-]//g;
     # date in yyyymmdd or yyyymmw format
     if ($date =~ /^\d+$/) {
-      $begin = &Mj::Archive::_secs_start($date, 1);
-      $end = &Mj::Archive::_secs_end($date, 1);
+      $begin = Mj::Archive::_secs_start($date, 1);
+      $end = Mj::Archive::_secs_end($date, 1);
       return (0, "Unable to parse date $date.\n")
         unless ($begin <= $end);
     }
@@ -4686,26 +4686,39 @@ There are two modes: hourly, daily.
 
 =cut
 use Mj::Lock;
+use Mj::Digest qw(in_clock);
 sub trigger {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'mode'}";
-  my ($list, $mode);
+  my (@ready, $list, $mode, $times);
   $mode = $request->{'mode'};
+  @ready = ();
 
   # Right now the interfaces can't call this function (it's not in the
   # parser tables) so we don't check access on it.
 
+  # If this is an hourly check, examine the "triggers" configuration
+  # setting, and see if any of the triggers must be run.
+  if ($mode =~ /^h/) {
+    $times = $self->_global_config_get('triggers');
+    for (keys %$times) {
+       if (Mj::Digest::in_clock($times->{$_})) {
+         push @ready, $_;
+       }
+    }
+  }
+
   # Mode: daily or token - expire tokens and passwords, and send reminders
-  if ($mode =~ /^(da|t)/) {
+  if ($mode =~ /^(da|t)/ or grep {$_ eq 'token'} @ready) {
     $self->t_expire;
     $self->t_remind;
   }
   # Mode: daily or session - expire session data
-  if ($mode =~ /^(da|s)/) {
+  if ($mode =~ /^(da|s)/ or grep {$_ eq 'session'} @ready) {
     $self->s_expire;
   }
   # Mode: daily or log - expire log entries
-  if ($mode =~ /^(da|l)/) {
+  if ($mode =~ /^(da|l)/ or grep {$_ eq 'log'} @ready) {
     $self->l_expire;
   }
   # Loop over lists
@@ -4716,12 +4729,12 @@ sub trigger {
     next unless $self->_make_list($list);
 
     # Mode: daily or checksum - expire checksum and message-id databases
-    if ($mode =~ /^(da|c)/) {
+    if ($mode =~ /^(da|c)/ or grep {$_ eq 'checksum'} @ready) {
       $self->{'lists'}{$list}->expire_dup;
     }
 
     # Mode: daily or bounce or vacation - expire vacation settings and bounces
-    if ($mode =~ /^(da|b|v)/) {
+    if ($mode =~ /^(da|b|v)/ or grep {$_ eq 'bounce'} @ready) {
       $self->{'lists'}{$list}->expire_subscriber_data;
     }
 
