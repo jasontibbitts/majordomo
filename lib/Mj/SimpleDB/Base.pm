@@ -15,9 +15,6 @@ filehandle.
 =cut
 
 package Mj::SimpleDB::Base;
-use IO::File;
-use Mj::File;
-use Mj::FileRepl;
 use Mj::Log;
 use strict;
 #use vars qw(@ISA);

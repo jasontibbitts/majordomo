@@ -52,9 +52,6 @@ multiple passes over the file.
 =cut
 
 package Mj::SimpleDB;
-use IO::File;
-use Mj::File;
-use Mj::FileRepl;
 use Mj::Log;
 use strict;
 use vars qw(%beex %exbe);
