@@ -113,7 +113,7 @@ to perform many common tasks, not every task is supported yet.
 However, the <b>Command Form</b> offers a primitive way of 
 issuing commands that may be easier for experienced administrators.
 <p>
-In particular, the $HELP:ARCHIVE, $HELP:DIGEST, and $HELP:REPORT
+In particular, the $HELP:GET, $HELP:INDEX, and $HELP:PUT
 commands are supported only by the command form.
 
   </td>
