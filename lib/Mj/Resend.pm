@@ -628,7 +628,7 @@ sub _post {
   # Cook up a substitution hash
   $subs = {
          $self->standard_subs($list),
-         ARCHIVE  => $msgnum,
+         ARCNO    => $msgnum,
          ARCURL   => $self->_list_config_get($list, 'archive_url'),
          DATE     => $date,
          HOST     => $self->_list_config_get($list, 'resend_host'),
@@ -967,7 +967,7 @@ sub _check_approval {
   return (1, $passwd, $token);
 }
 
-=head2 _check_poster(list, head, reasons, avars)
+=head2 _check_poster(list, user, reasons, avars)
 
 This computes various pieces of data about the poster:
 
