@@ -6,6 +6,7 @@ action, optional, is the name of a request, such as post or subscribe.
 -alias, if used, causes "alias" tokens to be shown.
 -async, if used, causes "async" tokens to be shown.
 -delay, if used, causes "delay" tokens to be shown.
+-probe, if used, causes "probe" tokens to be shown.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 A token is an identification number (for example, "0B18-996F-76ED")
@@ -40,18 +41,26 @@ more than once.  Sending a separate, alias token to each moderator
 avoids this problem.  Alias tokens are only displayed if the
 "alias" command mode is used.
 
-The "showtokens" command provides a list of all outstanding tokens.
-If there are many such unhandled tokens, it may be due to an absent 
-list owner or a spammer.
+Probe tokens are created when a delivery failure ("bounce") occurs and 
+the bounce_rules configuration setting calls for a probe message to be
+sent.  A probe message is sent to the address which experienced the
+failure; if the probe message cannot be delivered, the address will be
+unsubscribed from the mailing list.  See "help configset_bounce_rules"
+for more details.
 
-Anyone with a password that authorizes them to show the tokens can
-use the "accept" or "reject" command to immediately approve or
-discard one or more requests, thereby clearing the backlog.
+The "showtokens" command provides a list of all outstanding tokens.  If
+there are many such unhandled tokens, it may be due to an absent list
+owner or a spammer.
 
-All tokens have a "lifetime," typically one week, after which they expire.  
-Confirm, consult, and async tokens vanish when they expire.  Delay tokens'
-requests are fulfilled when they expire.  When alias tokens expire, the
-result varies according to the token to which the alias token refers.
+Anyone with a password that authorizes them to show the tokens can use
+the "accept" or "reject" command to immediately approve or discard one
+or more requests, thereby clearing the backlog.
+
+All tokens have a "lifetime," typically one week, after which they
+expire.  Confirm, consult, and async tokens vanish when they expire.
+Delay tokens' requests are fulfilled when they expire.  When alias
+tokens expire, the result varies according to the token to which the
+alias token refers.
 
 Depending upon the "token_remind" setting, reminder messages
 are sent if a token has not been explicitly accepted or rejected 
@@ -70,6 +79,7 @@ would display every uncompleted subscription request for a domain.
 See Also:
    help accept     (approving  action)
    help access_variables
+   help configset_bounce_rules
    help configset_token_lifetime (site-wide or per-list expiration period)
    help configset_token_remind (site-wide or per-list reminder before expiration)
    help configset_triggers 
