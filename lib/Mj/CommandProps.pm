@@ -8,7 +8,8 @@ require Exporter;
 @EXPORT_OK = qw(access_def command_legal command_default command_prop
                 commands_matching command_list function_prop function_legal
                 rules_request rules_requests rules_var rules_vars
-                rules_action rules_actions action_files action_terminal);
+                rules_action rules_actions action_files action_terminal
+                access_vars_desc_en);
 %EXPORT_TAGS = ('command'  => [qw(command_legal command_default command_prop
                                   commands_matching command_list)],
                 'function' => [qw(function_legal function_prop)],
@@ -19,8 +20,7 @@ require Exporter;
        );
 use strict;
 
-# All supported actions, plus some additional information used for syntax
-# checking
+# All supported actions, plus some additional information used for syntax checking
 my %actions =
   ('allow'           => {files => [],    terminal => 1,},
    'confirm'         => {files => [0],   terminal => 1,},
@@ -39,6 +39,8 @@ my %actions =
    'unset'           => {files => [],},
   );
 
+# a standard set of access_rules variables
+# this set is re-used for most of $commands{???}{'access'}{'legal'} below
 my %reg_legal =
   ('master_password'=>1,
    'user_password'  =>1,
@@ -48,6 +50,42 @@ my %reg_legal =
    'fulladdr'       =>3,
    'host'           =>3,
   );
+
+# one-line descriptions of every access_rule variable used in $commands{???}{'access'}{'legal'} 
+#  (not used at run-time, this hash is for the help file generator)
+# only "en" for now, but some day there may be versions in other than english!
+%Mj::CommandProps::access_vars_desc_en = (
+                        'addr' => "contains the user's address, stripped of comments (such as 'joe\@blow.org')",
+                       'admin' => "is set if any admin_* variable is set (note that admin configsets can create new variables)",
+                         'any' => "is set if any of dup, taboo, admin, mime, or bad_approval is set",
+                'bad_approval' => "is set if someone tried to do use a classic approval method and gave a bad password",
+                       'bytes' => "contains the byte count of the message",
+        'days_since_subscribe' => "contains the number of days since the user signed up (used for a cooling off period before allowing posting)",
+                         'dup' => "is set if any of dup_checksum, dup_partial_checksum, or dup_msg_id are set",
+                'dup_checksum' => "is set if the checksum of the message has been seen before",
+                  'dup_msg_id' => "is set if the message ID has been seen before",
+        'dup_partial_checksum' => "is set if the checksum of the first ten lines of the message has been seen before",
+                    'fulladdr' => "contains the user's address, complete with any comments provided (such as 'Joe Blow <joe\@blow.org>')",
+                        'host' => "contains the stuff on the right of the '\@' in the user's address (sometimes called the domain)",
+                       'lines' => "contains the total number of lines in the message",
+             'master_password' => "is set if one of the list's correct passwords was used",
+                'matches_list' => "is set if the victim address matches the listname on a subscribe request (e.g. someone is trying to make a mail loop)",
+           'max_header_length' => "contains the length of the longest header in the message",
+  'max_header_length_exceeded' => "is set if max_header_length exceeds the value in 'configset max_header_line_length'",
+                        'mime' => "is set if either mime_consult or mime_deny is true",
+                'mime_consult' => "is set if attachment_rules flagged a MIME part as 'consult'",
+                   'mime_deny' => "is set if attachment_rules flagged a MIME part as 'deny'",
+                    'mismatch' => "is set if the user and victim addresses are not the same (after aliasing, transformation, etc.)",
+             'password_length' => "contains the length in characters of the new password the user is trying to set (can be used to enforce a minimum length)",
+              'percent_quoted' => "contains the percentage of lines which are quoted (100 * quoted_lines / lines)",
+                      'posing' => "is set if 'default user' is in effect",
+                'quoted_lines' => "contains the number of lines that matched the pattern in 'configset quote_pattern'",
+                       'taboo' => "is set if any taboo_* variable is set (note that taboo configsets can create new variables)",
+         'total_header_length' => "contains the sum of the lengths of all headers",
+'total_header_length_exceeded' => "is set if total_header_length exceeds the value in 'configset max_total_header_length'",
+               'user_password' => "is set if the user's correct password was used",
+  );
+
 
 # The %commands hash contains the commands and a list of properties for
 # each.  Properties supported:
