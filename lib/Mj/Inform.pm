@@ -64,7 +64,6 @@ sub inform {
   my $log  = new Log::In 150, "$list, $req";
 
   my $file = "$self->{'ldir'}/GLOBAL/_log";
-  my ($mailrequ);
 
   # Open the logfile
   my $fh = new Mj::File $file, '>>';
@@ -72,13 +71,6 @@ sub inform {
     unless $fh;
 
   $user ||= ''; $requ ||= '';
-
-  # Hack for post: The "requester" is the full headers, which we
-  # do not want to log.  Use unknown@anonymous instead.
-  $mailrequ = $requ;
-  if ($req eq 'post') {
-    $requ = "unknown\@anonymous";
-  }
 
   # Log the data
   my $line = join("\001", $list, $req, $requ, $user, $cmd, $int, $stat,
@@ -103,7 +95,7 @@ sub inform {
   # Inform the owner (1 is log, 2 is inform); we inform on accepts
   # elsewhere.
   if (((($inf & 2) && !$over) || ($over < 0)) && $req ne 'reject') {
-    $self->_inform_owner($list, $req, $mailrequ, $user, $cmd, $int, $stat, $pass, $comment);
+    $self->_inform_owner($list, $req, $requ, $user, $cmd, $int, $stat, $pass, $comment);
   }
   1;
 }

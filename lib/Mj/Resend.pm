@@ -239,7 +239,7 @@ sub post {
   # We handled the OK case, so we have either a stall or a denial.
   # If we got an empty return message, this is a signal not to ack anything
   # and so we just return;
-  $rtnhdr = $ent->head->stringify;
+  $rtnhdr = $user->full;
   return ($ok, $rtnhdr) 
     unless defined $mess && length $mess;
 
@@ -399,7 +399,7 @@ sub _post {
   $arcent = $ent[0]->dup;
   $archead = $arcent->head;
   $archead->modify(0);
-  $rtnhdr = $arcent->head->stringify;
+  $rtnhdr = $user->full;
 
   # Convert/drop MIME parts.  Bill?
   
