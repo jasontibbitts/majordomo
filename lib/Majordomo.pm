@@ -5064,8 +5064,8 @@ sub _lists {
 
   my $log = new Log::In 35, $mode;
   my (@lines, @lists, @out, @tmp, $cat, $compact, 
-      $count, $data, $desc, $digests, $flags, $i, $limit, $list, 
-      $expose, $mess, $sublist, $sublists);
+      $count, $data, $desc, $digests, $flags, $i, $j, $limit, $list, 
+      $expose, $mess, $sublist, $sublists, $testreq);
 
   $expose = 0;
   $mode ||= $self->_global_config_get('default_lists_format');
@@ -5142,6 +5142,21 @@ sub _lists {
       $data->{'posts'}    = $self->{'lists'}{$list}->count_posts(30);
       $data->{'archive'}  = $self->_list_config_get($list, 'archive_url');
       $data->{'digests'}  = {};
+      $j = {};
+
+      # See if this user can read archives.
+      $testreq = {
+                   'command'  => 'archives',
+                   'list'     => $list,
+                   'mode'     => '',
+                   'password' => $password,
+                   'user'     => $user,
+                   'victim'   => $vict,
+                 };
+
+      ($data->{'can_read'}) = 
+        $self->list_access_check($testreq, 'nostall' => 1);
+     
       $digests = $self->_list_config_get($list, 'digests');
       for $i (keys %$digests) {
         next if ($i eq 'default_digest');
