@@ -71,6 +71,7 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra
                 'subscribe'     => [0, 1, 1, 1, 'list'],
                 'unregister'    => [1, 1, 0, 1, 'welcome'],
                 'unsubscribe'   => [1, 1, 1, 1, 'show'],
+                'welcome'       => [0, 0, 0, 0, 'welcome'],
             );
              
 #----- Initialize the Log -----#
@@ -190,10 +191,7 @@ $str = $mj->substitute_vars_format($tmp, $subs);
 print STDOUT "$str\n";
 
 #----- Determine what service was requested -----#
-if ($ofunc eq 'welcome') {
-  &usage($mj, $subs, '');
-}
-elsif ($ofunc eq 'logout') {
+if ($ofunc eq 'logout') {
   $mj->del_latchkey($passw);
   $subs->{'CMDPASS'} = '';
   $subs->{'COMMAND'} = 'welcome';
@@ -229,8 +227,13 @@ else {
   $addr = new Mj::Addr($user);
   unless ($mj->validate_passwd($addr, $passw, 'GLOBAL', 'show')) {
     $subs->{'CMDPASS'} = '';
-    &login($mj, $subs, 'Invalid password.');
+    &login($mj, $subs, $mj->format_error('invalid_password',
+                         'GLOBAL', 'VICTIM' => $user));
   }
+}
+
+if ($ofunc eq 'welcome') {
+  &usage($mj, $subs, '');
 }
 
 #----- Address check -----#
