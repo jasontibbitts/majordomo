@@ -598,7 +598,7 @@ sub sender {
 
   $self->{sender} = $sender;
   for my $env (@{$self->{envelopes}}) {
-    $env->sender($sender);
+    $env->sender($sender) if (defined $env);
   }
 }
 
