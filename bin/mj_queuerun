@@ -619,8 +619,8 @@ sub parse_commands {
   my ($mj, $deflist, $command, $int, $req) = @_;
   my (@entities, @events, $args, $commands, $data, $debug_file, $debug_log,
       $debug_reply, $entity, $fh, $file, $head, $i, $list, $mode, $ok,
-      $repl, $request, $sender, $server, $sub_addin, $subject, $sub_start,
-      $time, $top, $token, $user, $uuser);
+      $pass, $repl, $request, $sender, $server, $sub_addin, $subject,
+      $sub_start, $time, $top, $token, $user, $uuser);
 
   ($entity, $head, $user, $uuser) = connect_and_parse($mj, $int);
   return unless $entity;
@@ -644,6 +644,10 @@ sub parse_commands {
           log_args    => 1,
          );
   }
+
+  # Extract a password from an Approved: header
+  $pass = $head->get('approved') || '';
+  $pass =~ s/^\s*//; $pass =~ s/\s*$//;
 
   $::log->message(35, "info", "Message from $user.");
 
@@ -672,7 +676,7 @@ sub parse_commands {
 		'command'   => $command,
 		'list'      => $deflist,
 		'mode'      => $mode,
-		'password'  => '',
+		'password'  => $pass,
 		'user'      => $uuser,
 		%{$req},
 	       };
@@ -696,13 +700,15 @@ sub parse_commands {
   }
   else {
     ($commands, @entities) =
-      Mj::Parser::parse_entity($mj,
-                   tmpdir     => $::TMPDIR,
-                   entity     => $entity,
-                   reply_to   => $uuser,
-                   deflist    => $deflist,
-                   token      => $token,
-                  );
+      Mj::Parser::parse_entity
+	  ($mj,
+	   tmpdir     => $::TMPDIR,
+	   entity     => $entity,
+	   reply_to   => $uuser,
+	   deflist    => $deflist,
+	   token      => $token,
+	   password   => $pass,
+	  );
 
     # If the number of commands processed is 0, this could indicate
     # an autoresponder mail loop.  Record the sender's address in the 
