@@ -219,6 +219,7 @@ a hash containing additional data (currently reply_to, password, deflist,
 and token).
 
 =cut
+use Date::Format;
 use Mj::Util qw(re_match str_to_offset);
 use Mj::CommandProps qw(:command :function);
 use Mj::Format;
@@ -497,6 +498,7 @@ sub parse_part {
         $ent = build MIME::Entity
           (
            From     => $args{'reply_to'},
+           Date     => time2str("%a, %d %b %Y %T %z", time),
            Path     => $name,
            To       => $user,
            'Reply-To' => $sender,
