@@ -129,6 +129,7 @@ The post command also uses these variables:
   dup_checksum                  boolean
   dup_msg_id                    boolean
   dup_partial_checksum          boolean
+  hide_post                     boolean
   invalid_from                  boolean
   limit                         boolean
   limit_hard                    boolean
@@ -142,6 +143,7 @@ The post command also uses these variables:
   mime_header_length            number
   mime_header_length_exceeded   boolean
   mode                          string
+  noarchive                     number
   nonempty_lines                number
   percent_quoted                number
   post_block                    boolean
@@ -259,6 +261,11 @@ fulladdr
   This variable contains the address of the person affected by a request, 
   including any comments (such as "Jane Smith <jane@example.org>").
 
+hide_post
+  This variable is set if the 'hidepost' flag is set for the address from
+  which a message was posted.  See "help configset_nonmember_flags" and
+  "help set" for more details.
+
 host
   This variable contains the domain name in the address of the person
   affected by a request (such as "example.org").
@@ -335,6 +342,12 @@ mode
   This variable contains the command mode.  For example, it contains 
   "enhanced" when the who-enhanced command is used.
 
+noarchive
+  This variable is set if any "noarchive" variable is set.  It is
+  possible for the noarchive_body or noarchive_headers configuration
+  setting to create access variables.  See "help configset_noarchive_body"
+  and "help configset_noarchive_headers" for more details.
+
 nonempty_lines
   This variable contains a count of the number of lines in the message
   which are not empty (i.e. which consist of at least one non-whitespace
@@ -373,8 +386,8 @@ sublist
   details).
 
 taboo
-  This variable is set if any "admin" variable is set.  It is possible
-  for the admin configuration settings to create access variables.  
+  This variable is set if any "taboo" variable is set.  It is possible
+  for the taboo configuration settings to create access variables.  
   See "help configset_taboo_body" and "help configset_taboo_headers" for
   more details.
 
