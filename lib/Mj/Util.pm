@@ -148,11 +148,10 @@ sub process_rule {
   my $log = new Log::In 70;
 
   my @permitted_ops = qw(
-     anonlist  aelem    const  enter  
-     eq        ge       gt     helem  le
-     leaveeval lt       ne     not
-     null      pushmark refgen
-     return    rv2av    rv2sv  seq    sne
+     anonlist  aelem    const  enter     eq        ge       
+     gt        helem    le     leaveeval lt        ne     
+     negate    not      null   pushmark  refgen    return    
+     rv2av     rv2sv    seq    sne       stringify
     );
 
   my (@final_actions, $actions, $arg, $cpt, $func, $i, $ok, $saw_terminal, $value);
