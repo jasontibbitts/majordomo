@@ -300,6 +300,30 @@ sub add_done {
   ("$arc/$msgno", $data);
 }
 
+=head2 find (regex)
+
+Returns a list of archive files which match a regular expression
+
+=cut 
+sub find {
+  my $self = shift;
+  my $regex = shift;
+  my (@arcs, @out);
+  @out = ();
+
+  opendir (ARCDIR, $self->{'dir'}) 
+    or return;
+
+  @arcs = grep /^$self->{'list'}/, readdir ARCDIR;
+  closedir ARCDIR;
+
+  for (@arcs) {
+    push @out, $_ if Majordomo::_re_match($regex, $_);
+  }
+
+  @out;
+}
+   
 =head2 remove(message_num, data)
 
 This takes a message number (as "archive/number") and deletes it
@@ -529,7 +553,9 @@ sub _sync_msgs {
 
   while (1) {
     $line = $mbox->{'oldhandle'}->getline; 
-    if ($blank && (!$line or $line =~ /\AFrom .*\d{4}/)) {
+    if ($blank && (!$line or 
+      $line =~ /^From\s+(?:"[^"]+"@\S+|\S+)\s+\S+\s+\S+\s+\d+\s+\d+:\d+:\d+\s+\d+/
+    )) {
       # If a message has been seen, close the temporary file
       # and update the index.
       if ($seen) {
