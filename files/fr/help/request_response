@@ -28,14 +28,15 @@ liste GLOBAL. Par exemple, la commande suivante :
 configset GLOBAL access_rules <<LLL
 request_response
 deny
-/exemple.fr/
+!/exemple.fr/
 LLL
 
-N'autoriserai pas l'accès aux gens venant du domaine "exemple.fr".
+N'autoriserai l'accès qu'aux gens venant du domaine "exemple.fr".
 
 
 Référez vous aussi à :
    help access_variables 
+   help admin_documents
    help configset_access_rules
    help configset_request_answer
 
