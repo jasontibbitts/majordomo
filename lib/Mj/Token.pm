@@ -871,11 +871,15 @@ Create a temporary password for improved security.
 
 sub gen_latchkey {
   my ($self, $password) = @_;
-  my ($token);
+  my ($duration, $token);
 
   $self->_make_latchkeydb;
   return unless defined $self->{'latchkeydb'};
   return unless length $password;
+  $duration = $self->_global_config_get('latchkey_lifetime');
+  $duration ||= 60;
+  return unless ($duration > 0);
+
   $data = {
      'type'       => 'latchkey',
      'list'       => '',
@@ -892,7 +896,7 @@ sub gen_latchkey {
      'arg1'       => $password,
      'arg2'       => '',
      'arg3'       => '',
-     'expire'     => time + 3600,
+     'expire'     => time + $duration * 60,
      'remind'     => '',
      'reminded'   => 1,
      'permanent'  => '',
