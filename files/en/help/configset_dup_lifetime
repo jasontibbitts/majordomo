@@ -18,10 +18,14 @@ out duplicates.  To limit database size and to cut down on the
 possibility of false positives, these entries are periodically
 trimmed after this number of days.
 
+Currently, this lifetime is also used to determine how long post data
+is kept around for post limiting. See "help configset post_limits".
+
 
 See Also:
    help configset latchkey_lifetime
    help configset log_lifetime
+   help configset post_limits
    help configset session_lifetime
    help configset token_lifetime
 

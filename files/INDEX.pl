@@ -151,6 +151,7 @@ $files =
    'en/help/configset_owners'                         => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_password_min_length'            => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_passwords'                      => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
+   'en/help/configset_post_limits'                    => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_precedence'                     => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_purge_received'                 => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_quote_pattern'                  => ['detailed help for configset listname',     'us-ascii', '7bit'],

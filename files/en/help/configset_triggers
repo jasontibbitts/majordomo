@@ -4,7 +4,7 @@ configset  GLOBAL  triggers <<TAG
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : bounce   | daily ... (only first item is shown)
-Data Type     : triggers, choose from: bounce checksum log session token
+Data Type     : triggers, choose from: bounce checksum log post session token
 Variable Group: majordomo
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -63,3 +63,12 @@ day of the month   - The English abbreviation of the day of the month,
 
 Note that each of the five individual triggers will be run by
 the "daily" trigger, regardless of the values of this setting.
+
+
+See Also:
+   help post_limits
+   help configset access_rules
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

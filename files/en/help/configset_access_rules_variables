@@ -260,6 +260,9 @@ Second, the variables available for each request (see bottom for explanations):
   dup_partial_checksum
   fulladdr
   host
+  limit
+  limit_hard
+  limit_soft
   lines
   master_password
   max_header_length
@@ -466,6 +469,13 @@ Third, an explanation of each variable:
                         host - contains the stuff on the right of the '@'
                                in the user's address (sometimes called the
                                domain)
+
+                       limit - is set if a soft or hard posting limit is
+                               reached
+
+                  limit_hard - is set if a hard posting limit is reached
+
+                  limit_soft - is set if a soft posting limit is reached
 
                        lines - contains the total number of lines in the
                                message

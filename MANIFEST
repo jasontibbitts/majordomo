@@ -338,6 +338,7 @@ files/en/help/configset_override_reply_to
 files/en/help/configset_owners
 files/en/help/configset_password_min_length
 files/en/help/configset_passwords
+files/en/help/configset_post_limits
 files/en/help/configset_precedence
 files/en/help/configset_purge_received
 files/en/help/configset_quote_pattern
