@@ -68,9 +68,24 @@ is _not_ allowed to do something.
 =cut
 sub validate_passwd {
   my ($self, $user, $passwd, $list, $action, $global_only) = @_;
-  my (@try, $c, $i, $j, $reg);
+  my (@try, $c, $i, $j, $pdata, $reg);
   return 0 unless defined $passwd;
   my $log = new Log::In 100, "$user, $list, $action";
+
+  if ($self->t_recognize($passwd)) {
+    # The password given appears to be a latchkey, a temporary password.
+    # If the latchkey exists and has not expired, convert the latchkey
+    # to a permanent password.
+    $self->_make_latchkeydb;
+    if (defined $self->{'latchkeydb'}) {
+      $pdata = $self->{'latchkeydb'}->lookup($passwd);
+      if (defined $pdata) {
+        $passwd = $pdata->{'arg1'}
+          if (time <= $pdata->{'expire'});
+      }
+    }
+  }
+
   $global_only = 1  
     if ($list =~ /^DEFAULT/);
  
@@ -517,6 +532,7 @@ sub list_access_check {
       $i,                   # duh
       $func,
       $fileinfo,
+      $pdata,               # latchkey data
       $text,
       $temp,
       $ok, $ok2,
@@ -528,6 +544,20 @@ sub list_access_check {
   local (
 	 %memberof,         # Hash of sublists the user is in
 	);
+
+  if ($self->t_recognize($passwd)) {
+    # The password given appears to be a latchkey, a temporary password.
+    # If the latchkey exists and has not expired, convert the latchkey
+    # to a permanent password.
+    $self->_make_latchkeydb;
+    if (defined $self->{'latchkeydb'}) {
+      $pdata = $self->{'latchkeydb'}->lookup($passwd);
+      if (defined $pdata) {
+        $passwd = $pdata->{'arg1'}
+          if (time <= $pdata->{'expire'});
+      }
+    }
+  }
 
   # Figure out if $requester and $victim are the same
   $args{'mismatch'} = !($requester eq $victim)
