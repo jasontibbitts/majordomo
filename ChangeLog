@@ -1,3 +1,7 @@
+2001-12-19  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Addr.pm (_validate): Update list of TLDs.
+
 2001-12-15  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (r_expire)  New routine.  Remove
