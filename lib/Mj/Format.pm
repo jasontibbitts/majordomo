@@ -19,7 +19,7 @@ Format routines take:
     variables and call other core functions
   outfh - a filehandle to send output to
   errfh - a filehandle to send error output to
-  output_type - text, wwwadm, or wwwusr
+  type - the interface type: text, wwwadm, wwwconfirm, or wwwusr
   request - a hash reference of the data used to issue the command
   result -  a list reference containing the result of the command
 
@@ -352,11 +352,9 @@ sub configshow {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
   my (@possible, $array, $auto, $bool, $cgidata, $cgiurl, $data, 
-      $enum, $gen, $gsubs, $i, $isauto, $list, $mess, $mode, $mode2, 
-      $ok, $short, $str, $subs, $tag, $tmp, $val, $var, $vardata, 
-      $varresult);
-
-  $request->{'cgiurl'} ||= '';
+      $earray, $enum, $gen, $gsubs, $i, $isauto, $list, $mess, 
+      $mode, $mode2, $ok, $short, $str, $subs, $tag, $tmp, $val, 
+      $var, $vardata, $varresult);
 
   if (exists $request->{'config'} and length $request->{'config'}) {
     $list = $request->{'config'};
@@ -375,6 +373,7 @@ sub configshow {
   }
 
   $cgidata = &cgidata($mj, $request);
+  $request->{'cgiurl'} ||= '';
   $cgiurl  = $request->{'cgiurl'};
 
   $gsubs = { $mj->standard_subs($list),
@@ -420,6 +419,7 @@ sub configshow {
   $array = $mj->format_get_string($type, 'configshow_array');
   $bool  = $mj->format_get_string($type, 'configshow_bool');
   $enum  = $mj->format_get_string($type, 'configshow_enum');
+  $earray= $mj->format_get_string($type, 'configshow_enum_array');
   $short = $mj->format_get_string($type, 'configshow_short');
 
   for $varresult (@$result) {
@@ -441,11 +441,11 @@ sub configshow {
       next;
     }
       
-
     $subs->{'COMMENT'}  = '';
     $subs->{'DEFAULTS'} = $data->{'defaults'};
     $subs->{'ENUM'}     = $data->{'enum'};
     $subs->{'GROUPS'}   = $data->{'groups'};
+
     if ($mj->{'interface'} =~ /^www/) {
       $subs->{'HELPLINK'} = 
       qq(<a href="$cgiurl?$cgidata&list=$list&func=help&extra=$var" target="mj2help">$var</a>);
@@ -464,6 +464,9 @@ sub configshow {
     if ($data->{'auto'}) {
       $auto = '# ';
     }
+
+    # Determine the type of the variable
+    $vardata = $Mj::Config::vars{$var};
 
     if (ref ($val) eq 'ARRAY') {
       # Process as an array
@@ -493,7 +496,28 @@ sub configshow {
       $subs->{'SETCOMMAND'} .= "$auto$tag\n";
       $subs->{'VALUE'} = join "\n", @$val; 
 
-      $tmp = $array;
+      if ($vardata->{'type'} eq 'enum_array') {
+        $tmp = $earray;
+        if ($type =~ /^www/) {
+          @possible = sort @{$vardata->{'values'}};
+          $subs->{'SETTINGS'} = [@possible];
+          $subs->{'SELECTED'} = [];
+          $subs->{'CHECKED'}  = [];
+          for $str (@possible) {
+            if (grep { $_ eq $str } @$val) {
+              push @{$subs->{'SELECTED'}}, "selected";
+              push @{$subs->{'CHECKED'}}, "checked";
+            }
+            else {
+              push @{$subs->{'SELECTED'}}, "";
+              push @{$subs->{'CHECKED'}},  "";
+            }
+          }
+        }
+      }
+      else {
+        $tmp = $array;
+      }
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
@@ -511,9 +535,6 @@ sub configshow {
 
       $subs->{'SETCOMMAND'} .= "$auto$val\n";
       $subs->{'VALUE'} = $val;
-
-      # Determine the type of the variable
-      $vardata = $Mj::Config::vars{$var};
 
       if ($vardata->{'type'} =~ /^(integer|word|pw)$/) {
         $tmp = $short;
@@ -1326,10 +1347,36 @@ sub sessioninfo {
 sub set {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my (@changes, $change, $count, $list, $ok, $summary);
+  my (@changes, $change, $cgidata, $cgiurl, $count, $files,
+      $flag, $init, $j, $list, $lsubs, $ok, $settings, $str, $subs);
  
   @changes = @$result; 
-  $count = 0;
+  $count = $init = 0;
+
+  $cgidata = &cgidata($mj, $request);
+  $request->{'cgiurl'} ||= '';
+  $cgiurl  = $request->{'cgiurl'};
+
+  $subs = { $mj->standard_subs($request->{'list'}),
+            'CGIDATA'  => $cgidata,
+            'CGIURL'   => $cgiurl,
+            'CMDPASS'  => $request->{'password'},
+            'USER'     => &escape("$request->{'user'}", $type),
+          };
+
+  $files = {
+            'error' => $mj->format_get_string($type, 'set_error'),
+            'head' => $mj->format_get_string($type, 'set_head'),
+            'main' => $mj->format_get_string($type, 'set'),
+            'foot' => $mj->format_get_string($type, 'set_foot'),
+           };
+
+  $str = $mj->substitute_vars_format($files->{'head'}, $subs);
+  print $out "$str\n";
+  $lsubs = { 
+            %$subs, 
+            'SETTINGS' => [],
+           };
 
   while (@changes) {
     ($ok, $change) = splice @changes, 0, 2;
@@ -1339,27 +1386,93 @@ sub set {
       if (length $change->{'sublist'} and $change->{'sublist'} ne 'MAIN') {
         $list .= ":$change->{'sublist'}";
       }
-      $summary = <<EOM;
-Settings for $change->{'victim'}->{'full'} on "$list":
-  Receiving $change->{'classdesc'}
-  Flags:
-EOM
-      $summary .=  "    " . join("\n    ", @{$change->{'flagdesc'}}) . "\n\n";
-      eprint($out, $type, &indicate($summary, $ok, 1));
-      if (exists $change->{'digest'} and ref $change->{'digest'}
-          and exists $change->{'digest'}->{'messages'}
-          and scalar(@{$change->{'digest'}->{'messages'}})) {
-        eprint($out, $type, "A partial digest of messages has been mailed.\n");
+
+      for $j (keys %$change) {
+        next if ($j eq 'partial' or $j eq 'settings');
+        $lsubs->{uc $j} = $change->{$j};
       }
+
+      $lsubs->{'CHANGETIME'} = scalar localtime($change->{'changetime'});
+      $lsubs->{'CLASS_DESCRIPTIONS'} = [];
+      $lsubs->{'CLASSES'}            = [];
+      $lsubs->{'LIST'}               = $list;
+      $lsubs->{'SELECTED'}           = [];
+      $lsubs->{'SUBTIME'}    = scalar localtime($change->{'subtime'});
+
+      if ($change->{'partial'}) {
+        $lsubs->{'PARTIAL'} = " ";
+      }
+      else {
+        $subs->{'PARTIAL'} = '';
+      }
+      $settings = $change->{'settings'};
+
+      for ($j = 0; $j < @{$settings->{'flags'}}; $j++) {
+        $flag = $settings->{'flags'}[$j]->{'name'};
+        push (@{$lsubs->{'SETTINGS'}}, $flag) unless ($init);
+
+        # Is this setting set?
+        $str = $settings->{'flags'}[$j]->{'abbrev'};
+
+        if ($change->{'flags'} =~ /$str/) {
+          $str = 'checked';
+        }
+        else {
+          $str = '';
+        }
+
+        # Is this setting allowed?
+        if ($settings->{'flags'}[$j]->{'allow'} or $type eq 'wwwadm') {
+          $lsubs->{uc "${flag}_CHECKBOX"} =
+            "<input name=\"$list;$flag\" type=\"checkbox\" $str>";
+        }
+        else {
+          # Use an X or O to indicate a setting that has been disabled
+          # by the allowed_flags configuration value.
+          if ($str eq 'checked') {
+            $str = 'X';
+          }
+          else {
+            $str = 'O';
+          }
+          $lsubs->{uc "${flag}_CHECKBOX"} =
+            "<input name=\"$list;$flag\" type=\"hidden\" value=\"disabled\">$str";
+        }
+      }
+      for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
+        $flag = $settings->{'classes'}[$j]->{'name'};
+        if ($flag eq $change->{'class'}->[0] or 
+            $flag eq join ("-", @{$change->{'class'}})) 
+        {
+          $str = 'selected';
+        }
+        else {
+          $str = '';
+        }
+
+        if ($settings->{'classes'}[$j]->{'allow'} or $type eq 'wwwadm') {
+          push @{$lsubs->{'CLASSES'}}, $flag;
+          push @{$lsubs->{'SELECTED'}}, $str;
+          push @{$lsubs->{'CLASS_DESCRIPTIONS'}}, 
+               $settings->{'classes'}[$j]->{'desc'};
+        }
+      }    
+      $str = $mj->substitute_vars_format($files->{'main'}, $lsubs);
+      print $out "$str\n";
+      $init = 1;
     }
+
     # deal with partial failure
     else {
-        eprint($out, $type, &indicate("$change\n", $ok, 1));
+      $lsubs->{'ERROR'} = $change;
+      $str = $mj->substitute_vars_format($files->{'error'}, $lsubs);
+      print $out, "$str\n";
     }
   }
-  eprint($out, $type, "Addresses affected: $count\n");
-  eprint($out, $type, 
-    "Use the 'help set' command to see an explanation of the settings.\n");
+
+  $subs->{'COUNT'} = $count;
+  $str = $mj->substitute_vars_format($files->{'foot'}, $subs);
+  print $out "$str\n";
 
   $ok;
 }
@@ -1368,7 +1481,7 @@ sub show {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
   my (@lists, $bouncedata, $error, $flag, $global_subs, $i, $j, $lsubs,
-      $settings, $str, $subs, $tmp);
+      $settings, $show, $str, $subs, $tmp);
   my ($ok, $data) = @$result;
   $error = [];
 
@@ -1450,8 +1563,8 @@ sub show {
     $subs->{uc $i} = &escape($data->{'regdata'}{$i}, $type);
   }
 
-  $subs->{'REGTIME'}    = localtime($data->{'regdata'}{'regtime'});
-  $subs->{'RCHANGETIME'} = localtime($data->{'regdata'}{'changetime'});
+  $subs->{'REGTIME'}    = scalar localtime($data->{'regdata'}{'regtime'});
+  $subs->{'RCHANGETIME'} = scalar localtime($data->{'regdata'}{'changetime'});
 
   @lists = sort keys %{$data->{lists}};
   $subs->{'COUNT'} = scalar @lists;
@@ -1470,6 +1583,8 @@ sub show {
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
+  $show = $mj->format_get_string($type, 'show');
+
   for $i (@lists) {
     $lsubs = { %$subs };
     # Per-list substitutions available directly include:
@@ -1480,10 +1595,10 @@ sub show {
       $lsubs->{uc $j} = $data->{'lists'}{$i}{$j};
     }
 
-    $lsubs->{'CHANGETIME'} = localtime($data->{'lists'}{$i}{'changetime'});
+    $lsubs->{'CHANGETIME'} = scalar localtime($data->{'lists'}{$i}{'changetime'});
     $lsubs->{'LIST'} = $i;
     $lsubs->{'NUMBERED_BOUNCES'} = '';
-    $lsubs->{'SUBTIME'}    = localtime($data->{'lists'}{$i}{'subtime'});
+    $lsubs->{'SUBTIME'}    = scalar localtime($data->{'lists'}{$i}{'subtime'});
     $lsubs->{'UNNUMBERED_BOUNCES'} = '';
 
     $bouncedata = $data->{lists}{$i}{bouncedata};
@@ -1554,8 +1669,7 @@ sub show {
       }    
     }
 
-    $tmp = $mj->format_get_string($type, 'show');
-    $str = $mj->substitute_vars_format($tmp, $lsubs);
+    $str = $mj->substitute_vars_format($show, $lsubs);
     print $out "$str\n";
   }
 
