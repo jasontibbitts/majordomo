@@ -1,5 +1,5 @@
-If any patterns are listed here, only someone with an e-mail address that 
-matches at least one pattern will see this mailing list in the output
-of the "lists" command.  See "help patterns" for more information
-on patterns.  This setting is overridden by the patterns in the "noadvertise" 
-setting.
+If any patterns are listed here, only someone with an e-mail address
+that matches at least one pattern will see this mailing list in the
+output of the "lists" command.  See "help patterns" for more information
+on patterns.  This setting is overridden by the patterns in the
+"noadvertise" setting.
