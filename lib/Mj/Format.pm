@@ -488,17 +488,21 @@ sub set {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $setting, $arg2, $arg3, $ok, @changes) = @_;
   my $log = new Log::In 29, "$type, $vict";
-  my ($flags, $mode1, $mode2, $mode3, $fullmode);
+  my ($flags, $mode1, $mode2, $mode3, $fullflags, $fullmode);
   $mess ||= '';
 
   if ($ok>0) {
     eprint($out, $type, "Settings for $vict changed.\n");
-    while (($ok, $flags, $mode1, $mode2, $mode3, $list) = 
+    while (($ok, $flags, $mode1, $mode2, $mode3, $list) =
             splice @changes, 0, 6) {
-      $fullmode = $mode1;
-      $fullmode .= "-$mode2-$mode3" if $fullmode eq 'digest';
-      eprint($out, $type, 
-        &indicate("$list: flags $flags, mode $fullmode\n", $ok, 1));
+      $fullmode = " (unknown digest mode???)";
+      $fullmode = " (not receiving posts)" if $mode1 eq 'nomail';
+      $fullmode = "-$mode2-$mode3 (receiving digests)" if $mode1 eq 'digest';
+      $fullmode = " (receiving messages as they are posted)" if $mode1 eq 'each';
+      # $fullmode = Mj::List::describe_class($mode1,$mode2,$mode3) if $mode1 eq 'digest';
+      $fullflags = join "\n  ", Mj::List::describe_flags($flags);
+      eprint($out, $type, &indicate(
+       "$list:\n  $mode1$fullmode\n  $fullflags\n(see 'help set' for full explanation)\n", $ok, 1));
     }
   }
   elsif (!$ok) {
@@ -509,9 +513,10 @@ sub set {
     eprint($out, $type, "Settings for $vict not changed.\n");
     eprint($out, $type, &indicate("$mess\n", $ok, 1));
   }
-  
+
   1;
 }
+
 
 sub show {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
