@@ -6756,6 +6756,9 @@ sub _unalias {
   my $log = new Log::In 35, "$requ, $source";
   my ($key, $data);
   
+  return (0, qq(The address "$source" is not an alias.\n)) 
+    if ($source->xform eq $source->alias); #XLANG
+
   ($key, $data) = $self->{'alias'}->remove('', $source->xform);
   if (defined $key) {
     return (1, $key);
@@ -6810,9 +6813,11 @@ sub _unregister {
   my(@out, @removed, @aliases, $data, $key, $l, $over, $tmp);
 
   # Since we call inform() ourselves, we must decide whether to
-  # override logging or owner information.  We can assume that the
-  # dispatch function has already checked the appropriate passwords.
-  $over=0; $over=1 if $mode =~ /noinform/; $over=2 if $mode =~ /nolog/;
+  # override owner information.  We can assume that the
+  # dispatch function has already checked the appropriate passwords
+  # here.
+  $over = 0; 
+  $over = 1 if ($mode =~ /noinform/); 
 
   if ($mode =~ /regex|pattern/) {
     $tmp = 'regex';
@@ -6838,9 +6843,10 @@ sub _unregister {
       $self->{'lists'}{$l}->remove('', $key);
 
       # Log the removal of the subscription.
-      $self->inform($l, 'unsubscribe', $requ, $key, $cmd,
-                    $self->{'interface'}, 1, '', $over, '',
-                    $::log->elapsed - $tmp);
+      $self->inform($l, 'unsubscribe', $requ, $key, $cmd, 
+                    $self->{'interface'}, 1, '', $over, '', 
+                    $::log->elapsed - $tmp)
+        unless ($mode =~ /nolog/);
     }
     @aliases = $self->_alias_reverse_lookup($key, 1);
     for (@aliases) {
