@@ -1,6 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-lists-aux-compact-enhanced-long-short-tiny
+lists-aux-compact-enhanced-long-short-tiny [pattern]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+pattern,   if specified, is a regular expression to search list names
 -aux,      if specified, shows all auxiliary lists also
 -compact,  if specified, shows all lists without site information
 -enhanced, if specified, shows all lists with maximal information
@@ -15,6 +16,8 @@ Proof is left to the user that any of these combinations are useful.
 
 This command shows all the lists hosted at $MJ
 unless the owner of a list has configured it to be invisible to you.
+If you specify "pattern", only lists matching that regular expression
+will be displayed (see "help patterns" for regular expression details).
 
 If no options are used, the kind of list you get is determined by
 the site administrator who can set the default to any option.
@@ -40,18 +43,25 @@ all the information from "-long".
 
 The "-aux" option causes all sublists to be displayed.  Sublists,
 also known as auxiliary lists, are used to categorize subscribers,
-to allow different groups of subscribers to have different 
-privileges.
+and to allow different groups of subscribers to have different 
+privileges. Note that only sublists specified by the list owner
+with "configset sublists" will appear in this listing.
+
+The "-aux" option ALSO causes extra information, including a subscriber
+count, the URL of the list archives (if configured), the list posting
+address, the owner address, etc. to be displayed.
 
 To find out where you are subscribed without descriptive paragraphs:
   lists-enhanced-short
 
+
 See Also:
    help auxwho    (to see the addresses on an auxiliary list)
-   help configset access_rules (to make use of auxiliary lists)
-   help configset access_rules_variables (set/test for this command)
    help info      (to find out more about a list)
    help subscribe (to add your name to a list)
+   help configset access_rules         (to make use of auxiliary lists)
+   help configset access_rules_variables    (set/test for this command)
+   help configset sublists (to choose auxiliary lists that are visible)
 
 For a list of all help topics send this one-line message
    help topics
