@@ -17,56 +17,46 @@ There are three sections below:
 
 First, the requests which can be processed:
 
- 1 - _bounce           default access is UNDEFINED
- 2 - access            default access is allow
- 3 - advertise         default access is special
- 4 - alias             default access is confirm
- 5 - announce          default access is deny
- 6 - archive           default access is access
- 7 - auxadd            default access is deny
- 8 - auxremove         default access is deny
- 9 - auxwho            default access is deny
-10 - changeaddr        default access is confirm2
-11 - createlist        default access is deny
-12 - digest            default access is deny
-13 - faq               default access is access
-14 - get               default access is access
-15 - help              default access is allow
-16 - index             default access is access
-17 - info              default access is access
-18 - intro             default access is access
-19 - lists             default access is allow
-20 - password          default access is special
-21 - post              default access is special
-22 - put               default access is deny
-23 - register          default access is confirm
-24 - rekey             default access is deny
-25 - report            default access is deny
-26 - request_response  default access is allow
-27 - set               default access is policy
-28 - show              default access is mismatch
-29 - showtokens        default access is deny
-30 - subscribe         default access is policy
-31 - unalias           default access is confirm
-32 - unregister        default access is confirm
-33 - unsubscribe       default access is policy
-34 - which             default access is access
-35 - who               default access is access
+ 1 - access            default access is allow
+ 2 - advertise         default access is special
+ 3 - alias             default access is confirm
+ 4 - announce          default access is deny
+ 5 - archive           default access is access
+ 6 - auxadd            default access is deny
+ 7 - auxremove         default access is deny
+ 8 - auxwho            default access is deny
+ 9 - changeaddr        default access is confirm2
+10 - createlist        default access is deny
+11 - digest            default access is deny
+12 - faq               default access is access
+13 - get               default access is access
+14 - help              default access is allow
+15 - index             default access is access
+16 - info              default access is access
+17 - intro             default access is access
+18 - lists             default access is allow
+19 - password          default access is special
+20 - post              default access is special
+21 - put               default access is deny
+22 - register          default access is confirm
+23 - rekey             default access is deny
+24 - report            default access is deny
+25 - request_response  default access is allow
+26 - set               default access is policy
+27 - show              default access is mismatch
+28 - showtokens        default access is deny
+29 - subscribe         default access is policy
+30 - unalias           default access is confirm
+31 - unregister        default access is confirm
+32 - unsubscribe       default access is policy
+33 - which             default access is access
+34 - who               default access is access
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 
 Second, the variables available for each request (see bottom for explanations):
 
-1 - variables for _bounce
-  bouncedpct
-  consecutive
-  day
-  days_since_subscribe
-  month
-  numbered
-  week
-
-2 - variables for access
+1 - variables for access
   addr
   fulladdr
   host
@@ -76,7 +66,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-3 - variables for advertise
+2 - variables for advertise
   addr
   fulladdr
   host
@@ -86,7 +76,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-4 - variables for alias
+3 - variables for alias
   addr
   fulladdr
   host
@@ -96,7 +86,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-5 - variables for announce
+4 - variables for announce
   addr
   fulladdr
   host
@@ -106,7 +96,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-6 - variables for archive
+5 - variables for archive
   addr
   fulladdr
   host
@@ -116,7 +106,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-7 - variables for auxadd
+6 - variables for auxadd
   addr
   fulladdr
   host
@@ -126,7 +116,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-8 - variables for auxremove
+7 - variables for auxremove
   addr
   fulladdr
   host
@@ -136,7 +126,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-9 - variables for auxwho
+8 - variables for auxwho
   addr
   fulladdr
   host
@@ -146,7 +136,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-10 - variables for changeaddr
+9 - variables for changeaddr
   addr
   fulladdr
   host
@@ -156,7 +146,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-11 - variables for createlist
+10 - variables for createlist
   addr
   fulladdr
   host
@@ -166,7 +156,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-12 - variables for digest
+11 - variables for digest
   addr
   fulladdr
   host
@@ -176,7 +166,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-13 - variables for faq
+12 - variables for faq
   addr
   fulladdr
   host
@@ -186,7 +176,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-14 - variables for get
+13 - variables for get
   addr
   fulladdr
   host
@@ -196,7 +186,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-15 - variables for help
+14 - variables for help
   addr
   fulladdr
   host
@@ -206,7 +196,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-16 - variables for index
+15 - variables for index
   addr
   fulladdr
   host
@@ -216,7 +206,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-17 - variables for info
+16 - variables for info
   addr
   fulladdr
   host
@@ -226,7 +216,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-18 - variables for intro
+17 - variables for intro
   addr
   fulladdr
   host
@@ -236,7 +226,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-19 - variables for lists
+18 - variables for lists
   addr
   fulladdr
   host
@@ -246,7 +236,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-20 - variables for password
+19 - variables for password
   addr
   fulladdr
   host
@@ -256,7 +246,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-21 - variables for post
+20 - variables for post
   addr
   admin
   any
@@ -289,7 +279,7 @@ Second, the variables available for each request (see bottom for explanations):
   total_header_length_exceeded
   user_password
 
-22 - variables for put
+21 - variables for put
   addr
   fulladdr
   host
@@ -299,7 +289,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-23 - variables for register
+22 - variables for register
   addr
   fulladdr
   host
@@ -309,7 +299,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-24 - variables for rekey
+23 - variables for rekey
   addr
   fulladdr
   host
@@ -319,7 +309,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-25 - variables for report
+24 - variables for report
   addr
   fulladdr
   host
@@ -329,7 +319,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-26 - variables for request_response
+25 - variables for request_response
   addr
   fulladdr
   host
@@ -339,7 +329,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-27 - variables for set
+26 - variables for set
   addr
   fulladdr
   host
@@ -349,7 +339,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-28 - variables for show
+27 - variables for show
   addr
   fulladdr
   host
@@ -359,7 +349,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-29 - variables for showtokens
+28 - variables for showtokens
   addr
   fulladdr
   host
@@ -369,7 +359,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-30 - variables for subscribe
+29 - variables for subscribe
   addr
   fulladdr
   host
@@ -379,7 +369,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-31 - variables for unalias
+30 - variables for unalias
   addr
   fulladdr
   host
@@ -389,7 +379,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-32 - variables for unregister
+31 - variables for unregister
   addr
   fulladdr
   host
@@ -399,7 +389,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-33 - variables for unsubscribe
+32 - variables for unsubscribe
   addr
   fulladdr
   host
@@ -409,7 +399,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-34 - variables for which
+33 - variables for which
   addr
   fulladdr
   host
@@ -419,7 +409,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-35 - variables for who
+34 - variables for who
   addr
   fulladdr
   host
@@ -452,12 +442,6 @@ Third, an explanation of each variable:
 
         body_length_exceeded - is set if 'body_length' exceeds the value in
                                'configset LISTNAME maxlength'
-
-                  bouncedpct - NO EXPLANATION AVAILABLE
-
-                 consecutive - NO EXPLANATION AVAILABLE
-
-                         day - NO EXPLANATION AVAILABLE
 
         days_since_subscribe - contains the number of days since the user
                                signed up (used for a cooling off period
@@ -526,10 +510,6 @@ Third, an explanation of each variable:
                                example, it contains 'enhanced' when the
                                'who-enhanced' command is used
 
-                       month - NO EXPLANATION AVAILABLE
-
-                    numbered - NO EXPLANATION AVAILABLE
-
              password_length - contains the length in characters of the new
                                password the user is trying to set (can be
                                used to enforce a minimum length)
@@ -559,8 +539,6 @@ total_header_length_exceeded - is set if 'total_header_length' exceeds the
 
                user_password - is set if the user's correct password was
                                used
-
-                        week - NO EXPLANATION AVAILABLE
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 

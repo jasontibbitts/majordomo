@@ -38,7 +38,6 @@ $files =
    'en/wwwadm_help'                                   => ['introduction to the WWW admin interface',  'us-ascii', '7bit'],
 
    # english help files
-   'en/help/_bounce'                                  => ['help for a configset access_rules option', 'us-ascii', '7bit'],
    'en/help/accept'                                   => ['detailed help for accept command',         'us-ascii', '7bit'],
    'en/help/access'                                   => ['help for a configset access_rules option', 'us-ascii', '7bit'],
    'en/help/admin'                                    => ['what administrators can do with majordomo','us-ascii', '7bit'],
