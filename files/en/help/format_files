@@ -265,7 +265,7 @@ command
 (wwwadm)  This file displays a command form, a simple way to issue commands
 that are not otherwise supported by the interface.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
 
 
 configshow
@@ -443,7 +443,7 @@ error
 (wwwadm, wwwusr)  This file displays an error message when a
 WWW request fails during initialization and sanity checks.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
 
 
 foot
@@ -451,7 +451,7 @@ foot
 (wwwadm, wwwconfirm, wwwusr)  This file displays supplementary information
 at the bottom of every web page.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
 
 
 foot_global
@@ -459,7 +459,7 @@ foot_global
 (wwwadm)  This file displays supplementary information at the bottom 
 of every web page for the ALL, DEFAULT, or GLOBAL list.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
 
 
 get_edit_foot
@@ -511,7 +511,7 @@ head
 (wwwadm, wwwconfirm, wwwusr)  This file displays supplementary information
 at the top of every web page.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
 
 
 head_global
@@ -519,7 +519,7 @@ head_global
 (wwwadm)  This file displays supplementary information at the top of 
 every web page for the ALL, DEFAULT, or GLOBAL list.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
 
 
 lists
@@ -599,7 +599,7 @@ vital information to be entered or changed.  For the wwwadm interface,
 a list name and password are requested.  For the wwwusr interface,
 an e-mail address and password are requested.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, ERROR, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, ERROR, USER)
 
 
 newlist
@@ -607,7 +607,7 @@ newlist
 (wwwadm)  This file displays a form that allows a mailing list to
 be created, renamed, or destroyed.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
 
 
 password
@@ -713,27 +713,18 @@ to any mailing lists.
 
 showtokens
 ----------
-(text, wwwadm)  This file displays data for all tokens for
-a mailing list.
+(text, wwwadm)  This file displays preliminary information for the tokens for
+a particular mailing list.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, ERROR, TOKENDATA, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
 
 
 showtokens_all
 --------------
-(text, wwwadm)  This file displays data for a all tokens when
-tokens for "ALL" lists are shown.
+(text, wwwadm)  This file displays a summary of all of the tokens
+displayed.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, ERROR, TOKENDATA, USER)
-
-
-showtokens_all_data
--------------------
-(text, wwwadm)  This file displays data for a single token when
-tokens for "ALL" lists are shown.
-
-(standard plus ADATE, ATYPE, CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, 
- DATE, ERROR, LIST, SIZE, TOKEN, TYPE, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, USER)
 
 
 showtokens_data
@@ -758,7 +749,7 @@ showtokens_foot
 of the output.  It is used by the wwwadm interface to allow tokens
 for more than one list to be displayed at one time.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
 
 
 showtokens_head
@@ -767,7 +758,7 @@ showtokens_head
 of the output.  It is used by the wwwadm interface to allow tokens
 for more than one list to be displayed at one time.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DOMAIN, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
 
 
 showtokens_none
@@ -938,7 +929,7 @@ welcome
 (wwwadm, wwwconfirm, wwwusr)  This file displays basic instructions 
 for the use of each WWW interface.
 
-(standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, CMDPASS, USER)
+(standard plus CGIDATA, CGIURL, COMMAND, CMDPASS, USER)
 
 
 welcome_global
@@ -946,7 +937,15 @@ welcome_global
 (wwwadm)  This file displays basic instructions for the use of the
 wwwadm interface for the ALL, DEFAULT, or GLOBAL list.
 
-(standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, CMDPASS, USER)
+(standard plus CGIDATA, CGIURL, COMMAND, CMDPASS, USER)
+
+
+welcome_showtokens
+------------------
+(wwwadm)  This file displays basic instructions for the use of 
+the showtokens command in the wwwadm interface.
+
+(standard plus CGIDATA, CGIURL, COMMAND, CMDPASS, USER)
 
 
 who
