@@ -19,6 +19,7 @@ $Mj::Config::default_string = q(
  'access_password_override' => 1,
  'access_rules'         => [],
  'ack_attach_original'  => [qw(fail stall)],
+ 'active'               => 1,
  'addr_allow_at_in_phrase' => 0,
  'addr_allow_bang_paths'=> 0,
  'addr_allow_comments_after_route' => 0,
