@@ -80,10 +80,20 @@ are admin_body, admin_headers, taboo_body, and taboo_headers.  These
 settings are combined with a mailing list's individual settings when
 Majordomo attempts to find prohibited content in posted messages.
 
+Majordomo automatically maintains the GLOBAL:owners auxiliary list, which
+contains the addresses of all mailing list owners within a domain.
+A site or domain owner who wishes to contact all of the list owners
+at once can do so with the announce command.  In addition, a list of
+these addresses, together with the names of the mailing lists that
+each administrates, can be seen with the following command:
+  who-owners GLOBAL
+
 
 See Also:
    help accept
    help alias
+   help announce
+   help auxiliary_list
    help changeaddr
    help configdef
    help configset
