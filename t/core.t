@@ -11,7 +11,7 @@ $counter = 1;
 $debug = 0;
 $tmpdir = "/tmp/mjtest.$$";
 
-print "1..31\n";
+print "1..32\n";
 
 print "Load the stashed configuration\n";
 eval('$config = require ".mj_config"');
@@ -274,6 +274,14 @@ $result = $mj->dispatch({user     => 'core_test@example.com',
 			});
 ok(1, $result->[0]);
 
+
+print "Remove the second alias from the canonical address\n";
+$result = $mj->dispatch({user     => 'zork@example.com',
+			 password => 'suspect',
+			 command  => 'unalias',
+			 victims  => ['planetfall@example.com'],
+			});
+ok(1, $result->[0]);
 
 # Things left to test:
 

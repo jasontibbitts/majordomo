@@ -1,6 +1,6 @@
 use File::Copy 'copy';
 
-print "1..17\n";
+print "1..18\n";
 
 $| = 1;
 $counter = 1;
@@ -115,12 +115,12 @@ $r = run('-p gonzo who bleeargh:harumph');
 ok($e, $r);
 
 # 13. Add an alias
-$e = qq!\Qenchanter\@example.com was successfully aliased to zork\@example.com.\n!;
+$e = qq!The alias command succeeded.\n!;
 $r = run('-p gonzo -u zork@example.com alias enchanter@example.com');
 ok($e, $r);
 
 # 14. Add an alias to the first alias
-$e = qq!\Qplanetfall\@example.com was successfully aliased to enchanter\@example.com.\n!;
+$e = qq!The alias command succeeded!;
 $r = run('-p gonzo -u enchanter@example.com alias planetfall@example.com');
 ok($e, $r);
 
@@ -137,6 +137,11 @@ ok($e, $r);
 # 17. Unsubscribe the aliased address using the set password
 $e = qq!was removed from!;
 $r = run('-p suspect unsubscribe bleeargh enchanter@example.com');
+ok($e, $r);
+
+# 18. Remove one of the aliases from the canonical address.
+$e = qq!The unalias command succeeded!;
+$r = run('-p suspect -u zork@example.com unalias planetfall@example.com');
 ok($e, $r);
 
 
