@@ -251,6 +251,7 @@ package Mj::Config;
     'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
+    'global' => 1,
     'mutable'=> 0,
    },
    'comments' =>
