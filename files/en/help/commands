@@ -72,13 +72,18 @@ and a hard return to make the server interpret several lines as just
 one command. For example:
   subscribe my-very-long-list-name MyFirstNameHere MyLastNameHere <my_email@my_domain>
 is too long for many mail tools. To keep the command from being
-broken up, you can type this in your message to $MJ :
-  subscribe my-very-long-list-name \
+broken up, you can type this in your message to $MJ 
+(making sure the '\' is the very last character on the first line):
+  subscribe my-very-long-list-name \ 
   MyFirstNameHere MyLastNameHere <my_email@my_domain>
 The server will then re-assemble the two lines into one command.
 Other options include getting a better mail tool and turning off
 automatic line wrapping, but don't expect the list owner to do
 everything for you when there IS a way to do it yourself.
+
+List owners using "put" to store files must keep in mind that the
+backslash described above ALWAYS joins two lines as one, even if
+it's part of a file being put and not a one-line command.
 
 All of the Majordomo2 commands and options can be entered with only
 LOWER CASE LETTERS with underscore also possible. Commands are NOT case

@@ -81,7 +81,7 @@ commands, one per line.  It can, however, do much more.
 
 The parser only looks in text/plain parts for commands.  Other parts are
 discarded.  Lines beginning with '#' are considered to be comments, and are
-ignored.  Lines ending in '\\' are joined to the next line.
+ignored.  Lines ending in '\' are joined to the next line.
 
 The parser will check for the validity of each command and report errors.
 It will also skip large amounts of errors, reporting the count of lines
