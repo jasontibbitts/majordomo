@@ -91,9 +91,20 @@ unsubscribe : stall, fail
 ABC
 
 Normally, when events are reported individually, the command, address
-from which the request was made, result of the command, date, time and
-elapsed time are displayed.  If the "full" command mode is used, the
-interface and session number will also be displayed, on a separate line.
+from which the request was made, result of the command and time of day
+are displayed.  If the "full" command mode is used, the full command
+will be displayed on a second line, and the interface, session number,
+and elapsed time in seconds will be displayed on the third line, as in
+the following sample event:
+
+report      testlist       someone@example.com       succeed 20:12 
+  report testlist 7d
+  shell            311b85c9855dae4dd63f13b34ed18f79b7f7ddef 9.358
+
+In this example, the command "report testlist 7d" was completed at 20:12
+(8:12 pm) from the shell interface.  The command succeeded, and required
+9.358 seconds to execute.
+
 The session number is especially useful for determining what caused
 a "bounce" (delivery failure).  Please see "help sessioninfo" for more
 details.
