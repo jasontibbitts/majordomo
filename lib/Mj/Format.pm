@@ -225,6 +225,7 @@ sub archive {
            'CMDPASS'     => &escape($request->{'password'}, $type),
            'TOTAL_POSTS' => scalar @msgs,
            'USER'        => &escape("$request->{'user'}", $type),
+           'VICTIM'      => &escape("$request->{'victim'}", $type),
           };
 
   if ($ok <= 0) { 
@@ -258,9 +259,15 @@ sub archive {
     print $out "$str\n";
 
     $tmp = $mj->format_get_string($type, 'archive_summary', $list);
+    @tmp = ();
 
     for $i (@msgs) {
       ($mess, $data) = @$i;
+
+      # Save the archive years in an array.
+      if ($mess =~ /^([^.]+\.)?(\d{4})/) {
+        push (@tmp, $2) unless (grep {$_ eq $2} @tmp);
+      }
       for $j (keys %$data) {
         next if (ref $data->{$j} eq 'HASH');
         $subs->{uc $j} = &escape($data->{$j}, $type);
@@ -271,6 +278,7 @@ sub archive {
       print $out "$str\n";
     }
 
+    $subs->{'YEARS'} = [ @tmp ];
     $tmp = $mj->format_get_string($type, 'archive_summary_foot', $list);
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
@@ -2627,6 +2635,7 @@ sub _tokeninfo_post {
   my ($ok, $data, $msgdata) = @$result;
 
   unless (ref $msgdata eq 'HASH') {
+    # XLANG
     $subs = { $mj->standard_subs($request->{'list'}),
               'CGIDATA' => $request->{'cgidata'} || '',
               'CGIURL'  => $request->{'cgiurl'} || '',
