@@ -31,7 +31,7 @@ $Mj::Util::safe = '';
   (
    'approvals'  => 'integer',
    'attach'     => 'bool',
-   'bounce'     => 'bool',
+   'bounce'     => 'integer',
    'file'       => 'string',
    'fulfill'    => 'bool',
    'group'      => 'string',
@@ -258,15 +258,20 @@ sub n_defaults {
               };
 
   if ($type eq 'consult') {
-    $defaults->{'attach'}    = 1;
-    $defaults->{'bounce'}    = 0;
-    $defaults->{'file'}      = 'consult';
-    $defaults->{'group'}     = 'moderators';
+    $defaults->{'attach'} = 1;
+    $defaults->{'bounce'} = 0;
+    $defaults->{'file'}   = 'consult';
+    $defaults->{'group'}  = 'moderators';
   }
   elsif ($type eq 'delay') {
-    $defaults->{'bounce'} = 0;
-    $defaults->{'file'} = 'delay';
+    $defaults->{'bounce'}  = 0;
+    $defaults->{'file'}    = 'delay';
     $defaults->{'fulfill'} = 1;
+  }
+  elsif ($type eq 'probe') {
+    $defaults->{'attach'} = 1;
+    $defaults->{'bounce'} = -1;
+    $defaults->{'file'}   = 'probe';
   }
 
   $defaults;
@@ -531,7 +536,7 @@ This converts a string to a number of seconds since 1970 began.
 sub str_to_time {
   my $arg = shift;
   my $log = new Log::In 150, $arg;
-  my ($time) = 0;
+  my $time = 0;
 
   # Treat a plain number as a count of seconds.
   if ($arg =~ /^(\d+)$/) {
@@ -540,6 +545,9 @@ sub str_to_time {
 
   if ($arg =~ /(\d+)s(econds?)?/) {
     $time += $1;
+  }
+  if ($arg =~ /(\d+)mi(nutes?)?/) {
+    $time += 60 * $1;
   }
   if ($arg =~ /(\d+)h(ours?)?/) {
     $time += (3600 * $1);
