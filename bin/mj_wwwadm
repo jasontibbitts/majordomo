@@ -162,6 +162,9 @@ $ofunc   = $cgi->param('func') || 'welcome';
 if ((! @lists) and @mlists) {
   @lists = @mlists;
 }
+for ($i = 0 ; $i < scalar @lists ; $i++) {
+  $lists[$i] =~ s/\s+//g;
+}
 $lists[0] ||= '';
 
 #----- Initialize the variable substitutions -----#
