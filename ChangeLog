@@ -8,6 +8,9 @@
 	and put commands.  Use format files with the faq, get, info, and 
 	intro commands.
 
+	* bin/mj_wwwusr:  Use format files with the faq, info, and intro
+	commands.  Support the hidepost personal setting.
+
 	* lib/Majordomo.pm:  Version number is now 0.1200108140.
 	(_get, _put, _index)  Improve error checking on file names.
 	(_get)  Make use of substitutions in the file_sent file.

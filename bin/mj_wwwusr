@@ -59,10 +59,10 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra
 %commands = (   
                 'alias'         => [1, 1, 0, 1, 'show'],
                 'changeaddr'    => [1, 1, 0, 1, 'show'],
-                'faq'           => [0, 0, 1, 1, 'list'],
+                'faq'           => [0, 0, 1, 0, 'list'],
                 'help'          => [0, 0, 0, 1, 'help'],
-                'info'          => [0, 0, 1, 1, 'list'],
-                'intro'         => [0, 0, 1, 1, 'list'],
+                'info'          => [0, 0, 1, 0, 'list'],
+                'intro'         => [0, 0, 1, 0, 'list'],
                 'lists'         => [0, 0, 0, 0, 'lists'],
                 'password'      => [0, 1, 0, 1, 'welcome'],
                 'register'      => [0, 1, 0, 1, 'welcome'],
@@ -278,17 +278,19 @@ for $list (@lists) {
   if ($func eq 'set') {
     my ($i, $j, @params, @settings);
     @params = $cgi->param;
-    for $j (qw(delivery ackdeny ackpost ackreject ackstall eliminatecc hideaddress hideall prefix replyto selfcopy rewritefrom)) {
+    for $j (qw(delivery ackdeny ackpost ackreject ackstall eliminatecc
+               hideaddress hideall hidepost prefix replyto selfcopy 
+               rewritefrom)) {
       $i = "$list;$j";
       if ($j eq 'delivery') {
         push @settings, $cgi->param($i);
       }
       else {
-        if ($cgi->param($i) eq 'on') {
-          push @settings, $j;
-        }
-        elsif (! $cgi->param($i)) {
+        if (! $cgi->param($i)) {
           push @settings, "no$j";
+        }
+        elsif ($cgi->param($i) eq 'on') {
+          push @settings, $j;
         }
         # If the setting is disabled, ignore it.
       }
