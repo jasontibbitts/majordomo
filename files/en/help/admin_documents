@@ -237,6 +237,15 @@ hold a much clearer explanation.
 For more details on how and when automatic replies are sent, see
 "help admin_moderate" and "help configset_access_rules".
 
+Customizing documents
+---------------------
+
+Two kinds of document, or file, can be customized by a list
+administrator.  Format files govern the appearance of the WWW interfaces
+and the results from Majordomo commands.  Reply files are specialized
+messages such as welcome messages, confirmation messages, and so on.
+See "help format_files" and "help reply_files" for more information on
+which files are available.
 
 Restricting access to documents
 -------------------------------
@@ -250,7 +259,6 @@ It is also possible to restrict any of these commands with the access_rules
 configuration setting.  Any rules in the access_rules setting will override
 the settings that were mentioned in the previous paragraph.  
 See "help configset_access_rules" for more details.
-
 
 
 See Also:
@@ -268,6 +276,7 @@ See Also:
    help configset_welcome
    help configset_welcome_files
    help faq
+   help format_files
    help get
    help index
    help info
@@ -276,5 +285,6 @@ See Also:
    help newinfo
    help newintro
    help put
+   help reply_files
 
 $INCLUDE-help/foot

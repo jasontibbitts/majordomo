@@ -468,10 +468,13 @@ details).
 See Also:
    help access_variables (for access_rules variables)
    help admin_documents  (introduction to document management)
+   help admin_domain
    help admin_moderate
    help configset_access_rules  (for mailfile and deny usage)
    help configset_welcome_files (for additional files that can be sent)
    help digest                  (for additional file names and usage)
+   help error_files
+   help format_files
    help put                     (create or update files and directories)
 
 $INCLUDE-help/foot

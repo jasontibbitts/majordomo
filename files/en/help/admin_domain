@@ -141,8 +141,9 @@ actual internet domain name, for example:
   configset GLOBAL whereami = example.com
 
 
-Session and Event Information
+Session and event information
 -----------------------------
+
 Majordomo2 stores information about every email or command line
 processed in files called sessions.  These are files containing all
 pertinent information about the session (email headers, CGI environment,
@@ -164,6 +165,7 @@ command.  See "help report" and "help sessioninfo" for more details.
 
 Commands available to site and domain administrators
 ----------------------------------------------------
+
 Site and domain administrators can use any of the commands for list
 administrators (as listed in "help admin_commands") and any of the
 commands for subscribers (as shown in "help commands").  There are also
@@ -184,6 +186,26 @@ rekey
   with one another.  Please see "help configset_addr_xforms" and 
   "help rekey" for more information.
 
+Customizing the appearance of Majordomo
+---------------------------------------
+
+Nearly every aspect of Majordomo's appearance can be customized using
+the get and put commands.  Three kinds of document affect the appearance
+of Majordomo:
+
+  error files   Short messages that indicate what went wrong when an
+                error occurs.
+
+  format files  Display the results of Majordomo commands and the
+                formatting for the WWW interfaces.
+
+  reply files   Acknowledgement messages, welcome messages, confirmation
+                messages, informational notices, and so on.
+
+See "help get" and "help put" to learn how to retrieve and customize
+these documents.  See "help error_files", "help format_files", and 
+"help reply_files" to learn more about each document category.
+
 
 See Also:
    help accept
@@ -203,10 +225,15 @@ See Also:
    help configset_taboo_headers
    help configset_whereami
    help createlist
+   help error_files
+   help format_files
+   help get
    help password
+   help put
    help register
    help reject
    help rekey
+   help reply_files
    help sessioninfo
    help show
    help tokeninfo
