@@ -278,7 +278,7 @@ sub retr_msg {
   $lang ||= 'en';
 
   unless (-f "setup/messages/$lang/$message") {
-    warn qq(Message "$message" could not be located.);
+    warn qq(Message "$message" could not be located);
 
     if ($lang ne 'en') {
       $lang = 'en';
@@ -294,7 +294,7 @@ sub retr_msg {
 
   $fh = gensym();
   unless (open ($fh, "< setup/messages/$lang/$message")) {
-    warn qq(Message "$message" could not be opened.);
+    warn qq(Message "$message" could not be opened: $!);
     return;
   }
 
