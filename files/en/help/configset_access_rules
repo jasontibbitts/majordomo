@@ -139,9 +139,10 @@ that do take a list use the list's access_rules. There are two weird ones:
     file will be used as the confirmation message.  If not, the standard
     file "confirm" is used.
 
-1.2.3 - confirm2=file - a confirmation token is sent to BOTH users who will
-    be affected by the request. This is the default access action only for
-    changeaddr, but may also be used for other commands.
+1.2.3 - confirm2=file1,file2,group,M - a confirmation token is sent to BOTH
+    users who will be affected by the request. This is the default access
+    action only for changeaddr, but may also be used for other commands
+    where requester and victim may not match.
       * If requester and victim are the same, confirm with the victim.
       * If requester and victim are different, but the victim's password
         was supplied, confirm with the requester.  The roles are swapped,
@@ -151,23 +152,58 @@ that do take a list use the list's access_rules. There are two weird ones:
         like confirm_consult.  The victim receives the confirmation
         token before the requester.  If the victim accepts the token, the 
         roles are swapped when the token is sent to the requester.
-    If given an argument (confirm=file), the given file will be used as the
-    confirmation message.  If not, the standard file "confirm2" is used.
+    The following comma-separated arguments are taken:
+      file1 - the file used for the first confirmation message (sent to
+        the first person (the victim). If a file is not specified here
+        the standard "confirm" file is used.
+      file2 - the file used for the second confirmation message (sent to
+        the requestor or the moderator. If a file is not specified here
+        the standard "confirm" file is used again.
+      M - the number of approvals that are required.  This permits a
+        rudimentary form of group moderation (default 1).
+      group - the moderator group to send the confirmation request to
+        (defaults to sending to moderator). The moderator group influences
+        whether the second person to see the message is a list moderator
+        or the requester.  If it is set to 'requester', the second person
+        consulted is the requester; otherwise, the second person to be
+        consulted is a list moderator.  Moderator groups are otherwise
+        another unfinished idea.
 
-1.2.4 - confirm_consult - first confirms the action with the victim, then
-    consults the list owner. Both tokens must be returned before the action
-    which triggered the rule will take place.
+1.2.4 - confirm_consult=file1,file2,group,M - first confirms the action
+    with the victim, then consults the list owner. Both tokens must be
+    returned before the action which triggered the rule will take place.
+    The following comma-separated arguments are taken:
+      file1 - the file used for the confirmation message (sent to the
+        victim. If a file is not specified here the standard "confirm"
+        file is used.
+      file2 - the file used for the consultation message (sent to the
+        moderators. If a file is not specified here the standard "consult"
+        file is used.
+      M - the number of approvals that are required.  This permits a
+        rudimentary form of group moderation (default 1).
+      group - the moderator group to send the confirmation request to
+        (defaults to sending to moderator). The moderator group influences
+        whether the second person to see the message is a list moderator
+        or the requester.  If it is set to 'requester', the second person
+        consulted is the requester; otherwise, the second person to be
+        consulted is a list moderator.  Moderator groups are otherwise
+        another unfinished idea.
 
-1.2.5 - consult=file,M,group,N - (some of this is unimplemented) a token is
-    sent to a moderator/group of moderators/randomly chosen subset of a group
-    of moderators.  The following comma-separated arguments are taken:
+1.2.5 - consult=file,M,group,N - a token is sent to a moderator/group of
+    moderators/randomly chosen subset of a group of moderators.  The token
+    must be returned before the action which triggered the rule will take
+    place. The following comma-separated arguments are taken:
       file - the file used for the consultation message (ignored if the
         request is post, and if a file is not specified here the standard
         file "consult" is used).
-      M - the number of approvals that are required.  This permit a
+      M - the number of approvals that are required.  This permits a
         rudimentary form of group moderation (default 1).
-      group - the moderator group to send the confirmation request to
-        (defaults to sending to moderator).
+      group - the moderator group to send the consultation request to
+        (defaults to sending to moderator). The moderator group influences
+        whether the person to see the message is a list moderator or the
+        requester.  If it is set to 'requester', the person consulted is
+        the requester; otherwise, the list moderator is consulted.
+        Moderator groups are otherwise another unfinished idea.
       N - the number of members of the moderator group to send to, chosen at
         random (defaults to all of the group).
      
