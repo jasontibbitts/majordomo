@@ -1,6 +1,9 @@
-WARNING: 'trigger' is a valid command, but has no help as of 18 Mar 2000
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+trigger
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This command may not be implemented, or may be undocumented for a reason!
+The "trigger" command is not intended to be used by end users;
+it's what the mj_trigger utility uses to kick off periodic functions.
 
 
 For a list of all help topics send this one-line message

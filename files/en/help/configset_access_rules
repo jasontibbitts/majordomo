@@ -15,9 +15,11 @@ ENDTAG
 
 
 
-A table containing access rules.  This is a very powerful and
+A table containing access rules. Access to any command (such as "set"
+or "subscribe" can be limited, and there are the two special cases
+(see "help post" and "help access"). This is a very powerful and
 unfortunately somewhat complicated mechanism for precisely restricting
-access to Majordomo functions which I will document later.
+access to Majordomo functions.
 
 The "access_rules" command can be set for individual lists as well as
 for the GLOBAL pseudo-list. There are different requests that can be
@@ -78,7 +80,7 @@ the mailing list. For details of how to do this please refer to
 Section 1 - Working description of the access_rules config variable:
 
 Any command that doesn't take a list uses GLOBAL access_rules. Commands
-that do take a list use the list'saccess_rules. There are two weird ones:
+that do take a list use the list's access_rules. There are two weird ones:
 
   which - GLOBAL allows/disallows and sets the maximum number of hits.
           list allows/disallows and sets the hits for this list.
@@ -560,6 +562,11 @@ For a list of all outstanding requests, send this command to \$MJ
 ENDCONSULT
 
 -------------
+
+
+See Also:
+   help access     (for the special case of granting/denying all access)
+   help post       (for the special case of restricting who can post msgs)
 
 For a list of all help topics send this one-line message
    help topics

@@ -75,6 +75,7 @@ would retrieve an index of the last 10 messages posted to the
 would retrieve an index of the first 10 messages.
 
 See Also:
+   help configset archive_dir (to store archives in a non-default dir)
    help index (which may be used to show which archives are available)
    help put   (which is used to create the archive directory)
 

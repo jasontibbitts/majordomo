@@ -1,6 +1,44 @@
-WARNING: 'sessioninfo' is a valid command, but has no help as of 18 Mar 2000
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+sessioninfo sessionid
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+sessionid, required, is a 32-digit ID from a previous server command
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This command may not be implemented, or may be undocumented for a reason!
+This returns session data.  Every connection to the Majordomo server gets a
+session and everything done in that session os recorded in a file, along
+with things like the headers or the CGI environment.  Just run
+  sessioninfo sessionid
+where sessionid is a string of exactly 32 hex digits in lower case,
+to get information on a previous Mj2 session.
+
+Where do you get session IDs from? The server will mail you confirmation
+messages (if configured to do so) that include lines like this:
+  | was executed with status:
+  |   1 (success)
+  | in session:
+  |   f88bf40a18e28ae61a2c9197919f026f
+  | from the shell interface.
+
+What kind of information do you get from sessioninfo?
+Here is a sample output:
+  | % mj_shell sessioninfo f88bf40a18e28ae61a2c9197919f026f
+  | Stored information from session f88bf40a18e28ae61a2c9197919f026f
+  | Source: owner
+  | PID:    20818
+  | 
+  | Received: from tibbs by nowhere.org with local (Exim 3.13 #1)
+  |         id 12YH0C-0005Md-00
+  |         for test-owner@nowhere.org; Thu, 23 Mar 2000 17:26:56 -0600
+  | To: test-owner@nowhere.org
+  | Message-Id: <E12YH0C-0005Md-00@malifon.math.uh.edu>
+  | From: Joe Blow <joe@nowhere.org>
+  | Date: Thu, 23 Mar 2000 17:26:56 -0600
+  | 
+  | 1: (message to test-owner)
+  | 
+This output shows that a message was mailed to test-owner.  You have the
+headers, the PID of the injecting process, the action that was performed
+and its return status (1, meaning success).
 
 
 For a list of all help topics send this one-line message

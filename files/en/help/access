@@ -33,7 +33,7 @@ ENDTAG
 
 See Also:
    help auxadd
-   help configset access_rules
+   help configset access_rules (for more examples and syntax)
 
 For a list of all help topics send this one-line message
    help topics

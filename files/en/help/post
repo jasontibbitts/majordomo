@@ -6,14 +6,15 @@ listname, required, is the name of a list at this site
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The "post" command sends a message to "listname". It may require a
-list or site password via "approve".
+list or site password via "approve". This is an alternative to just
+sending a message to the list address.
 
 Note that the message must be fully formed, with all necessary headers.
 Majordomo will not add omitted headers, nor does it check the validity
 of the message. All of the normal resend access checks apply.
 
-This enables a Majordomo list to be run without doing any MTA
-configuration, such as creating aliases.  The list will not, 
+The "post" command enables a Majordomo list to be run without doing
+any MTA configuration, such as creating aliases.  The list will not, 
 however, be terribly functional.  This will probably work for 
 announcement lists, though.
 
@@ -32,6 +33,7 @@ be distributed on the list, since the list's participants are
 already subscribed to the list.
 
 See Also:
+   help configset access_rules (for more examples and syntax)
    help approve  (which can eliminate the need to use "accept")
    help password (which changes an individual's password)
 

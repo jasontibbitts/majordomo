@@ -1,6 +1,11 @@
-WARNING: 'owner' is a valid command, but has no help as of 18 Mar 2000
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+owner listname <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This command may not be implemented, or may be undocumented for a reason!
+The "owner" command is not intended to be used by end users;
+it's how messages to listanme-owner get routed into the system.
 
 
 For a list of all help topics send this one-line message

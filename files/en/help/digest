@@ -1,7 +1,39 @@
-WARNING: 'digest' is a valid command, but has no help as of 18 Mar 2000
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+digest-check  listname [digestname]
+digest-force  listname [digestname]
+digest-incvol listname [digestname]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+must specify exactly one of -check, -force, or -incvol
+   -check,  if specified, pushes a digest if necessary
+   -force,  if specified, pushes a digest needed or not
+   -incvol, if specified, increments the volume number
+digestname, if specified, is the name of a list digest
+listname, required, is the name of a list at this site
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This command may not be implemented, or may be undocumented for a reason!
+NOTE: The "mkdigest" command causes "digest-force" to occur.
 
+In all cases, leaving off the digestname operates on all of the
+lists's digests. You must have list archives enabled to create digests.
+
+digest-incvol listname digestname
+  increments the volume number.  (Yes, you could do it with a configset as
+  well, but this is nice to do from cron once a year.)
+
+digest-check listname digestname
+  checks to see if a digest should be pushed and pushes it if necessary.
+
+digest-force listname digestname
+  forces a digest push _now_, even if it doesn't have enough messages in it
+  to go normally.  This is for people who want a digest to go at midnmight,
+  regardless or whether or not it will be full.
+
+
+See Also:
+   help configset archive_dir (to store archives in a non-default dir)
+   help configset_digests     (for how to configure digesting)
+   help mkdigest  (for another way to do "digest-force")
+   help put       (for how to create archive directory)
 
 For a list of all help topics send this one-line message
    help topics

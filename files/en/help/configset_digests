@@ -120,6 +120,10 @@ weekly  | fr(23) |20k, 5m   | 100k,30m |        |          |        | index
 The test-list weekly index
 END
 
+See Also:
+   help digest   (for managing digests once enabled)
+   help put      (for how to create archive directory)
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ
