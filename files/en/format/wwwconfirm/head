@@ -35,12 +35,17 @@
     <input type=submit name="a" value="welcome">
   </font>
 
+<tr>
+  <td align=center bgcolor="#706060" colspan=5>
+  <font color="#f0f0f0">
+    Your reasons for accepting or 
+    rejecting the request (optional):<br>
+
+    <textarea rows=3 cols=78 name="xplanation">
+    </textarea>
+  </font>
+
 </table>
-
-Your reasons for $HELP:ACCEPTing or $HELP:REJECTing the request:<br>
-
-  <textarea rows=3 cols=70 name=xplanation>
-  </textarea>
 
 
   <input type=hidden name="d" value="$DOMAIN">

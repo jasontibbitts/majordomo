@@ -14,9 +14,13 @@ into the box.   There are four buttons you can use to manage requests.
 <ul>
   <li>
     To approve the request, press the <b>accept</b> button.
+    If you would like to explain why the request was accepted,
+    type your reasons into the large box.
 
   <li>
     To disapprove the request, press the <b>reject</b> button.
+    If you would like to explain why the request was rejected,
+    type your reasons into the large box.
 
   <li>
     To get more information about a pending request (who made
