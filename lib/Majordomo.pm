@@ -3511,6 +3511,13 @@ sub _digest {
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
 
+  # status:  return data but make no changes.
+  if ($mode =~ /status/) {
+    $i = $self->{'lists'}{$list}->digest_examine($digest);
+    return (1, $i) if $i;
+    return (0, "Unable to obtain digest data.\n");
+  }
+
   # check, force: call do_digests
   if ($mode =~ /(check|force)/) {
     # A simple substitution hash; do_digests will add to it
