@@ -733,7 +733,7 @@ sub _a_conf_cons {
 		 'chain'     => [$file2 || 'consult',
 				 $group || 'default',
 				 $approvals || 1,
-				 $file2 || 'repl_chain',
+				 'repl_chain',
 				],
 		 'args'      => [$arg1, $arg2, $arg3],
 		);
@@ -776,7 +776,7 @@ sub _a_confirm2 {
   if ($args{'mismatch'}) {
     if (!$args{'user_password'}) {
       $chain  = [$file2 || 'confirm', $group || 'requester',
-               $approvals || 1, $file2 || 'repl_confirm' ];
+               $approvals || 1, 'repl_confirm' ];
       $reply = "repl_confirm2";
     }
     # Swap roles if the victim's password was supplied.
@@ -795,7 +795,7 @@ sub _a_confirm2 {
 		 'mode'      => $mode,
 		 'cmdline'   => $cmdline,
 		 'approvals' => 1,
-         'chain'     => $chain,
+		 'chain'     => $chain,
 		 'args'      => [$arg1, $arg2, $arg3],
 		);
 
