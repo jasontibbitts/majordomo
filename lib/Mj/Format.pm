@@ -1339,7 +1339,8 @@ sub lists {
            'CGIURL'  => $request->{'cgiurl'} || '',
            'CMDPASS' => &escape($request->{'password'}, $type),
            'PATTERN' => &escape($request->{'regexp'}, $type),
-           'USER'    => &escape("$request->{'user'}", $type),
+           'USER'    => ("$request->{'user'}" =~ /\d\@example\.com$/) ? '' :
+                        &escape("$request->{'user'}", $type),
           };
 
   if ($ok <= 0) {
@@ -1437,8 +1438,8 @@ sub lists {
   if ($request->{'mode'} =~ /enhanced/) {
     $subs = {
               %{$gsubs},
-              'COUNT'         =>  $count,
-              'SUBSCRIPTIONS' =>  $legend,
+              'COUNT'         => $count,
+              'SUBSCRIPTIONS' => $legend,
               'USER'          => &escape("$request->{'user'}", $type),
             };
     $tmp = $mj->format_get_string($type, 'lists_enhanced', $request->{'list'});
@@ -3395,12 +3396,13 @@ sub cgidata {
 
   return unless (ref $mj and ref $request);
 
-  for $i (0..255) {
-    $esc{chr($i)} = sprintf("%%%02X", $i);
+  $addr = "$request->{'user'}";
+  if ($addr =~ /example.com$/i) {
+    $addr = '';
   }
-
-  $addr = $request->{'user'};
-  $addr = qescape($addr);
+  else {
+    $addr = qescape($addr);
+  }
  
   $pass = $request->{'password'}; 
   $pass = qescape($pass);
