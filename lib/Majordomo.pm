@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform);
-$VERSION = "0.1200005190";
+$VERSION = "0.1200009110";
 $unique = 'AAA';
 
 use strict;
@@ -2578,8 +2578,12 @@ sub accept {
           $tmp->[0], 0, 0, '');
 
     $mess ||= "Further approval is required.\n" if ($ok < 0);
-
-    push @out, $ok, [$mess, $data, $tmp];
+    if ($ok) {
+      push @out, $ok, [$mess, $data, $tmp];
+    }
+    else {
+      push @out, $ok, $mess;
+    }
   }
   @out; 
 }
@@ -2857,6 +2861,12 @@ sub archive_start {
   unless ($ok > 0) {
     return ($ok, $out);
   }
+  if ($request->{'mode'} =~ /delete|sync/) {
+    return (0, "Insufficient privileges to alter the archive.\n")
+      unless ($ok > 1);
+    $self->{'arcadmin'} = 1;
+  }
+
   $self->_archive($request->{'list'}, $request->{'user'}, $request->{'user'}, 
                   $request->{'mode'}, $request->{'cmdline'}, $request->{'args'});
 }
@@ -2865,9 +2875,13 @@ sub archive_start {
 sub _archive {
   my ($self, $list, $user, $vict, $mode, $cmdline, $args) = @_;
   my $log = new Log::In 30, "$list, $args";
+  my ($mess, $ok);
   return 1 unless $args;
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
+  if ($mode =~ /sync/) {
+    return $self->{'lists'}{$list}->archive_sync($args, $tmpdir);
+  }
   my (@msgs) = $self->{'lists'}{$list}->archive_expand_range(0, $args);
   $self->{'archct'} = 1;
   return (1, @msgs);
@@ -2886,7 +2900,7 @@ sub archive_chunk {
     unless $self->_make_list($request->{'list'});
   $list = $self->{'lists'}{$request->{'list'}};
 
- 
+
   if ($request->{'mode'} =~ /immediate/) {
     $buf = '';
     @msgs = @$result;
@@ -2901,6 +2915,23 @@ sub archive_chunk {
     }
     return (1, $buf);
   }
+  elsif ($request->{'mode'} =~ /delete/) {
+    return (0, "Permission denied.\n") 
+      unless (exists $self->{'arcadmin'});
+    $buf = '';
+    @msgs = @$result;
+    for $i (@msgs) {
+      $out = $list->archive_delete_msg(@$i);
+      if ($out) {
+        $buf .= "Message $i->[0] deleted.\n";
+      }
+      else {
+        $buf .= "Message $i->[0] not deleted.\n";
+      }
+    }
+    return (1, $buf);
+  }
+    
   else {
     $out = ($request->{'mode'} =~ /mime/) ? "mime" : "text";
     ($file) = $list->digest_build
@@ -2930,6 +2961,8 @@ Contents:
 
 sub archive_done {
   my ($self, $request, $result) = @_;
+  delete $self->{'archct'};
+  delete $self->{'arcadmin'};
   1;
 }
 
