@@ -1,10 +1,11 @@
                Summary of Commands for List Administrators
 
-This document briefly describes every command available to
-a list administrator, but no explanation of why they are needed.
-For a gentler introduction, please see "help admin".
-To learn about Majordomo commands from the perspective of an
-end user, see "help commands" and "help overview".
+This document briefly describes every command available to a list
+administrator, but no explanation of why they are needed.  For a gentler
+introduction, please see "help admin".  To learn about Majordomo
+commands from the perspective of an end user, see "help commands" and
+"help overview".  To learn about Majordomo commands available to
+domain administrators, see "help admin_domain".
 
 To issue a command, send it in the body of an e-mail message to
   $MJ
