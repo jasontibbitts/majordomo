@@ -206,6 +206,7 @@ files/en/bounceprobe
 files/en/config/.access_password_override
 files/en/config/.access_rules
 files/en/config/.ack_attach_original
+files/en/config/.active
 files/en/config/.addr_allow_at_in_phrase
 files/en/config/.addr_allow_bang_paths
 files/en/config/.addr_allow_comments_after_route
@@ -336,6 +337,7 @@ files/en/config/.wwwusr_url
 files/en/config/access_password_override
 files/en/config/access_rules
 files/en/config/ack_attach_original
+files/en/config/active
 files/en/config/addr_allow_at_in_phrase
 files/en/config/addr_allow_bang_paths
 files/en/config/addr_allow_comments_after_route
@@ -491,6 +493,7 @@ files/en/delay_noweb
 files/en/digest_preindex
 files/en/error/.absolute_path
 files/en/error/.digest_mode
+files/en/error/.inactive_list
 files/en/error/.incompatible_mode
 files/en/error/.invalid_command
 files/en/error/.invalid_list
@@ -513,6 +516,7 @@ files/en/error/.unknown_token
 files/en/error/.unregistered
 files/en/error/absolute_path
 files/en/error/digest_mode
+files/en/error/inactive_list
 files/en/error/incompatible_mode
 files/en/error/invalid_command
 files/en/error/invalid_list
@@ -568,6 +572,8 @@ files/en/format/text/.configshow
 files/en/format/text/.configshow_array
 files/en/format/text/.configshow_bool
 files/en/format/text/.configshow_categories
+files/en/format/text/.configshow_categories_foot
+files/en/format/text/.configshow_categories_head
 files/en/format/text/.configshow_enum
 files/en/format/text/.configshow_enum_array
 files/en/format/text/.configshow_error
@@ -575,6 +581,12 @@ files/en/format/text/.configshow_foot
 files/en/format/text/.configshow_head
 files/en/format/text/.configshow_none
 files/en/format/text/.configshow_short
+files/en/format/text/.createlist
+files/en/format/text/.createlist_destroy
+files/en/format/text/.createlist_error
+files/en/format/text/.createlist_nocreate
+files/en/format/text/.createlist_regen
+files/en/format/text/.createlist_rename
 files/en/format/text/.get_edit_foot
 files/en/format/text/.get_edit_head
 files/en/format/text/.get_error
@@ -654,6 +666,8 @@ files/en/format/text/configshow
 files/en/format/text/configshow_array
 files/en/format/text/configshow_bool
 files/en/format/text/configshow_categories
+files/en/format/text/configshow_categories_foot
+files/en/format/text/configshow_categories_head
 files/en/format/text/configshow_enum
 files/en/format/text/configshow_enum_array
 files/en/format/text/configshow_error
@@ -661,6 +675,12 @@ files/en/format/text/configshow_foot
 files/en/format/text/configshow_head
 files/en/format/text/configshow_none
 files/en/format/text/configshow_short
+files/en/format/text/createlist
+files/en/format/text/createlist_destroy
+files/en/format/text/createlist_error
+files/en/format/text/createlist_nocreate
+files/en/format/text/createlist_regen
+files/en/format/text/createlist_rename
 files/en/format/text/get_edit_foot
 files/en/format/text/get_edit_head
 files/en/format/text/get_error
@@ -740,6 +760,8 @@ files/en/format/wwwadm/.configshow
 files/en/format/wwwadm/.configshow_array
 files/en/format/wwwadm/.configshow_bool
 files/en/format/wwwadm/.configshow_categories
+files/en/format/wwwadm/.configshow_categories_foot
+files/en/format/wwwadm/.configshow_categories_head
 files/en/format/wwwadm/.configshow_enum
 files/en/format/wwwadm/.configshow_enum_array
 files/en/format/wwwadm/.configshow_error
@@ -747,6 +769,12 @@ files/en/format/wwwadm/.configshow_foot
 files/en/format/wwwadm/.configshow_head
 files/en/format/wwwadm/.configshow_none
 files/en/format/wwwadm/.configshow_short
+files/en/format/wwwadm/.createlist
+files/en/format/wwwadm/.createlist_destroy
+files/en/format/wwwadm/.createlist_error
+files/en/format/wwwadm/.createlist_nocreate
+files/en/format/wwwadm/.createlist_regen
+files/en/format/wwwadm/.createlist_rename
 files/en/format/wwwadm/.foot
 files/en/format/wwwadm/.foot_global
 files/en/format/wwwadm/.get_edit_foot
@@ -837,6 +865,8 @@ files/en/format/wwwadm/configshow
 files/en/format/wwwadm/configshow_array
 files/en/format/wwwadm/configshow_bool
 files/en/format/wwwadm/configshow_categories
+files/en/format/wwwadm/configshow_categories_foot
+files/en/format/wwwadm/configshow_categories_head
 files/en/format/wwwadm/configshow_enum
 files/en/format/wwwadm/configshow_enum_array
 files/en/format/wwwadm/configshow_error
@@ -844,6 +874,12 @@ files/en/format/wwwadm/configshow_foot
 files/en/format/wwwadm/configshow_head
 files/en/format/wwwadm/configshow_none
 files/en/format/wwwadm/configshow_short
+files/en/format/wwwadm/createlist
+files/en/format/wwwadm/createlist_destroy
+files/en/format/wwwadm/createlist_error
+files/en/format/wwwadm/createlist_nocreate
+files/en/format/wwwadm/createlist_regen
+files/en/format/wwwadm/createlist_rename
 files/en/format/wwwadm/foot
 files/en/format/wwwadm/foot_global
 files/en/format/wwwadm/get_edit_foot
@@ -929,6 +965,12 @@ files/en/format/wwwconfirm/.archive_summary_foot
 files/en/format/wwwconfirm/.archive_summary_head
 files/en/format/wwwconfirm/.archive_text_foot
 files/en/format/wwwconfirm/.archive_text_head
+files/en/format/wwwconfirm/.createlist
+files/en/format/wwwconfirm/.createlist_destroy
+files/en/format/wwwconfirm/.createlist_error
+files/en/format/wwwconfirm/.createlist_nocreate
+files/en/format/wwwconfirm/.createlist_regen
+files/en/format/wwwconfirm/.createlist_rename
 files/en/format/wwwconfirm/.foot
 files/en/format/wwwconfirm/.get_edit_foot
 files/en/format/wwwconfirm/.get_edit_head
@@ -1007,6 +1049,12 @@ files/en/format/wwwconfirm/archive_summary_foot
 files/en/format/wwwconfirm/archive_summary_head
 files/en/format/wwwconfirm/archive_text_foot
 files/en/format/wwwconfirm/archive_text_head
+files/en/format/wwwconfirm/createlist
+files/en/format/wwwconfirm/createlist_destroy
+files/en/format/wwwconfirm/createlist_error
+files/en/format/wwwconfirm/createlist_nocreate
+files/en/format/wwwconfirm/createlist_regen
+files/en/format/wwwconfirm/createlist_rename
 files/en/format/wwwconfirm/foot
 files/en/format/wwwconfirm/get_edit_foot
 files/en/format/wwwconfirm/get_edit_head
@@ -1198,6 +1246,7 @@ files/en/help/.configset
 files/en/help/.configset_access_password_override
 files/en/help/.configset_access_rules
 files/en/help/.configset_ack_attach_original
+files/en/help/.configset_active
 files/en/help/.configset_addr_allow_at_in_phrase
 files/en/help/.configset_addr_allow_bang_paths
 files/en/help/.configset_addr_allow_comments_after_route
@@ -1416,6 +1465,7 @@ files/en/help/configset
 files/en/help/configset_access_password_override
 files/en/help/configset_access_rules
 files/en/help/configset_ack_attach_original
+files/en/help/configset_active
 files/en/help/configset_addr_allow_at_in_phrase
 files/en/help/configset_addr_allow_bang_paths
 files/en/help/configset_addr_allow_comments_after_route

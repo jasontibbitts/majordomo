@@ -1,0 +1,8 @@
+To see the settings in a particular category, use the configshow
+command and put the category name in capital letters, for example:
+  configshow $LIST ACCESS
+
+Each configuration setting has its own help file.  For example, to
+see the help file for the whoami setting, use the following command:
+  help configset_whoami
+
