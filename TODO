@@ -35,14 +35,9 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
-Real database for storing duplicate message-IDs and checksums.  These are
-OK to trash, so they are the ideal place to experiment.
+Query for Confirm_url at install time.
 
-For Dup databases, all we want is something that lets us query keys, add
-keys and iterate (mogrify).  So SimpleDB is still useful.
-  Remove abortive attempt at autoconversion.
-  Make the backend a site configurable (i.e. not on-the-fly changeable,
-   constant over domains).
+Implement rewritefrom flag.
 
 New stored token format:
   Data::Dumper to store a hash.  The contents are essentially opaque to the
@@ -99,6 +94,11 @@ Queueing:
 
   Server does the same, only some much larger number as it does no
   allocations.
+
+  Upon start of processing, move message into 'hold queue'.  If not
+  deleted or moved elsewhere, there must have been a crash of some kind.
+  Have trigger process deal with these by making specific debug files and
+  storing them along with the generated debug files in some specific place.
 
 Allow mj_email/mj_enqueue to be setuid under qmail, if the user wants it.
 

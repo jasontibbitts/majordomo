@@ -49,13 +49,6 @@ methods as they require iteration over all of the keyspace.  Many of these
 efficiently in a flat file database where the component calls would require
 multiple passes over the file.
 
-*** Need to code support for conversion: tag database files by the backend
-*** and convert (via import/export through a temp file)
-  Text    - T
-  DB_File - D
-  MySQL   - M
-  old     - (none) convert by renaming to *.T
-
 =cut
 
 package Mj::SimpleDB;
@@ -114,17 +107,6 @@ sub new {
   $args{lockfile} = $name;
   $args{filename} = "$name.$beex{$args{backend}}";
 
-  # Lock the path
-  $lock = new Mj::Lock($name, 'Shared');
-
-  # Look for existing databases
-  ($exist, $ver) = _find_existing($name);
-
-  # Convert if necessary
-  if ($exist && $exist ne $args{backend}) {
-    _convert($name, $exist, $args{backend});
-  }
-
   # Create and return the database
   {
     no strict 'refs';
@@ -170,10 +152,14 @@ sub _find_existing {
   my $path = shift;
 
   # Handle no-extension case specially
-  -f $path && return ('none', 0);
+  if (-f $path) {
+    return ('none', 0);
+  }
 
   for my $i (keys(%exbe)) {
-    -f "$path.$i"  && return ($beex{$i}, 0);
+    if (-f "$path.$i") {
+      return ($exbe{$i}, 0);
+    }
   }
   return (undef, undef);
 }
@@ -197,28 +183,64 @@ a bad idea?
 
 =cut
 
-sub _convert {
-  my $path = shift;
-  my $from = shift;
-  my $to   = shift;
-  my $log = new Log::In 200, "$path, $from, $to";
+# sub _convert {
+#   my $path = shift;
+#   my $from = shift;
+#   my $to   = shift;
+#   my %args = @_;
+#   my $log = new Log::In 200, "$path, $from, $to";
+#   my($data, $fdb, $fex, $key, $lock, $tdb, $tex);
 
-  if ($from eq 'none' && $to eq 'text') {
-    rename($path, "$path.$beex{'text'}");
-  }
+#   if ($from eq 'none' && $to eq 'text') {
+#     rename($path, "$path.$beex{'text'}");
+#     return 1;
+#   }
+#   $fex = $beex{$from};
+#   $tex = $beex{$to};
 
-  # Create 'from' database
+#   # Now, we may have been waiting for something else to do this very same
+#   # conversion.  In that case, the 'from' database won't exist any longer.
+#   return unless -f "$path.$fex";
 
-  # Open a temp file
+#   {
+#     no strict 'refs';
+#     # Open 'from' database
+#     $fdb = &{"_c_$from"}(%args,
+# 			 filename => "$path.$fex",
+# 			 lockfile => "$path.$fex.tmp",
+# 			);
+#     # Create 'to' database
+#     $tdb = &{"_c_$to"}(%args,
+# 		       filename => "$path.$tex",
+# 		       lockfile => "$path.$tex.tmp",
+# 		      );
+#   }
 
-  # Export to temp file
+#   # Call get_start on 'from'
+#   $fdb->get_start;
+#   while (1) {
+#     # Get an element from 'from'
+#     ($key, $data) = $fdb->get(1);
+#     last unless defined $key;
 
-  # Close 'from' database
+#     # Put the element to 'to'
+#     $tdb->add('', $key, $data);
+#   }
 
-  # Create 
+#   # Call get_done
+#   $fdb->get_done;
 
-  1;
-}
+#   # Close 'to'
+#   undef $tdb;
+
+#   # Close 'from'
+#   undef $fdb;
+
+#   # Rename 'from'
+#   rename("$path.$fex", "$path.$fex.old");
+
+#   1;
+# }
 
 1;
 

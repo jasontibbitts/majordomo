@@ -1,5 +1,27 @@
 Notes on upgrading from alpha1 or before:
 
+1999.07.17 (CVS):
+
+BerkeleyDB databases accessed through DB_File are now supported.  The
+configuration process will detect whether or not the module is available
+and will prompt if it is.
+
+If you wish to make use of DB databases, your old text databases must be
+converted.  The convertdb.pl script will take care of this.  To use it:
+
+1) Shut your MTA down to ensure that Majordomo doesn't run during the
+   process.  This is vital.
+2) If you run in queueing mode, shut any existing Majordomo daemons down
+   (run mj_shutdown).
+3) Back up your lists directory, just in case.
+4) As root, run convertdb.pl and give it the path to your list
+     directory: perl convertdb.pl /path/to/mj/lists
+   Your databases will be converted.  The old text databases will be saved
+   by appending ".old" to their names.
+5) Install the Majordomo upgrade.
+6) Turn your MTA back on.
+7) Test to verify that your lists were converted without problems.
+
 1999.05.22 (CVS):
 
 The 'whoami_owner' variable is now deprecated; use 'sender' instead.

@@ -180,6 +180,7 @@ sub do_site_config {
   $data = {
 	   'site_password'      => $pw,
 	   'install_dir'        => $config->{'install_dir'},
+	   'database_backend'   => $config->{'database_backend'},
 	   'mta'                => $config->{'mta'},
 	   'mta_options'        => $mtaopts,
 	   'mta_separator'      => $config->{'mta_separator'},

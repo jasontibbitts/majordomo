@@ -14,7 +14,8 @@ BEGIN {
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
 my $config_version = 7;
-my(@SIDSCRIPTS, @SCRIPTS, @EXES);
+my(@SIDSCRIPTS, @SCRIPTS, @EXES, $ok);
+use vars qw(%have);
 
 # MakeMaker has begun to displease me
 my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\$(MAN3EXT)")}
@@ -27,45 +28,45 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\
       Mj/Digest/Index.pm Mj/Digest/MIME.pm Mj/Digest/Text.pm Mj/File.pm
       Mj/FileRepl.pm Mj/FileSpace.pm Mj/Format.pm Mj/Inform.pm Mj/List.pm
       Mj/Lock.pm Mj/Log.pm Mj/MailOut.pm Mj/MIMEParser.pm Mj/Parser.pm
-      Mj/Resend.pm Mj/SimpleDB.pm Mj/SubscriberList.pm Mj/TextOutput.pm
-      Mj/Token.pm Mj/TokenDB.pm Bf/Sender.pm mj_cf_data.pl mj_cf_defs.pl );
+      Mj/Resend.pm Mj/SimpleDB.pm Mj/SimpleDB/DB.pm Mj/SimpleDB/Text.pm
+      Mj/SubscriberList.pm Mj/TextOutput.pm Mj/Token.pm Mj/TokenDB.pm
+      Bf/Sender.pm mj_cf_data.pl mj_cf_defs.pl );
 
 #### Prerequisite checking
+($ok, %have) = check_prereq
+  (
+   'Mail::Internet' => [1.30,  1],
+   'Mail::Header'   => [1.10,  1],
+   'MIME::Base64'   => [2.00,  1],
+   'IO::Wrap'       => [1.101, 1],
+   'MIME::Tools'    => [4.119, 1],
+   'Data::Dumper'   => [2.07,  1],
+   #	     'Data::ShowTable'  => 0,  # Want 3.3, but the stupid module
+   # doesn't have a version number
+   'Date::Manip'    => [5.10 , 1],
+   'CGI'            => [2.36,  1],
+   'MD5'            => [1.7,   1],
+   'IO::Socket'     => [1.1602,1],
+   'IO::File'       => [0,     1],
+   'IO::Handle'	    => [0,     1],
+   'Date::Format'   => [0,     1],
+   'DirHandle'      => [0,     1],
+   'Safe'           => [0,     1],
+   'POSIX'          => [0,     1],
+   'Net::Domain'    => [0,     1],
+   'File::Copy'     => [0,     1],
+   'Fcntl'          => [0,     1],
+   'Carp'      	    => [0,     1],
+   'Time::Local'    => [0,     1],
+   'DB_File'        => [1.63,  0],
+  );
 
-unless (check_syslog() &&
-        check_prereq
-	(
-         'Mail::Internet' => 1.30,
-         'Mail::Header'   => 1.10,
-         'MIME::Base64'   => 2.00,
-         'IO::Wrap'       => 1.101,
-         'MIME::Tools'    => 4.119,
-         'Data::Dumper'   => 2.07,
-	 #	     'Data::ShowTable'  => 0,  # Want 3.3, but the stupid module
-	 # doesn't have a version number
-	 'Date::Manip'    => 5.10,
-	 'CGI'            => 2.36,
-	 'MD5'	          => 1.7,
-	 'IO::Socket'     => 1.1602,
-	 'IO::File'       => 0,
-	 'IO::Handle'	  => 0,
-	 'Date::Format'   => 0,
-	 'DirHandle'	  => 0,
-	 'Safe'		  => 0,
-	 'POSIX'	  => 0,
-	 'Net::Domain'	  => 0,
-	 'File::Copy'	  => 0,
-	 'Fcntl'	  => 0,
-         'Carp'		  => 0,
-	 'Time::Local'    => 0,
-	))
-  {
-    print "Majordomo cannot run without its prerequisite modules.\n";
-    exit(1);
-  }
+unless (check_syslog() && $ok) {
+  print "Majordomo cannot run without its prerequisite modules.\n";
+  exit(1);
+}
 
 #### Interactive configuration
-
 my $config = configure();
 
 # Now we can set these up based on what we got from configure.
@@ -214,23 +215,28 @@ EOW
 }
       
 sub check_prereq {
-  my (@mods_needed, $pkg, $ver, $ok);
+  my (%have, @mods_needed, $need, $pkg, $ver, $ok);
   $ok = 1;
 
   while (($pkg, $ver) = splice(@_, 0, 2)) {
-    unless (have_vers($pkg => $ver)) {
-      $ok = 0;
-      push @mods_needed, $pkg;
-      if ($ver == 0) {
-	warn <<EOW;
+    ($ver, $need) = ($ver->[0], $ver->[1]);
+    if (have_vers($pkg => $ver)) {
+      $have{$pkg} = 1;
+    }
+    else {
+      if ($need) {
+        $ok = 0;
+        push @mods_needed, $pkg;
+        if ($ver == 0) {
+          warn <<EOW;
 **** Majordomo requires $pkg (any version).
 EOW
-      }
-      else {
-	
-	warn <<EOW;
+        }
+        else {
+          warn <<EOW;
 **** Majordomo requires $pkg version $ver or greater!
 EOW
+        }
       }
     }
   }
@@ -248,7 +254,8 @@ EOP
     }  
     print "\n";
   }
-  $ok;
+
+  ($ok, %have);
 }
 
 # This was originally clipped from the libnet Makefile.PL.
@@ -288,6 +295,8 @@ sub configure {
   print "Checking for      .mj_config";
   $config = eval { require ".mj_config" };
   print ' 'x11 . "ok\n";
+
+  get_str("\nReady to configure; press enter");
 
   if (defined $config &&
       defined $config->{version} &&

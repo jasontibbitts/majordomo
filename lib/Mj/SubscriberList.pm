@@ -87,8 +87,14 @@ sub new {
   new Mj::SimpleDB(filename => $path,
 		   backend  => $back,
 		   fields   => \@fields,
+		   compare  => \&compare,
 		  );
 }
+
+sub compare {
+  reverse($_[0]) cmp reverse($_[1]);
+}
+
 
 =head1 COPYRIGHT
 

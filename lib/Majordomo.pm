@@ -142,6 +142,7 @@ sub new {
     return "The domain '$domain' does not exist!";
   }
 
+  # Pull in the site configuration file
   $self->{'sitedata'}{'config'} = do "$topdir/SITE/config.pl";
   $log->abort("Can't find site config file $topdir/SITE/config.pl: $!")
     unless $self->{'sitedata'}{'config'};
@@ -157,7 +158,7 @@ sub new {
 
   $self->{backend} = ''; # Suppress warnings
   $self->_make_list('GLOBAL');
-  $self->{backend} = $self->_global_config_get('database_backend');
+  $self->{backend} = $self->_site_config_get('database_backend');
   $self->{alias} = new Mj::AliasList("$self->{ldir}/GLOBAL/_aliases",
 				     $self->{backend});
   $self->{reg}   = new Mj::RegList("$self->{ldir}/GLOBAL/_register",
@@ -982,8 +983,11 @@ sub list_config_set {
   if (!$ok) {
     @out = (0, "Error parsing $var:\n$mess");
   }
-  else {
+  elsif ($mess) {
     @out = (1, "Warnings parsing $var:\n$mess");
+  }
+  else {
+    @out = (1);
   }
   $self->inform($list, 'config_set', $user, $user, "configset $list $var",
 		$int, $out[0], !!$passwd+0, 0);
@@ -1110,7 +1114,7 @@ sub _list_config_set {
       $self->_build_passwd_data($list, 'force');
     }
   }
-  @out; 
+  @out;
 }
 
 sub _list_config_lock {

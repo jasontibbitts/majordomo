@@ -89,6 +89,50 @@ EOM
   $def = $config->{'umask'} || '077';
   $config->{'umask'} = get_enum($msg, $def, [qw(077 027 007 002 000)]);
 
+  #---- Ask about database storage mechanism
+  if ($have{'DB_File'}) {
+    $msg = <<EOM;
+Majordomo needs to know which database backend to use.
+ You have the DB_File module installed, so Perl has access to advanced
+  database routines that Majordomo can use to store the various data it
+  collects.  Majordomo also has a simple database interface implemented
+  with text files which will be used if you answer no to this question;
+  databases using this method can be viewed and edited by hand, but access
+  to them is very slow.
+ Note that the database backend cannot easily be changed after the fact.
+ IMPORTANT: if you are upgrading, you must convert your existing databases;
+  Majordomo will not do this for you.  Please read the README.UPGRADE
+  document for more information.
+
+Should Majordomo use DB_File databases?
+EOM
+    $def = (defined($config->{database_backend}) && $config->{database_backend} eq 'db') || 1;
+    if (get_bool($msg, $def)) {
+      $config->{database_backend} = 'db';
+    }
+  }
+  else {
+    $msg = <<EOM;
+Majordomo will use flat text file databases.
+
+ You do not have the Berkeley DB library and the DB_File module installed,
+  so Majordomo will instead use flat text file databases.  These databases
+  are significantly slower to access then DB_File ones; if performance is
+  important then it is recommended that you install these libraries and
+  rerun the installation.
+
+ The Berkeley DB database library is located at http://www.sleepycat.com;
+ the DB_File module is part of Perl and can also be obtained from CPAN with
+ the following command line:
+
+   perl -MCPAN -e\'CPAN::Shell->install(\"DB_File\")\';
+
+Please press enter.
+EOM
+    get_str($msg);
+    $config->{database_backend} = 'text';
+  }
+
   #---- Ask for insecure stored passwords
   $msg = <<EOM;
 For developers: the install process needs to know various passwords.

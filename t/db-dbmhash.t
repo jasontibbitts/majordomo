@@ -6,7 +6,7 @@ use Safe;
 $Majordomo::safe = new Safe;
 $Majordomo::safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
 
-$NUM = 100;
+$NUM = $ENV{COUNT} || 100;
 
 $::log = new Mj::Log;
 $::log->add   
@@ -27,10 +27,15 @@ $count = 1;
 
 print "1..22\n";
 
+# 1
 # Allocate a text SimpleDB
-$db = new Mj::SimpleDB "testdb.$$", 'text', [qw(a b c d)];
+$db = new Mj::SimpleDB(filename => "testdb.$$",
+		       backend  =>'db',
+		       fields   => [qw(a b c d)],
+		      );
 okif($db);
 
+# 2
 # Store a key
 ($ok, undef) = $db->add("", "test1",
 			{a => "001",
@@ -40,6 +45,7 @@ okif($db);
 			});
 okif($ok);
 
+# 3
 # Store another key
 ($ok, undef) = $db->add("", "testb",
 			{a => "z01",
@@ -49,10 +55,12 @@ okif($ok);
 			});
 okif($ok);
 
+# 4
 # Delete a ficticious key
 ($ok, $data) = $db->remove("", "urgh");
 okunless($ok);
 
+# 5, 6, 7, 8, 9
 # Delete a real key
 ($key, $data) = $db->remove("", "test1");
 okeq("test1", $key);
@@ -61,6 +69,7 @@ okeq("",      $data->{b});
 okeq("group1",$data->{c});
 okeq("   ",   $data->{d});
 
+# 10
 # Add some keys
 $ok = 1;
 for (my $i = 0; $i < $NUM; $i++) {
@@ -70,42 +79,53 @@ for (my $i = 0; $i < $NUM; $i++) {
 			    c => 'bigunz',
 			    d => 'whitespace is fun!(*&*&#$$###      ',
 			   });
+  
   $ok = 0 unless $tok;
+  $hash{"test$i"} = 1;
 }
 okif($ok);
 
-# Delete one of them
+# 11, 12 Delete one of them; note that we have no guarantees about which
+# one we'll get
 ($key, $data, $oops) = $db->remove('regexp', '/test\d/');
-okeq("test0", $key);
+okif($key =~ /test\d/);
 okunless($oops);
+delete $hash{$key};
 
+# 13
 # Alter one of them
 ($key) = $db->replace('', 'test1', 'c', 'wumpus');
 okeq('test1', $key);
 
+# 14, 15, 16
 # Make sure we changed it
 $data = $db->lookup('test1');
 okif($data);
 okeq('zzzz1',  $data->{a});
 okeq('wumpus', $data->{c});
 
+# 17
 # Alter them all
 @stuff = $db->replace('regexp,allmatching', '/test/', 'c', 'oink');
 oke(scalar @stuff, $NUM);
 
+# 18, 19, 20
 # Delete the lot
 $ok = 1;
 $i = 1;
 @stuff = $db->remove('regexp,allmatching', '/test\d/');
 while (($key, $data) = splice @stuff, 0, 2) {
-  # XXX Oops; may not get them back in any order
-  $ok = 0 if $key ne "test$i";
+  # Note that we might not get them back in any particular order
+  $ok = 0 unless $hash{$key};
+  delete $hash{$key};
   $ok = 0 if $data->{c} ne 'oink';
   $i++;
 }
 okif($ok);
+oke(scalar keys %hash, 0);
 oke($NUM, $i);
 
+# 21, 22
 # Delete the one straggler
 ($key, $data) = $db->remove('', 'testb');
 okeq('testb', $key);
@@ -113,9 +133,6 @@ okeq('oink',  $data->{c});
 
 # Call the destructors
 undef $db;
-
-# Make sure the file went away
-okunless(-f "tmp/testdb");
 
 sub okif {
   if (shift) {
@@ -159,7 +176,7 @@ sub oke {
 
 END {
   unlink ".Ltestdb.$$";
-  unlink "testdb.$$";
+  unlink "testdb.$$.D";
 }
 
 1;

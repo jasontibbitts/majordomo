@@ -15,9 +15,10 @@ module which is not yet stable.
 Note that unlike SimpleDB::Text.pm, this module doesn''t delete empty
 databases.  That opens up a very nasty set of race conditions.  Note also
 that BTree databases never shrink.
+
 =cut
 
-package Mj::SimpleDB::Text;
+package Mj::SimpleDB::DB;
 use Mj::SimpleDB::Base;
 use DB_File;
 use Mj::Lock;
@@ -37,6 +38,7 @@ Btree database will be allocated, otherwise a somple Hash will be
 allocated.
 
 =cut
+
 sub new {
   my $type  = shift;
   my %args  = @_;
@@ -72,13 +74,14 @@ sub new {
 
 sub _make_db {
   my $self = shift;
-  return if $self->{db};
+  return 1 if $self->{db};
   my (%db);
-
   # Now grab the DB object.  We don't care about the hash we're tying to,
   # because we're going to save the speed hit and use the API directly.
   $self->{db} = tie %db, 'DB_File', $self->{filename},
                          O_RDWR|O_CREAT, 0666, $self->{dbtype};
+  warn "Problem allocating database" unless $self->{db};
+  $self->{db};
 }
 
 =head2 DESTROY
@@ -91,7 +94,7 @@ size.
 
 sub DESTROY {
   my $self = shift;
-  my $log  = new Log::In 200, $self->{'name'};
+  my $log  = new Log::In 200, $self->{filename};
   undef $self->{get_handle};
   undef $self->{get_lock};
   undef $self->{db};
@@ -132,7 +135,7 @@ sub add {
   }
   # If the key existed and NOOVERWEITE was given...
   elsif ($status > 0) {
-    $data = $self->lookup($key);
+    $data = $self->_lookup($key);
     $done = 0;
   }
   # Else it just bombed
@@ -184,8 +187,8 @@ sub remove {
   $try = $value = 0;
   for ($status = $self->{db}->seq($try, $value, R_FIRST);
        $status == 0;
-       $status = $self->{db}->seq($try, $value, R_NEXT);
-      ) 
+       $status = $self->{db}->seq($try, $value, R_NEXT)
+      )
     {
       if (_re_match($key, $try)) {
 	$self->{db}->del($try, R_CURSOR);
@@ -227,10 +230,8 @@ sub replace {
   $value = "" unless defined $value;
   my $log   =  new Log::In 120, "$self->{filename}, $mode, $key, $field, $value";
   return unless $self->_make_db;
-  my (@out, $k, $matches, $match, $data, $v);
+  my (@out, $k, $match, $data, $status, $v);
   my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
-
-  $matches = 0;
 
   # Take care of the easy case first.  Note that we don't allow duplicates, so there's no need to loop nere.
   if ($mode !~ /regex/) {
@@ -251,12 +252,10 @@ sub replace {
   }
   
   # So we're doing regex processing, which means we have to search.
-  # SimpleDB::Text can make use of lookup and lookup_regexp but we can't
-  # rely on the stability of the cursor across a delete.
-  $try = $value = 0;
+  $k = $v = 0;
   for ($status = $self->{db}->seq($k, $v, R_FIRST);
        $status == 0;
-       $status = $self->{db}->seq($k, $v, R_NEXT);
+       $status = $self->{db}->seq($k, $v, R_NEXT)
       ) 
     {
       if (_re_match($key, $k)) {
@@ -271,12 +270,11 @@ sub replace {
 	  $data = $self->_unstringify($v);
 	  $data->{$field} = $value;
 	}
-	$self->{db}->put($key, $self->_stringify($data), R_CURSOR);
-	return ($key);
-	
 
-	$self->{db}->del($try, R_CURSOR);
-	push @out, ($try, $self->_unstringify($value));
+	# Since we're not changing the key, we can just put the new data
+	$self->{db}->put($k, $self->_stringify($data));
+
+	push @out, $k;
 	last if $mode !~ /allmatching/;
       }
     }
@@ -287,30 +285,6 @@ sub replace {
   
   $log->out("failed");
   return;
-}
-
-
-  while (1) {
-      # Note that lookup implicitly copies for us.
-      ($match, $data) = $self->lookup_regexp($key, $fh);
-      last unless defined $match;
-      if (ref($field) eq 'HASH') {
-	$data = $field;
-      }
-      elsif (ref($field) eq 'CODE') {
-	$data = &$field($data);
-      }
-      else {
-	$data->{$field} = $value;
-      }
-      $fh->print("$match\001" . $self->_stringify($data) . "\n");
-      push @out, $match;
-      if ($mode !~ /allmatching/) {
-	$fh->copy;
-	last;
-      }
-    }
-  }
 }
 
 =head2 mogrify(coderef)
@@ -336,98 +310,99 @@ values will be used.
 sub mogrify {
   my $self = shift;
   my $code = shift;
-  my $log  = new Log::In 120, "$self->{name}";
+  my $log  = new Log::In 120, "$self->{filename}";
+  my (@new, $changed, $changedata, $changekey, $data, $encoded, $k,
+      $newkey, $status, $v);
 
-  my ($fh, $record, $key, $encoded, $data, $changekey,
-      $changedata, $newkey, $changed);
-
-  # If we don't exist, there's no point
-  unless (-r $self->{name}) {
-    $log->out("failed");
-    return;
-  }
-
-  $fh = new Mj::FileRepl($self->{name}, $self->{lockfile});
-  $fh->untaint;
+  return unless $self->_make_db;
+  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
   $changed = 0;
-
+  
+  $k = $v = 0;
  RECORD:
-  while (defined ($record = $fh->getline)) {
-    chomp $record;
-    ($key, $encoded) = split("\001",$record, 2);
-    $data = $self->_unstringify($encoded);
-    ($changekey, $changedata, $newkey) = &$code($key, $data);
+  for ($status = $self->{db}->seq($k, $v, R_FIRST);
+       $status == 0;
+       $status = $self->{db}->seq($k, $v, R_NEXT)
+      ) 
+    {
+      # Extract the data and call the coderef
+      $data = $self->_unstringify($v);
+      ($changekey, $changedata, $newkey) = &$code($k, $data);
 
-    # Do we need to change anything
-    unless ($changekey || $changedata) {
-      $fh->print("$record\n");
-      next RECORD;
-    }
+      # If we have nothing to change, go on
+      unless ($changekey || $changedata) {
+	next RECORD;
+      }
 
-    $changed++;
-    if ($changekey) {
-      $key = $newkey;
-    }
-    
-    # Delete the line if necessary;
-    unless (defined $key) {
-      next RECORD;
-    }
+      # So we must change something
+      $changed++;
 
-    # Re-encode data; update changetime if necessary
-    if ($changedata) {
-      $encoded = $self->_stringify($data, ($changedata < 0));
+      # If the new key is undefined, we delete it
+      unless (defined $newkey) {
+	next RECORD;
+      }
+
+      # Encode the data hash; if nothing changed, we don't have to
+      # reflatten it
+      if ($changedata) {
+	$encoded = $self->_stringify($data, ($changedata < 0));
+      }
+      else {
+	$encoded = $v;
+      }
+
+      # If the key must change, the old value must be deleted and the new
+      # one saved for later addition in order to prevent a possible loop,
+      # since if we add a key now we may come upon it later.  Otherwise we
+      # can just the new data onto the same key.
+      if ($changekey) {
+	push @new, $newkey, $encoded;
+	$status = $self->{db}->del($k, R_CURSOR);
+      }
+      else {
+	$status = $self->{db}->put($k, $encoded, R_CURSOR);
+      }
     }
-    $fh->print("$key\001$encoded\n");
-  }
-  if ($changed) {
-    $fh->commit;
-  }
-  else {
-    $fh->abandon;
+  while (($k, $v) = splice(@new, 0, 2)) {
+    $status = $self->{db}->put($k, $v);
   }
   $log->out("changed $changed");
 }
 
-=head2 load
+=head2 get_start, get_done, _get
 
-This loads the entire database into a hash and returns a reference to it.
-
-Warning: this can consume large amounts of memory for large databases.  Use
-this with great care.
-
-XXX Not implemented.  Do I even need this?
-
-=head2 get_start, get_done
-
-These initialize and close the iterator used to retrieve lists of rows.
+These are very simple.  Note that because the act of starting a sequence
+also returns the first element, we have a tiny bit of complexity in _get.
 
 =cut
 sub get_start {
   my $self = shift;
 
-  $self->{get_lock} = new Mj::Lock($self->{lockfile}, 'Shared');
+  return unless $self->_make_db;
 
-  # Auto-create ourselves.  Do this because we don't want to return an
-  # error if the file doesn't exist, and because we want a lock during the
-  # entire operation.
-  unless (-r $self->{'name'}) {
-    my $fh = new IO::File;
-    $fh->open($self->{'name'}, ">>");
-    $fh->close;
-  }
-
-  # Already locked
-  $self->{get_handle} = new Mj::File $self->{name}, 'U<';
-  $self->{get_handle}->untaint;
+  $self->{get_lock}  = new Mj::Lock($self->{lockfile}, 'Shared');
+  $self->{get_going} = 0;
   1;
 }
 
 sub get_done {
   my $self = shift;
-  $self->{get_handle}->close;
-  $self->{get_handle} = undef;
-  $self->{get_lock} = undef;
+  $self->{get_lock}  = undef;
+  $self->{get_going} = 0;
+}
+
+sub _get {
+  my $self = shift;
+  my($k, $v, $stat) = (0, 0);
+  if ($self->{get_going}) {
+    $stat = $self->{db}->seq($k, $v, R_NEXT);
+  }
+  else {
+    $stat = $self->{db}->seq($k, $v, R_FIRST);
+    $self->{get_going} = 1;
+  }
+  return unless $stat == 0;
+  ($k, $v);
 }
 
 =head2 get_quick(count)
@@ -439,14 +414,13 @@ more than count keys.  Will return an empty list at EOF.
 sub get_quick {
   my $self  = shift;
   my $count = shift;
-  my $log   = new Log::In 121, "$self->{'name'}, $count";
+  my $log   = new Log::In 121, "$self->{filename}, $count";
   my (@keys, $key, $i);
 
  KEYS:
   for ($i=0; $i<$count; $i++) {
-    $key = $self->{'get_handle'}->getline;
+    ($key) = $self->_get;
     last KEYS unless $key;
-    ($key) = split("\001",$key,2);
     push @keys, $key;
   }
   return @keys;
@@ -462,15 +436,14 @@ empty list at EOF.
 sub get {
   my $self  = shift;
   my $count = shift;
-  my $log   = new Log::In 121, "$self->{'name'}, $count";
-  my (@keys, $key, $i);
+  my $log   = new Log::In 121, "$self->{filename}, $count";
+  my (@keys, $i, $key, $val);
 
  KEYS:
   for ($i=0; $i<$count; $i++) {
-    $key = $self->{'get_handle'}->getline;
+    ($key, $val) = $self->_get;
     last KEYS unless $key;
-    $key =~ /(.*?)\001(.*)/;
-    push @keys, ($1, $self->_unstringify($2));
+    push @keys, ($key, $self->_unstringify($val));
   }
   return @keys;
 }
@@ -499,21 +472,24 @@ XXX Coderef only implemented for get_matching;
 =cut
 sub get_matching_quick {
   my $self  = shift;
-  my $log   = new Log::In 121, "$self->{'name'}, @_";
+  my $log   = new Log::In 121, "$self->{filename}, @_";
   my $count = shift;
   my $field = shift;
   my $value = shift;
-  my (@keys, $key, $data, $i);
+  my (@keys, $data, $i, $k, $v);
 
   for ($i=0; $i<$count; $i++) {
-    $key = $self->{'get_handle'}->search("/\001\Q$value\E/");
-    last unless $key;
-    ($key, $data) = split("\001", $key, 2);
-    $data = $self->_unstringify($data);
+    ($k, $v) = $self->_get;
+    last unless $k;
+
+    # We may be able to skip the unstringification step
+    redo unless _re_match(/\001\Q$value\E/, $v);
+
+    $data = $self->_unstringify($v);
     if (defined($data->{$field}) && 
 	$data->{$field} eq $value)
       {
-	push @keys, $key;
+	push @keys, $k;
 	next;
       }
     redo;
@@ -523,19 +499,19 @@ sub get_matching_quick {
 
 sub get_matching_quick_regexp {
   my $self  = shift;
-  my $log   = new Log::In 121, "$self->{'name'}, @_";
+  my $log   = new Log::In 121, "$self->{filename}, @_";
   my $count = shift;
   my $field = shift;
   my $value = shift;
-  my (@keys, $key, $data, $i);
+  my (@keys, $data, $i, $k, $v);
 
   for ($i=0; $i<$count; $i++) {
-    $key = $self->{'get_handle'}->search("$value");
-    last unless $key;
-    ($key, $data) = split("\001", $key, 2);
-    $data = $self->_unstringify($data);
+    ($k, $v) = $self->_get;
+    last unless $k;
+#    redo unless _re_match($value, $v);
+    $data = $self->_unstringify($v);
     if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
-      push @keys, $key;
+      push @keys, $k;
       next;
     }
     redo;
@@ -545,34 +521,28 @@ sub get_matching_quick_regexp {
 
 sub get_matching {
   my $self  = shift;
-  my $log   = new Log::In 121, "$self->{'name'}, @_";
+  my $log   = new Log::In 121, "$self->{filename}, @_";
   my $count = shift;
   my $field = shift;
   my $value = shift;
-  my (@keys, $code, $key, $data, $i, $tmp);
+  my (@keys, $code, $data, $i, $k, $tmp, $v);
 
   $code = 1 if ref($field) eq 'CODE';
 
   for ($i=0; ($count ? ($i<$count) : 1); $i++) {
+    ($k, $v) = $self->_get;
+    last unless $k;
+    redo if !$code && _re_match("/\001\Q$value\E/", $v);
+    $data = $self->_unstringify($v);
     if ($code) {
-      $key = $self->{'get_handle'}->getline;
-    }
-    else {
-      $key = $self->{'get_handle'}->search("/\001\Q$value\E/");
-    }
-    last unless $key;
-    chomp $key;
-    ($key, $data) = split("\001", $key, 2);
-    $data = $self->_unstringify($data);
-    if ($code) {
-      $tmp = &$field($key, $data);
+      $tmp = &$field($k, $data);
       last unless defined $tmp;
-      push @keys, ($key, $data) if $tmp;
+      push @keys, ($k, $data) if $tmp;
     }
     elsif (defined($data->{$field}) && 
 	$data->{$field} eq $value)
       {
-	push @keys, ($key, $data);
+	push @keys, ($k, $data);
 	next;
       }
     redo;
@@ -585,16 +555,16 @@ sub get_matching_regexp {
   my $count = shift;
   my $field = shift;
   my $value = shift;
-  my $log   = new Log::In 121, "$self->{'name'}, $count, $field, $value";
-  my (@keys, $key, $data, $i);
+  my $log   = new Log::In 121, "$self->{filename}, $count, $field, $value";
+  my (@keys, $data, $i, $k, $v);
 
   for ($i=0; $i<$count; $i++) {
-    $key = $self->{'get_handle'}->search("$value");
-    last unless $key;
-    ($key, $data) = split("\001", $key, 2);
-    $data = $self->_unstringify($data);
+    ($k, $v) = $self->_get;
+    last unless $k;
+#    redo unless _re_match($value, $v);
+    $data = $self->_unstringify($v);
     if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
-      push @keys, ($key, $data);
+      push @keys, ($k, $data);
       next;
     }
     redo;
@@ -623,58 +593,44 @@ sub _lookup {
 =head2 lookup_quick(key, fileh)
 
 This checks to see if a key is a member of the list.  It
-returns only truth on success and not any of the data.  If the optional
-second parameter is given, an already open filehandle is used.
+returns only truth on success and not any of the data.
 
 =cut
 
 sub lookup_quick {
   my $self = shift;
   my $key  = shift;
-  return unless -f $self->{'name'};
-  my $fh   = shift || new Mj::File $self->{'name'}, '<', $self->{lockfile};
-
-
-    $status = $self->{db}->get($key, $value);
-    if ($status != 0) {
-      return;
-    }
-    $data = $self->
-
-
-  # We should be able to trust the contents of this file.
-  $fh->untaint;
-
   unless ($key) {
-    $::log->abort("SimpleDB::lookup_quick called with null key.");
+    $::log->complain("SimpleDB::lookup_quick called with null key.");
   }
-  
-  my $out = $fh->search("/^\Q$key\E\001/");
-  return undef unless defined $out;
-  chomp $out;
-  return (split("\001",$out,2))[1];
+  my $lock = new Mj::Lock($self->{lockfile}, 'Shared');
+  my $value = 0;
+  return unless $self->_make_db;
+
+  my $status = $self->{db}->get($key, $value);
+  if ($status != 0) {
+    return;
+  }
+  $value;
 }
 
 sub lookup_quick_regexp {
   my $self = shift;
   my $reg  = shift;
-  return unless -f $self->{'name'};
-  my $fh   = shift || new Mj::File $self->{'name'}, '<', $self->{lockfile};
-  my $wb  = shift;
-  $fh->untaint;
+  my $lock = new Mj::Lock($self->{lockfile}, 'Shared');
+  return unless $self->_make_db;
 
-  my ($key, $match, $line);
+  my ($key, $match, $status, $value);
 
-  while (defined ($line = $fh->search($reg))) {
-    chomp $line;
-    ($key, $match) = split("\001", $line, 2);
-    if (_re_match($reg, $key)) {
-      return ($key, $match);
+  $key = $value = '';
+  for ($status = $self->{db}->seq($key, $value, R_FIRST) ;
+       $status == 0 ;
+       $status = $self->{db}->seq($key, $value, R_NEXT) )
+    {
+      if (_re_match($reg, $key)) {
+	return ($key, $value);
+      }
     }
-    elsif ($wb) {
-      $fh->print("$line\n");
-    }
-  }
   return;
 }
 

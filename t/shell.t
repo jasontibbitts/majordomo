@@ -19,10 +19,11 @@ mkdir "tmp.$$/test/GLOBAL/sessions", 0700 || die;
 open SITE,">tmp.$$/SITE/config.pl";
 print SITE qq!
 \$VAR1 = {
-          'mta'           => '$config->{'mta'}',
-          'cgi_bin'       => '$config->{'cgi_bin'}',
-          'install_dir'   => '$config->{'install_dir'}',
+          'mta'           => '$config->{mta}',
+          'cgi_bin'       => '$config->{cgi_bin}',
+          'install_dir'   => '$config->{install_dir}',
           'site_password' => 'hurl',
+	  'database_backend' => '$config->{database_backend}',
         };
 !;
 close SITE;

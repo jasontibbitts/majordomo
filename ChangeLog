@@ -1,3 +1,45 @@
+Sat Jul 17 10:13:15 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* t/shell.t: Store database_backend in the temp site config.
+
+	* setup/setup_func.pl (do_site_config): Save database_backend in
+ 	the site config file.
+
+	* setup/ask_basic.pl (ask_basic): Ask about DB_File support.
+
+	* lib/Mj/SimpleDB.pm: Rip autoconversion; it causes more trouble
+ 	and initial lock overhead than it's worth.
+
+	* lib/mj_cf_data.pl: Remove database_backend variable.
+
+	* lib/Majordomo.pm (new): database_backend is now a site config
+ 	variable.
+
+	* Makefile.PL: Changes to support prerequisites that aren't
+ 	essential.  Pause interactive configuration after prereq checks
+ 	and before configuration dialogue begins.
+	
+	* lib/Mj/SimpleDB/DB.pm (mogrify): Forgot to delete the key when
+ 	necessary.  Fixed some undef warnings.	
+
+Fri Jul 16 11:54:28 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/SimpleDB/DB.pm (add): Fix typo resulting in complete
+ 	deadlock when calling add.
+
+	* lib/Mj/RegList.pm (compare): 
+	* lib/Mj/AddressList.pm (compare):
+		Quickened up comparison function (access @_ instead of
+ 		using my variables).
+
+	* lib/Mj/SubscriberList.pm (new): Forgot to add comparison
+ 	function.
+
+Wed Jul 14 23:00:26 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (list_config_set): When no warnings are to be
+ 	returned, don't tell the user there are warnings.
+
 Sun Jul 11 15:00:10 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/RegList.pm (new): 

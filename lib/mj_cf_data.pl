@@ -182,16 +182,6 @@ EOC
     'global' => 0,
     'mutable'=> 1,
    },
-   'database_backend' =>
-   {
-    'type'   => 'enum',
-    'values' => [qw(text)],
-    'groups' => [qw(general)],
-    'visible'=> 0,
-    'local'  => 0,
-    'global' => 1,
-    'mutable'=> 1,
-   },
    'default_flags' =>
    {
     'type'   => 'string',

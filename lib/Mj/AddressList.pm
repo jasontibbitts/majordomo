@@ -49,8 +49,7 @@ sub new {
 }
 
 sub compare {
-  my ($k1, $k2) = @_;
-  reverse($k1) cmp reverse($k2);
+  reverse($_[0]) cmp reverse($_[1]);
 }
 
 =head1 COPYRIGHT

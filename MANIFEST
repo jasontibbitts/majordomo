@@ -528,11 +528,8 @@ misc/approve6
 misc/bad.message.1
 misc/bad1
 misc/chunk.stats
-misc/client.pl
 misc/domain.regexp
 misc/mime1
-misc/runner.pl
-misc/server.pl
 misc/test-message.1
 misc/test-message.2
 misc/test-message.3
