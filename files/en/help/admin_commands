@@ -95,8 +95,9 @@ This is sometimes called a "here file" because all argument lines
 after "<<TAG" and before the matching "TAG" (shown above as "DATA1"
 and "DATA2" are stored in the command as if they had been read from
 a file. You can use your own string for "TAG", with a few restrictions:
-  - the string must be letters only, no numbers or punctuation or spaces
-  - the string must be upper case only, no lower case letters
+  - the string must be letters and numbers only, no punctuation or spaces
+  - the string must begin with at least three upper case letters
+  - the string must end with upper case letters and numbers [A-Z0-9]
   - the end "TAG" must be on a line by itself (no indents or comments)
 It is wise to use different tags for different commands, so they don't
 accidentally mismatch due to typing errors.
