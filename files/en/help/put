@@ -102,13 +102,11 @@ of the file space for a mailing list.  As a result, the file names that
 you use in the put command will always be shorter than the real file
 or directory name on the computer that runs the Majordomo server.
 
-Site administrators can store files in the filespace of the DEFAULT list 
+Site administrators can store files in the filespace of the DEFAULT list
 as a way of providing files to all lists and all users at once.  This
-approach can be used to override the stock files that are supplied by 
-Majordomo.  This should be done with caution, because Majordomo does not 
-offer a way to delete files that have been created with the put command.  
-See "help reply_files" and "help format_files" for a list of some of the 
-stock files.
+approach can be used to override the stock files that are supplied by
+Majordomo.  See "help reply_files" and "help format_files" for a list of
+some of the stock files.
 
 Help files can be replaced by storing them in the "/help" directory of
 the GLOBAL pseudo-list.  For example, the following command:
