@@ -9,8 +9,11 @@ them after the Internet domains which they serve.
 
 If you have too many domains to list here, you can add them later by
 running the "make domain" command.  Consult the README file for more
-information.  If you do not intend to make use of virtual domains, just
-press the enter key.
+information.  
+
+If you do not wish to configure any domains immediately, just press the
+enter key.  In that case, at least one domain must be configured later
+using the "make domain" command for the software to work properly.
 
 Domain names can contain any combination of letters, digits, periods,
 and hyphens.  Any other character is invalid.
