@@ -27,6 +27,73 @@ copy of the file that is stored within a file space that is specific
 to one list in one domain.  See "help admin_domain" for a details about
 how domains are managed by Majordomo.
 
+archive_error
+-------------
+(text, wwwadm)  This file is displayed when the archive command fails
+or stalls.
+
+(standard plus CGIDATA, CGIURL, ERROR, PASSWORD, TOTAL_POSTS, USER)
+
+
+archive_foot
+------------
+(text, wwwadm)  This file is displayed at the bottom of the output
+of the archive-index command.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, TOTAL_POSTS, USER)
+
+
+archive_get_foot
+----------------
+(text, wwwadm)  This file is displayed at the bottom of the output
+of the archive-get or archive-delete command.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, TOTAL_POSTS, USER)
+
+
+archive_get_head
+----------------
+(text, wwwadm)  This file is displayed at the top of the output
+of the archive-get or archive-delete command.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, TOTAL_POSTS, USER)
+
+
+archive_head
+------------
+(text, wwwadm)  This file is displayed at the top of the output
+of the archive-index command.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, TOTAL_POSTS, USER)
+
+
+archive_index
+-------------
+(text, wwwadm)  This file is displayed for each message in the
+result of the archive-index command.
+
+(standard plus BODY_LINES, BYTE, BYTES, CGIDATA, CGIURL, DATE, FROM, 
+ LINE, LINES, MSGNO, PASSWORD, QUOTED, REFS, SIZE, SPLIT, SUBJECT, 
+ TOTAL_POSTS, USER)
+
+
+archive_none
+------------
+(text, wwwadm)  This file is displayed when no messages were found
+in the archive.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, TOTAL_POSTS, USER)
+
+
+archive_stats
+-------------
+(text, wwwadm)  This file is displayed when the archive-stats command
+is used.
+
+(standard plus AUTHORS, CGIDATA, CGIURL, FINISH, PASSWORD, POSTS, START, 
+ TOTAL_POSTS, USER)
+
+
 command
 -------
 (wwwadm)  This file displays a command form, a simple way to issue commands
