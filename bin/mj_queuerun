@@ -596,10 +596,10 @@ sub connect_and_parse {
 # bypassing failed "access" checks.
 sub parse_commands {
   my ($mj, $deflist, $command) = @_;
-  my (@entities, @events, $args, $av, $commands, $data, $debug_file, 
-      $debug_log, $debug_reply, $entity, $fh, $file, $head, $i, $line, 
-      $list, $ok, $owner, $repl, $request, $sender, $sub_addin, $subject, 
-      $sub_start, $tag, $tlist, $top, $token, $user, $uuser);
+  my (@entities, @events, $args, $commands, $data, $debug_file, 
+      $debug_log, $debug_reply, $entity, $fh, $file, $head, $i,
+      $list, $ok, $repl, $request, $sender, $sub_addin, $subject, 
+      $sub_start, $time, $top, $token, $user, $uuser);
 
   ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
   return unless $entity;
@@ -681,10 +681,19 @@ sub parse_commands {
     # in the last hour, forward the reply to the domain owner instead
     # of returning it to the user.
     unless ($commands) {
-      $data = $mj->record_parser_data($user, time, 'none', 0);
+      $time = time;
+      $data = $mj->record_parser_data($user, $time, 'none', 0);
       if ($data) {
         @events = split " ", $data;
-        if (scalar @events > 3) {
+        $ok = 0;
+        for $i (@events) {
+          if ($i =~ /^(\d+)/) {
+            if ($1 + 3600 > $time) {
+              $ok++;
+            }
+          }
+        }
+        if ($ok > 3) {
           $sub_start = "Possible mail loop with $user";
           $user = $mj->global_config_get(undef, undef, 'whoami_owner');
         }

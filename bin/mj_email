@@ -378,10 +378,10 @@ sub connect_and_parse {
 # bypassing failed "access" checks.
 sub parse_commands {
   my ($mj, $deflist, $command) = @_;
-  my (@entities, $args, $av, $debug_file, $debug_log,
-      $debug_reply, $entity, $fh, $file, $head, $i, $line, $list, $ok,
-      $owner, $repl, $request, $sender, $sub_addin, $subject, 
-      $tag, $tlist, $top, $token, $uuser);
+  my (@entities, @events, $args, $commands, $data, $debug_file, 
+      $debug_log, $debug_reply, $entity, $fh, $file, $head, $i, 
+      $list, $ok, $repl, $request, $sender, $sub_addin, $subject, 
+      $sub_start, $time, $top, $token, $user, $uuser);
 
   ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
   # 65 is EX_DATAERR (error in input data)
@@ -420,6 +420,7 @@ sub parse_commands {
   else {
     $sub_addin = '';
   }
+  $sub_start = 'Majordomo results';
 
   $command = command_legal($command);
 
@@ -448,7 +449,7 @@ sub parse_commands {
       );
   }
   else {
-    (undef, @entities) = 
+    ($commands, @entities) = 
       Mj::Parser::parse_entity($mj,
                                tmpdir     => $::TMPDIR, 
                                entity     => $entity,
@@ -456,6 +457,31 @@ sub parse_commands {
                                deflist    => $deflist,
                                token      => $token,
                               );
+    # If the number of commands processed is 0, this could indicate
+    # an autoresponder mail loop.  Record the sender's address in the 
+    # parser database.  If more than three failures have occurred 
+    # in the last hour, forward the reply to the domain owner instead
+    # of returning it to the user.
+    unless ($commands) {
+      $time = time;
+      $data = $mj->record_parser_data($user, $time, 'none', 0);
+      if ($data) {
+        @events = split " ", $data;
+        $ok = 0;
+        for $i (@events) {
+          if ($i =~ /^(\d+)/) {
+            if ($1 + 3600 > $time) {
+              $ok++;
+            }
+          }
+        }
+        if ($ok > 3) {
+          $sub_start = "Possible mail loop with $user";
+          $user = $mj->global_config_get(undef, undef, 'whoami_owner');
+        }
+      }
+    }
+
   }
   if ($debug_reply) {
     push @entities, build MIME::Entity
@@ -498,6 +524,11 @@ sub parse_commands {
   }
   
   $sender = $mj->global_config_get(undef, undef, 'sender');
+  if ($sender eq $user) {
+    # Avoid mail loops with empty sender.
+    $sender = '';
+  }
+
   $::log->delete($debug_log) if defined $debug_log;
   open BLAH, ">$::TMPDIR/mje.$$.final" ||
     $::log->abort("Couldn't open final output file, $!");
@@ -511,6 +542,7 @@ sub parse_commands {
   $entity->purge;
   $top->purge;
   unlink "$::TMPDIR/mje.$$.final";
+  1;
 }
 
 
