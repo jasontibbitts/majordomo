@@ -326,8 +326,8 @@ sub welcome {
   my $table= shift;
   my %args = @_;
   my $log = new Log::In 150, "$list, $addr";
-  my (%file, @mess, @temps, $count, $fh, $file, $final, $head, $i, $j,
-      $nodefsearch, $reg, $subj, $subs, $top);
+  my (%file, @mess, @temps, $count, $desc, $fh, $file, $final, $head, 
+      $i, $j, $nodefsearch, $reg, $subj, $subs, $top);
 
   return unless (ref($addr) and $addr->isvalid);
 
@@ -372,8 +372,15 @@ sub welcome {
     # XXX Need to complain here
     next unless $file;
 
-    $subj = $self->substitute_vars_string($table->[$i][0] ||
-					  $file{'description'}, $subs);
+    if (defined $table->[$i][0] and length $table->[$i][0] 
+        and lc $table->[$i][0] ne 'default') {
+      $desc = $table->[$i][0];
+    }
+    else {
+      $desc = $file{'description'};
+    }
+
+    $subj = $self->substitute_vars_string($desc, $subs);
 
     # We may have to substitute variables in the file
     if ($table->[$i][2] =~ /S/) {
