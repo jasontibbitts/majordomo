@@ -911,7 +911,7 @@ my %commands =
                    'modes'    =>  {
                                    %generic_modes,
                                    'alias'       => 1,
-                                   'bounces'     => 1,
+                                   'bounce'      => 1,
                                    'common'      => 1,
                                    'enhanced'    => 1,
                                    'export'      => 1,
