@@ -3,6 +3,7 @@ createlist-destroy listname
 createlist-regen
 createlist-nocreate listname owner
 createlist[-force][-noarchive][-noheader][-nowelcome] listname owner
+createlist-pass[-force][-noarchive][-noheader][-nowelcome] listname password owner
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname,  required, is an email list at this site
 owner,     required, is an email address for who will manage the list
@@ -12,6 +13,7 @@ owner,     required, is an email address for who will manage the list
 -nocreate, if specified, shows suggested aliases but takes no action
 -noheader, if specified, shortens the suggested aliases message
 -nowelcome,if specified, suppresses intro msg for new owner
+-pass,     if specified, allows the list's master password to be specified.
 -regen,    if specified, re-generates the suggested MTA configurations
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -32,54 +34,55 @@ A site or domain password is usually required to use this
 command (see "help admin_passwords" for more information about
 administrative passwords).
 
-A mailing list name can consist of small or capital letters from
-the English alphabet, digits, periods (.), hyphens (-), and 
-underscores (_).  Majordomo will treat small and capital letters
-in list names identically, so "BigDeal" and "bigdeal" are names
-for the same mailing list.
+A mailing list name can consist of small or capital letters from the
+English alphabet, digits, periods (.), hyphens (-), and underscores (_).
+Majordomo will treat small and capital letters in list names
+identically, so "BigDeal" and "bigdeal" are names for the same mailing
+list.
 
 A new list can be assigned more than one list owner with a here
-document, in which each list owner's address is placed on a 
-separate line.  For example, the following command...
+document, in which each list owner's address is placed on a separate
+line.  For example, the following command...
 
 createlist broccoli <<ABC
 cabbage@example.com
 kale@example.net
 ABC
 
-...would create the "broccoli" mailing list with two list owners.
-See "help here_document" for a discussion of multi-line commands.
+...would create the "broccoli" mailing list with two list owners.  See
+"help here_document" for a discussion of multi-line commands.
 
 The new_list file is sent to the list owners when a new list is
 created, unless the "-nowelcome" mode was specified. If you want to change
 this message, use the following command:
   get-edit GLOBAL /new_list
 
-The createlist command automatically creates an archive directory
-unless "-noarchive" mode is specified. It also creates a master
-administrative password randomly (see "help configset_master_password"
-for details on changing this password).
+The createlist command automatically creates an archive directory unless
+"-noarchive" mode is specified. It also creates a master administrative
+password randomly (see "help configset_master_password" for details on
+changing this password).
 
-The archive directory is used to store messages that have been 
-posted to a mailing list.  Majordomo cannot send messages bundled
-into digests unless the archive directory exists 
-(see "help configset_archive_dir" for details on changing the location
-of the archive).  If the archive directory is not created by the
-createlist command, it is possible to create it later with the
-put-dir command (see "help put" for more details).
+The archive directory is used to store messages that have been posted to
+a mailing list.  Majordomo cannot send messages bundled into digests
+unless the archive directory exists (see "help configset_archive_dir"
+for details on changing the location of the archive).  If the archive
+directory is not created by the createlist command, it is possible to
+create it later with the put-dir command (see "help put" for more
+details).
 
 The "createlist" command also does (or suggests) the necessary mail
-transfer agent (MTA) configuration. For example, if sendmail
-is the MTA in use, a set of sendmail aliases will be generated. 
-Consult the README files in the Majordomo software for further
-details on several common MTAs.
+transfer agent (MTA) configuration. For example, if sendmail is the MTA
+in use, a set of sendmail aliases will be generated.  Consult the README
+files in the Majordomo software for further details on several common
+MTAs.
 
-If "createlist-regen" is used, all other options and arguments are ignored.
-If Majordomo is maintaining your MTA configuration, the aliases file
-will be updated by this command.  Otherwise, a complete list of suggested 
-MTA configurations for the site and each list is displayed.  Running the
-createlist-regen command is required if the aliases, debug, or sublists 
-configuration settings for any list are changed.
+If "createlist-regen" is used, all other options and arguments are
+ignored.  If Majordomo is maintaining your MTA configuration, the
+aliases file will be updated by this command.  Otherwise, a complete
+list of suggested MTA configurations for the site and each list is
+displayed.  Running the createlist-regen command is required if the
+aliases, debug, or sublists configuration settings for any list are
+changed.
 
 The command modes include the following:
 
@@ -118,6 +121,12 @@ The command modes include the following:
     No introductory mail will be sent to the list owner.
     (The 'quiet' and 'nowelcome' modes are identical.)
 
+  -pass:
+    The master password will be stated explicitly on the command line,
+    instead of being generated randomly.  The password must be at least
+    as long as required by the password_min_length configuration
+    setting.
+
   -regen:
     Display MTA configuration only, ignore all other options and args.
 
@@ -128,15 +137,13 @@ subscribe command, or by mentioning it in the access rules (see
 
 
 See Also:
-   help admin           (how to manage a list after it is created)
-   help auxiliary_list  (introduction to sublists)
+   help admin                  (how to manage a list after it is created)
+   help auxiliary_list         (introduction to sublists)
    help configset                     (to configure the list once created)
-   help access_variables       (set/test for this command)
-   help configset archive_dir (to specify a non-default archive directory)
-   help configset default_class       (to configure default subscriptions)
-   help configset default_flags       (to configure default subscriptions)
-   help configset sublists  (to make cause alias generation for aux lists)
+   help configset_archive_dir (to specify a non-default archive directory)
+   help configset_default_class       (to configure default subscriptions)
+   help configset_default_flags       (to configure default subscriptions)
+   help configset_password_min_length
+   help configset_sublists  (to make cause alias generation for aux lists)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
