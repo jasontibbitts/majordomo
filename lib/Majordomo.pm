@@ -1999,7 +1999,7 @@ sub _list_file_get {
   @langs = split(/\s*,\s*/, $lang);
 
   # Build @paths list; maintain %paths hash to determine uniqueness.
-  for $i (@search, 'GLOBAL:$LANG', 'GLOBAL:',
+  for $i (@search, 'DEFAULT:', 'GLOBAL:$LANG', 'GLOBAL:',
 	  'STOCK:$LANG', 'STOCK:en')
     {
       # Split and supply defaults
@@ -2034,7 +2034,7 @@ sub _list_file_get {
     ($l, $f) = @{$i};
 
     # Consult the share list if necessary
-    if ($l ne $list && $l ne 'GLOBAL' && $l ne 'STOCK') {
+    if ($l ne $list && $l ne 'DEFAULT' && $l ne 'GLOBAL' && $l ne 'STOCK') {
      SHARE:
       for $j ($self->_list_config_get($l, "file_share")) {
 	if ($j =~ /^\s*$list\s*$/) {
@@ -3720,6 +3720,7 @@ sub _show {
       $out{lists}{$i} =
 	{
 	 fulladdr   => $data->{fulladdr},
+     class      => $data->{'class'},
 	 classdesc  => $self->{'lists'}{$i}->describe_class($data->{'class'},
 							    $data->{'classarg'},
 							    $data->{'classarg2'},
@@ -4447,6 +4448,14 @@ sub who_chunk {
     if ($self->{'unhide_who'}) {
       # GLOBAL has no flags or classes
       if ($list ne 'GLOBAL') {
+        if ($mode =~ /bounces/) {
+          $addr = new Mj::Addr($i->{'fulladdr'});
+          next unless $addr;
+          $i->{'bouncedata'} = $self->{'lists'}{$list}->bounce_get($addr);
+          next unless $i->{'bouncedata'};
+          $i->{'bouncestats'} = 
+            $self->{'lists'}{$list}->bounce_gen_stats($i->{'bouncedata'});
+        }
 	$i->{'flagdesc'} =
 	  join(',',$self->{'lists'}{$list}->describe_flags($i->{'flags'}));
 	$i->{'classdesc'} =

@@ -897,6 +897,10 @@ sub who {
 
       $count++;
       eprint($out, $type, "$ind$result\n");
+      if ($mode =~ /bounces/ && exists $i->{'bouncestats'}) {
+        my $tmp = "$ind  Bounces in the past week: $i->{'bouncestats'}->{'week'}\n";
+        eprint($out, $type, $tmp);
+      }
     }
   }
   $mj->dispatch('who_done', @stuff);
