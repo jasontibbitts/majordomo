@@ -2521,6 +2521,7 @@ sub accept {
     unless (defined $data) {
       $data = { list      => 'GLOBAL',
            command   => 'badtoken',
+           type      => 'badtoken',
            user      => $request->{'user'},
            victim    => 'none',
            cmdline   => $request->{'cmdline'},
@@ -2530,7 +2531,7 @@ sub accept {
 
     # Now call inform so the results are logged
     $self->inform($data->{'list'},
-          'consult',
+          $data->{'type'},
           $data->{'user'},
           $data->{'victim'},
           $data->{'cmdline'},
@@ -2952,7 +2953,7 @@ sub configdef {
       $self->list_config_set_to_default($request->{'user'}, $request->{'password'},
                                       $request->{'auth'}, $request->{'interface'},
                                       $request->{'list'}, $var);
-    push @out, [$ok, $mess, $var];
+    push @out, $ok, [$mess, $var];
   }
   @out;
 }
