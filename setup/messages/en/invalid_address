@@ -1,6 +1,7 @@
 The address "$ADDRESS" is invalid.
 
 $ERROR
+Location of the error: "$LOCATION"
 
 Please enter a different e-mail address.
 
