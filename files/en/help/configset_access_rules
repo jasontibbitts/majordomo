@@ -93,6 +93,7 @@ This information is below:
              2.6.9 - Deny all access to off-site users
              2.6.10 - Remove confirmation requirement from 'set'
              2.6.11 - Prevent duplicate message checksums from being used
+             2.6.12 - Change how many addresses "which" commands will return
           2.7 - improving the default "confirm" and "consult" files
 
 There are some interactions between your choice of replyfile or mailfile
@@ -127,8 +128,11 @@ Section 1 - Working description of the access_rules config variable:
 Any command that doesn't take a list uses GLOBAL access_rules. Commands
 that do take a list use the list's access_rules. There are two weird ones:
 
-  which - GLOBAL allows/disallows and sets the maximum number of hits.
-          list allows/disallows and sets the hits for this list.
+  which - for the GLOBAL pseudo-list, this allows or disallows use
+          of "which" and sets the maximum number of hits (by default
+          only one address will be returned without the site password).
+
+  which - for a regular list, this overrides the GLOBAL defaults
 
   lists - GLOBAL check for 'lists', but each list is individually checked
           for the 'advertise' request.
@@ -629,6 +633,14 @@ post
 unset=dup_checksum, unset=dup_partial_checksum
 ALL
 
+
+2.6.12 - Change how many addresses "which" commands will return:
+  The default is one match unless the site password is used, this
+  will allow regular users to obtain up to 5 matches unless the
+  "which" command is otherwise restricted by access_rules:
+which
+allow=5
+ALL
 
 
 

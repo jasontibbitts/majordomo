@@ -25,7 +25,9 @@ when choosing the string to search for. Matches may be case sensitive,
 so if "Joe" does not match, try "joe" instead.
 
 Anyone who uses this command without the site password will be
-limited to one match per mailing list.
+limited to one match per mailing list, unless the list owner(s)
+and/or the site administrator have configured "access_rules" to
+allow more than the default of a single match.
 
 Since "which" is a global command, attempting to use it with a 
 password that is specific to one mailing list will result in an
