@@ -61,6 +61,8 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INS
    'Carp'      	    => [0,     1],
    'Time::Local'    => [0,     1],
    'DB_File'        => [1.63,  0],
+   'DBI'            => [1.14,  0],
+   'DBD::Pg'        => [0.95,  0],
   );
 
 unless (check_syslog() && $ok) {

@@ -161,54 +161,83 @@ EOM
   }
 
   #---- Ask about database storage mechanism
-  if ($have{'DB_File'}) {
+  if ($have{'DB_File'} || ($have{'DBI'} && $have{'DBD::Pg'})) {
     $msg = <<EOM;
 Database Storage
 
 Majordomo needs to know which database backend to use.
- You have the DB_File module installed, so Perl has access to advanced
+
+EOM
+
+    if($have{'DB_File'}) {
+      $db = "db";
+      $msg .= <<EOM;
+  You have the DB_File module installed, so Perl has access to advanced
   database routines that Majordomo can use to store the various data it
-  collects.  Majordomo also has a simple database interface implemented
+  collects.
+
+EOM
+    }
+    if($have{'DBI'} && $have{'DBD::Pg'}) {
+      $pgsql = "pgsql";
+      $msg .= <<EOM;
+  You have the PostgreSQL DBI module installed, so Perl has access to advanced
+  database routines that Majordomo can use to store the various data it
+  collects.
+
+EOM
+    }
+    $msg .= <<EOM;
+  Majordomo also has a simple database interface implemented
   with text files which will be used if you answer no to this question;
   databases using this method can be viewed and edited by hand, but access
   to them is very slow.
- Note that the database backend cannot easily be changed after the fact.
- IMPORTANT: if you are upgrading, you must convert your existing databases;
+
+  Note that the database backend cannot easily be changed after the fact.
+
+  IMPORTANT: if you are upgrading, you must convert your existing databases;
   Majordomo will not do this for you.  Please read the README.UPGRADE
   document for more information.
 
-Should Majordomo use DB_File databases?
+What backend should Majordomo use ($db $pgsql text)?
 EOM
-    $def = (defined($config->{database_backend}) && $config->{database_backend} eq 'db') || 1;
-    if (get_bool($msg, $def)) {
-      $config->{database_backend} = 'db';
-    }
-    else {
-      $config->{database_backend} = 'text';
-    }
-  }
-  else {
-    $msg = <<EOM;
-Database Storage
+    $def = "text";
+    if(defined($config->{database_backend})) {
+      $def = $config->{database_backend};
+    } 
+    $config->{database_backend} = get_str($msg, $def);
+    if($config->{database_backend} eq 'pgsql') {
+      $msg = <<EOM;
 
-Majordomo will use flat text file databases.
-
- You do not have the Berkeley DB library and the DB_File module installed,
-  so Majordomo will instead use flat text file databases.  These databases
-  are significantly slower to access then DB_File ones; if performance is
-  important then it is recommended that you install these libraries and
-  rerun the installation.
-
- The Berkeley DB database library is located at http://www.sleepycat.com;
- the DB_File module is part of Perl and can also be obtained from CPAN with
- the following command line:
-
-   perl -MCPAN -e\'CPAN::Shell->install(\"DB_File\")\';
-
-Please press enter.
+\tServer to connect to
 EOM
-    get_str($msg);
-    $config->{database_backend} = 'text';
+      $def = $config->{database}->{srvr} || "localhost"; 
+      $config->{database}->{srvr} = get_str($msg, $def);
+      $msg = <<EOM;
+
+\tPort to connect to
+EOM
+      $def = $config->{database}->{port} || "5432"; 
+      $config->{database}->{port} = get_str($msg, $def);
+      $msg = <<EOM;
+
+\tDatabase Name 
+EOM
+      $def = $config->{database}->{name} || "majordomo"; 
+      $config->{database}->{name} = get_str($msg, $def);
+      $msg = <<EOM;
+
+\tUser to connect as
+EOM
+      $def = $config->{database}->{user} || "majordomo"; 
+      $config->{database}->{user} = get_str($msg, $def);
+      $msg = <<EOM;
+
+\tPassword of user
+EOM
+      $def = $config->{database}->{pass} || ""; 
+      $config->{database}->{pass} = get_str($msg, $def);
+    }
   }
 
   #---- Ask for default install location
@@ -221,7 +250,7 @@ Where will the Majordomo libraries, executables and documentation be kept?
    components.
  Note that this is not necessarily where your lists must be stored.
 EOM
-  $def = $config->{'install_dir'};
+  $def = $config->{'install_dir'} || "/usr/local/majordomo";
   $config->{'install_dir'} = get_dir($msg, $def);
 
   #---- Ask for list directory
@@ -235,7 +264,7 @@ Where will the Majordomo list data be kept?
    maintained by Majordomo 1.x, as Majordomo 2 stores its lists in a
    different format.
 EOM
-  $def = $config->{'lists_dir'};
+  $def = $config->{'lists_dir'} || "/usr/local/majordomo/lists";
   $config->{'lists_dir'} = get_dir($msg, $def);
 
   #---- Ask for writable temporary dir
