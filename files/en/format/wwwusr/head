@@ -9,31 +9,31 @@
 <table cellspacing="8" width="100%">
 <tr>
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=login">
+    <a href="$CGIURL?$CGIDATA&amp;func=login">
      <font size="-1" color="#f0f0f0">
      Sign In</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=logout">
+    <a href="$CGIURL?$CGIDATA&amp;func=logout">
      <font size="-1" color="#f0f0f0">
      Sign Out</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=lists-long">
+    <a href="$CGIURL?$CGIDATA&amp;func=lists-long">
      <font size="-1" color="#f0f0f0">
      Subscribe to Mailing Lists</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=show">
+    <a href="$CGIURL?$CGIDATA&amp;func=show">
      <font size="-1" color="#f0f0f0">
      Unsubscribe or Change Settings</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=welcome">
+    <a href="$CGIURL?$CGIDATA&amp;func=welcome">
      <font size="-1" color="#f0f0f0">
      Help</font></a>
   </td>

@@ -6,28 +6,28 @@ For assistance, contact
 <table width="100%" cellspacing="8">
 <tr>
   <td align="center" bgcolor="#706060">
-  <a href="$CGIURL?$CGIDATA&a=welcome&t=$TOKEN">
+  <a href="$CGIURL?$CGIDATA&amp;a=welcome&amp;t=$TOKEN">
   <font color="#f0f0f0">
     Introduction
   </font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
-  <a href="$CGIURL?$CGIDATA&a=login&t=$TOKEN">
+  <a href="$CGIURL?$CGIDATA&amp;a=login&amp;t=$TOKEN">
   <font color="#f0f0f0">
     Confirm New Request
   </font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
-  <a href="$CGIURL?$CGIDATA&a=tokeninfo-nosession&t=$TOKEN">
+  <a href="$CGIURL?$CGIDATA&amp;a=tokeninfo-nosession&amp;t=$TOKEN">
   <font color="#f0f0f0">
     Show Brief Details
   </font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
-  <a href="$CGIURL?$CGIDATA&a=tokeninfo&t=$TOKEN">
+  <a href="$CGIURL?$CGIDATA&amp;a=tokeninfo&amp;t=$TOKEN">
   <font color="#f0f0f0">
     Show Full Details
   </font></a>
