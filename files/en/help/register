@@ -33,10 +33,12 @@ can not be used until that address is unregistered. Unregistering will
 automatically remove that address from all lists at this site.
 
 The address need not be a simple email address. Comment fields are
-preserved in the registration database. These are all valid addresses:
+preserved in the registration database. These examples are all valid
+addresses, the SAME address, but with different comment fields:
    joe@blow.com
    Joe Blow <joe@blow.com>
-   "Joe Blow 555-1212" joe@blow.com
+   "Joe Blow 555-1212" <joe@blow.com>
+   Joe Blow <joe@blow.com> (555-1212)
    joe@blow.com (Joe Blow)
 Note that registering with a name or other comment field is not
 required, but it may help a site administrator find your address
