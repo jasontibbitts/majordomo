@@ -92,6 +92,7 @@ my (%commands, %seen, @extra, @hereargs, @lists, @mlists,
 $cgi = new CGI;
 print $cgi->header;
 $cgiurl = $cgi->script_name . $cgi->path_info;
+$cgiurl = Mj::Format::uescape($cgiurl);
 
 $domain = $cgi->param('domain');
 unless ($domain) {
