@@ -1,0 +1,9 @@
+<!-- Majordomo digest_incvol format file -->
+<p>
+The volume number of each digest was increased by one.  The
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=configshow&amp;extra=digest_issues">
+digest_issues</a> configuration setting contains the current volume
+and issue number of each digest.
+</p>
+
+

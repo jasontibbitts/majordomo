@@ -251,6 +251,15 @@ See "help reply_files" for a description of each of the reply files.
   The date at which a request was originally issued;  in some cases
   this may be the Date header from a posted message.
 
+\$DESCRIPTION
+  A description of a mailing list, as determined by the description
+  and description_long configuration settings.  Also, a description
+  of a digest, as determined by the digests configuration setting.
+
+\$DIGESTNAME
+  The name of a digest, as determined by the digests configuration
+  setting.
+
 \$EXPIRE   
   The number of days before a request that has been stalled expires, or
   in some cases the date at which it will expire.  This value is
@@ -283,6 +292,26 @@ See "help reply_files" for a description of each of the reply files.
 \$ISPOST
   " " if a token refers to a stalled posted message; '' if a token
   refers to a Majordomo command.
+
+\$ISSUES
+  The number of issues of a digest that were delivered.
+
+\$LAST_RUN
+\$NEWEST_AGE
+\$NEXT_RUN
+\$OLDEST_AGE
+  The status of a particular digest:  when it was last issued, when the
+  next issue might be delivered, and the ages of the oldest and newest
+  messages that are awaiting delivery.
+
+\$MAX_AGE
+\$MAX_MSGS
+\$MAX_SIZE
+\$MIN_AGE
+\$MIN_MSGS
+\$MIN_SIZE
+  Constraints on digest delivery, as determined by the digests 
+  configuration setting.
 
 \$MSGNO
   The archive name and number of a posted message, for example

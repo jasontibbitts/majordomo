@@ -1,0 +1,13 @@
+<!-- Majordomo digest format file -->
+<tr>
+  <td>
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=digest-status&amp;extra=$DIGESTNAME">
+    $DIGESTNAME
+    </a>
+  </td>
+ 
+  <td> 
+  $ISSUES
+  </td>
+</tr>
+

@@ -1,0 +1,15 @@
+Digest name                ?DIGESTNAME
+Description                ?DESCRIPTION
+Last delivered on          ?LAST_RUN
+Next delivery on or after  ?NEXT_RUN
+Age of oldest message      ?OLDEST_AGE
+Oldest age allowed         ?MAX_AGE
+Age of newest message      ?NEWEST_AGE
+Minimum age required       ?MIN_AGE
+Minimum message count      ?MIN_MSGS
+Maximum message count      ?MAX_MSGS
+Minimum digest size        ?MIN_SIZE
+Maximum digest size        ?MAX_SIZE
+Messages awaiting delivery ?COUNT
+Total message size         ?SIZE bytes
+ 

@@ -1,0 +1,57 @@
+<!-- Majordomo digest_status_head format file -->
+<h4 align="center">The $DIGESTNAME digest</h4>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="extra" value="$DIGESTNAME">
+
+  <input type="radio" name="func" value="digest-check" checked>
+    digest-check:
+    Deliver one issue of the &quot;$DIGESTNAME&quot; digest immediately
+    if the conditions are right.<br>
+
+  <input type="radio" name="func" value="digest-force">
+    digest-force:
+    Force one issue of the &quot;$DIGESTNAME&quot; digest to be delivered
+    immediately.<br>
+
+  <input type="radio" name="func" value="digest-incvol">
+    digest-incvol:
+    Increase the volume number of the &quot;$DIGESTNAME&quot; 
+    digest by one.<br>
+
+  <input type="submit" value="Issue Command">
+</form>
+
+<table width="100%">
+
+<tr><td>Description</td>               <td>?DESCRIPTION</td></tr>
+
+<tr><td>Last delivered on</td>         <td>?LAST_RUN</td></tr>
+
+<tr><td>Next delivery on or after</td> <td>?NEXT_RUN</td></tr>
+
+<tr><td>Age of oldest message</td>     <td>?OLDEST_AGE</td></tr>
+
+<tr><td>Oldest age allowed</td>        <td>?MAX_AGE</td></tr>
+
+<tr><td>Age of newest message</td>     <td>?NEWEST_AGE</td></tr>
+
+<tr><td>Minimum age required</td>      <td>?MIN_AGE</td></tr>
+
+<tr><td>Minimum message count</td>     <td>?MIN_MSGS</td></tr>
+
+<tr><td>Maximum message count</td>     <td>?MAX_MSGS</td></tr>
+
+<tr><td>Minimum digest size</td>       <td>?MIN_SIZE</td></tr>
+
+<tr><td>Maximum digest size</td>       <td>?MAX_SIZE</td></tr>
+
+<tr><td>Messages awaiting delivery</td><td>?COUNT</td></tr>
+
+<tr><td>Total message size</td>        <td>?SIZE bytes</td></tr>
+
+</table>
+

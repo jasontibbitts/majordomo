@@ -576,6 +576,89 @@ has been renamed, and displays information about the list.
  OLDLIST, USER)
 
 
+digest
+------
+(text, wwwadm, wwwconfirm)  This file displays the number of issues of
+a particular digest that were delivered.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, DIGESTNAME, ISSUES, USER)
+
+
+digest_error
+------------
+(text, wwwadm, wwwconfirm)  This file is displayed when the digest
+command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+digest_foot
+-----------
+(text, wwwadm, wwwconfirm)  This file is displayed after the list of
+successful deliveries, when the digest-check or digest-force command is
+used.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+digest_head
+-----------
+(text, wwwadm, wwwconfirm)  This file is displayed before the list of
+successful deliveries, when the digest-check or digest-force command is
+used.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+digest_incvol
+-------------
+(text, wwwadm, wwwconfirm)  This file is displayed when the
+digest-incvol command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+digest_none
+-----------
+(text, wwwadm, wwwconfirm)  This file is displayed when no issues were
+sent, because no digests or messages were ready for delivery.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+digest_status
+-------------
+(text, wwwadm, wwwconfirm)  This file displays a summary of one message
+which is awaiting delivery in a particular digest.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, DATE, DESCRIPTION,
+ DIGESTNAME, FROM, LAST_RUN, MAX_AGE, MAX_MSGS, MAX_SIZE, MIN_AGE,
+ MIN_MSGS, MIN_SIZE, MSGNO, NEWEST_AGE, NEXT_RUN, OLDEST_AGE, SIZE,
+ SUBJECT, USER, and others)
+
+
+digest_status_foot
+------------------
+(text, wwwadm, wwwconfirm)  This file displays information about a
+particular digest, after the list of messages awaiting delivery in that
+digest.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, DESCRIPTION, DIGESTNAME,
+ LAST_RUN, MAX_AGE, MAX_MSGS, MAX_SIZE, MIN_AGE, MIN_MSGS, MIN_SIZE,
+ NEWEST_AGE, NEXT_RUN, OLDEST_AGE, SIZE, USER)
+
+
+digest_status_head
+------------------
+(text, wwwadm, wwwconfirm)  This file displays information about a
+particular digest, before the list of messages awaiting delivery in that
+digest.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, DESCRIPTION, DIGESTNAME,
+ LAST_RUN, MAX_AGE, MAX_MSGS, MAX_SIZE, MIN_AGE, MIN_MSGS, MIN_SIZE,
+ NEWEST_AGE, NEXT_RUN, OLDEST_AGE, SIZE, USER)
+
+
 error
 -----
 (wwwadm, wwwusr)  This file displays an error message when a

@@ -1,0 +1,6 @@
+<!-- Majordomo digest_incvol format file -->
+The volume number of each digest was increased by one.
+
+Use the following command to see the current digest and issue numbers:
+  configshow $LIST digest_issues
+
