@@ -1,3 +1,7 @@
+Fri Feb 19 19:18:53 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/List.pm (make_setting): Fix bad typo.
+
 Tue Feb 16 00:54:20 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Access.pm (list_access_check): Log access variables

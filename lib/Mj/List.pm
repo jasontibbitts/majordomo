@@ -397,7 +397,7 @@ sub make_setting {
       elsif ($classes{$rset}->[1] == 1) {
 	# If passed 'return', immediately set things back to the saved
 	# settings if there were any
-	if ($arg eq 'return'} {
+	if ($arg eq 'return') {
 	  return (0, "Not currently in nomail mode.\n")
 	    unless $classes{$class}->[0] eq 'nomail';
 	  return (0, "No saved settings to return to.\n")
