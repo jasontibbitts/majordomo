@@ -88,7 +88,8 @@ $mj = new Majordomo "$tmpdir", 'test';
 ok(1, !!$mj);
 
 print "Connect to it\n";
-$ok = $mj->connect('testsuite', "Testing, pid $$\n");
+$ok = $mj->connect('testsuite', "Testing, pid $$\n",
+                   'core_test@example.com');
 ok(1, !!$ok);
 
 print "Use the site password to set the domain's master password.\nScrew it up once just to check.\n";
@@ -121,7 +122,7 @@ $result = $mj->dispatch($request);
 ok('example.com', $result->[1][4]);
 
 print "Set GLOBAL inform so we don't send any mail from owner synchronization\n";
-$result = $mj->dispatch({user     => 'unknown@anonymous',
+$result = $mj->dispatch({user     => 'core_test@example.com',
 			 password => 'hurl',
 			 command  => 'configset',
 			 list     => 'GLOBAL',
@@ -132,7 +133,7 @@ $result = $mj->dispatch({user     => 'unknown@anonymous',
 ok(1, $result->[0]);
 
 print "Create a list\n";
-$result = $mj->dispatch({user     => 'unknown@anonymous',
+$result = $mj->dispatch({user     => 'core_test@example.com',
 			 password => 'gonzo',
 			 command  => 'createlist',
 			 mode     => 'nowelcome',
@@ -141,12 +142,12 @@ $result = $mj->dispatch({user     => 'unknown@anonymous',
 ok(1, $result->[0]);
 
 print "Make sure the list was created\n";
-$result = $mj->dispatch({user     => 'unknown@anonymous',
+$result = $mj->dispatch({user     => 'core_test@example.com',
 			 command  => 'lists'});
 ok('bleeargh', $result->[1]{list});
 
 print "Set inform so we don't send any mail\n";
-$result = $mj->dispatch({user     => 'unknown@anonymous',
+$result = $mj->dispatch({user     => 'core_test@example.com',
 			 password => 'gonzo',
 			 command  => 'configset',
 			 list     => 'bleeargh',
@@ -157,7 +158,7 @@ $result = $mj->dispatch({user     => 'unknown@anonymous',
 ok(1, $result->[0]);
 
 print "Set up some transforms\n";
-$result = $mj->dispatch({user     => 'unknown@anonymous',
+$result = $mj->dispatch({user     => 'core_test@example.com',
 			 password => 'gonzo',
 			 command  => 'configset',
 			 list     => 'GLOBAL',
@@ -171,7 +172,7 @@ $result = $mj->dispatch({user     => 'unknown@anonymous',
 ok(1, $result->[0]);
 
 print "Subscribe an address\n";
-$result = $mj->dispatch({user     => 'unknown@anonymous',
+$result = $mj->dispatch({user     => 'core_test@example.com',
 			 password => 'gonzo',
 			 command  => 'subscribe',
 			 mode     => 'quiet-nowelcome',
@@ -181,7 +182,7 @@ $result = $mj->dispatch({user     => 'unknown@anonymous',
 ok(1, $result->[0]);
 
 print "Make sure the subscribe worked\n";
-$request = {user     => 'unknown@anonymous',
+$request = {user     => 'core_test@example.com',
 	    password => 'gonzo',
 	    command  => 'who_start',
 	    list     => 'bleeargh',
@@ -203,7 +204,7 @@ $result = $mj->dispatch($request);
 ok(1, $result->[0]);
 
 print "Add an address to a sublist\n";
-$result = $mj->dispatch({user     => 'unknown@anonymous',
+$result = $mj->dispatch({user     => 'core_test@example.com',
 			 password => 'gonzo',
 			 command  => 'subscribe',
 			 mode     => 'quiet-nowelcome',
@@ -213,7 +214,7 @@ $result = $mj->dispatch({user     => 'unknown@anonymous',
 ok(1, $result->[0]);
 
 print "Make sure it worked\n";
-$request = {user     => 'unknown@anonymous',
+$request = {user     => 'core_test@example.com',
 	    password => 'gonzo',
 	    command  => 'who_start',
 	    list     => 'bleeargh:harumph',
@@ -256,7 +257,7 @@ $result = $mj->dispatch({user     => 'enchanter@example.com',
 ok(1, $result->[0]);
 
 print "Unsubscribe the (doubly) aliased address using the password\n";
-$result = $mj->dispatch({user     => 'unknown@anonymous',
+$result = $mj->dispatch({user     => 'core_test@example.com',
 			 password => 'suspect',
 			 command  => 'unsubscribe',
 			 list     => 'bleeargh',

@@ -1,3 +1,44 @@
+2001-04-07  Michael Yount <csf@moscow.com>
+
+	* convertlist.pl:  Bugfix:  Do not convert the "filedir"
+	configuration setting.
+	Bugfix:  Do not add subscribers to a new list if the 
+	subscriber file is empty or absent.
+	Bugfix:  Use the subscribe command, not the auxadd command,
+	to add addresses to an auxiliary list.
+
+	* lib/Majordomo.pm:  (dispatch)  Bugfix:  Test the validity
+	of each victim's address individually, allowing partial
+	success if some of the addresses are valid.
+	(archive_start)  Feature:  Allow the use of patterns within
+	a here document to narrow the scope of the messages retrieved
+	by the archive command.  Patterns beginning with "~a" will
+	be matched against the authors' e-mail addresses.  Patterns
+	beginning with "~s" will be matched against the message
+	subjects.  (Thanks to Scott Garee, Paul Hancock, and Duncan
+	Hill)
+	The version number is now 0.1200104070.
+
+	* lib/Mj/Archive.pm:  (expand_range)  Bugfix:  Remove redundant
+	"\d" from a regular expression.
+
+	* lib/Mj/CommandProps.pm:  Bugfix: Use "mismatch" by default
+	for the lists command to prevent leaking private information
+	with the lists-enhanced command.
+	Bugfix:  Do not require strict address validation for the 
+	unsubscribe and unregister commands.  (Thanks to Duncan Hill)
+	Bugfix:  Use long names for bounce rule variable types.
+
+	* lib/Mj/Format.pm:  (help, lists)  Bugfix:  Remove unnecessary
+	"select" statements. (Thanks to Duncan Hill)
+	(post)  Bugfix:  Use the "post_chunk" command only if necessary.
+
+	* lib/Mj/Token.pm:  (t_accept)  Bugfix:  When testing the 
+	command name, account for the "_" prefix.
+
+	* t/core.t:  Use a valid but fictitious requester address 
+	to avoid stalled commands.
+
 2001-03-25  Michael Yount <csf@moscow.com>
 
 	* bin/mj_shell: (parse_interactive)  Bugfix:  allow continuation
