@@ -1516,7 +1516,7 @@ sub parse_access_array {
     $name  = $table->[$i][0];
     $show  = $table->[$i][1];
     $set   = $table->[$i][2];
-    $skill = $table->[$i][2];
+    $skill = $table->[$i][3];
     unless (exists $self->{'vars'}{$name}) {
       return (0, "The $name configuration setting is invalid."); #XLANG
     }
@@ -1530,18 +1530,18 @@ sub parse_access_array {
         unless ($self->{'vars'}{$name}{'local'}); #XLANG
     }
 
-    if (defined $show) {
+    if (defined $show and length $show) {
       return (0, "Level $show for $name is unsupported.  Use 0 1 2 3 4 or 5.")
         unless ($show =~ /^[012345]$/);
       $out->{$name}{'show'} = $show;
     }
-    if (defined $set) {
+    if (defined $set and length $set) {
       return (0, "Level $set for $name is unsupported.  Use 1 2 3 4 or 5.")
         unless ($set =~ /^[12345]$/);
       $out->{$name}{'set'} = $set;
     }
-    if (defined $skill) {
-      return (0, "Level $set for $name is unsupported.  Choose a number,
+    if (defined $skill and length $skill) {
+      return (0, "Level $skill for $name is unsupported.  Choose a number,
 1 through 9.")
         unless ($skill =~ /^[1-9]$/);
       $out->{$name}{'wizard'} = $skill;
