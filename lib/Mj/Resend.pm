@@ -89,6 +89,7 @@ use File::Copy 'mv';
 sub post {
   my($self, $request) = @_;
   my ($owner,                # The list owner address
+      $sender,               # The sender address
       $token,                # Token lifted from approval check, to be deleted
       $parser,               # MIME::Parser
       $tmpdir,               # duh
@@ -214,7 +215,6 @@ sub post {
       $self->list_access_check($request, %$avars);
   }
 
-  $owner = $self->_list_config_get($request->{'list'}, 'sender');
   if ($ok > 0) {
     return $self->_post($request->{'list'}, $user, $user, $request->{'mode'},
             $request->{'cmdline'}, $request->{'file'}, '',
@@ -250,6 +250,9 @@ sub post {
   return ($ok, '')
     unless defined $mess && length $mess;
 
+  $sender = $self->_list_config_get($request->{'list'}, 'sender');
+  $owner = $self->_list_config_get($request->{'list'}, 'whoami_owner');
+
   # Otherwise, decide what to ack, based on the user's flags
   # and the ack_important setting.
   if ($self->{'lists'}{$request->{'list'}}->should_ack($request->{'sublist'},
@@ -278,7 +281,7 @@ sub post {
                       Filename    => undef,
                      );
       }
-      $self->mail_entity($owner, $nent, $user);
+      $self->mail_entity($sender, $nent, $user);
   }
 
   # If the request failed, we need to unlink the file.
@@ -423,11 +426,11 @@ sub _post {
      $avars, $ent) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
-  my(%ackinfo, %avars, %deliveries, %digest, @changes, @digest_headers,
+  my(%ackinfo, %avars, %deliveries, %digest, @changes, 
      @dfiles, @dtypes, @dup, @ent, @files, @refs, @tmp, @skip, 
      $ack_attach, $ackfile, $arcdata, $arcdate, $arcent, $archead, 
      $date, $desc, $digests, $dissues, $dup, $exclude, $head, 
-     $hidden, $i, $j, $k, $msgnum, $nent, $precedence, $prefix, 
+     $hidden, $i, $j, $k, $msgid, $msgnum, $nent, $precedence, $prefix, 
      $rand, $replyto, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
 
@@ -548,6 +551,8 @@ sub _post {
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
   $subject = $archead->get('subject') || ''; chomp $subject;
   $subject =~ /(.*)/s; $subject = $1;
+  $msgid = $archead->get('message-id') || ''; chomp $msgid;
+  $msgid =~ s/<([^>]*)>//; $msgid = $1;
   $date = $archead->get('date') || scalar localtime; chomp $date;
   $date =~ /(.*)/s; $date = $1;
   $arcdate = $self->_list_config_get($list, 'archive_date');
@@ -583,6 +588,7 @@ sub _post {
       'date'       => $arcdate,
       'from'       => "$user", # Stringify on purpose
       'hidden'     => $hidden,
+      'msgid'      => $msgid,
       'quoted'     => $avars{quoted_lines},
       'refs'       => join("\002", @refs),
       'subject'    => $subject,
@@ -633,9 +639,7 @@ sub _post {
     # Add headers
     for $i ($self->_list_config_get($list, 'message_headers')) {
       $i = $self->substitute_vars_string($i, $subs);
-      $head->add(undef, $i);
-      ($j, $k) = split ':', $i, 2;
-      push @digest_headers, [$j, $k];
+      $head->add(undef, $i) if ($i =~ /^[^\x00-\x1f\x7f-\xff :]+:/);
     }
 
     $head->replace('X-No-Archive', 'yes')
@@ -644,13 +648,10 @@ sub _post {
     # Add list-headers standard headers
     if ($precedence = $self->_list_config_get($list, 'precedence')) {
       $head->add('Precedence', $precedence);
-      push @digest_headers, ['Precedence', $precedence];
     }
 
     if ($sender) {
       $head->add('Sender', $sender);
-      push @digest_headers, ['Sender', $sender];
-      push @digest_headers, ['Errors-To', $sender];
     }
 
 
@@ -669,7 +670,6 @@ sub _post {
 
     if ($i = $self->_list_config_get($list, 'reply_to')) {
       $i = $self->substitute_vars_string($i, $subs);
-      push @digest_headers, ['Reply-To', $i];
     }
 
     # Obtain list of lists to check for duplicates.
@@ -788,7 +788,6 @@ sub _post {
                         'sender'     => $subs->{'OWNER'},
                         'whereami'   => $whereami, 
                         'tmpdir'     => $tmpdir,
-                        'headers'    => \@digest_headers,
                         # 'run' => 0, 'force' => 0,
                        );
     }
@@ -802,8 +801,7 @@ sub _post {
         if $deliveries{$i}{file};
     }
   } # not archive mode
- 
-  # Inform sender of successful delivery
+
   if ($self->{'lists'}{$list}->should_ack($sl, $user, 'f')) {
     ($ackfile, %ackinfo) = 
       $self->_list_file_get($list, 
@@ -1817,7 +1815,7 @@ immediately by a blank line, it and the blank line are removed by
 creating a new body copying all but the new body into it.
 
 If present in the first line of the body and not followed immediately
-by a blank line, everything directly after the Aproved: line is parsed
+by a blank line, everything directly after the Approved: line is parsed
 as a new MIME entity and the old entity is completely obliterated.
 
 If the message is multipart, the first body part is checked for the
@@ -2312,9 +2310,10 @@ digest_add, so this function can be used to trigger a digest.
 sub do_digests {
   my ($self, %args) = @_;
   my $log = new Log::In 40;
-  my (%digest, %file, @dfiles, @dtypes, @nuke, @tmp, 
+  my (%digest, %file, @dfiles, @dtypes, @headers, @nuke, @tmp, 
       $digests, $dissues, $dtext, $elapsed, $file, $i, 
-      $j, $k, $l, $list, $seqnum, $subs, $subject);
+      $index_format, $j, $k, $l, $list, $seqnum, $subs, $subject,
+      $whoami);
 
   $list = $args{'list'}; $subs = $args{'substitute'}; $subs->{LIST} = $list;
 
@@ -2322,6 +2321,28 @@ sub do_digests {
   # in the digests variable.
   $digests = $self->_list_config_get($list, 'digests');
   if (scalar keys %{$digests}) {
+
+    # Obtain headers
+    for $i ($self->_list_config_get($list, 'message_headers')) {
+      $i = $self->substitute_vars_string($i, $subs);
+      push (@headers, [undef, $i]) 
+        if ($i =~ /^[^\x00-\x1f\x7f-\xff :]+:/);
+    }
+    if ($i = $self->_list_config_get($list, 'precedence')) {
+      push @headers, ['Precedence', $i];
+    }
+    if ($i = $self->_list_config_get($list, 'sender')) {
+      push @headers, ['Sender', $i];
+      push @headers, ['Errors-To', $i];
+    }
+    if ($i = $self->_list_config_get($list, 'reply_to')) {
+      $i = $self->substitute_vars_string($i, $subs);
+      push @headers, ['Reply-To', $i];
+    }
+
+    $index_format = $self->_list_config_get($list, 'digest_index_format');
+    $whoami = $self->_list_config_get($list, 'whoami');
+
     if ($args{'msgnum'}) {
       # Note that digest_add will eventually call the trigger itself.
       %digest = $self->{'lists'}{$list}->digest_add($args{'msgnum'},
@@ -2381,10 +2402,10 @@ sub do_digests {
 	   files        => $dtext,
 	   subject      => $subject,
 	   from         => $args{'sender'},
-	   to           => "$list\@$args{'whereami'}",
+	   to           => $whoami,
 	   tmpdir       => $args{'tmpdir'},
-	   index_line   => $self->_list_config_get($list, 'digest_index_format'),
-	   headers      => $args{'headers'},
+	   index_line   => $index_format,
+	   headers      => \@headers,
 	  );
 
 	# Unlink the temporaries.
