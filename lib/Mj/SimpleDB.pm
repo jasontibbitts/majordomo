@@ -65,6 +65,7 @@ use vars qw(%beex %exbe);
    'text' => 'T',
 #   'berkdb'   => 'B',
    'db'  => 'D',
+   'pgsql'  => 'P',
   );
 
 %exbe = reverse(%beex);
@@ -103,9 +104,15 @@ sub new {
   my ($exist, $lock, $ver, $name);
 
   # Fix up arguments
-  $name = $args{filename};
-  $args{lockfile} = $name;
-  $args{filename} = "$name.$beex{$args{backend}}";
+  if(($args{backend} eq "db") || ($args{backend} eq "text")) {
+    if(defined($args{file})) {
+      $name = $args{listdir} . $args{list} . $args{file};
+    } else {
+      $name = $args{filename};
+    }
+    $args{lockfile} = $name;
+    $args{filename} = "$name.$beex{$args{backend}}";
+  }
 
   # Create and return the database
   {
@@ -133,6 +140,11 @@ sub _c_text {
 use Mj::SimpleDB::DB;
 sub _c_db {
   new Mj::SimpleDB::DB(@_);
+}
+
+use Mj::SimpleDB::Pg;
+sub _c_pgsql {
+  new Mj::SimpleDB::Pg(@_);
 }
 
 =head2 _find_existing(path)

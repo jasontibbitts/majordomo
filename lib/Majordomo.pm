@@ -162,10 +162,16 @@ sub new {
   $log->abort("Can't create DEFAULT list: $!")
     unless $self->_make_list('DEFAULT');
   $self->{backend} = $self->_site_config_get('database_backend');
-  $self->{alias} = new Mj::AliasList("$self->{ldir}/GLOBAL/_aliases",
-				     $self->{backend});
-  $self->{reg}   = new Mj::RegList("$self->{ldir}/GLOBAL/_register",
-				     $self->{backend});
+  $self->{alias} = new Mj::AliasList(backend => $self->{backend},
+                                      domain => $domain,
+                                     listdir => $self->{ldir},
+                                        list => "GLOBAL",
+                                        file => "_aliases");
+  $self->{reg}   = new Mj::RegList(backend => $self->{backend},
+                                    domain => $domain,
+                                   listdir => $self->{ldir},
+                                      list => "GLOBAL",
+                                      file => "_register");
   # XXX Allow addresses to be drawn from the registry for delivery purposes.
   $self->{'lists'}{'GLOBAL'}->{'subs'} = $self->{'reg'};
 

@@ -41,16 +41,16 @@ relationship) because of the nultiplexing nature of SimpleDB.
 
 =cut
 sub new {
-  my $type  = shift;
+  my ( $type, %args ) = shift;
   my $class = ref($type) || $type;
 
-  my $path = shift;
-  my $back = shift;
+  my $ref = new Mj::SimpleDB(backend => $args->{backend},
+                              domain => $args->{domain},
+                             listdir => $args->{ldir},
+                                list => $args->{list},
+                                file => $args->{file},
+                              fields => \@fields );
 
-  my $ref = new Mj::SimpleDB(filename => $path,
-			     backend  => $back,
-			     fields   => \@fields,
-			    );
   bless {delegate => $ref}, $class;
 }
 
