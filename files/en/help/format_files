@@ -126,7 +126,7 @@ WWW request fails during initialization and sanity checks.
 
 foot
 ----
-(wwwadm, wwwusr)  This file displays supplementary information
+(wwwadm, wwwconfirm, wwwusr)  This file displays supplementary information
 at the bottom of every web page.
 
 (standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
@@ -134,7 +134,7 @@ at the bottom of every web page.
 
 head
 ----
-(wwwadm, wwwusr)  This file displays supplementary information
+(wwwadm, wwwconfirm, wwwusr)  This file displays supplementary information
 at the top of every web page.
 
 (standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
@@ -324,7 +324,7 @@ showtokens_none
 
 tokeninfo_error
 ---------------
-(text, wwwadm)  This file displays an error message when the tokeninfo
+(text, wwwadm, wwwconfirm)  This file displays an error message when the tokeninfo
 command fails.
 
 (standard plus CGIDATA, CGIURL, ERROR, PASSWORD, USER)
@@ -332,24 +332,24 @@ command fails.
 
 tokeninfo_foot
 --------------
-(text, wwwadm)  This file displays supplementary information at
-the bottom of the output.
+(text, wwwadm, wwwconfirm)  This file displays supplementary information 
+at the bottom of the output.
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, DATE, ERROR, EXPIRE, 
  PASSWORD, REASONS, TOKEN, TYPE, USER)
 
 tokeninfo_head
 --------------
-(text, wwwadm)  This file displays supplementary information at the
-top of the output.
+(text, wwwadm, wwwconfirm)  This file displays supplementary information 
+at the top of the output.
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, DATE, ERROR, EXPIRE, 
  PASSWORD, REASONS, TOKEN, TYPE, USER)
 
 welcome
 -------
-(wwwadm, wwwusr)  This file displays basic instructions for the use of 
-each WWW interface.
+(wwwadm, wwwconfirm, wwwusr)  This file displays basic instructions 
+for the use of each WWW interface.
 
 (standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
 
