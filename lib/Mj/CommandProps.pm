@@ -117,9 +117,9 @@ my %commands =
    'configdef'  => {'parser' => [qw(email shell list global real)]},
    'configedit' => {'parser' => [qw(shell list global real)]},
    'newconfig'  => {'parser' => [qw(email shell list obsolete=configset real)]},
-   'newfaq'     => {'parser' => [qw(email shell list real)]},
-   'newinfo'    => {'parser' => [qw(email shell list real)]},
-   'newintro'   => {'parser' => [qw(email shell list real)]},
+   'newfaq'     => {'parser' => [qw(email shell list global real)]},
+   'newinfo'    => {'parser' => [qw(email shell list global real)]},
+   'newintro'   => {'parser' => [qw(email shell list global real)]},
 
    # Internal commands (not accessible to the end user except through
    # specialized interfaces)
@@ -292,7 +292,7 @@ my %commands =
    },
    'info' =>
    {
-    'parser'   => [qw(email shell list real)],
+    'parser'   => [qw(email shell list global real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
                    'default' => 'access',
@@ -302,7 +302,7 @@ my %commands =
    },
    'intro' =>
    {
-    'parser'   => [qw(email shell list real)],
+    'parser'   => [qw(email shell list global real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
                    'default' => 'access',
