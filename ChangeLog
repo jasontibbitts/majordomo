@@ -1,3 +1,20 @@
+2000-06-18  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/MailOut.pm (handle_bounce_user): Now provide per-user
+	bounce statistics and recommend that users be removed.
+
+	* lib/Mj/List.pm (expire_subscriber_data): Also expire old bounce
+	entries.
+	(bounce_get): New function: retrieve parsed bounce data.
+	(bounce_add): New function: add an event to an address' bounce
+	data and return the parsed data.
+	(_bounce_parse_data): New private function: parse a set of bounce
+	data.
+	(bounce_gen_stats): Generate statistics from a set of bounce data.
+
+	* lib/Majordomo.pm (trigger): expire_vacation renamed to
+	expire_subscriber_data.
+
 2000-06-18  Michael Yount  <csf@moscow.com>
 	* lib/Mj/Access.pm, lib/Mj/Resend.pm, lib/Mj/Token.pm:
 	Prevent race condition when queue file is attached

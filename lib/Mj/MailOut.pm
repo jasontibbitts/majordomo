@@ -60,12 +60,12 @@ sub mail_message {
   unless ($env) {
     # log the failure, but do not notify anyone by mail, since
     # inform() calls mail_entity().
-    $self->inform("GLOBAL", "mail_message", $sender, $addrs[0], 
+    $self->inform("GLOBAL", "mail_message", $sender, $addrs[0],
                   "(envelope $file)", "mailout", 0, 0, 1);
     return 0;
   }
   unless ($env->send) {
-    $self->inform("GLOBAL", "mail_message", $sender, $addrs[0], 
+    $self->inform("GLOBAL", "mail_message", $sender, $addrs[0],
                   "(message $file)", "mailout", 0, 0, 1);
     return 0;
   }
@@ -264,7 +264,7 @@ sub handle_bounce {
 
     # Now plow through the data from the parsers
     for $i (keys %$data) {
-      $tmp = $self->handle_bounce_user($i, $list, $handler, %{$data->{$i}});
+      $tmp = $self->handle_bounce_user($i, $list, $type, $msgno, $handler, %{$data->{$i}});
       $mess .= $tmp if $tmp;
 
       if ($subj) {
@@ -332,11 +332,14 @@ sub handle_bounce_user {
   my $self   = shift;
   my $user   = shift;
   my $list   = shift;
+  my $type   = shift;
+  my $msgno  = shift;
   my $parser = shift || 'unknown';
   my %args = @_;
   my ($mess, $bdata, $status, $userdata);
 
   $status = $args{status};
+  $msgno = '' if $msgno eq 'unknown';
   if ($status eq 'unknown' || $status eq 'warning' || $status eq 'failure') {
     $user = new Mj::Addr($user);
 
@@ -345,75 +348,43 @@ sub handle_bounce_user {
       return "  User:       $user (invalid)\n\n";
     }
 
-    # Call the list's is_subscriber routine so we get the per-list data
-    # pre-cached for us.
-    $userdata = $self->{lists}{$list}->is_subscriber($user);
+    # Add the new bounce event to the collected bounce data
+    $bdata = $self->{lists}{$list}->bounce_add($user, time, $type, $msgno);
     $mess .= "  User:        $user\n";
-    $mess .= "  Subscribed:  " .($userdata?'yes':'no')."\n";
+    $mess .= "  Subscribed:  " .($bdata?'yes':'no')."\n";
     $mess .= "  Status:      $args{status}\n";
     $mess .= "  Diagnostic:  $args{diag}\n";
 
-    # If the user is subscribed
-    if ($userdata) {
+    if ($bdata) {
+      $stats = $self->{lists}{$list}->bounce_gen_stats($bdata);
+#      use Data::Dumper; $mess .= Dumper $bdata;
 
-#      $bounces = $self->bounce_data_parse($userdata->{'bounce'});
-#      $self->bounce_data_trim($bounces);
-
-      # Append new entry
-
-      # Generate statistics
+      $mess .= "  Bounce statistics for this user:\n";
+      $mess .= "    Bounces Today:                  $stats->{day}\n";
+      $mess .= "    Bounces this Week:              $stats->{week}\n";
+      $mess .= "    Bounces this Month:             $stats->{month}\n"
+	if $stats->{month};
+      $mess .= "    Consecutive messages bounced:   $stats->{consecutive}\n"
+	if $stats->{consecutive};
+      $mess .= "    Precentage of messages bounced: $stats->{bouncedpct}\n"
+	if $stats->{bouncedpct};
 
       # Make triage decision
+      if (($stats->{consecutive} && $stats->{consecutive} > 10) ||
+	  ($stats->{bouncedpct}  && $stats->{bouncedpct} > 70))
+	{
+	  $mess .= "  It is recommended that this user be removed.\n";
+	}
 
       # Remove user if necessary
 
-      # Add some additional report information on the statistics and what
-      # action was taken (if any)
     }
   }
-  $mess;
+  "$mess\n";
 }
 
-=head2 parse_bounce_data
 
-This takes apart a string of bounce data.  The string is simply a set of
-space-separated bounce incidents; each incident contains minimal
-information about a bounce: the time and the message numbers.  There may
-also be other data there depending on what bounces were detected.
 
-An incident is formatted like:
-
-timeMnumber
-
-where 'time' is the numeric cound of seconds since the epoch, 'M' indicates
-a message bounce and 'number' indicates the message number.
-
-Some bounces have type M but no message number.  There are tracked
-separately.
-
-=cut
-sub parse_bounce_data {
-  my $self = shift;
-  my $data = shift;
-  my (@incidents, $i, $out);
-
-  $out = {};
-  @incidents = split(/\s/, $data);
-
-  for $i (@incidents) {
-    ($time, $type, $number) = $i =~ /^(\d+)(\w)(.*)$/;
-    warn "$i, $time, $type, $number";
-    if ($number) {
-      $out->{$type} ||= [];
-      push @{$out->{$type}}, [$number, $time];
-    }
-    else {
-      $out->{"U$type"} ||= ();
-      push @{$out->{"U$type"}}, $time;
-    }
-  }
-  $out;
-}
 
 =head2 welcome(list, address)
 

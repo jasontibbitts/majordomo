@@ -222,9 +222,9 @@ modify.  If mode=~/allmatching/, all matching rows are modified, else only
 the first is.
 
 If field is a hash reference, it is used as the hash of data and values.
-If field is a code reference, it is executed and the resulting hash is
-written back as the data.  Unlike the mogrify function, this cannot change
-the key.
+If field is a code reference, it is executed (with the data hash available
+as the only argument) and the resulting hash is written back as the data.
+Unlike the mogrify function, this cannot change the key.
 
 Returns a list of keys that were modified.
 
@@ -259,13 +259,13 @@ sub replace {
     $db->put($key, $self->_stringify($data));
     return ($key);
   }
-  
+
   # So we're doing regex processing, which means we have to search.
   $k = $v = 0;
   for ($status = $db->seq($k, $v, R_FIRST);
        $status == 0;
        $status = $db->seq($k, $v, R_NEXT)
-      ) 
+      )
     {
       if (_re_match($key, $k)) {
 	if (ref($field) eq 'HASH') {
@@ -278,29 +278,28 @@ sub replace {
 	else {
 	  $data = $self->_unstringify($v);
 	  $data->{$field} = $value;
-    }
-   
-    # For some DB implementations, changing the data affects the
-    # cursor.  Work around this by saving keys and values. 
-    # An ordinary array is used because DB key/value pairs are
-    # not necessarily unique.
+	}
+
+	# For some DB implementations, changing the data affects the
+	# cursor.  Work around this by saving keys and values.
+	# An ordinary array is used because DB key/value pairs are
+	# not necessarily unique.
         push @changes, $k, $self->_stringify($data);
         push @out, $k;
         last if $mode !~ /allmatching/;
       }
     }
-
-    for ($i = 0; defined($changes[$i]); $i+=2) {
-      $db->del($changes[$i]);
-    }
-    while (($k, $v) = splice(@changes, 0, 2)) {
-      $db->put($k, $v);
-    }
+  for ($i = 0; defined($changes[$i]); $i+=2) {
+    $db->del($changes[$i]);
+  }
+  while (($k, $v) = splice(@changes, 0, 2)) {
+    $db->put($k, $v);
+  }
 
   if (@out) {
     return @out;
   }
-  
+
   $log->out("failed");
   return;
 }

@@ -1122,35 +1122,62 @@ sub expire_dup {
   return @nuked
 }
 
-=head2 expire_vacation
+=head2 expire_subscriber_data
 
 This converts members with timed nomail classes back to their old class
-when the vacation time is passed.
+when the vacation time is passed and removes old bounce data.
 
 =cut
-sub expire_vacation {
+sub expire_subscriber_data {
   my $self = shift;
   my $time = time;
+  my $maxbouncecount = 100; # XXXX Make configurable
+  my $maxbounceage   = 31 * 60*60*24; # XXXX ditto
+  my $bounceexpiretime = $time - $maxbounceage;
 
   my $mogrify = sub {
     my $key  = shift;
     my $data = shift;
-    my ($c, $a1, $a2);
+    my (@b1, @b2, $a1, $a2, $b, $c, $e, $u, $t);
 
-    # Fast exit unless we have a timed nomail class and the time has expired
-    return (0, 0) 
-      unless ($data->{class} eq 'nomail' &&
-	      $data->{classarg} &&
-	      $time > $data->{classarg});
+    # True if we have an expired timer
+    $e = ($data->{class} eq 'nomail' &&
+	  $data->{classarg}          &&
+	  $time > $data->{classarg}
+	 );
 
-    # Now we know we must expire; extract the args
-    ($c, $a1, $a2) = split("\002", $data->{classarg2});
-    $data->{'class'}     = defined $c  ? $c  : 'each';
-    $data->{'classarg'}  = defined $a1 ? $a1 : '';
-    $data->{'classarg2'} = defined $a2 ? $a2 : '';
+    # Fast exit unless we have a timed nomail class and the time has
+    # expired and we have no bounce data
+    return (0, 0) unless ($e && !$data->{bounce});
 
-    # And update the entry
-    return (0, 1, $data);
+    if ($e) {
+      # Now we know we must expire; extract the args
+      ($c, $a1, $a2) = split("\002", $data->{classarg2});
+      $data->{'class'}     = defined $c  ? $c  : 'each';
+      $data->{'classarg'}  = defined $a1 ? $a1 : '';
+      $data->{'classarg2'} = defined $a2 ? $a2 : '';
+      $u = 1;
+    }
+
+    # Expire old bounce data.
+    if ($data->{bounce}) {
+      @b1 = split(/\s/, $data->{bounce});
+      $c = 0;
+      while (1) {
+	last if $c > $maxbouncecount;
+	$b = pop @b1; last unless defined $b;
+	($t) = $b =~ /^(\d+)\w/;
+	next if $t < $bounceexpiretime;
+	push @b2, $b; $c++;
+	$u = 1;
+      }
+    }
+
+    # Update if necessary
+    if ($u) {
+      return (0, 1, $data);
+    }
+    return (0, 0);
   };
 
   $self->{subs}->mogrify($mogrify);
@@ -1166,7 +1193,7 @@ This must be called before any function which accesses the AddressList.
 sub _make_aux {
   my $self = shift;
   my $name = shift;
-  
+
   unless (defined $self->{'auxlists'}{$name}) {
     $self->{'auxlists'}{$name} =
       new Mj::AddressList $self->_file_path("X$name"), $self->{backend};
@@ -1577,6 +1604,168 @@ sub digest_incissue {
   return $issues;
 }
 
+=head1 Bounce data functions
+
+These involve manipulating per-user bounce data.
+
+=head2 bounce_get
+
+Retrieves the stored bounce data and returns it in parsed format.  Will use
+cached data unless $force is true.
+
+=cut
+sub bounce_get {
+  my $self = shift;
+  my $addr = shift;
+  my $force= shift;
+  my ($data);
+
+  $data = $addr->retrieve("$self->{name}-subs");
+
+  if ($force || !$data) {
+    $data = $self->is_subscriber($addr);
+  }
+
+  return unless $data;
+  return $self->_bounce_parse_data($data->{bounce});
+}
+
+=head2 bounce_add
+
+Add a bounce event to a user's saved bounce data, and return the parsed
+data.
+
+=cut
+sub bounce_add {
+  my($self, $addr, $time, $type, $number) = @_;
+  my($bouncedata, $event, $ok);
+
+  $event = "$time$type$number";
+
+  my $repl = sub {
+    my $data = shift;
+
+    if ($data->{bounce}) {
+      $data->{bounce} .= " $event";
+    }
+    else {
+      $data->{bounce} = $event;
+    }
+
+    $bouncedata = $data->{bounce};
+    $data;
+  };
+
+  $ok = $self->{subs}->replace('', $addr->canon, $repl);
+  return $self->_bounce_parse_data($bouncedata) if $ok;
+  return;
+}
+
+=head2 _bounce_parse_data
+
+This takes apart a string of bounce data.  The string is simply a set of
+space-separated bounce incidents; each incident contains minimal
+information about a bounce: the time and the message numbers.  There may
+also be other data there depending on what bounces were detected.
+
+An incident is formatted like:
+
+timeMnumber
+
+where 'time' is the numeric cound of seconds since the epoch, 'M' indicates
+a message bounce and 'number' indicates the message number.
+
+Some bounces have a type but no message number.  There are stored under
+separate hash keys ("U$type") in flat lists.
+
+=cut
+sub _bounce_parse_data {
+  my $self = shift;
+  my $data = shift;
+  my (@incidents, $i, $out);
+
+  $out = {};
+  @incidents = split(/\s/, $data);
+
+  for $i (@incidents) {
+    ($time, $type, $number) = $i =~ /^(\d+)(\w)(.*)$/;
+    if ($number) {
+      $out->{$type}{$number} = $time;
+    }
+    else {
+      $out->{"U$type"} ||= ();
+      push @{$out->{"U$type"}}, $time;
+    }
+  }
+  $out;
+}
+
+=head2 bounce_gen_stats
+
+Generate a bunch of statistics from a set of bounce data.
+
+Things generated:
+
+number of bounces in last day
+                          week
+                          month
+number of consecutive bounces
+percentage of bounced messages
+
+The first three are generated using only the collected bounce times.  The
+last two are generated using bounces for which message numbers were
+collected and require a pool of that type bounce (two and five, resp.)
+before any statistics are generated.
+
+=cut
+sub bounce_gen_stats {
+  my $self  = shift;
+  my $bdata = shift;
+  my $now   = time;
+  my (@numbered, @times, $maxbounceage, $stats);
+
+  # We don't do a monthly view unless we're collecting a month's worth of
+  # data
+  $maxbounceage = 31 * 60*60*24; # XXXX
+  if ($maxbounceage >= 30 * 60*60*24) {
+    $do_month = 1;
+  }
+
+  @numbered = sort keys(%{$bdata->{M}});
+  $stats->{span} = $numbered[$#numbered] - $numbered[0] + 1;;
+
+  for $i (@numbered) {
+    push @times, $bdata->{M}{$i};
+    $stats->{numbered}++;
+    if (!defined($lastnum) || $i == $lastnum+1) {
+      $lastnum = $i;
+      $stats->{consecutive}++;
+warn "A $i, $stats->{consecutive}";
+    }
+  }
+
+  # We shouldn't export some statistics unless they're relevant
+  delete($stats->{consecutive}) unless $stats->{consecutive} >= 2;
+
+  if ($stats->{numbered} >= 5) {
+    $stats->{bouncedpct} = int(.5 + 100*($stats->{numbered} / $stats->{span}));
+  }
+
+  # Extract breakdown by time
+  for $i (@{$bdata->{UM}}, @times) {
+    if (($now - $i) < 24*60*60) { # one day
+      $stats->{day}++;
+    }
+    if (($now - $i) < 7*24*60*60) {
+      $stats->{week}++;
+    }
+    if ($do_month && ($now - $i) < 30*24*60*60) {
+      $stats->{month}++;
+    }
+  }
+  $stats;
+
+}
 
 =head1 COPYRIGHT
 
@@ -1587,7 +1776,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

@@ -700,7 +700,7 @@ sub _check_poster {
     $avars->{days_since_subscribe} = -1;
     return;
   }
-  
+
   # Extract subscribe date
   $avars->{days_since_subscribe} 
     = (time - $data->{subtime})/86400;

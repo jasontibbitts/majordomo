@@ -3979,7 +3979,7 @@ sub trigger {
       $self->{'lists'}{$list}->expire_dup;
 
       # Expire vacation settings
-      $self->{'lists'}{$list}->expire_vacation;
+      $self->{'lists'}{$list}->expire_subscriber_data;
     }
   }
 
