@@ -161,8 +161,6 @@ sub new {
   $self->{'sitedir'}= "$topdir/SITE";
   $self->{'domain'} = $domain;
   $self->{'lists'}  = {};
-  $self->{'defaultdata'} = {};
-  $self->{'installdata'} = {};
 
   unless (-d $self->{'ldir'}) {
     return "The domain '$domain' does not exist!"; #XLANG
@@ -628,29 +626,19 @@ sub _make_list {
 		 dir       => $self->{ldir},
                  domain    => $self->{domain},
 		 backend   => $self->{backend},
-                 'defaultdata'  => $self->{'defaultdata'},
-                 'installdata'  => $self->{'installdata'},
 		 callbacks =>
 		 {
 		  'mj.list_file_get' => 
 		  sub { $self->_list_file_get(@_) },
 		  'mj._global_config_get' =>
 		  sub { $self->_global_config_get(@_) },
+		  'mj._list_config_search' =>
+		  sub { $self->_list_config_search(@_) },
 		 },
 		);
   return unless $tmp;
   $self->{'lists'}{$list} = $tmp;
 
-  if ($list ne 'GLOBAL') {
-    unless (exists $self->{'defaultdata'}{'raw'}) {
-      $self->{'defaultdata'} = 
-        $self->{'lists'}{'DEFAULT'}->{'config'}->{'source'}{'MAIN'};
-    }
-    unless (exists $self->{'installdata'}{'raw'}) {
-      $self->{'installdata'} = 
-        $self->{'lists'}{'DEFAULT'}->{'config'}->{'source'}{'_install'};
-    }
-  }
   1;
 }
 
@@ -1996,6 +1984,14 @@ sub _list_config_unlock {
   $list = 'GLOBAL' if $list eq 'ALL';
   return unless $self->_make_list($list);
   $self->{'lists'}{$list}->config_unlock(@_);
+}
+
+sub _list_config_search {
+  my $self = shift;
+  my $list = shift;
+
+  return unless $self->_make_list($list);
+  $self->{'lists'}{$list}->config_search(@_);
 }
 
 sub _list_set_config {
@@ -4254,7 +4250,8 @@ sub createlist {
     return (0, "Illegal list name: $request->{'newlist'}")
       unless legal_list_name($request->{'newlist'});
   }
- 
+
+  $request->{'newpasswd'} ||= '';
   $request->{'newlist'} = lc $request->{'newlist'}; 
   $self->_fill_lists;
 
@@ -4273,25 +4270,25 @@ sub createlist {
 
   $self->_createlist('', $request->{'user'}, $request->{'victim'}, 
                      $request->{'mode'}, $request->{'cmdline'}, 
-                     $request->{'owners'}, $request->{'newlist'});
+                     $request->{'owners'}, $request->{'newlist'},
+                     $request->{'newpasswd'});
 }
 
 use MIME::Entity;
 use Mj::Util qw(gen_pw);
 sub _createlist {
-  my ($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
+  my ($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list, $pw) = @_;
   $list ||= '';
   my $log = new Log::In 35, "$mode, $list";
 
   my (%args, %data, @defaults, @lists, @owners, @tmp, $aliases, $bdir,
       $desc, $digests, $dir, $dom, $debug, $ent, $file, $i, $j, $k, 
-      $mess, $mta, $mtaopts, $ok, $priority, $pw, $rmess, $sender, 
+      $mess, $mta, $mtaopts, $ok, $priority, $pwl, $rmess, $sender, 
       $setting, $shpass, $sources, $sublists, $subs, $who);
 
   $mta   = $self->_site_config_get('mta');
   $dom   = $self->{'domain'};
-  $pw    = $self->_global_config_get('password_min_length');
-  $pw    = &gen_pw($pw);
+  $pwl   = $self->_global_config_get('password_min_length') || 6;
   $bdir  = $self->_site_config_get('install_dir');
   $bdir .= "/bin";
   $who   = $self->_global_config_get('whoami');
@@ -4388,7 +4385,7 @@ sub _createlist {
 
       # Extract the list of digests
       $digests = $self->_list_config_get($i, 'digests');
-      delete($digests->{'default_digest'});
+      # delete($digests->{'default_digest'});
 
       push @{$args{'lists'}}, {list     => $i,
 			       aliases  => $aliases,
@@ -4416,6 +4413,14 @@ sub _createlist {
     return (0, "The owner address \"$owner\" is invalid.\n$mess")
       unless $ok;
     push @owners, $i;
+  }
+
+  if (defined($pw) and length($pw)) {
+    return (0, $self->format_error('password_length', 'GLOBAL'))
+      if (length($pw) < $pwl);
+  }
+  else {
+    $pw = &gen_pw($pwl);
   }
 
   unless ($mtaopts->{'maintain_config'}) {
@@ -4507,7 +4512,7 @@ sub _createlist {
     $aliases = $self->_list_config_get($list, 'aliases');
 
     $digests = $self->_list_config_get($list, 'digests');
-    delete($digests->{'default_digest'});
+    # delete($digests->{'default_digest'});
 
     $sublists = $self->_list_config_get($list, 'sublists');
     $priority = $self->_list_config_get($list, 'priority');
@@ -4539,7 +4544,7 @@ sub _createlist {
 
     $self->_list_set_config('DEFAULT', $sources->{'digests'});
     $digests = $self->_list_config_get('DEFAULT', 'digests');
-    delete($digests->{'default_digest'});
+    # delete($digests->{'default_digest'});
 
     if (exists $aliases->{'auxiliary'}) {
       $self->_list_set_config('DEFAULT', $sources->{'sublists'});
@@ -4843,7 +4848,7 @@ sub _lists {
     }
 
     @lines = $self->_list_config_get($list, 'description_long');
-    $cat   = $self->_list_config_get($list, 'category');;
+    $cat   = $self->_list_config_get($list, 'category');
     $desc  = '';
     $flags = '';
  
