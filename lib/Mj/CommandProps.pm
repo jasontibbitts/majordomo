@@ -910,9 +910,10 @@ my %commands =
    },
    'unalias' =>
    {
-    'parser'   => [qw(email shell nohereargs real)],
+    'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1,
                    'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
+                   'hereargs'  =>  'victims',
                    'modes'    =>  {
                                    %generic_modes,
                                   },

@@ -6,15 +6,34 @@ address, required, is the alternate address you want to remove
 
 If you have more than one email account, you may wish to be able to
 post from more than one of them, while receiving list mail at only a
-single address. The 'alias' command allows this.
+single address. The "alias" command allows this.
 
-Send the "unalias" command from an account that is registered with
-the server; the given "address" will then be removed from the database
-and no longer considered equivalent to the registered account.
+The "unalias" command will remove an existing alias.  Send the "unalias"
+command from an e-mail address that is registered at this site.   The
+given "address" will then be removed from the database and no longer be
+considered equivalent to the registered account.
+
+Here documents
+--------------
+Domain and site managers can remove more than one alias using a "here
+document".  For example, to remove the aliases "a@example.com" and
+"b@example.com", a domain administrator could use the following command:
+
+unalias <<ABC
+a@example.com
+b@example.com
+ABC
+
+See "help here_document" for more details.
+
 
 See Also:
-   help access_variables
-   help alias     (subscribe once, post from several addresses)
-   help subscribe (subscribe your primary address before alias)
+   help alias
+   help commands
+   help here_document
+   help register
+   help subscribe
+   help unregister
+   help unsubscribe
 
 $INCLUDE-help/foot

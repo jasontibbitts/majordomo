@@ -1,3 +1,19 @@
+2004-10-13  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Fix substitution typos.
+
+	* lib/Majordomo.pm:  (_changeaddr)  Use the xformed
+	address instead of the stripped address for equivalence
+	tests.  Thanks to SRE.
+	(_unalias)  Remove hard-coded error messages.
+
+	* lib/Mj/CommandProps.pm:  Allow the unalias command to
+	accept a here document.
+
+	* lib/Mj/Format.pm:  (unalias)  Process with g_sub().
+	(g_sub)  Support the VICTIM substitution when the
+	command fails.
+
 2004-10-12  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Add support for the unalias command,
