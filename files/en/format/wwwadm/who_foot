@@ -11,8 +11,8 @@
 
 <form method=POST action="$CGIURL">
   <input name=list type=hidden value="$LIST">
-  <input name=domain type=hidden value="$DOMAIN">
   <input name=passw type=hidden value="$PASSWORD">
+  <input type=hidden name=user value="$USER">
 
   <input type=radio name=func value="who" checked>
   Search the $LIST subscriber list 
@@ -35,8 +35,8 @@ Number of addresses to show:
 
 <form method=POST action="$CGIURL">
   <input name=list type=hidden value="$LIST">
-  <input name=domain type=hidden value="$DOMAIN">
   <input name=passw type=hidden value="$PASSWORD">
+  <input type=hidden name=user value="$USER">
 
   <input type=radio name=func value="subscribe-set-welcome" checked> 
   Add subscribers with the addresses in the large box.

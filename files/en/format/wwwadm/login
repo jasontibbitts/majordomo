@@ -1,6 +1,5 @@
 <pre>?ERROR</pre>
 <form method=POST action="$CGIURL">
-  <input type=hidden name=domain value="$DOMAIN">
   <input type=hidden name=func value="$COMMAND">
   <input type=hidden name=user value="$USER">
 
@@ -16,6 +15,8 @@
   <td valign=top>
     Type your list's administrative password into the box.  
     If you see fourteen stars in this box, it may already be present.
+    (The fourteen stars are a temporary password that applies only to
+    this session.)
 <tr>
   <td valign=top>
     <input type=submit value="Go"><br>

@@ -15,7 +15,16 @@ to this introduction at any time by pressing <b>Introduction</b>.
 
 If you finish administering the $LIST list and wish to change
 to another list, press <b>Sign In</b>.  You will be prompted
-for a new mailing list name and password.
+for a new mailing list name and password.  Your temporary password 
+for this session will continue to be valid.
+
+<tr>
+  <td valign=top>Sign Out
+  <td>
+
+If you finish administering the $LIST list and wish to end
+this session, press <b>Sign Out</b>.  Your temporary password
+for this session will be invalidated.
 
 <tr>
   <td valign=top>Moderation

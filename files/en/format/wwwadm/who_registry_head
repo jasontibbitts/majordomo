@@ -2,10 +2,10 @@
 <form method=POST action="$CGIURL">
   <input type=submit name=func value="unregister">
   <input type=hidden name=chunksize value="$CHUNKSIZE">
-  <input type=hidden name=domain value="$DOMAIN">
   <input type=hidden name=list value="$LIST">
   <input type=hidden name=start value="$START">
   <input type=hidden name=passw value="$PASSWORD">
+  <input type=hidden name=user value="$USER">
   <input type=hidden name=pattern value="$PATTERN">
 
 <br>To remove addresses, choose one or more

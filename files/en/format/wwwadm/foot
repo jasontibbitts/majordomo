@@ -7,36 +7,49 @@
 <tr>
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=welcome">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Introduction</font></a>
+
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=login">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Sign In</font></a>
+
+  <td align=center bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=logout">
+     <font size=-1 color="#f0f0f0">
+     Sign Out</font></a>
+
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=showtokens-delay">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Moderation</font></a>
+
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=who&chunksize=20">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Subscribers</font></a>
+
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=configshow-categories">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Configuration</font></a>
+
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=lists-full-long&extra=$LIST">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      List Info</font></a>
+
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=command">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Command Form</font></a>
+
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=help&extra=help">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Help</font></a>
+
 </table>
 </body></html>
 

@@ -10,27 +10,32 @@
 <tr>
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=welcome">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Introduction</font></a>
 
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=login">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Sign In</font></a>
 
   <td align=center bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=logout">
+     <font size=-1 color="#f0f0f0">
+     Sign Out</font></a>
+
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=lists-long">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Subscribe to Mailing Lists</font></a>
 
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=show">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Unsubscribe or Change Settings</font></a>
 
   <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=help">
-     <font color="#f0f0f0">
+     <font size=-1 color="#f0f0f0">
      Help</font></a>
 
 </table>
