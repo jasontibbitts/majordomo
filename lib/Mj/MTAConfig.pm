@@ -256,11 +256,11 @@ EOB
     }
     if (exists $args{'aliases'}->{'subscribe'}) {
       $block .= sprintf $aliasfmt, '-subscribe:', '-c subscribe';
-      $vblock .= "$list-subscribe\@$dom      $list$vut-moderator\n";
+      $vblock .= "$list-subscribe\@$dom      $list$vut-subscribe\n";
     }
     if (exists $args{'aliases'}->{'unsubscribe'}) {
       $block .= sprintf $aliasfmt, '-unsubscribe:', '-c unsubscribe';
-      $vblock .= "$list-unsubscribe\@$dom    $list$vut-moderator\n";
+      $vblock .= "$list-unsubscribe\@$dom    $list$vut-unsubscribe\n";
     }
 
     if (exists $args{'aliases'}->{'auxiliary'} and $args{'sublists'}) {
