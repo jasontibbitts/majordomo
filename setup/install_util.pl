@@ -36,6 +36,7 @@ sub copy_file {
     }
   }
   else {
+    unlink "$dest/$script" if -e "$dest/$script";
     cp("$source/$script", "$dest/$script") ||
       die "Can't copy $source/$script to $dest/$script, $!.";
     # Set the owner and mode on the copied file
@@ -164,6 +165,7 @@ sub rcopy {
       rcopy("$src/$i", "$dst/$i", $dot);
     }
     else {
+      unlink "$dst/$i" if -e "$dst/$i";
       cp("$src/$i", "$dst/$i")
 	or die "Can't copy to $dst/$i: $!";
       dot if $dot;
