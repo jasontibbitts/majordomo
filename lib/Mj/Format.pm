@@ -911,7 +911,7 @@ sub show {
   eprint($out, $type, "    Registration data last changed at ".
 	 gmtime($data->{regdata}{changetime})." GMT.\n");
 
-  @lists = keys %{$data->{lists}};
+  @lists = sort keys %{$data->{lists}};
   unless (@lists) {
     eprint($out, $type, "    Address is not subscribed to any lists.\n");
     return 1;
