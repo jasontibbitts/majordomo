@@ -1,3 +1,14 @@
+2003-03-09  Jason Tibbitts <tibbs@math.uh.edu>
+
+	* lib/Mj/Deliver/Dest.pm (make_bsmtpenvelope): 
+	* lib/Mj/Deliver/Dest.pm (make_envelope): 
+	Pass the substitution string down to the envelope.
+	
+	* lib/Mj/Deliver/Envelope.pm (send): 
+	* lib/Mj/Deliver/BSMTPEnvelope.pm (send):
+	Substitute the contents of $self->{personal} instead of hardcoding
+	$MSGRCPT.
+
 2003-03-09  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm:  (lock)  Bugfix:  Load the configuration

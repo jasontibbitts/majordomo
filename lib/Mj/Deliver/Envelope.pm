@@ -43,6 +43,9 @@ Arguments:
   sender  - the address to show in the From_ line.  Bounces will go here.
   file    - the file containing the message text (headers and body) to send
   addrs   - a listref containing the addresses to send to
+  personal- if true, when this string is encountered it will be replaced
+            with the address of the current recipient.
+
 
 host, port, timeout and local have reasonable defaults supplied by the SMTP
 object.  sender has no default.  You can specify a file (or change the file
@@ -367,7 +370,8 @@ sub send {
     # If a message is personal (a probe), substitute for $MSGRCPT.
     if ($self->{'personal'} and $self->{'rcpt'}) {
       # Don't substitute after backslashed $'s
-      $line =~ s/([^\\]|^)\$\QMSGRCPT\E(\b|$)/$1$self->{'rcpt'}/g;
+      #$line =~ s/([^\\]|^)\$\QMSGRCPT\E(\b|$)/$1$self->{'rcpt'}/g;
+      $line =~ s/([^\\]|^)\Q$self->{personal}\E(\b|$)/$1$self->{'rcpt'}/g;
     }
     $ok = $self->{'smtp'}->senddata($line);
     return 0 unless $ok;

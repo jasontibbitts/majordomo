@@ -33,6 +33,8 @@ Arguments:
   file    - the file containing the message text (headers and body) to send
   addrs   - a listref containing the addresses to send to
   ofile   - the file in which to store the batch
+  personal- if true, when this string is encountered it will be replaced
+            with the address of the current recipient.
 
 =cut
 sub new {
@@ -209,7 +211,8 @@ sub send {
     # If a message is personal (a probe), substitute for $MSGRCPT.
     if ($self->{'personal'} and $self->{'rcpt'}) {
       # Don't substitute after backslashed $'s
-      $line =~ s/([^\\]|^)\$\QMSGRCPT\E(\b|$)/$1$self->{'rcpt'}/g;
+      #$line =~ s/([^\\]|^)\$\QMSGRCPT\E(\b|$)/$1$self->{'rcpt'}/g;
+      $line =~ s/([^\\]|^)\Q$self->{personal}\E(\b|$)/$1$self->{'rcpt'}/g;
     }
 
     if ($line =~ /\n$/so) {

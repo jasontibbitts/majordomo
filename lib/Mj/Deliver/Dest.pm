@@ -215,6 +215,11 @@ sub make_envelope {
   my $ch   = shift;
   my $host = $self->{'activehosts'}[$ch];
   my $log  = new Log::In 540, "$ch, $host";
+  my ($personal);
+
+  if ($self->{size} == 1) {
+    $personal = '$MSGRCPT';
+  }
 
   return
     Mj::Deliver::Envelope->new(
@@ -222,7 +227,7 @@ sub make_envelope {
 			       'file'   => $self->{'file'},
 			       'host'   => $host,
                                'local'  => $self->{'lhost'},
-                               'personal' => ($self->{'size'} == 1),
+                               'personal' => $personal,
 			       %{$self->{'hostdata'}{$host}},
 			      );
 }
@@ -254,13 +259,18 @@ sub make_bsmtpenvelope {
   my $ch   = shift;
   my $host = $self->{'activehosts'}[$ch];
   my $log  = new Log::In 140, "$ch, $host";
+  my ($personal);
+
+ if ($self->{size} == 1) {
+    $personal = '$MSGRCPT';
+  }
 
   return
     Mj::Deliver::BSMTPEnvelope->new(
 				    'sender' => $self->{'sender'},
 				    'file'   => $self->{'file'},
 				    'local'  => $self->{'lhost'},
-				    'personal' => ($self->{'size'} == 1),
+				    'personal' => $personal,
 				    'ofile'  => "/tmp/mj_bsmtp",
 				    %{$self->{'hostdata'}{$host}},
 				   );
