@@ -350,13 +350,13 @@ sub put_chunk {
   my $self  = shift;
   my $chunk = shift;
   return unless $self->{'fh'};
-  $self->{'fh'}->print($chunk);
+  print {$self->{'fh'}} $chunk;
 }
 
 sub put_done {
   my $self = shift;
   return unless $self->{'fh'};
-  $self->{'fh'}->close;
+  close $self->{'fh'};
   $self->{'fh'} = undef;
   1;
 }

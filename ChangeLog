@@ -1,3 +1,8 @@
+2001-04-11  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/FileSpace.pm:  (put_chunk, put_done)  Bugfix:
+	do not use object methods with the file handle.
+
 2001-04-10  Michael Yount <csf@moscow.com>
 
 	* convertlist.pl:  Do not remove hyphen escapes from here
