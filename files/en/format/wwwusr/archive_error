@@ -4,3 +4,10 @@ No messages were retrieved from the archive for the $LIST list.
 
 $ERROR
 </pre>
+
+<p>
+
+<a href="$CGIURL?$CGIDATA&amp;func=lists-full-long&amp;extra=$LIST">
+$LIST list information</a>
+
+</p>
