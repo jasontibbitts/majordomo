@@ -1387,8 +1387,9 @@ sub shell_hook {
 
   # Make sure the script exists
 
-  # XXX Ouch!  This is nasty
-  $scriptdir  = "$::LIBDIR/../scripts";
+  # XXX The scripts directory is under the parent directory of LIBDIR.
+  $scriptdir = $::LIBDIR;
+  $scriptdir =~ s#(.*)/[^/\s]+[/\s]*$#$1/scripts#;
   $scriptname = "$scriptdir/$args{name}";
   return unless -x "$scriptname";
 
