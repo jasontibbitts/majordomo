@@ -1,4 +1,3 @@
-
 Data on the various digests that the list supports.  A digest is
 defined by a name, a description, and several pieces of data that tell
 Majordomo when an issue should be generated.  The following data can be given:

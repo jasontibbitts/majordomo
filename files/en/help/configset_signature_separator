@@ -14,10 +14,10 @@ configset GLOBAL signature_separator = /^[-_]/
 The command parser will stop looking for commands when it sees a
 line matching this pattern.
 
-The standard signature separator is a line consisting only of two
-dashes followed by one space.  However, many users ignore this
-standard and many sites use underscores instead of dashes.  Hence a
-more lenient pattern is generally more useful.
+The standard signature separator is a line consisting only of
+two dashes followed by one space. However, many users ignore
+this standard and many sites use underscores instead of dashes.
+Hence a more lenient pattern is generally more useful.
 
 For a list of all help topics send this one-line message
    help topics

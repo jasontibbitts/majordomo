@@ -16,14 +16,14 @@ ENDTAG
 
 
 These headers will be appended to the headers of the posted message.
-The text is expanded before being used.  The following expansion
-tokens are defined:
-  $LIST    - the name of the current list,
-  $SENDER  - the sender as taken from the from line,
-  $SEQNO   - the contents of the sequence_number variable, which is
-              automatically incremented each time a message is posted
-  $ARCHIVE - the number of this message in the archives
-  $VERSION - the version of Majordomo.
+
+The header text will undergo variable substitution as it is added to
+the message. See "help variables" for a list of substitutions which
+are supported.
+
+
+See Also:
+   help variables (for a list of all possible variables and what they mean)
 
 For a list of all help topics send this one-line message
    help topics

@@ -1,4 +1,3 @@
-
 A table containing a list of files and descriptions that should be
 sent to new subscribers.
 
@@ -13,4 +12,6 @@ The second should be either "N", meaning that the file will be sent as
 a separate piece of mail, or "P", meaning that the file will be
 attached to the previous file.  The default is "N".  In addition, an
 "S" can be added, indicating that the file should undergo variable
-substitution.
+substitution (and possibly auto-inclusion of OTHER files).
+
+See "help variables" for a list of substitutions which are supported.

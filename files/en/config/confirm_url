@@ -1,4 +1,7 @@
 The URL that is used to return confirmation tokens.  The only purpose
 of this variable is to supply a value to be used in the confirmation
-messages that are sent out.  The embedded variable $TOKEN will be
-expanded to the token being confirmed.
+messages that are sent out.
+
+The URL will undergo variable substitution as it is added to
+the message requesting confirmation. See "help variables" for
+a list of substitutions which are supported.

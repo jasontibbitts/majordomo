@@ -80,6 +80,7 @@ If, instead of a host name, the string "@qmail" is used, Majordomo
 will open a direct connection to the qmail-queue program and directly
 inject the message into the qmail delivery system.  This assumes, of
 course, that you are running qmail.
+
 More complicated forms allow you specify a list of hosts to be used
 for parallel delivery, and to specify more powerful batching parameters.
 

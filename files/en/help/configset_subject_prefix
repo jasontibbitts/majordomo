@@ -12,12 +12,16 @@ configset listname subject_prefix = Mj2:$LIST
 
 
 This word will be prefixed to the subject line, if it is not already
-in the subject.  The text is expanded before being used.  The following
-expansion tokens are defined:
-  $LIST    - the name of the current list
-  $SEQNO   - the contents of the sequence_number variable, which is
-              automatically incremented each time a message is posted
-  $VERSION - the version of Majordomo
+in the subject.
+
+The subject text will undergo variable substitution as it is added to
+the message. See "help variables" for a list of substitutions which
+are supported.
+
+
+See Also:
+   help configset message_headers (for adding arbitrary headers)
+   help variables (for a list of all possible variables and what they mean)
 
 For a list of all help topics send this one-line message
    help topics

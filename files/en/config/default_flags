@@ -1,6 +1,5 @@
 A string containing the flags to be given to new subscribers unless they
 choose otherwise.  Possible flags are:
-
   A - ackall
   a - ackimportant
   C - eliminatecc

@@ -1,4 +1,3 @@
-
 If defined only addresses belonging to one of the listed sublists will
 be allowed to post to the list.  This variable's function is
 completely encapsulated within the access_rules mechanism, but it

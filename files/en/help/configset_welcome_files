@@ -36,16 +36,9 @@ The second should be either "N", meaning that the file will be sent as
 a separate piece of mail, or "P", meaning that the file will be
 attached to the previous file.  The default is "N".  In addition, an
 "S" can be added, indicating that the file should undergo variable
-substitution.
-Currently the following substitutions are supported:
+substitution (and possibly auto-inclusion of OTHER files).
 
- \$USER    - the address of the user
- \$LIST    - the list name
- \$REQUEST - the list-request address
- \$MJ      - the address of the majordomo server
- \$OWNER   - the address of the list owner
- \$MJOWNER - the address of the domain owner
-
+See "help variables" for a list of substitutions which are supported.
 
 Here is an example:
 
@@ -59,8 +52,9 @@ faq.txt
 END
 
 See Also:
-   help help put  (for how to store files in the list's file space)
-   help help configset filedir (for where the list's file space is)
+   help put               (for how to store files in the list's file space)
+   help configset filedir (for where the list's file space is)
+   help variables         (for a list of all possible variables and what they mean)
 
 For a list of all help topics send this one-line message
    help topics

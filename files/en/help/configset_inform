@@ -41,6 +41,7 @@ and actions is a comma separated list of:
   inform: inform the owner immediately
 
 ignore overrides the others.
+report is not yet implemented.
 
 If a request is not specified, the default behavior for subscribe and
 unsubscribe is to inform on success, report otherwise.  The default
@@ -49,6 +50,7 @@ approximates the 1.9x behavior.
 
 Note that all actions are logged; this only affects which actions are
 deemed important enough to send mail about and which will be reported.
+
 This command specifies the commands or actions which should result in
 notices being sent to the list owner or site administrator, and/or
 what will be logged (the log file is probably in the /tmp or /var/mj

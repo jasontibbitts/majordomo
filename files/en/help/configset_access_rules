@@ -196,7 +196,7 @@ Semantics:
   restrict_post, etc.
 
 Supported variables:
-...
+  see "help variables"
 
 Example rules:
 
@@ -332,7 +332,6 @@ Section 2 - Hints and suggestions for how and why to use access_rules
 2.4 - files and subjects for 'replyfile's or 'mailfile's
 
   Please refer to "help put" for message files that are used by default!
-  (including a description of variables that will be evaluated)
 
   Whether you are storing "access_rules" for the GLOBAL pseudo-list or an
   actual list, you should use the "put" command to create the file in the
@@ -373,6 +372,9 @@ Section 2 - Hints and suggestions for how and why to use access_rules
   may or may not remember what they did... so you need to give them as
   much information as possible in the message.
 
+  Always create the error and get a copy of the message back before
+  unleashing it on the list subscribers!
+
   Sometimes a pre-written message will be perfectly clear, but most
   of the time it will be MORE clear if you include the list name, the
   command, etc. Some people do not know what is in their mail headers,
@@ -380,38 +382,16 @@ Section 2 - Hints and suggestions for how and why to use access_rules
   This type of information (list name, user name, command) can be put
   into the message using variables.
 
-  Majordomo variables, for this purpose, are all upper case words with
-  a leading dollar sign (as is common in Unix). If you mis-spell a
-  variable, or use one that is not defined, it will show up in the
-  mail message exactly as you typed it (dollar sign and all), so watch
-  for these and be aware that unevaluated variables do not cause errors.
-  Always create the error and get a copy of the message back before
-  unleashing it on the list subscribers.
+  There is a complete list of available variables in "help variables",
+  which can be used to insert information into the replyfile or mailfile
+  which is specific to a particular user or a particular message. Keep
+  in mind that these variables can occur in both the subject and the
+  message body.
 
-  There is currently no complete list of available variables, but
-  notice that these variables can occur in both the subject and the
-  message body. Refer to "help put" for how to store the files with
-  subjects, but the general form is "put GLOBAL /file subject <<".
-  The "subject" string on the "put" command will be the subject
-  (or part of the subject) of the message sent by the server.
-
-  Please refer to "help put" for message files that are used by default,
-  and a description of variables that will be evaluated. Some variables
-  you can use in 'replyfile's or 'mailfile's are:
-     \$CMDLINE   - the command which REQUESTER sent
-     \$EXPIRE    - token_lifetime setting, how long the 'accept' can wait
-     \$LIST      - GLOBAL or the individual list, depending on the action
-     \$MJ        - the server address, where accept/reject commands go
-     \$MJOWNER   - the address of the domain owner
-     \$OWNER     - the address of the list owner
-     \$REMIND    - token_remind setting, in case a token is forgotten
-     \$REQUESTER - the address which initiated the action
-     \$SUBJECT   - the subject line from the REQUESTOR's header
-     \$VICTIM    - the address of the person affected by the action
-  Remember, to use one of these variables, the syntax is "\$VARIABLE",
-  where the upper case name of the variable comes after a dollar sign,
-  and you need to watch out for lines that get too long when the string
-  replaces the variable name you type.
+  Refer to "help put" for how to store the files with subjects, but
+  the general form is "put GLOBAL /file subject <<". The "subject"
+  string on the "put" command will be the subject (or part of the
+  subject) of the message sent by the server.
 
   See the next section for an example file using variables in both
   the subject line and the message itself.
@@ -575,8 +555,9 @@ ENDCONSULT
 
 
 See Also:
-   help access     (for the special case of granting/denying all access)
-   help post       (for the special case of restricting who can post msgs)
+   help access    (for the special case of granting/denying all access)
+   help post      (for the special case of restricting who can post msgs)
+   help variables (for a list of all possible variables and what they mean)
 
 For a list of all help topics send this one-line message
    help topics

@@ -1,8 +1,9 @@
-
 A table containing delivery rules, which describe how Majordomo will
 deliver mail.  In the simplest form, you can specify a host to use for
 delivery and a batch size.  (This duplicates much of the functionality
-of bulk_mailer, for those familiar with it.)
+of bulk_mailer, for those familiar with it.) Smaller batch sizes will
+keep malformed addresses from killing the entire delivery, but the
+optimal batch size depends on your mail handler and net connections.
 
 Each delivery destination should begin with a line containing either a
 regular expression, or the word ALL.  Addreses are compared against

@@ -114,10 +114,10 @@ where they appear to commands like "index listname archive".
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-The remainder of this help file was originally from 'README.FILES'
-from the Mj2 distribution tree. Note that this information is not
-complete, and may be inaccurate... please let us know if you find
-anything that can be improved!
+The remainder of this help file was originally from the now
+obsolete 'README.FILES' in the Mj2 distribution tree. Note that
+this information may be incomplete... please let us know if you
+find anything that can be improved!
 
 These are all of the files that should exist somewhere in a list's (or
 GLOBAL's) filespace.  They will be mailed out at various times. (Many

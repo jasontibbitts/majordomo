@@ -1,4 +1,3 @@
-
 A table containing attachment rules, which describe how various MIME
 types are to be treated when they appear in messages sent to the list.
 
