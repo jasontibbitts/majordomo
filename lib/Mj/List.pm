@@ -478,7 +478,7 @@ sub make_setting {
       $isflag = 0;
     }
     else {
-      $log->out("failed, invalidaction");
+      $log->out("failed, invalid action");
       return (0, "Invalid setting: $set.\n"); # XLANG
     }
 
@@ -487,6 +487,10 @@ sub make_setting {
       if (exists $flags{$inv} and $flags{$inv}->[1] == 0) {
         # Ordinary flags are treated individually.
         $flags =~ s/$flags{$inv}->[3]//ig;
+        # Clear umbrella flags (ackstall will clear ackall or ackimportant)
+        if ($flags{$rset}->[1] == 2) {
+          $flags =~ s/$flags{$rset}->[3]//ig;
+        }
       }
       else {
         # Remove all in group ('noack' and 'ackall' clear all ack flags)
