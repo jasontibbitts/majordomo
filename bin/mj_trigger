@@ -7,7 +7,6 @@ BEGIN {
   $::UID    = "baduid";
   $::GID    = "badgid";
   $::UMASK  = "007";
-  @::DOMAINS= (qw(none));
 
   $SIG{__WARN__} = sub {print STDOUT "--== $_[0]"};
 
@@ -88,8 +87,9 @@ use Mj::Lock;
 use Getopt::Std;
 use vars qw($program_name);
 
-my(%opts, @mess, $approved, $dom, $fh, $fname, $head, $in_body,
-   $inmsg, $list, $mess, $mj, $ok, $request, $sender, $sess, $tlist, $top);
+my(%opts, @domains, @mess, @tmp, $approved, $dom, $fh, $fname, $head, 
+   $in_body, $inmsg, $list, $mess, $mj, $ok, $request, $sender, $sess, 
+   $tlist, $top);
 
 die("Not running as UID $::UID") unless $> == $::UID;
 die("Not running as GID $::GID") unless $) == $::GID;
@@ -104,13 +104,23 @@ $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 # -v - debug level
 getopts('d:t:v:', \%opts);
 
-# Untaint the domain
+# Untaint the domain(s)
 if ($opts{d}) {
-  $dom  =  $opts{d};
-  $dom =~ /([a-zA-Z0-9\-\.]+)/;
-  $dom = $1;
-  @::DOMAINS=($dom) if $dom;
+  $dom = $opts{d};
+  @tmp = ($dom) if $dom;
 }
+else {
+  @tmp = Majordomo::domains($::LISTDIR);
+}
+
+for $dom (@tmp) {
+  next unless $dom =~ /([a-zA-Z0-9\-\.]+)/;
+  $dom = $1;
+  push @domains, $dom if $dom;
+}
+
+die ("Unable to find any valid domains.\n") unless (@domains);
+
 $opts{v} ||= 0;
 
 # Open a log
@@ -138,7 +148,7 @@ $request = {
 };
 
 if ($opts{t} !~ /^lock/) {
-  for my $i (@::DOMAINS) {
+  for my $i (@domains) {
     $::log->in(21, undef, "info", "Triggering domain $i");
 
     $::mj = new Majordomo $::LISTDIR, $i;

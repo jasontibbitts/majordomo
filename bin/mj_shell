@@ -2,7 +2,6 @@
 BEGIN {
   $::LIBDIR = "/path/to/lib";
   $::LISTDIR= "/path/to/lists";
-  $::DEFDOM = "some.dom.ain";
   $::LOCKDIR= "blah";
   $::WTMPDIR= "/tmp";
   $::UMASK  = "007";
@@ -128,9 +127,13 @@ $::log->message(20, 'info', 'Umask set to '.sprintf('%lo', oct($::UMASK)));
 # Untaint the top directory and the domain.  It may not be completely safe
 # to do this.
 $top = $opts{t} || $::LISTDIR;
-$dom = $opts{d} || $::DEFDOM;
+$dom = $opts{d};
 $top =~ /(.*)/;
 $top = $1;
+
+unless ($dom) {
+  ($dom) = Majordomo::domains($::LISTDIR);
+}
 $dom =~ /([a-zA-Z0-9\-\.]+)/;
 $dom = $1;
 

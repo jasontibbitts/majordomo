@@ -2,7 +2,6 @@
 BEGIN {
   $::LIBDIR = 'unset';
   $::LISTDIR= 'unset';
-  $::DEFDOM = 'unset';
   $::TMPDIR = 'unset';
   $::LOCKDIR= "blah";
   $::UMASK  = "007";
@@ -65,9 +64,12 @@ my (%commands, %seen, @extra, @hereargs, @lists, @mlists,
                 'configset'     => [1, 1, 1, 'configshow'],
                 'configshow'    => [1, 1, 0, 'configshow'],
                 'digest'        => [1, 1, 1, 'showtokens'],
+                'faq'           => [1, 1, 1, 'lists'],
                 'get'           => [1, 1, 1, 'lists'],
                 'help'          => [0, 0, 1, 'help'],
                 'index'         => [1, 1, 1, 'lists'],
+                'info'          => [1, 1, 1, 'lists'],
+                'intro'         => [1, 1, 1, 'lists'],
                 'lists'         => [1, 0, 0, 'lists'],
                 'reject'        => [1, 0, 1, 'showtokens'],
                 'report'        => [1, 1, 1, 'showtokens'],
@@ -90,7 +92,11 @@ my (%commands, %seen, @extra, @hereargs, @lists, @mlists,
 $cgi = new CGI;
 print $cgi->header;
 $cgiurl = $cgi->script_name . $cgi->path_info;
-$domain = $cgi->param('domain') || $::DEFDOM;
+
+$domain = $cgi->param('domain');
+unless ($domain) {
+  ($domain) = Majordomo::domains($::LISTDIR);
+}
 $domain =~ /([a-zA-Z0-9\.\-]+)/; $domain = $1;
 
 #----- Make the Majordomo object -----#
@@ -392,7 +398,7 @@ elsif ($commands{$func}->[3] eq 'showtokens') {
     }
     &{"Mj::Format::showtokens"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', 
                                       $request, $result);
-    $seen{$list}++;
+    $seen{lc $list}++;
   }
 
   $subs->{'COUNT'} = $i;

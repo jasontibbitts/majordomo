@@ -2,7 +2,6 @@
 BEGIN {
   $::LIBDIR = 'unset';
   $::LISTDIR= 'unset';
-  $::DEFDOM = 'unset';
   $::TMPDIR = 'unset';
   $::LOCKDIR= "blah";
   $::UMASK  = "007";
@@ -81,7 +80,11 @@ my (%commands, @lists, $cgi, $cgidata, $cgiurl, $domain, $extra, $falseuser,
 $cgi = new CGI;
 print $cgi->header;
 $cgiurl = $cgi->script_name . $cgi->path_info;
-$domain = $cgi->param('domain') || $::DEFDOM;
+
+$domain = $cgi->param('domain');
+unless ($domain) {
+  ($domain) = Majordomo::domains($::LISTDIR);
+}
 $domain =~ /([a-zA-Z0-9\.\-]+)/; $domain = $1;
 
 #----- Make the Majordomo object -----#

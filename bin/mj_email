@@ -91,11 +91,13 @@ if (! -t STDERR) {
 # generate filenames; it's safe since they were supplied by the site owner.
 
 $opts{t} ||= $::LISTDIR;
+
 for ('c', 'l', 't', 'x') {
   next unless exists $opts{$_};
   $opts{$_} =~ /(.*)/;
   $opts{$_} = $1;
 }
+
 $opts{d} =~ /([a-zA-Z0-9\-\.]+)/;
 $opts{d} = $1;
 

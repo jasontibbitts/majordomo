@@ -2,7 +2,6 @@
 BEGIN {
   $::LIBDIR = 'unset';
   $::LISTDIR= 'unset';
-  $::DEFDOM = 'unset';
   $::TMPDIR = 'unset';
   $::LOCKDIR= "blah";
   $::UMASK  = "007";
@@ -68,7 +67,7 @@ $cgi = new CGI;
 print $cgi->header;
 $ptoken = $cgi->param('t');
 $action = $cgi->param('a');
-$domain = $cgi->param('d') || $::DEFDOM;
+$domain = $cgi->param('d');
 $domain =~ /([a-zA-Z0-9\-\.]+)/;
 $domain = $1;
 

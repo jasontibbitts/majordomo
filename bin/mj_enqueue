@@ -3,7 +3,6 @@ BEGIN {
   $::BINDIR = "/path/to/bin";
 #  $::LIBDIR = "/path/to/lib";
   $::LISTDIR= "/path/to/lists";
-  $::DEFDOM = "some.dom.ain";
   $::TMPDIR = "/tmp/mj";
 #  $::WTMPDIR= "/tmp";
   $::UMASK  = "007";
@@ -74,8 +73,10 @@ getopts('c:d:l:mMop:P:qQ:rSt:T:v:x:', \%opts);
 # Deal with -Q option
 do_qmail() if $opts{'Q'};
 
-$dom = $opts{'d'} || $::DEFDOM;  
+$dom = $opts{'d'}; 
 $dom =~ /([a-zA-Z0-9\-\.]+)/; $dom = $1;
+die ("mj_enqueue:  No domain was specified.\n") unless $dom;
+
 $opts{'p'} = 10 unless defined $opts{'p'};
 $opts{'P'} = 10 unless defined $opts{'P'};
 $opts{'v'} ||= 0;
