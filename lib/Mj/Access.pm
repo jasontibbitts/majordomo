@@ -599,7 +599,7 @@ sub list_access_check {
     # Populate the memberships hash
     # check_main is supported for backward compatibility only.
     if ($access->{$request}{'check_main'}) {
-      $memberof{'MAIN'} = $self->{'lists'}{$tmpl}->is_subscriber($victim, 'MAIN');
+      $memberof{'MAIN'} = $self->{'lists'}{$list}->is_subscriber($victim, 'MAIN');
     }
     if ($access->{$request}{'check_aux'}) {
       for $i (keys %{$access->{$request}{'check_aux'}}) {
