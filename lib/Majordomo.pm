@@ -270,7 +270,7 @@ sub connect {
   $self->{sessionuser} = $user;
 
   # Untaint
-  $int =~ /(\w+)/;
+  $int =~ /([\w-]+)/;
   $self->{interface} = $1;
 
 
@@ -321,7 +321,7 @@ sub connect {
   ($ok, $err) = $self->global_access_check($req);
 
   # Access check succeeded; now try the block_headers variable if applicable.
-  if ($ok > 0 and ($int eq 'email' or $int eq 'request')) {
+  if ($ok > 0 and ($int =~ /^email/ or $int eq 'request')) {
     ($ok, $err) = $self->check_headers($sess);
   }
   # If the access check failed we tell the client to sod off.  Clearing the
@@ -747,7 +747,12 @@ sub gen_cmdline {
 
   return unless (ref $request eq 'HASH');
   if ($request->{'command'} =~ /owner/) {
-    $request->{'cmdline'} = "(message to $request->{'list'}-owner)";
+    if ($request->{'list'} =~ /GLOBAL|DEFAULT|ALL/) {
+      $request->{'cmdline'} = "(message to majordomo-owner)";
+    }
+    else {
+      $request->{'cmdline'} = "(message to $request->{'list'}-owner)";
+    }
     return 1;
   }
   if ($request->{'command'} =~ /post/) {
@@ -4883,9 +4888,16 @@ sub reject {
     }
 
     ($ok, $data) = $self->t_reject($token);
-    
+   
     if (! $ok) {
       push @out, $ok, $data;
+      next;
+    }
+
+    # Send no notification messages if nolog or noinform mode is
+    # used.  These modes are only available to administrators.
+    if ($request->{'mode'} =~ /nolog|noinform/) {
+      push @out, $ok, [$token, $data];
       next;
     }
 
@@ -5780,6 +5792,7 @@ sub _showtokens {
     next if ($data->{'type'} eq 'delay' and $mode !~ /delay/);
     next if ($data->{'type'} eq 'async' and $mode !~ /async/);
     next if ($data->{'type'} eq 'alias' and $mode !~ /alias/);
+    next if ($data->{'type'} eq 'alias' and $mode !~ /probe/);
 
     # Obtain file size for posted messages
     if ($data->{'command'} eq 'post') {
@@ -5894,7 +5907,7 @@ sub _subscribe {
 
   unless ($ok) {
     $log->out("failed, existing");
-    return (0, "Already subscribed as $data->{'fulladdr'}.\n");
+    return (0, "$vict is already subscribed to $list as $data->{'fulladdr'}.\n");
   }
 
   $ml = $self->_global_config_get('password_min_length');

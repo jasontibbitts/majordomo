@@ -1,3 +1,53 @@
+2001-08-05  Michael Yount <csf@moscow.com>
+
+	* bin/mj_email:  Bugfix:  handle "-c" commands in the
+	request section, not the majordomo section.
+	
+	* bin/mj_email, bin/mj_queuerun:  Differentiate the
+	"email," "email-request," and "email-command" interfaces.
+	The email-request interface is used if commands are processed
+	by a LIST-request address.  The email-command interface is
+	used if a blank message is sent to a command alias, such
+	as LIST-subscribe.
+
+	* bin/mj_shell:  Bugfix:  Work around Net::Domain bareword
+	problem by invoking "use strict" after external modules
+	have been loaded. 
+	Store session information in a form resembling e-mail headers.
+
+	* files/en/token_bounce:  New file, used for notifications
+	when confirmation instructions cannot be delivered.
+
+	* lib/Majordomo.pm:  (connect)  Allow hyphens in the interface
+	name.
+	(gen_cmdline)  Bugfix:  Use "majordomo-owner" instead of
+	"GLOBAL-owner" when a message is sent to domain managers.
+	(reject)  Do not send informative messages about rejected
+	confirm tokens if the "noinform" or "nolog" command mode
+	is used.
+	(showtokens)  Add support for the "probe" command mode,
+	which will allow probe tokens to be displayed.
+
+	* lib/Mj/CommandProps.pm:  Support the report-full and
+	showtokens-probe commands.
+
+	* lib/Mj/Config.pm:  Support the "expire" action, which
+	occurs when the lifetime of a token expires.
+
+	* lib/Mj/Format.pm:  (report)  Display the session ID
+	and interface in "full" mode.
+	(g_sub) Make list substitutions only once.
+
+	* lib/Mj/Resend.pm:  (_check_approval)  Log the rejection
+	of a token via the "approved" feature.
+
+	* lib/Mj/Token.pm:  (t_accept)  Acceptance of an alias
+	token with a negative number of approvals required will
+	never result in the action being completed.  This is 
+	useful if a notice bounce were configured to cause a consult
+	token to be deleted.
+	(t_expire)  Log/inform about the expiration of each token.
+
 2001-08-01  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Access.pm:  (_a_default)  Include longer error
