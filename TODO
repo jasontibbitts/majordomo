@@ -99,5 +99,32 @@ Bounce Handling
 Hook up bounce_rules execution when a bounce comes in.  Most of the
 infrastructure is in place for this.
 
+bounce_rules actions:
+
+remove - remove the bouncing user and inform the owner
+inform - inform the list owner of the bounce but don't remove the user
+remove-quiet - remove the user but don't inform the owner
+ignore - don't tell the owner and don't remove the user
+Statistics are always gathered when appropriate.
+
+bounce_rules variables:
+
+$failure - true if bounce indicates a failure
+$warning - true if bounce indicates a warning
+$consecutive - count of consecutive messages bounced
+(more)
+
+default:
+
+# Don't bother the owner with warnings
+ignore
+$warning
+
+# Delete users after 50 consecutive bounces
+remove
+$consecutive > 50
+
+# All bounces not matched by the above will cause an informative message to
+# be sent to the owner.
 
 

@@ -152,14 +152,14 @@ unless ($ok) {
   exit 74;
 }
 
-# Now start up the server.  We must exit 0 from here on out (no dying)
-# because the file has already been queued and a runner will pick it up
-# later.  From the MTA's standpoint, delivery was successful.
+# Now start up the server.  We must exit 0 (or 99 for qmail) from here on
+# out (no dying) because the file has already been queued and a runner will
+# pick it up later.  From the MTA's standpoint, delivery was successful.
 
 $rendezvous = "$::TMPDIR/mj_queueserv.sock";
 unless (socket(SOCK, PF_UNIX, SOCK_STREAM, 0)) {
   logmsg "Couldn't create socket: $!";
-  exit 0;
+  exit ($opts{'S'} ? 99 : 0);
 }
 
 if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
@@ -170,13 +170,13 @@ if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
 
   unless (flock(LOCK, $::LOCK_EX|$::LOCK_NB)) {
     logmsg "Another process is starting the server";
-    exit 0;
+    exit ($opts{'S'} ? 99 : 0);
   }
 
   unless ($pid = fork) {
     unless (defined $pid) {
       warn "Couldn't fork: $!";
-      exit 0;
+      exit ($opts{'S'} ? 99 : 0);
     }
     # Child...
     close STDOUT unless -t STDOUT;
@@ -194,7 +194,7 @@ for ($i = 0; $i < 10 or die "connect: $!"; $i++) {
   close SOCK;
   unless (socket(SOCK, PF_UNIX, SOCK_STREAM, 0)) {
     warn "Couldn't create socket: $!";
-    exit 0;
+    exit ($opts{'S'} ? 99 : 0);
   }
   $ok ||= connect(SOCK, sockaddr_un($rendezvous));
 }
@@ -207,8 +207,7 @@ while ($line = in(*SOCK)) {
   logmsg "$line";
 }
 
-exit;
-
+exit ($opts{'S'} ? 99 : 0);
 
 # Look in $ENV{DEFAULT} which tells us the local-part of the address we're
 # being run at, and fake the other options.  Expect that we were called

@@ -353,7 +353,7 @@ sub parse_dsn {
 
   # Some bounces (from some versions of Netscape Messaging server, at
   # least) look like legal DSNs but don't actually have the per-user
-  # description block.  We call a special parser in another functuon to
+  # description block.  We call a special parser in another function to
   # deal with these, then return what that parser gave us.
   if (@status < 2) {
     $ok = check_dsn_netscape($ent, $data);
@@ -403,8 +403,11 @@ sub parse_dsn {
   # We may need to plow through the human-readable portion of the DSN to
   # get useful diagnostics
   if ($nodiag) {
-    check_dsn_diags($ent, $data);
-    return 'DSN + diag extraction';
+    if (check_dsn_diags($ent, $data) ||
+	check_dsn_netscape($ent, $data, {gotusers => 1}))
+      {
+	return 'DSN + diag extraction';
+      }
   }
   'DSN';
 }
@@ -668,8 +671,9 @@ sub parse_lotus {
 
 =head2 parse_mms
 
-Attempts to parse the bounces issued by Tumbleweed MMS (whatever that is).
-These bounces are multipart; the first part looks like this:
+Attempts to parse the bounces issued by Tumbleweed MMS and WorldSecure
+(whatever that is).  SMTP Relay programs.  These bounces are multipart; the
+first part looks like this:
 
 The MMS SMTP Relay is returning your message because:
 
@@ -697,10 +701,9 @@ sub parse_mms {
     $line = $bh->getline;
     return unless defined $line;
     next if $line =~ /^\s*$/;
-    last if $line =~ /^\s*The MMS SMTP Relay is returning your message/i;
+    last if $line =~ /^\s*The (MMS|WorldSecure Server) SMTP Relay is returning your message/i;
     return;
   }
-
   # User and diagnostic are one one line
   while (1) {
     $line = $bh->getline;
@@ -711,7 +714,7 @@ sub parse_mms {
       $diag = $2;
       $data->{$user}{'diag'}   = $diag;
       $data->{$user}{'status'} = 'failure';
-      $ok = 'Tumbleweed MMS';
+      $ok = 'MMS/WorldSecure';
     }
   }
 }
@@ -1151,13 +1154,13 @@ sub parse_softswitch {
 
 Does extra parsing for bounces where we could extract bouncing addresses
 but didn't get useful diagnostics.  This includes DSNs not including the
-optional diagnostic-code-field and those who include the field but indlude
+optional diagnostic-code-field and those who include the field but include
 a string like "250 OK" or "250 Message accepted for delivery" instead of
 something useful.
 
-These MTAs all seem to be some version of Sendmail and all seem to include
-some useful data at the end of the human-readable portion of the DSN, in a
-block that looks like:
+These MTAs mostly seem to be some version of Sendmail, and all seem to
+include some useful data at the end of the human-readable portion of the
+DSN, in a block that looks like:
 
    ----- Transcript of session follows -----
 ... while talking to XXXX.net.:
@@ -1174,7 +1177,7 @@ We look for lines like:
 and we also look for bare user names.  These are matched against the users
 that DSN parsing found but couldn't extract diagnostic information for.
 
-This function returns no useful value.
+This function returns truth if any useful diagnostic was found.
 
 =cut
 sub check_dsn_diags {
@@ -1244,10 +1247,12 @@ sub check_dsn_diags {
 	    ))
 	  {
 	    $data->{$i}{'diag'} = $diag;
+	    $ok = 1;
 	  }
       }
     }
   }
+  $ok;
 }
 
 =head2 check_dsn_netscape
@@ -1257,6 +1262,9 @@ Messaging Server (4.15 and 4.03, at least).  These look just like DSNs but
 don't contain any per-user delivery status blocks (making them illegal
 according to RFC1894.  The DSN parser will call us explicitly when it sees
 that it needs to.
+
+Also, some servers to include a per-user block but don't include any useful
+diagnostics and don't include a session transcript the way Sendmail does.
 
 To parse it, we have to plow through the human-readable portion to find
 users and diagnostics.  But note that this idiotic software uses different
@@ -1309,7 +1317,7 @@ sub check_dsn_netscape {
   my $ent  = shift;
   my $data = shift;
   my $hints= shift;
-  my ($fh, $diag, $format3, $format5, $line, $ok, $pdiag, $type, $user);
+  my ($fh, $diag, $format3, $format5, $i, $line, $ok, $pdiag, $type, $user);
 
   # Check the type of the first part; it should be plain text
   $type = $ent->parts(0)->mime_type;
@@ -1325,7 +1333,7 @@ sub check_dsn_netscape {
     $line = $fh->getline; last unless defined $line;
     chomp $line;
 
-    if ($line =~ /^\s*$/) {
+    if ($line =~ /^\s*$/ && !$format5) {
       $pdiag = '';
       next;
     }
@@ -1374,12 +1382,14 @@ sub check_dsn_netscape {
     }
 
     # The fifth format; first look for the start of the diagnostic
-    elsif ($line =~ /the following destination addresses/i) {
-#      warn "format 5";
-      $diag = $line;
-      $diag =~ s/^\s*//;
-      $format5 = 1;
-    }
+    elsif ($line =~ /the following destination addresses/i ||
+	   $line =~ /the user.* account/i)
+      {
+#      warn "format 5 $line";
+	$diag = $line;
+	$diag =~ s/^\s*//;
+	$format5 = 1;
+      }
     # Parsing the rest of the diagnostic
     elsif ($format5 == 1) {
       if ($line =~ /^\s*$/) {
@@ -1390,8 +1400,8 @@ sub check_dsn_netscape {
     # Parsing the addresses
     elsif ($format5 == 2) {
       last if $line =~ /^\s*$/;
-      if ($line =~ /^\s*smtp\s*<(.*)>\s*$/i) {
-	$user = 1;
+      if ($line =~ /^\s*(?:smtp\s*)?<(.*)>\s*$/i) {
+	$user = $1;
       }
       else {
 	next;
@@ -1399,8 +1409,26 @@ sub check_dsn_netscape {
     }
 
     if ($user) {
-      $data->{$user}{'status'} = 'failure';
-      $data->{$user}{'diag'}   = $diag;
+      $diag =~ s/^\s*//; $diag =~ s/\s*$//;
+      # We may need to check to see if we found a per-user DSN block for
+      # this user
+      if ($hints->{gotusers}) {
+	for $i (keys %$data) {
+	  if ((lc($i) eq lc($user) || $i =~ /^\Q$user\E@/i) &&
+	      (
+	       $data->{$i}{'diag'} eq 'unknown' ||
+	       $data->{$i}{'diag'} =~ /250/     ||
+	       !defined($data->{$i}{'diag'})
+	      ))
+	    {
+	      $data->{$i}{'diag'} = $diag;
+	    }
+	}
+      }
+      else {
+	$data->{$user}{'status'} = 'failure';
+	$data->{$user}{'diag'}   = $diag;
+      }
       $ok = 'DSN + Netscape';
     }
   }

@@ -1,5 +1,13 @@
 2000-11-15  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/BounceParser.pm (parse_mms): Accept WorldSecure SMTP
+	Relay bounces as well.
+	(check_dsn_netscape): Handle an additional format.
+	(parse_dsn): Call check_dsn_netscape when appropriate to pull out
+	additional diags that check_dsn_diags missed.
+
+	* bin/mj_enqueue: Support -S option for qmail.
+
 	* lib/Mj/BounceParser.pm (parse_postoffice): Handle older
 	Post.Office bounces.
 	(parse_mms): New function to parse Tumbleweed MMS bounces.

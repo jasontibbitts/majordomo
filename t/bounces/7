@@ -1,0 +1,44 @@
+Comment: Another DSN without useful diagnostics
+To: test-owner+M7@example.com
+From: Mail Administrator <Postmaster@example.com>
+Reply-To: Mail Administrator <Postmaster@example.com>
+Subject: Mail System Error - Returned Mail
+Message-ID: <20001115215204.LURV10244.example.com@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/report;
+		report-type=delivery-status;
+		Boundary="===========================_ _= 2797241(10244)974325124"
+
+--===========================_ _= 2797241(10244)974325124
+Content-Type: text/plain
+
+This Message was undeliverable due to the following reason:
+
+The user(s) account is temporarily over quota.
+
+<user@example.com>
+
+Please reply to Postmaster@example.com
+if you feel this message to be in error.
+
+--===========================_ _= 2797241(10244)974325124
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; example.com
+Arrival-Date: Thu, 16 Nov 2000 08:52:04 +1100
+Received-From-MTA: dns; example.com (127.0.0.1)
+
+Final-Recipient: RFC822; <user@example.com>
+Action: failed
+Status: 4.2.2
+
+--===========================_ _= 2797241(10244)974325124
+Content-Type: message/rfc822
+
+Subject: Bounced message
+
+This message bounced.
+
+--===========================_ _= 2797241(10244)974325124--
+
+

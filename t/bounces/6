@@ -1,0 +1,31 @@
+Comment: A bounce from Tumbleweed MMS
+From: mailer-daemon@example.com
+To: test-owner+M6@example.com
+Message-ID: <mailer-daemon@example.com-160F49AC186815>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+ boundary="_-==160F49AC3313==-_"
+Subject: Message Delivery Failure
+
+--_-==160F49AC3313==-_
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+The MMS SMTP Relay is returning your message because:
+
+	Unable to deliver to recipient on remote mail host:
+		<user@example.com> - 550 <user@example.com>... User unknown
+
+
+
+--_-==160F49AC3313==-_
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment
+
+Subject: Bounced message
+
+This message bounced.
+
+--_-==160F49AC3313==-_--
+

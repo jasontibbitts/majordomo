@@ -16,7 +16,7 @@ use MIME::Parser;
 use Mj::BounceParser;
 use Mj::FakeLog;
 
-#$Mj::FakeLog::verbose = 1;
+$Mj::FakeLog::verbose = 1;
 
 $parser = new MIME::Parser;
 $parser->output_dir('/tmp');

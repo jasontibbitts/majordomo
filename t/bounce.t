@@ -12,6 +12,7 @@ use Mj::BounceParser;
 
 $debug  = 0;
 $noskip = 0;
+$|=1;
 
 # Quiet some warnings;
 $msgno = $type = $user = 0;
@@ -76,6 +77,8 @@ while(defined($file = readdir(DIR))) {
 
   open BOUNCE, "t/bounces/$file" or die("Can't open $file: $!");
   $ent = $parser->read(\*BOUNCE);
+  $line = $ent->head->get('Comment');
+  print "\n$line" if $line;
   close BOUNCE;
 
   ($type, $msgno, $user, $handler, $data) =

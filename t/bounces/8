@@ -1,0 +1,33 @@
+Comment: A WorldSecure bounce, parsed by parse_mms
+From: mailer-daemon@example.com
+To: test-owner+M8@example.com
+Message-ID: <mailer-daemon@example.com-15B2DDD12121>
+MIME-Version: 1.0
+Subject: Message Delivery Failure
+Content-Type: multipart/mixed; 
+ boundary="_-==15B2DDD15==-_"
+
+--_-==15B2DDD15==-_
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+The WorldSecure Server SMTP Relay is returning your message because:
+
+	Unable to deliver to recipient on remote mail host:
+		<user@example.com> - 550 <user@example.com>... Relaying denied
+
+
+
+--_-==15B2DDD15==-_
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment
+
+Subject: Bounced message
+
+This message bounced.
+
+--_-==15B2DDD15==-_--
+
+
