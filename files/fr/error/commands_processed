@@ -1,0 +1,3 @@
+Nombre de commandes valides traitées : $COUNT
+$SUCCEED réussies, $STALL en attente et $FAIL échouées.
+

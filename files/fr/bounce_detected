@@ -1,0 +1,6 @@
+Un message en erreur pour le message #$SEQNO, pour la liste $LIST
+  (type d'erreur $HANDLER)
+
+$BOUNCE_DATA
+
+Le message en erreur est attaché ci dessous.

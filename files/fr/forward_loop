@@ -1,0 +1,8 @@
+# La commande suivante n'a pas été transférée à :
+#   $NEWADDRESS
+# au lieu de :
+#   $USER
+# car cela aurais résulté d'une boucle
+
+$CMDLINE
+
