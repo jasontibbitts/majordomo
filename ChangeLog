@@ -1,5 +1,8 @@
 2001-08-15  Jason Tibbitts  <tibbs@math.uh.edu>
 
+	* t/shell.t: Fix test 15 to match changes in "password" format
+	file.
+
 	* lib/Majordomo.pm (configshow): Bugfix: in the case of a single
 	scalar variable, returned $auto where we meant to return $data.
 

@@ -125,7 +125,7 @@ $r = run('-p gonzo -u enchanter@example.com alias planetfall@example.com');
 ok($e, $r);
 
 # 15. Set a password
-$e = qq!\QPassword set.\n!;
+$e = qq!The personal password.*changed!;
 $r = run('-p gonzo -u enchanter@example.com password-quiet suspect');
 ok($e, $r);
 
@@ -139,7 +139,7 @@ sub ok {
   my $expected = shift;
   my $result   = shift;
   my $verb     = shift;
-  if ($result =~ /$expected/) {
+  if ($result =~ /$expected/s) {
     print "ok $counter\n";
   }
   else {
