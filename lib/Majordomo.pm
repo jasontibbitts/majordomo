@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200311190";
+$VERSION = "0.1200401130";
 $unique = 'AAA';
 
 use strict;
@@ -400,7 +400,7 @@ sub connect {
          };
 
   if ($ok) {
-    ($ok, $err) = $self->global_access_check($req, %$avars);
+    ($ok, $err) = $self->list_access_check($req, %$avars);
   }
 
   # If the access check failed we tell the client to sod off.  Clearing the
@@ -864,7 +864,7 @@ sub get_all_lists {
             'user'     => $user
            };
 
-    ($ok) = $self->list_access_check($req);
+    ($ok) = $self->list_access_check($req, 'nostall' => 1);
     push (@lists, $list) if $ok;
   }
   sort @lists;
@@ -2878,7 +2878,7 @@ sub help_start {
   my $log = new Log::In 50, "$request->{'user'}, $request->{'topic'}";
 
   ($ok, $mess) =
-    $self->global_access_check($request);
+    $self->list_access_check($request, 'nostall' => 1);
 
   # No stalls should be allowed...
   unless ($ok > 0) {
@@ -3071,7 +3071,7 @@ sub password {
     unless ($request->{'mode'} =~ /show/ or $length >= $minlength);
 
   ($ok, $mess) =
-    $self->global_access_check($request, 'password_length' => $length);
+    $self->list_access_check($request, 'password_length' => $length);
 
   unless ($ok > 0) {
     return ($ok, $mess);
@@ -3614,9 +3614,6 @@ sub _get_stock {
   my $log = new Log::In 150, "$file, $self->{'sitedir'}";
   my (%out, $data, $lang, $noweb);
 
-  if (eval "require warnings;") {
-    eval "no warnings 'deprecated';";
-  }
   $noweb = 1;
   $noweb = 0 if $self->{'sitedata'}{'config'}{'cgi_bin'};
 
@@ -3628,6 +3625,9 @@ sub _get_stock {
       $log->abort("Can't load index file $self->{'sitedir'}/files/INDEX.pl!")
         unless $self->{'sitedata'}{'noweb'};
     }
+
+    # Disable spurious warnings from perl 5.8.2.
+    local($^W) = 0;
 
     # XXX This change should be made at a higher level.
     if (exists $self->{'sitedata'}{'noweb'}{$file}) {
@@ -4770,7 +4770,7 @@ sub changeaddr {
   my $log = new Log::In 30, "$request->{'victim'}, $request->{'user'}";
   my ($ok, $error);
 
-  ($ok, $error) = $self->global_access_check($request);
+  ($ok, $error) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     $log->out("noaccess");
@@ -4877,12 +4877,19 @@ is the owner, since this is who will be sent introductory information.
 use Mj::MTAConfig;
 sub createlist {
   my ($self, $request) = @_;
-  my ($mess, $ok);
+  my ($mess, $ok, $tmp);
 
   unless ($request->{'mode'} =~ /regen/) {
-    # XLANG
-    return (0, "Must supply a list name.\n")
-      unless $request->{'newlist'};
+
+    unless (defined $request->{'newlist'} and 
+            length $request->{'newlist'}) {
+      $tmp = 'createlist';
+      if (length $request->{'mode'}) {
+        $tmp .= '-' . $request->{'mode'};
+      }
+      return (0, $self->format_error('no_list', 'GLOBAL', 
+                                     'COMMAND' => $tmp));
+    }
 
     # Use the address of the requester as the list owner
     # unless an address was requested explicitly.
@@ -4908,7 +4915,7 @@ sub createlist {
   # need to be sent to a different place than the results of the
   # command.
   $request->{'owners'} = join "\002\002", @{$request->{'owners'}};
-  ($ok, $mess) = $self->global_access_check($request);
+  ($ok, $mess) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     return ($ok, $mess);
@@ -5597,7 +5604,7 @@ sub lists {
   my ($mess, $ok);
 
   # Check access
-  ($ok, $mess) = $self->global_access_check($request);
+  ($ok, $mess) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     return ($ok, $mess);
@@ -6065,7 +6072,7 @@ sub register {
   # Do a list_access_check here for the address; subscribe if it succeeds.
   # The access mechanism will automatically generate failure notices and
   # confirmation tokens if necessary.
-  ($ok, $error) = $self->global_access_check($request);
+  ($ok, $error) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     $log->message(30, "info", "noaccess");
@@ -6179,7 +6186,7 @@ sub rekey_start {
     return ($ok, $mess) unless $ok;
   }
 
-  ($ok, $mess) = $self->global_access_check($request);
+  ($ok, $mess) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     $log->out("noaccess");
@@ -6837,7 +6844,7 @@ sub show {
 
   # We know each address is valid; the dispatcher took care of that for us.
   $addr = $request->{'victim'};
-  ($ok, $error) = $self->global_access_check($request);
+  ($ok, $error) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     $log->out("noaccess");
@@ -7090,10 +7097,17 @@ sub _subscribe {
   my $sublist = shift || 'MAIN';
   my $log   = new Log::In 35, "$list, $vict";
   my ($ok, $class, $classarg, $classarg2, $data, $exist, $flags, $ml,
-      $rdata, $welcome, $welcome_table);
+      $rdata, $sl, $welcome, $welcome_table);
 
   return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
+
+  if ($sublist ne 'MAIN') {
+    $sl = "$list:$sublist";
+  }
+  else {
+    $sl = $list;
+  }
 
   if ($setting) {
     ($ok, $flags, $class, $classarg, $classarg2) =
@@ -7118,7 +7132,7 @@ sub _subscribe {
 
   unless ($ok) {
     $log->out("failed, existing");
-    return (0, $self->format_error('already_subscribed', $list,
+    return (0, $self->format_error('already_subscribed', $sl,
             'VICTIM' => "$vict", 'FULLADDR' => $data->{'fulladdr'}));
   }
 
@@ -7690,7 +7704,7 @@ sub unregister {
   }
 
   ($ok, $error) =
-    $self->global_access_check($request, 'mismatch' => $mismatch,
+    $self->list_access_check($request, 'mismatch' => $mismatch,
                                'regexp'   => $regexp);
 
   unless ($ok > 0) {
@@ -7925,7 +7939,7 @@ sub which {
   # to use the which command.  Thus, a string length check is unneeded.
 
   # Check global access, to get max hit limit, which is unused.
-  ($max_hits, $err) = $self->global_access_check($request);
+  ($max_hits, $err) = $self->list_access_check($request);
 
   return ($max_hits, $err) unless $max_hits > 0;
 
