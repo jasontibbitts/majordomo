@@ -456,10 +456,10 @@ We take either a field/value pair or coderef.  There are a couple of
 interesting optimizations we can do with the field/value pair that get the
 operation down close to one regexp match per line.
 
-XXX coderef not implemented.
-
 This returns a list of entries, or an empty list if no matching entries
 before EOF.
+
+XXX Coderef only implemented for get_matching;
 
 =cut
 sub get_matching_quick {

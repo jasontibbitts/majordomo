@@ -604,6 +604,7 @@ sub put {
   }
   else {
     ($file, $desc) = split(/\s+/, $args, 2);
+    $desc ||= '';
     $cmdline = "put".($mode?"-$mode":"")." $list $file $desc";
     $ct = ''; $cset = ''; $cte = ''; $lang = '';
   }

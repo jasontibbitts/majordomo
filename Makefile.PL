@@ -42,7 +42,6 @@ unless (check_syslog() &&
 	 #	     'Data::ShowTable'  => 0,  # Want 3.3, but the stupid module
 	 # doesn't have a version number
 	 'Date::Manip'    => 5.10,
-	 'HTML::Stream'   => 1.42,
 	 'CGI'            => 2.36,
 	 'MD5'	          => 1.7,
 	 'IO::Socket'     => 1.1602,
@@ -56,6 +55,7 @@ unless (check_syslog() &&
 	 'File::Copy'	  => 0,
 	 'Fcntl'	  => 0,
          'Carp'		  => 0,
+	 'Time::Local'    => 0,
 	))
   {
     print "Majordomo cannot run without its prerequisite modules.\n";
@@ -149,9 +149,9 @@ WriteMakefile
 print <<EOM;
 
 Now you should do the following:
-  make
+  make (expect several warnings about truncation to 8 characters)
   make test (if you wish to run the paltry tests)
-  make install (as root) and answer the questions
+  make install (as root) and answer any questions that appear
 EOM
 
 exit;

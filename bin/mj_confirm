@@ -34,7 +34,6 @@ provided, a radio control will be presented.
 use lib "$::LIBDIR";
 use strict;
 use CGI;
-use HTML::Stream qw(html_escape);
 use Majordomo;
 use Mj::Format;
 use Mj::Log;
@@ -96,12 +95,12 @@ $token = $mj->t_recognize($ptoken) || "";
 
 if ($ok) {
   $request   = $data[0];
-  $requester = html_escape($data[1]);
-  $cmdline   = html_escape($data[2]);
+  $requester = escape($data[1]);
+  $cmdline   = escape($data[2]);
   $type      = $data[9];
   $approvals = $data[10];
   $time      = localtime($data[11]);
-  $sess      = html_escape($data[13]);
+  $sess      = escape($data[13]);
 
 }
 
@@ -244,6 +243,14 @@ EOF
   
 }
 
+sub escape {
+  local $_ = shift;
+  my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
+  s/([<>\"&])/\&$esc{$1};/mg; 
+  s/([\x80-\xFF])/'&#'.unpack('C',$1).';'/eg;
+  $_;
+}
+
 $::log->out;
 exit 0;
 
@@ -265,7 +272,6 @@ detailed information.
 
 #
 ### Local Variables: ***
-### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***
 

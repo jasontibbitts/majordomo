@@ -2382,7 +2382,32 @@ Contents:
   }
 
   elsif ($mode =~ /index/) {
+   # Else not immediate
+    @msgs = $self->{'lists'}{$list}->archive_expand_range(0, @args);
+
+    ($ent, $msgs) = $self->{'lists'}{$list}->build_digest
+      (messages      => [@msgs],
+       type          => 'index',
+       subject       => "Message Index from $list",
+       index_line    => $self->_list_config_get($list, 'digest_index_format'),
+       index_header  => "
+Custom-Generated Message Index Containing " . scalar(@msgs) . " Messages
+
+To retrieve one or more messages, use the archive-get command.  For example:
+
+ archive-get $list 199810/1 199810/2 199810/3 199810/4
+
+Index:
+",
+       index_footer  => "\n",
+      );
+    # Mail the entity out to the victim
+    $owner = $self->_list_config_get($list, 'sender');
+    $self->mail_entity($owner, $ent, $vict);
+    $ent->purge;
+    return (1, "An index containing $msgs messages has been mailed.\n");
   }
+  
   elsif ($mode =~ /search/) {
   }
   1;

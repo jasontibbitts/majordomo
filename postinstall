@@ -316,7 +316,7 @@ sub do_site_config {
     $config->{'site_password'} = $pw;
   }
 
-  print "Cnfiguring site-wide parameters:";
+  print "Configuring site-wide parameters:";
 
   # Build up the Data hash.
   $data = {

@@ -419,11 +419,11 @@ sub _post {
   $self->deliver($list, $sender, $file, $seqno, 'each');
   
   # Pass to archiver; first extract all references
-  $tmp = $head->get('references') || '';
+  $tmp = $archead->get('references') || '';
   while ($tmp =~ s/<([^>]*)>//) {
     push @refs, $1;
   }
-  $tmp = $head->get('in-reply-to') || '';
+  $tmp = $archead->get('in-reply-to') || '';
   while ($tmp =~ s/<([^>]*)>//) {
     push @refs, $1;
   }
@@ -445,7 +445,7 @@ sub _post {
       'from'       => $user,
       'quoted'     => $avars{quoted_lines},
       'refs'       => join(',',@refs),
-      'subject'    => $subject,
+      'subject'    => $archead->get('subject'),
      },
     );
 

@@ -922,12 +922,12 @@ sub eprintf {
   }
 }
 
+# Basic idea from HTML::Stream, 
 sub escape {
   local $_ = shift;
-  s/&/&amp;/g;
-  s/\"/&quot;/g;
-  s/</&lt;/g;
-  s/>/&gt;/g;
+  my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
+  s/([<>\"&])/\&$esc{$1};/mg; 
+  s/([\x80-\xFF])/'&#'.unpack('C',$1).';'/eg;
   $_;
 }
 

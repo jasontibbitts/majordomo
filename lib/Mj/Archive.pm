@@ -98,7 +98,7 @@ sub new {
       if ($1) {
 	$self->{'archives'}{$1} = {};
       }
-      elsif ($split eq 'unlimited') {
+      elsif ($size eq 'unlimited') {
 	$self->{'archives'}{$_} = {};
       }
     }
@@ -387,6 +387,33 @@ sub get_to_file {
   ($data, $file);
 }
 
+=head2 get_data(message)
+
+This just retrieves the data for a message, or undef if the message does
+not exist.
+
+=cut
+sub get_data {
+  my $self = shift;
+  my $msg  = shift;
+  my $log = new Log::In 150, "$msg";
+  my ($arc, $data, $dir, $fh, $file, $idx);
+
+  # Figure out appropriate index database and message number
+  ($arc, $msg) = $msg =~ m!([^/]+)/(.*)!;
+  $dir = $self->{dir};
+  $idx = "$dir/.index/I$self->{'list'}.$arc";
+  $file= "$dir/$self->{'list'}.$arc";
+
+  # Open the database
+  unless ($self->{'indices'}{$arc}) {
+    $self->{'indices'}{$arc} = new Mj::SimpleDB($idx, 'text', \@index_fields);
+  }
+  
+  # Look up the data for the message
+  $self->{'indices'}{$arc}->lookup($msg);
+}
+
 =head2 last_message(archive)
 
 Returns the name of the last message in an archive.
@@ -451,7 +478,115 @@ sub last_n {
   @msgs;
 }
 
+=head2 expand_date(date, date)
   
+This returns all messages from a given date or between two dates.  The
+dates should be integers in yyyymmdd, yyyymmw, yyyymm, or yyyy format.
+
+=cut
+sub expand_date {
+  my $self  = shift;
+  my $start = shift;
+  my $end   = shift || $start;
+  my ($e, $s);
+
+  $s = _secs_start($start);
+  $e = _secs_end($end);
+
+warn "$start -> $s; $end -> $e";
+
+  
+}
+
+=head2 _secs_start(date)
+
+Returns the seconds count at the beginning of the given 'date'.
+
+=cut
+use Time::Local;
+sub _secs_start {
+  my $d = shift;
+
+  # Convert the data into yyyymmmdd format
+  if ($d =~ /^\d$/) {
+    $d += 2000;
+  }
+  elsif ($d =~ /^\d{2,3}$/) {
+    $d += 1900;
+  }
+  elsif ($d =~ /^\d{4}$/) {
+    $d .= '0101';
+  }
+  elsif ($d =~ /^(\d{4})(\d)$/) {
+    $d = "${1}0${2}01";
+  }
+  elsif ($d =~ /^\d{6}$/) {
+    $d .= '01';
+  }
+  elsif ($d =~ /^(\d{6})(\d)$/) {
+    # Turn week 1, 2, 3, 4 into day 1, 8, 15, 22
+    $2 = 4 if $2 > 4;
+    $d = $1 . (($2 - 1) * 7) + 1;
+  }
+  elsif ($d =~ /^(\d{8})/) {
+    $d = $1;
+  }
+
+  # Now convert that to seconds
+  $d =~ /^(\d{4})(\d{2})(\d{2})$/;
+  timegm(0,0,0,$3,$2-1,$1);
+}
+
+=head2 _secs_end(date)
+
+Returns the seconds count at the end of the given 'date'.
+
+=cut
+use Time::Local;
+sub _secs_end {
+  my $d = shift;
+
+  # Convert the data into yyyymmmdd format
+  if ($d =~ /^\d$/) {
+    $d += 2000;
+  }
+  elsif ($d =~ /^\d{2,3}$/) {
+    $d += 1900;
+  }
+  elsif ($d =~ /^\d{4}$/) {
+    $d .= '1231';
+  }
+  elsif ($d =~ /^(\d{4})(\d)$/) {
+    $d = "${1}0${2}";
+  }
+  elsif ($d =~ /^(\d{4})(\d{2})$/) {
+    $d .= _dim($2);
+  }
+  elsif ($d =~ /^(\d{4})(\d{2})(\d)$/) {
+    # Turn week 1, 2, 3, 4 into day 7, 14, 21, (28, 30, 31)
+    if ($3 >= 4) {
+      $d = $1 . _dim($2);
+    }
+    else {
+      $d = $1 . ($2 * 7);
+    }
+  }
+  elsif ($d =~ /^(\d{8})/) {
+    $d = $1;
+  }
+
+  # Now convert that to seconds
+  $d =~ /^(\d{4})(\d{2})(\d{2})$/;
+  timegm(59,59,23,$3,$2-1,$1);
+}
+
+# Days in month.
+sub _dim {
+  my $m = shift;
+  return 28 if $m == 2;
+  return 30 if $m == 2 || $m == 4 || $m == 6 || $m == 9 || $m == 11;
+  31;
+}
 
 =head2 find_line
 
@@ -601,7 +736,7 @@ Takes a range of articles and expands it into a list of articles.
 * By named messages:
     199805/12 199805/15
 
-  By a message count (last 10 messages):
+* By a message count (last 10 messages):
      10
 
   By a range of names:

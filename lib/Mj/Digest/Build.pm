@@ -88,7 +88,7 @@ sub build_mime {
     {
       no strict 'refs';
       $func = "idx_$args{'index_line'}";
-      $indexh->print(&$func($data));
+      $indexh->print(&$func($args{'type'}, $i, $data));
     }
     $tmp = build MIME::Entity
       (Type        => 'message/rfc822',
@@ -114,13 +114,52 @@ sub build_mime {
   ($top, $count);
 }
 
-=head2 build_1153_start
-=head2 build_1153_one
-=head2 build_1153_done
+=head2 build_index
 
-This builds an rfc1153 (old) style digest.
+This builds an 'index' digest.  This is a digest that includes no messages,
+but instead just contains an index of messages and numbers so that the user
+can choose which messages to retrieve.
 
 =cut
+sub build_index {
+  my %args = @_;
+  my (@msgs, $count, $data, $func, $i, $index, $indexf,
+      $indexh, $tmp);
+  
+  $count = 0;
+  $indexf = Majordomo::tempname();
+  $indexh = new IO::File ">$indexf";
+  $indexh->print($args{'index_header'}) if $args{'index_header'};
+
+  # Extract all messages from the archive into files, building them into
+  # entities and generating the index file.
+  for $i (@{$args{'messages'}}) {
+    $data = $args{'archive'}->get_data($i);
+    unless ($data) {
+      $indexh->print("  Message $i not in archive.\n");
+      next;
+    }
+    $count++;
+    {
+      no strict 'refs';
+      $func = "idx_$args{'index_line'}";
+      $indexh->print(&$func($args{'type'}, $i, $data));
+    }
+  }
+
+  $indexh->print($args{'index_footer'}) if $args{'index_footer'};
+
+  # Build index entry.
+  $indexh->close;
+  $index = build MIME::Entity
+    (Type        => 'text/plain',
+     Description => $args{'subject'} || '',
+     Path        => $indexf,
+     Filename    => undef,
+    );
+  ($index, $count);
+}
+
 
 =head2 idx_default
 
@@ -129,9 +168,14 @@ spaces.
 
 =cut
 sub idx_default {
-  my $data = shift;
+  my ($type, $msg, $data) = @_;
+  my $sub = $data->{'subject'};
+  $sub = '(no subject)' unless length $sub;
 
-  return "  $data->{'subject'}\n";
+  if ($type eq 'index') {
+    return sprintf("  %-10s: %s\n", $msg, $sub);
+  }
+  return "  $sub\n";
 }
 
 =head2 idx_wasilko
@@ -147,18 +191,20 @@ Original code by Jeff Wasilko. '
 
 =cut
 sub idx_wasilko {
-  my $data = shift;
-  my ($from, $subj, $width);
+  my ($type, $msg, $data) = @_;
+  my ($from, $sub, $width);
 
-  $subj = $data->{'subject'};
-  if (length($subj) > 40) {
-    return "  $subj\n" . (' ' x int(74-length($data->{'from'}))) .
+  $sub = $data->{'subject'};
+  $sub = '(no subject)' unless length $sub;
+
+  if (length($sub) > 40) {
+    return "  $sub\n" . (' ' x int(74-length($data->{'from'}))) .
       "[$data->{'from'}]\n";
   }
 
-  $from = substr($data->{'from'},0,71-length($subj));
-  $width = length($from) + length($subj);
-  return "  $subj " . (' ' x int(71 - $width)) . "[$from]\n";
+  $from = substr($data->{'from'},0,71-length($sub));
+  $width = length($from) + length($sub);
+  return "  $sub " . (' ' x int(71 - $width)) . "[$from]\n";
 }
 
 =head1 COPYRIGHT

@@ -1,4 +1,39 @@
+Sun Oct  4 09:52:57 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Use $arcent, $archead to extract
+ 	information about the message about to be archived, instead of
+ 	using the entity that is posted.
+
+	* lib/Mj/Archive.pm (new): Typo: $size can be unlimited, not
+ 	$split.
+
+	* Makefile.PL: No longer check for HTML::Stream.
+
+	* bin/mj_confirm (escape): Remove requirement for
+ 	HTML::Stream::html_escape.
+
+	* lib/Mj/TextOutput.pm (put): Fix undef warning when no
+ 	description is given.
+
+	* Makefile.PL (MY::postamble): Add some warnings about AutoSplit
+ 	messages.
+	(MY::postamble): 
+
 Sat Oct  3 10:28:16 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* Makefile.PL: Now require Time::Local.  Should come with perl,
+ 	but check anyway.
+
+	* lib/Mj/Digest/Build.pm (idx_wasilko, idx_default): Replace empty
+ 	subjects with '(no subject)'.
+
+	* postinstall (do_site_config): Fix message typo.
+
+	* lib/Mj/Digest/Build.pm (build_index): New function: build an
+ 	'index' digest, containing just index lines and no mnessages.
+
+	* lib/Mj/Archive.pm (get_data): New function: just return info
+ 	about a message.
 
 	* lib/Majordomo.pm (archive): Pass in appropriate type.
 
@@ -2657,4 +2692,3 @@ Thu Aug 14 21:34:48 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
 	
 	* Makefile.PL: Added require to check for 5.00401.  Removed prereq
 		  check and special code to check perl version.
-
