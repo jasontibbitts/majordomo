@@ -43,6 +43,7 @@ See Also:
    help admin_delivery
    help admin_domain
    help alias
+   help configset_dup_lifetime
    help configset_latchkey_lifetime
    help configset_log_lifetime
    help configset_post_lifetime
