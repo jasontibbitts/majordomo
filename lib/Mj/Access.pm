@@ -67,7 +67,7 @@ is _not_ allowed to do something.
 use Mj::Util qw(ep_convert ep_recognize);
 sub validate_passwd {
   my ($self, $user, $passwd, $list, $action, $global_only) = @_;
-  my (@try, $c, $i, $j, $pdata, $reg, $shpass);
+  my (@try, $c, $i, $j, $k, $pdata, $reg, $shpass, $tmp);
   return 0 unless defined $passwd;
   my $log = new Log::In 100, "$user, $list, $action";
 
@@ -138,6 +138,20 @@ sub validate_passwd {
 	{
 	  $log->out("approved");
 	  return $self->{'pw'}{$i}{$shpass}{$c}{'config_ALL'};
+	}
+      if ($action eq 'ANY' &&  ($self->{'pw'} &&
+				$self->{'pw'}{$i} &&
+				$self->{'pw'}{$i}{$shpass} &&
+				$self->{'pw'}{$i}{$shpass}{$c}))
+	{
+	  $log->out("approved");
+          $tmp = 5;
+          for $k (keys %{$self->{'pw'}{$i}{$shpass}{$c}}) {
+            if ($self->{'pw'}{$i}{$shpass}{$c} < $tmp) {
+              $tmp = $self->{'pw'}{$i}{$shpass}{$c};
+            }
+          }
+          return $tmp;
 	}
       if  ($self->{'pw'} &&
 	   $self->{'pw'}{$i} &&
@@ -529,7 +543,6 @@ sub list_access_check {
   $args{'posing'} = !($requester eq $self->{'sessionuser'})
     unless defined($args{'posing'});
 
-
   # If we were given a password, it must be valid.  Note that, in the case
   # of a mismatch, we make sure that the user password supplied matches
   # that of the _victim_; you can't use your user password to
@@ -582,6 +595,14 @@ sub list_access_check {
     }
   }
   else {
+    if ($list ne 'GLOBAL' and $list ne 'DEFAULT') {
+      $access = $self->_list_config_get($list, 'active');
+      if (! $access) {
+        $mess = $self->format_error('inactive_list', $list);
+        return $self->_a_deny($mess, $data, \%args);
+      }
+    }
+
     # Delay mode is only available if an administrative password is used.
     $args{'delay'} = 0;
   }
