@@ -194,27 +194,49 @@ ABDF
 
   Unless the domain administrator has set up default digest settings, 
   each list's administrators must change the digests configuration 
-  setting, if they want digests to be supported.  
+  setting, if they want digests to be supported.  An unlimited number of 
+  digests can be supported.
 
-  Each digest in the digests setting takes up two lines.  The first
-  line is the name of the digest, followed by a group of values
-  that determine when the digests are sent.  The second line is
-  a description of the digest, which appears in the Subject header
-  when the digest is mailed.  Here is a simple example:
+  Each digest begins with the name of a digest, followed by zero or more
+  customizations of the form FIELD=VALUE.  Consider the following 
+  specification for the "daily" digest:
 
 configset LISTNAME digests <<KLM
-daily | 1-3 | 30k | 100k | 36h | | | text
-LISTNAME Daily Digest
+daily 
+times=1-3
+maxage=36h
+minsize=30
+maxsize=100
+type=text
+desc=Daily Digest
 KLM
 
-  This daily digest is delivered between 1 and 3 AM every morning.
-  Each digest must be at least 30 kilobytes (kB) in size, but no greater
-  than 100 kB.  The digest will be delivered if a message is older
-  than 36 hours, even if the total message size is less than 30 kB.
-  Finally, the default digest format is text, meaning that attachments
-  will not be included in the digest.
+  In this example, the fields have the following implications:
 
-  There is also a digest_issues setting that shows the current volume
+  times=1-3  
+    The digest can only be delivered between 1:00 and 3:59 every morning.
+
+  maxage=36h
+    The digest will be delivered if a message older than 36 hours
+    is awaiting delivery.
+
+  minsize=30
+    The digest will not be delivered unless the total size of the
+    messages awaiting delivery is at least 30 kilobytes.
+
+  maxsize=100
+    An individual issue of the digest will be no larger than 100
+    kilobytes in size.
+
+  type=text
+    The messages will be displayed in plain text format.  No attachments
+    will be included.
+
+  desc=Daily Digest
+    The description of the digest is "Daily Digest", which will appear
+    in the Subject header of the digest and in the table of contents.
+    
+  The digest_issues configuration setting shows the current volume
   and issue number for each digest, if any messages have been 
   delivered.  The "digest-incvol" command can be used to increase
   the volume number.  See "help configset_digests", "help digest",
