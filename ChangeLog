@@ -1,5 +1,10 @@
 Sun Jan 31 16:34:54 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Format.pm (who): Add 'short' mode that just prints the
+ 	address lists.
+
+	* lib/Mj/Resend.pm (_post): Remove debugging prints.
+
 	* lib/Majordomo.pm (_list_file_get): Big changes; take a hashref
  	to be used as substitutions and call substitute_vars automatically
  	if necessary.

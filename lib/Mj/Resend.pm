@@ -456,10 +456,7 @@ sub _post {
       $self->_list_config_lock($list);
       $dissues = $self->_list_config_get($list, 'digest_issues');
       
-      use Data::Dumper; print Dumper $digests; print Dumper \%digest;
-
       for $i (keys %digest) {
-	warn "$i";
 	$dissues->{$i}{volume} ||= 1; $dissues->{$i}{issue} ||= 1;
 	push @tmp, "$i : $dissues->{$i}{volume} " .
 	  " : " . ($dissues->{$i}{issue}+1);
@@ -482,7 +479,6 @@ sub _post {
 	   index_footer => "index footer\n",
 	  );
 
-      
 	for $j (@dtypes) {
 	  # shifting off an element of @dfiles gives the corresponding digest
 	  $deliveries{"digest-$i-$j"} = {exclude => {}, file => shift(@dfiles)};

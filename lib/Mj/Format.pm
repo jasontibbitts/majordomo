@@ -713,7 +713,7 @@ sub who {
       $list, $vict, $regexp, $arg2, $arg3, $ok, $mess) = @_;
   $regexp ||= '';
   my $log = new Log::In 29, "$type, $list, $regexp";
-  my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ret);  
+  my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ind, $ret);
 
   if ($ok <= 0) {
     eprint($out, $type, "Could not access $list:\n");
@@ -727,22 +727,28 @@ sub who {
   $chunksize = $mj->global_config_get($user, $pass, $auth, $int,
 				      "chunksize");
   
-  eprint($out, $type, "Members of list \"$list\":\n");
-  
+  $ind = '';
+  unless ($mode =~ /short/) {
+    eprint($out, $type, "Members of list \"$list\":\n");
+    $ind = '    ';
+  }
+
   while (1) {
     ($ret, @lines) = $mj->dispatch('who_chunk', @stuff, $regexp, $chunksize);
     
     last unless $ret > 0;
     for $i (@lines) {
       $count++;
-      eprint($out, $type, "    $i\n");
+      eprint($out, $type, "$ind$i\n");
     }
   }
   $mj->dispatch('who_done', @stuff);
   
-  eprintf($out, $type, "%s listed subscriber%s\n", 
-    ($count || "No"),
-    ($count == 1 ? "" : "s"));
+  unless ($mode =~ /short/) {
+    eprintf($out, $type, "%s listed subscriber%s\n", 
+	    ($count || "No"),
+	    ($count == 1 ? "" : "s"));
+  }
 
   return $ok;
 }

@@ -45,7 +45,6 @@ Return additional information from _post so that t_accept can provide
   additional data.
 Finish work on allowed_flags and allowed_classes.
 Update FILES.
-Make INCLUDE mechanism for help files.
 
 
 Can filespace system entirely.  To see if a file exists, just stat it.
@@ -222,9 +221,6 @@ access variables.
   Without a list, import from stdin:
    mj_archive -r directory -p split -z size
 
-! Split up _post a bit.  Remove reply-to and subject_prefix handling to
-  separate functions.
-
 ! Make mail_message go through the same delivery functions as normal
   delivery.
 
@@ -261,68 +257,16 @@ access variables.
   parser variable.  Export a core set_language routine.  Reference a
   Majordomo class variable inside of internationalization routines.
 
-- Turn Addr.pm globals into global configuration options.
-  Make an address validator object; allocate it at Majordomo startup and
-  pull the appropriate config variables into the new Mj::Addr call.
-
 - Resend:
     Front-end filtering stuff - 
       header improprieties (not in To or CC header, etc.)
 
    Back end mime-modification functions come later.
 
-- Auto-configure global defaults instead of relying on defaults file, so
-  that we can minimize config file access time (because defaults must be
-  parsed).
-
 - Add some variable expansions in message_fronters/footers like in
   message_headers. 
 
-! Simple mail forwarder:
-   A precursor to real bounce handling, a routine that received mail at
-   owner-list and distributes it to one or many owners.  Should be easy.
-
-  Write bounce_start, bounce_chunk, bounce_done which accept a bounce and
-    figure out what to do with it.
-
 ! Write up truncation logic to keep envelope sizes down for bounce probes.
-
-- Access:
-    Document it better.
-
-    Interfaces should make an access_check for "connect".  Here we can
-    wedge in neat things like free disk space checks.  This should be
-    independent of the call to "access", because by that time we've
-    already done message parsing.  The idea is that before we do
-    anything that could consume disk space or CPU, we make sure that
-    we have enough disk space or CPU.  
-
-    Decide on a scheme to delay/consult/deny frequent or repeated
-    requests with output sent to a specific address.  Dig out my
-    conversations with Chuq on this issue.
-
-    Default action for 'post':
-      fail if moderated.
-      check restrict_post; if entry has same name as list, look in
-        that file else look in the given sublist if it exists.
-      check all of the taboo_* admin_* dup_* and *_mime variables and
-        do the appropriate thing.
-
-! Clean up all Majordomo-level commands.  Add
-  access checking and split across the token barrier properly.
-
-  auxwho
-  auxremove
-  unalias
-  which
-  get
-  put
-
-- Make sure generated command lines properly include arguments.  When
-  processing here args, the command line should properly include the
-  arg.  (This is a TextOutput issue; in the loop reading from the
-  arglist, need to make sure that the current argument is placed
-  somewhere on the $cmdline that the core function is called with.
 
 - inform and consult uses moderators variable, listing named groups of
   moderators:
@@ -371,7 +315,7 @@ access variables.
   just a few times) and check the output.  This should improve test times
   quite a bit.
 
-- RBL queries:
+- RBL/ORBS/DUL queries:
   parse all Received: headers, look for IP addresses.
   Look them up in the RBL..
   Add an exemption list (addrs?  IPs?)
@@ -619,9 +563,6 @@ We already support translated long documents.
   stuff look uglier than it needs to be, although continuation lines can
   help.
 
-- mj_resend should go through the dispatcher and use the iterative
-  interface instead of the direct post function.
-
 - bounce handling
     Parse all mail to owner alias, looking for bounces.
     Do periodic single-address-probes.
@@ -715,15 +656,8 @@ Email Interface
   "subscribe" sent with no deflist set.
 
 TextOutput
-- rekey ALL or GLOBAL
 - info ALL for hyper-long lists output
 - auxshow list ALL
-- aux lists for GLOBAL?
-- alias ALL.
-
-Finish access restriction mechanism 
-- need better syntax checking
-- mondo documentation
 
 Confirmation/Approval engine
 - Ability to append or prepend information to approved messages
@@ -731,34 +665,12 @@ Confirmation/Approval engine
 
 Resend
 - MIME transformations
-- Address exclusion on CC or nocopy.
 
 Mj::Log
 - Log classes; too much debug info now
 - Have aborts and warnings stuffed into some tempfile and process that file
   after the fact.  This allows aborts to propogate even if we've hosed the
   mail delivery system.
-
-Aliasing
-- Should aliases be global only?
-  To do this, we need a global database of all addresses with aliases
-  and all of the lists they belong to.  Maybe we need a global
-  database of all addresses on any lists.  This may be a bad thing.
-  Perhaps we could get away with complete list membership checking for
-  alias ops, but that looks like a bad thing.  Global actions that
-  potentially affect all lists are not good; they probably shouldn't
-  be triggerable by anyone on the net.
-
-  After more thought, it seems that checking list memberships for every
-  alias call isn't that bad an idea; alias calls probably won't be that
-  common and we to it anyway for extended lists output.  We have to check
-  that the destination is subscribed to at least one list, and that the
-  source is not subscribed to any lists.  The unalias call just needs to
-  remove the alias if it exists, and shouldn't require any additional
-  checking.
-
-Aux address lists
-???
 
 Meta
 - Add proper $VERSION tags for all modules.
@@ -770,17 +682,9 @@ Meta
 - Try to avoid aborting when there is another way.  Unfortunately, aborting
   happens at the lowest levels of the code (that would have to be working
   anyway in order to send abort messages).
-- Try to decide at just which level should the address be validated.
 - Make stub modules that inherit from the real modules so people have a
   place to put their extension/overriding code without copying things
   around.
-
-List
-- Make sure that tabs don't leak in from the interfaces.
-- Cache is_subscriber data, since some operations may check this more than
-  once per run.  (lists=enhanced with some advertise settings, e.g.)
-- Cache flag data, since flags can get set in chunks.  Alternately,
-  make flag_set take a list of flags.
 
 SimpleDB
 - Keep list in sorted order to speed up searches (use seek and binary
@@ -833,18 +737,11 @@ digestvolume command to increment (default) or set the volume number for a
   digest.
 Expiration of subscriptions.
 Last posting date.
-Resend sequence numbers: keep a state file per list with the current
-  sequence.  Allow setting of the sequence number.
 Have who expand lists subscribed to current list.
-Clean up the flag and class setting code.
 Access_rules methods for checking against requesting user instead of victim.
 Forward to other (or same) server, but change the list name.
 -c option to mj_email (or new mj_command script) to always execute a
   command when a mail is received.
-Tokens with infinite lifetime bound to addresses; use this for a permanent
-  unsubscribe token that works if addresses change or whatever.  Scan
-  occasionally for bound tokens and eliminate them if the address is no
-  longer subscribed.
 Switch $mode and $cmdline in public Majordomo functions.
 Have 'help command xxx' look up config comment string for xxx.
 Support X-No-Archive.  _post should look for headers and pseudo-headers,
@@ -871,15 +768,6 @@ Add additional sender information to things like confirmations so that if
  they bounce, the bounce processor can take care of the generated token and
  not forward the bounce to the owner.
 Allow referencing sublists of other lists in access_rules.
-Digests with detached bodies; send just a table of contents and let the
- client retrieve the messages they want.
-Do RBL lookups on hosts found in received headers.
-Somehow attach the parsed defaults to the config file.  Problem: we have to
- pull in mj_cf_defs and eval it to get the defaults if we hit a defaulted
- variable, but in order to parse it we have to suck in mj_cf_data and
- chunks of Config.pm.  This is slow.  We could eval the defaults ones,
- stick them in the config file along with a timestamp, then just do a stat
- on the defaults file to see if we need to update.
 Allow access control language to make modifications to outgoing messages,
  perhaps by passing a list of actions back to the access check routine
  before the message is spooled.
@@ -888,8 +776,6 @@ Keep a list of banned domains, compare against them in resend and fail all
  dispatcher).
 Purge archive files after a certain period of time.
 Make archiver add files into filespace with useful descriptions.
-Change commands executed/successful to counts of
- total/executed/pending/failed or somesuch.
 Allow headers to vary depending on access variables.
 Have an action attach text to an outgoing message (warning about quotes,
  deleted parts, etc.)
