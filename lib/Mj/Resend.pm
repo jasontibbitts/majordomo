@@ -111,6 +111,7 @@ sub post {
       $spool,                # File to spool 
       $subject,              # Header 
       $date,                 # Header
+      $list,                 # Includes sublist if applicable
       $user,                 # Obtained from headers
       $passwd, 
      );
@@ -228,11 +229,20 @@ sub post {
             join("\002", %$avars), $ent);
   }
 
+  chomp($date = $thead->get('date')); 
+  chomp($subject = ($thead->get('subject') || '(none)')); 
+  $list = $request->{'list'};
+  if ($request->{'auxlist'}) {
+    $list .= ":" . $request->{'auxlist'};
+  }
+
   # Some substitutions will be done by the access routine, but we have
   # extensive information about the message here so we can do some more.
-  $subs = {LIST     => $request->{'list'},
+  $subs = {LIST     => $list,
 	   HEADERS  => $ent->head->stringify,
-	   SUBJECT  => ($ent->head->get('subject') || '(none)'),
+	   SUBJECT  => $subject,
+           DATE     => $date,
+           USER     => $user->full,
 	   VERSION  => $Majordomo::VERSION,
 	   MJ       => $self->_global_config_get('whoami'),
 	   MJOWNER  => $self->_global_config_get('sender'),
@@ -245,8 +255,6 @@ sub post {
     $desc = $self->substitute_vars_string($desc, $subs);
   }
   $ack_attach = $self->_list_config_get($request->{'list'}, 'ack_attach_original');
-  chomp($date = $thead->get('date')); 
-  chomp($subject = ($thead->get('subject')|| '')); 
 
   # We handled the OK case, so we have either a stall or a denial.
   # If we got an empty return message, this is a signal not to ack anything
@@ -255,16 +263,10 @@ sub post {
   return ($ok, $rtnhdr) 
     unless defined $mess && length $mess;
 
-  # Otherwise, decide what to ack
-  # Stall:  ack if flags say so
-  # Denial: ack if flags say so or if ack_denials_always is set
-  if ($self->{'lists'}{$request->{'list'}}->flag_set('ackimportant', $user)
-      ||
-      $self->{'lists'}{$request->{'list'}}->flag_set('ackall', $user)
-      ||
-      ($ok == 0 && $self->_list_config_get($request->{'list'}, 'ack_denials_always'))
-     )
-    {
+  # Otherwise, decide what to ack, based on the user's flags
+  # and the ack_important setting.
+  if ($self->{'lists'}{$request->{'list'}}->should_ack($request->{'auxlist'},
+                         $user, $ok ? 'b' : 'd')) {
       $nent = build MIME::Entity
 	(
 	 Data        => [ $mess ],
@@ -290,7 +292,7 @@ sub post {
                      );
       }
       $self->mail_entity($owner, $nent, $user);
-    }
+  }
 
   # If the request failed, we need to unlink the file.
   if (!$ok) {
@@ -362,10 +364,12 @@ sub _post {
      $avars, $ent) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
-  my(%avars, %deliveries, %digest, @dfiles, @dtypes, @ent, @files, @refs,
-     @tmp, @skip, $arcdata, $arcent, $archead, $digests, $dissues, $rtnhdr,
-     $exclude, $head, $i, $j, $msgnum, $precedence, $prefix, $replyto,
-     $sender, $seqno, $subject, $sl, $date, $subs, $tmp, $tmpdir, $tprefix, $whereami);
+  my(%ackinfo, %avars, %deliveries, %digest, @dfiles, @dtypes, @ent, 
+     @files, @refs, @tmp, @skip, $ack_attach, $ackfile, $arcdata, 
+     $arcent, $archead, $date, $desc, $digests, $dissues, 
+     $exclude, $head, $i, $j, $msgnum, $nent, $precedence, $prefix, 
+     $replyto, $rtnhdr, $sender, $seqno, $subject, $sl, $subs, 
+     $tmp, $tmpdir, $tprefix, $whereami);
 
   return (0, "Unable to access list $list.\n") 
     unless $self->_make_list($list);
@@ -501,9 +505,8 @@ sub _post {
     unlink "$tmp";
   }
 
-  if ($mode !~ /archive/) {
-    # Cook up a substitution hash
-    $subs = {
+  # Cook up a substitution hash
+  $subs = {
          LIST     => $list,
          VERSION  => $Majordomo::VERSION,
          SENDER   => "$user",
@@ -511,12 +514,14 @@ sub _post {
          SEQNO    => $seqno,
          ARCHIVE  => $msgnum,
          SUBJECT  => $subject,
+         DATE     => scalar localtime($date),
          WHEREAMI => $whereami,
          MJ       => $self->_global_config_get('whoami'),
          MJOWNER  => $self->_global_config_get('sender'),
          SITE     => $self->_global_config_get('site_name'),
-        };
+  };
 
+  if ($mode !~ /archive/) {
     # Add headers
     for $i ($self->_list_config_get($list, 'message_headers')) {
       $i = $self->substitute_vars_string($i, $subs);
@@ -601,7 +606,45 @@ sub _post {
       unlink $deliveries{$i}{file}
         if $deliveries{$i}{file};
     }
-  }  
+  } # not archive mode
+ 
+  if ($self->{'lists'}{$list}->should_ack($sl, $user, 'f')) {
+    ($ackfile, %ackinfo) = 
+      $self->_list_file_get($list, 
+                            ($mode =~ /archive/)? 'ack_archive' : 'ack_success', 
+                            $subs);
+    if ($ackfile) {
+      $desc = $self->substitute_vars_string($ackinfo{'description'}, $subs);
+      $ack_attach = $self->_list_config_get($list, 'ack_attach_original');
+
+      $nent = build MIME::Entity
+	(
+	 Path        => $ackfile,
+	 Type        => $ackinfo->{'c-type'},
+	 Encoding    => $ackinfo->{'c-t-encoding'},
+	 Charset     => $ackinfo->{'charset'},
+	 Filename    => undef,
+	 -From       => $sender,
+	 -To         => "$user", # Note stringification
+	 -Subject    => $desc,
+	 'Content-Language:' => $ackinfo->{'language'},
+	);
+
+      if ($nent) {
+        if ($ack_attach->{succeed} || $ack_attach->{all})
+        {
+          $nent->make_multipart;
+          $nent->attach(Type        => 'message/rfc822',
+                        Description => 'Original message',
+                        Path        => $file,
+                        Filename    => undef,
+                       );
+        }
+        $self->mail_entity($sender, $nent, $user);
+      }
+      unlink $ackfile;
+    } 
+  } # should_ack
   for ($i = 0; $i < @ent; $i++) {
     $ent[$i]->purge;
   }
