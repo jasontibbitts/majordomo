@@ -150,6 +150,7 @@ $Mj::Config::default_string = q(
  'inform'               => [
                             'connect | fail | inform',
                             'reject | succeed | inform',
+                            'tokenbounce | succeed | inform',
                             'subscribe | succeed | inform',
                             'unsubscribe | succeed | inform',
                            ],
