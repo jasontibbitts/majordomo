@@ -1,67 +1,75 @@
 <!-- Majordomo who_foot format file -->
 <tr><td colspan=3>Addresses found: $COUNT
 </table>
-<input type=submit name=func value=$REMOVE>
-<input type=submit name=func value="set">
+  <input type=submit name=func value=$REMOVE>
+  <input type=submit name=func value="set">
 </form>
 <a href="$CGIURL&domain=$DOMAIN&list=$LIST&passw=$PASSWORD&func=who&extra=$PATTERN&start=?PREVIOUS&chunksize=$CHUNKSIZE>Previous $CHUNKSIZE Results</a>
 <a href="$CGIURL&domain=$DOMAIN&list=$LIST&passw=$PASSWORD&func=who&extra=$PATTERN&start=?NEXT&chunksize=$CHUNKSIZE>Next $CHUNKSIZE Results</a>
 
-<h2 align=center>Subscriber Management</h2>
+<h4 align=center>search the subscriber list</h4>
 
-The following form will allow you to add and remove subscribers 
-from the $LIST mailing list.  
-<form method=POST action=$CGIURL>
-List: <input name=list value=$LIST>
-Password: <input name=passw type=password value="$PASSWORD">
-<h4 align=center>Search the list of subscribers</h4>
-<input type=radio name=func value="who" checked>
-Search the $LIST subscriber list<br>
-<input type=radio name=func value="who-bounces">
-Search the $LIST subscriber list for address with bounces<br>
-<input type=radio name=func value="which">
-Search all of the mailing lists<br>
+<form method=POST action="$CGIURL">
+  <input name=list type=hidden value="$LIST">
+  <input name=domain type=hidden value="$DOMAIN">
+  <input name=passw type=hidden value="$PASSWORD">
 
-Search Pattern: <input name=extra value=".">
+  <input type=radio name=func value="who" checked>
+  Search the $LIST subscriber list 
+    (using the $HELP:WHO command)<br>
+  <input type=radio name=func value="who-bounces">
+  Search the $LIST subscriber list for address with bounces 
+    (using the $HELP:WHO-bounces command)<br>
+  <input type=radio name=func value="which">
+  Search all of the mailing lists
+    (using the $HELP:WHICH command)<br>
+
+Search pattern: <input name=pattern value=".">
 <br>
 Number of addresses to show:
-<select name=chunksize>
-<option value="">All
-<option>20
-<option>50
-<option>100
-</select>
-<input type=submit value="Issue command">
+  <input name=chunksize size=15>
+  <input type=submit value="search">
+</form>
 
-<h4 align=center>Add or remove subscribers</h4>
-<input type=radio name=func value="subscribe-set-welcome"> 
-Add subscribers using the addresses and settings in
-the next section. Send a welcome message. <br>
-<input type=radio name=func value="subscribe-set-nowelcome"> 
-Add subscribers using the addresses and settings in
-the next section. <b>Do not</b> send a welcome message.<br>
-<input type=radio name=func value="unsubscribe"> 
-Remove subscribers using the addresses in the large box
-in the next section of this form.
-<p>
-Addresses of new subscribers:<br>
-<textarea name=victims rows=12 cols=70>
-</textarea>
-<p>
-Give these settings to the new subscribers:
+<h4 align=center>add or remove subscribers</h4>
+
+<form method=POST action="$CGIURL">
+  <input name=list type=hidden value="$LIST">
+  <input name=domain type=hidden value="$DOMAIN">
+  <input name=passw type=hidden value="$PASSWORD">
+
+  <input type=radio name=func value="subscribe-set-welcome" checked> 
+  Add subscribers with the addresses in the large box.
+  Send a welcome message. <br>
+
+  <input type=radio name=func value="subscribe-set-nowelcome"> 
+  Add subscribers with the addresses the large box. 
+  <b>Do not</b> send a welcome message.<br>
+
+  <input type=radio name=func value="unsubscribe"> 
+  Remove subscribers with the addresses in the large box.
+
+  <p>
+  Addresses of subscribers:<br>
+  <textarea name=victims rows=8 cols=70>
+  </textarea>
+
+  <p>
+  Give these settings to the new subscribers:
+
 <table>
-<tr>
-<td colspan=9>delivery class
-<tr>
-<td colspan=9>
-<select name="setting">
-<option value="$CLASSES" $CLASS_SELECTED>$CLASSES: $CLASS_DESCRIPTIONS</small>
-</select>
-<tr>
-<td>$SETTINGS
-<tr>
-<td align=center><input type=checkbox name=$SETTINGS $SETTING_CHECKED>
+  <tr>
+    <td colspan=9>
+    delivery class: 
+  <select name="setting">
+    <option value="$CLASSES" $CLASS_SELECTED>$CLASSES: $CLASS_DESCRIPTIONS</small>
+  </select>
+  <tr>
+    <td>$SETTINGS
+  <tr>
+  <td align=center><input type=checkbox name=$SETTINGS $SETTING_CHECKED>
 </table>
 
-<input type=submit value="Issue command">
+<input type=submit value="add or remove subscribers">
 </form>
+

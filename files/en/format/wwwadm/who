@@ -1,5 +1,5 @@
 <!-- Majordomo who format file -->
-<tr><td><input type=checkbox name=victims value=\"$STRIPADDR\">$FULLADDR
+<tr><td><input type=checkbox name=victims value="$STRIPADDR">$FULLADDR
 <td align=center>
 <select name="$STRIPADDR;delivery">
 <option $SELECTED value="$CLASSES">$CLASSES
