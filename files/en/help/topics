@@ -154,6 +154,8 @@ These help files describe configuration settings:
    help configset_master_password
    help configset_message_headers
    help configset_noadvertise
+   help configset_noarchive_body
+   help configset_noarchive_headers
    help configset_owners
    help configset_passwords
    help configset_priority
