@@ -641,12 +641,12 @@ sub _reg_add {
   else {
     # Make a new registration
     $data = {
-	     stripaddr => $addr->strip,
-	     fulladdr  => $addr->full,
-	     regtime   => time,
-	     language  => '',
+             stripaddr => $addr->strip,
+             fulladdr  => $addr->full,
+             regtime   => time,
+             language  => '',
              'lists'   => '',
-	     flags     => '',
+             flags     => '',
              bounce    => '',
              warnings  => '',
              data1     => '',
@@ -668,7 +668,7 @@ sub _reg_add {
   if ($args{list}) {
     @lists = split("\002", $data->{'lists'});
     push @lists, $args{list};
-    $data->{'lists'} = join("\002", @lists);
+    $data->{'lists'} = join("\002", sort @lists);
   }
 
   # Replace or add the entry
@@ -762,9 +762,9 @@ sub _reg_remove {
 
       @lists = split("\002", $data->{'lists'});
       for $i (@lists) {
-	push @out, $i unless $i eq $list;
+        push @out, $i unless $i eq $list;
       }
-      $data->{'lists'} = join("\002", @out);
+      $data->{'lists'} = join("\002", sort @out);
       $data;
     };
       
@@ -1684,12 +1684,12 @@ sub _password {
     $sender = $self->_global_config_get('sender');
     $whereami = $self->_global_config_get('whereami');
     $majord   = $self->_global_config_get('whoami');
-    $majord_own = $self->_global_config_get('sender');
+    $majord_own = $self->_global_config_get('whoami_owner');
     $site       = $self->_global_config_get('site_name');
 
     $subst = {
-	      MAJORDOMO => "$majord\@$whereami",
-	      OWNER     => "$majord_own\@$whereami",
+	      MAJORDOMO => $majord,
+	      OWNER     => $majord_own,
 	      SITE      => $site,
 	      LIST      => $list,
 	      PASSWORD  => $pass,
@@ -1845,8 +1845,8 @@ sub _request_response {
 
   $subst = {
 	    REQUEST   => "$list-request\@$whereami",
-	    MAJORDOMO => "$majord\@$whereami",
-	    OWNER     => "$list_own\@$whereami",
+	    MAJORDOMO => $majord,
+	    OWNER     => $list_own,
 	    SITE      => $site,
 	    LIST      => $list,
 	   };
