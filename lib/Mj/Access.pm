@@ -519,6 +519,7 @@ sub list_access_check {
     $args{'host'}     = $1;
     $args{'addr'}     = $victim->strip;
     $args{'fulladdr'} = $victim->full;
+    $args{'mode'}     = $mode;
    
     # Pull in some useful variables
     $sender = $self->_list_config_get($list, 'sender');
