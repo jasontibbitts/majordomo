@@ -505,7 +505,6 @@ setup/mta_exim.pl
 setup/mta_postfix.pl
 setup/mta_qmail.pl
 setup/mta_sendmail.pl
-setup/postinstall.pl
 setup/query_util.pl
 setup/setup_func.pl
 t/README
