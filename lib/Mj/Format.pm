@@ -98,11 +98,11 @@ sub alias {
   my ($ok, $mess) = @$result;
 
   if ($ok > 0) { 
-    eprint($out, $type, "$request->{'newaddress'} successfully aliased to $request->{'user'}.\n");
+    eprint($out, $type, "$request->{'newaddress'} was successfully aliased to $request->{'user'}.\n");
   }
   else {
     eprint($out, $type, &indicate(
-      "$request->{'newaddress'} was not aliased to $request->{'user'}.\n",
+      qq(The address "$request->{'newaddress'}" was not aliased to "$request->{'user'}".\n), 
       $ok));
     eprint($out, $type, &indicate($mess, $ok));
   }
