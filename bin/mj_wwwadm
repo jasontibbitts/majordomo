@@ -50,7 +50,7 @@ use Mj::Addr;
 my ($cgi, $cgiurl, $domain, $i, $mj, $ok, $mess, $serveradmin, $sess, $token);
 my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, @lists, $vict, $extra);
 my ($line, $st, $file, $fh, $cmdform, $localpart, $request, $req, @extra);
-my (%seen, @mlists, $listbox);
+my (%seen, @mlists, @supported, $listbox);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -177,6 +177,12 @@ else {
   $listbox = "<input size=20 name=list value=\"$lists[0]\">";
 }
 
+@supported = (qw(accept archive-index archive-get auxadd auxremove
+auxwho configshow configset configdef get help index-recursive
+lists-aux reject report sessioninfo set showtokens subscribe 
+tokeninfo tokeninfo-full unsubscribe unregister which who-bounces));
+
+
 $cmdform = <<EOM;
 <form method=POST action="$cgiurl">
 <input type=hidden name=domain value="$domain">
@@ -184,32 +190,13 @@ $cmdform = <<EOM;
 Command:&nbsp;&nbsp;
 <select name=func>
 <option> about this service
-<option> accept
-<option> archive-index
-<option> archive-get
-<option> auxadd
-<option> auxremove
-<option> auxwho
-<option> configshow
-<option> configset
-<option> configdef
-<option> get
-<option> help
-<option> index-recursive
-<option> lists-aux
-<option> reject
-<option> sessioninfo
-<option> set
-<option> showtokens
-<option> subscribe
-<option> subscribe-nowelcome
-<option> tokeninfo
-<option> tokeninfo-full
-<option> unsubscribe
-<option> unregister
-<option> which
-<option> who-enhanced
-<option> who-bounces-enhanced
+EOM
+
+for (@supported) {
+  $cmdform .= "<option> $_\n";
+}
+
+$cmdform .= <<EOM;
 </select>
 <td>
 <input size=26 name=extra value="$extra">
@@ -269,6 +256,9 @@ for ($i = 0; $i < scalar(@lists); $i++) {
 # to display the results instead of mailing them.
 if ($func eq 'archive' or $func eq 'get') {
   $mode .= "-immediate";
+}
+if ($func eq 'auxwho' or $func eq 'who') {
+  $mode .= $mode? "-enhanced" : "enhanced";
 }
 
 # Verify the password provided, if the command requires one.
