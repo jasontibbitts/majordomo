@@ -1,0 +1,304 @@
+#!/usr/local/bin/perl-latest -wT
+BEGIN {
+  $::LIBDIR = 'unset';
+  $::LISTDIR= 'unset';
+  $::DEFDOM = 'unset';
+  $::TMPDIR = 'unset';
+  $::LOCKDIR= "blah";
+  $::UMASK  = "007";
+  $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
+
+  # Redirect standard error output.
+  if (! -t STDERR) {
+    open (STDERR, ">>$::TMPDIR/mj_wwwadm.debug");
+  }
+}
+
+=head1 NAME
+
+mj_wwwadm - demonstration of majordomo administration via the WWW.
+
+=head1 SYNOPSIS
+
+Extend this file to create specialized CGI scripts.
+
+=head1 DESCRIPTION
+
+When utilizing majordomo with a CGI script, there are
+several basic steps that must be taken, including initializing
+majordomo variables,  creating a log (STDERR by default), 
+initializing a CGI object, and starting a majordomo session
+with connect().
+
+This script performs these basic steps, easing the 
+creation of new CGI scripts.  Extend it to suit your needs.
+
+Note that it may be necessary to install a setuid wrapper
+for any script based upon this template.
+
+=cut
+use lib "$::LIBDIR";
+use strict;
+use CGI;
+use Majordomo;
+use Mj::Format;
+use Mj::Log;
+use Mj::TextOutput;
+use Mj::Addr;
+
+my ($cgi, $domain, $mj, $ok, $sess, $token);
+my ($func, $user, $passw, $mode, $list, $vict, $extra);
+my ($line, $st, $file, $fh, $cgiurl, $cmdform);
+
+$ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
+
+umask oct($::UMASK);
+
+# Change the log level to a higher number (200) for complete debugging
+$::log = new Mj::Log;
+$::log->add
+  (
+   method      => 'handle',
+   id          => 'mjwww',
+   handle      => \*STDERR,
+   level       => 0,
+   subsystem   => 'mail',
+   log_entries => 1,
+   log_exits   => 1,
+   log_args    => 1,
+  );
+
+$::log->in(20, undef, "info", "Majordomo - ".scalar(localtime));
+$::log->startup_time();
+
+# Start up the page and parse the URL
+$cgi = new CGI;
+print $cgi->header;
+$domain = $::DEFDOM;
+
+# Make the Majordomo object
+$mj = new Majordomo $::LISTDIR, $domain;
+$cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
+
+# Generate the session information
+for my $i ('REMOTE_ADDR','REMOTE_PORT') {
+  $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
+}
+$sess .= scalar(localtime(time)) . "\n";
+$mj->connect('mj_wwwadm', $sess);
+
+# GET poses a security risk due to passwords being visible
+# Set HTML form variables
+$func   = $cgi->param('func') || "help";
+$user    = new Mj::Addr("mj_wwwadm\@example.com");
+$passw   = $cgi->param('passw') || '';
+$list    = $cgi->param('list') || 'GLOBAL';
+$extra   = $cgi->param('extra') || '';
+$st      = $cgi->param('st') || '';
+if ($st eq 'on') { $st = 'checked'; }
+
+# Extract "mode" from command name
+if ($func =~ /([^\s-]+)-(.*)/) {
+  $func = $1;
+  $mode = $2;
+}
+else { 
+  $mode = '';
+}
+
+$cmdform = <<EOM;
+<form method=POST action=$cgiurl>
+command:
+<select name=func>
+<option> accept
+<option> archive-index
+<option> archive-get
+<option> auxadd
+<option> auxremove
+<option> auxwho
+<option> configshow
+<option> configset
+<option> configdef
+<option> get
+<option> help
+<option> index-recursive
+<option> lists
+<option> reject
+<option> sessioninfo
+<option> showtokens
+<option> subscribe
+<option> subscribe-nowelcome
+<option> tokeninfo
+<option> unsubscribe
+<option> which
+<option> who
+</select>
+<input size=24 name=extra value='$extra'>
+<input type=checkbox name=st $st>show pending requests<br>
+password:
+<input size=14 name=passw type=password value=$passw>
+mailing list:
+<input size=14 name=list value=$list>
+<input type=submit value="Issue command">
+</form>
+EOM
+
+# Select the previous command.
+$cmdform =~ s/option> $func-$mode/option selected> $func-$mode/;
+
+print $cmdform;
+
+no strict 'refs';
+# Make sure the command is valid
+unless (defined ${Mj::TextOutput::}{$func}) {
+  print "Illegal command: $func\n";
+  exit 0;
+}
+# Make sure the list name is valid
+if ($list ne '') {
+  # $mj->get_all_lists($user, $passw, undef, "mj_wwwadm");
+  if ((-d "$mj->{'ldir'}/$list" and $mj->legal_list_name($list))
+        or $list eq 'ALL') {
+    # untaint for locks and configuration changes
+    $list =~ /(.*)/; $list = $1;
+  }
+  else {
+    print "<h3>Invalid list name: $list</h3>\n";
+    exit 0; 
+  }
+}
+
+# The archive-get and archive-index commands must use immediate mode,
+# to display the results instead of mailing them.
+if ($func eq 'archive' or $func eq 'get') {
+  $mode .= "-immediate";
+}
+
+# Verify the password provided, if the command requires one.
+if ($passw eq '' and $func !~ /help|lists|accept|reject|tokeninfo/) {
+  print "<h3>You must provide a password to use the $func command</h3>\n";
+  exit 0;
+}
+elsif ($passw ne '') {
+  # Check the password against the requester
+  $ok = $mj->validate_passwd($user, $passw, undef,
+                               "mjwww", $list, $func);
+  if ($ok <= 0) {
+    print "<h3>The password you provided is invalid</h3>\n";
+    exit 0;
+  }
+}
+
+if ($func eq 'auxadd' or $func eq 'auxremove') {
+  # The group and mail address must be specified in 'extra'
+  if ($extra !~ /\s/) {
+    print "<p>When using $func, specify the auxiliary list name\n";
+    print "and the e-mail address, in that order.\n";
+    exit 0;
+  }
+}
+
+
+$file = Majordomo::tempname();
+$fh = new IO::File ">$file";
+&{"Mj::TextOutput::$func"}($mj, $func, $user, 
+                           ($func =~ /help|which|lists/)? '' : $passw, 
+                           undef, "mjwww",
+                           undef, $fh, $mode, $list, $extra, ());
+
+if ($st eq 'checked' and $passw ne '' and $func ne 'showtokens') {
+  print $fh "\n";
+  # present the result of the showtokens command
+  &{"Mj::TextOutput::showtokens"}($mj, $func, $user, $passw, 
+                                  undef, "mjwww",
+                                  undef, $fh, $mode, $list, $extra, ());
+}
+$fh->close();
+
+# process results of TextOutput
+&format_print($file);
+unlink $file;
+
+$::log->out;
+exit 0;
+
+#---------------- Subroutines -----------------#
+sub format_print {
+  my $file = shift;
+  my ($line, $token, $url);
+
+  if ($func eq 'tokeninfo') {
+    print STDOUT <<EOM;
+<form action=$cgiurl method=POST>
+<input type=submit name=func value=accept>
+<input type=submit name=func value=accept-archive>
+<input type=submit name=func value=reject>
+<input type=hidden name=extra value='$extra'>
+<input type=hidden name=list value=$list>
+<input type=hidden name=passw value=$passw>
+<input type=hidden name=st value=$st>
+</form>
+EOM
+  }
+
+  $fh = new IO::File "<$file";
+  if (! $fh) { 
+    print STDOUT "<h3>Unable to get results</h3>\n";
+    exit 0;
+  }
+  print STDOUT "<pre>\n";
+  my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
+  while ($line = <$fh>) {
+    $line =~ s/([<>\"&])/\&$esc{$1};/mg; 
+    $line =~ s/([\x80-\xFF])/'&#'.unpack('C',$1).';'/eg;
+    if ($line =~ /(Token  )(.*)/) {
+      # hack to keep columns in order in showtokens output.
+      $line = $1 . " " x 13 . $2 . "\n";
+    }
+    # add link to tokeninfo if a token is present
+    elsif ($line =~ /^([0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4})/) {
+      $token = $1;
+      $url = "$cgiurl?extra=$token";
+      $url .= "&list=$list" if ($list ne '');
+      $url .= "&st=$st" if ($st ne '');
+      $line =~ s/$token//;
+      my ($tmp) = $line;
+      chomp $tmp;
+      $line = "<form method=POST action=$cgiurl>" .
+              "<input type=submit name=func value=tokeninfo>" .
+              "<input type=submit name=func value=accept>" .
+              "<input type=submit name=func value=reject>" .
+              "<input type=hidden name=extra value=$token>" .
+              "<input type=hidden name=st value=$st>" .
+              "<input type=hidden name=list value=$list>" .
+              "<input type=hidden name=passw value=$passw>" .
+               $tmp . "</form>\n";
+    }
+    print STDOUT $line;
+  }
+  $fh->close();
+  print STDOUT "</pre>\n";
+}
+
+=head1 COPYRIGHT
+
+Copyright (c) 2000 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#^L
+### Local Variables: ***
+### cperl-indent-level:2 ***
+### End: ***
+
+

@@ -1,0 +1,95 @@
+Information for Postfix users
+
+Overview
+--------
+
+Majordomo2 can generate the necessary postfix aliases required to run a
+list by itself.  It can also maintain alias files for each domain run at
+your site and generate the necessary virtual_maps files required to run
+the lists in separate virtual domains.  It will not, however, modify your
+master configuration file (usually, /etc/postfix/master.cf).
+
+When Makefile.PL is run, you will be prompted for what MTA you are running
+and (assuming it's Postfix) whether or not you want Majordomo to maintain
+the alias_database files for you and whether or not you want virtual_maps
+entries maintained as well.
+
+If you don't want Mj2 maintaining the files itself then it will simply
+suggest aliases and do nothing to collect them.  Otherwise they will be
+accumulated in a directory called 'ALIASES' in files named after the domain
+being served.  
+
+Makefile.PL Questions Explained
+-------------------------------
+
+* Should Majordomo maintain your aliases automatically?
+
+Answering 'no' will cause Mj2 to suggest aliases but not do anything with
+them.  You will be responsible for pasting these aliases into the
+appropriate file and rebuilding the alias database.
+
+Answering 'yes' will cause Mj2 to accumulate the aliases in a directory
+called ALIASES under the list directory.  See 'Configuring Postfix' section
+below on how to configure postfix to use these aliases.
+
+
+* Should Majordomo maintain virtual_maps files as well?
+
+If you are using the virtual_maps function of postfix to support virtual
+domains, Majordomo can generate special aliases and the necessary
+entries to go with them.  Answer 'yes' to this question if you are running
+virtual domains and want virtual_maps support; otherwise answer 'no' and
+Mj2 will generate aliases appropriate for a single domain.
+
+If you answer 'yes', Majordomo will generate aliases that include the
+domain name in each address, like so:
+
+majordomo-your.site.com: "|/path/to/mj_email -options"
+
+The corresponding virtual_maps entry will map majordomo@your.site.com to
+this address appropriately:
+
+majordomo@your.site.com		majordomo-your.site.com
+
+See 'Configuring Postfix' section below on how to configure postfix to use
+these virtual maps.
+
+Note that there will be one virtual_maps file per domain.
+
+
+Configuring Postfix
+--------------------
+
+First locate the postfix main configuration file.  This is usually
+/etc/postfix/main.cf  
+
+* Adding alias_database support
+
+In the main configuration file Search for a line that looks like:
+
+alias_database = hash:/etc/aliases
+
+and add the appropriate paths to the end like so:
+
+alias_database = hash:/etc/aliases, hash:/path/to/lists/ALIASES/mj-alias-domain1, hash:/path/to/lists/ALIASES/mj-alias-domain2
+
+
+Substituting "/path/to/lists", "domain1" and "domain2" with the appropriate
+path to the ALIASES directory.  Don't forget to run 'newaliases' and restart
+postfix.
+
+
+* Adding virtual_maps support
+
+In the main configuration file Search for a line that looks like:
+
+virtual_maps = hash:/etc/postfix/virtual
+
+and add the appropriate paths to the end like so:
+
+virtual_maps = hash:/etc/postfix/virtual, hash:/path/to/lists/ALIASES/mj-vut-domain1, hash:/path/to/lists/ALIASES/mj-vut-domain2
+
+
+Substituting "/path/to/lists", "domain1" and "domain2" with the appropriate
+path to the ALIASES directory.  Don't forget to run 'postmap' on the virtual_maps
+files and restart postfix.
