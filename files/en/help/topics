@@ -187,6 +187,7 @@ These help files describe configuration settings:
                   Settings for regular mailing lists only
 
    help configset_ack_attach_original
+   help configset_active
    help configset_administrivia
    help configset_aliases
    help configset_allowed_classes

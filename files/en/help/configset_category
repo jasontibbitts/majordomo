@@ -1,20 +1,25 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname category = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : 
+Default Value : no default
 Data Type     : string
 Category      : lists
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname category = geographic
+configset listname category = geography
 
 
-A string used to categorize the list.  Any string can be chosen; the
-value is used only in the output of the lists command to group and
-sort lists.
+$INCLUDE-config/category
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+
+See Also:
+   help admin_monitor
+   help configset_advertise
+   help configset_description
+   help configset_description_long
+   help configset_noadvertise
+   help lists
+
+$INCLUDE-help/foot

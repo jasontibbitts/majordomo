@@ -11,11 +11,13 @@ EXAMPLE:
 configset listname description = my very fine list
 
 
-This is a short description of the list, used in the short listing.
-It should be no more than 50 characters in order to fit on the average
-terminal.  If this is empty, the first line of 'description_long' is
-used.  If both are empty, the string "(no description)" is used.
+$INCLUDE-config/description
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+
+See Also:
+   help admin_monitor
+   help configset_category
+   help configset_description_long
+   help lists
+
+$INCLUDE-help/foot

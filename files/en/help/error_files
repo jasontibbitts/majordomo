@@ -21,6 +21,13 @@ of the required command modes.
 
 (standard plus DIGEST_DESCRIPTIONS, DIGESTS, MODES)
 
+inactive_list
+-------------
+This error message is displayed if access to a list is denied because
+the "active" configuration setting for the list is turned off.
+
+(standard substitutions only)
+
 incompatible_mode
 -----------------
 This message is displayed if a command is issued with two or more
@@ -180,7 +187,4 @@ See Also:
    help reply_files
    help variables
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
-
+$INCLUDE-help/foot

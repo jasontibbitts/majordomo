@@ -182,6 +182,7 @@ supports several variables.  These variables are only useful inside
   group                         string
   pool                          number
   remind                        timespan
+  replyfile                     string
 
 
 Each variable has a type that limits what values the variable can take.
@@ -560,6 +561,13 @@ remind
   time spans.  The default value is -1, meaning that the token_remind
   configuration setting is used to determine when the reminder is
   sent.  A value of 0 will prevent a reminder from being sent.
+
+replyfile
+  This variable controls which file is sent when in response to
+  the accept command when further approval is needed by someone
+  else in the "chain" of approvals.  By default, this value is
+  empty, and Majordomo will send either the "repl_chain" or the
+  "repl_confirm" file to indicate that further approval is needed.
 
 
 See Also:

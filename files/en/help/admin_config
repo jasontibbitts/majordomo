@@ -68,11 +68,12 @@ attention, in reverse order of importance.
 
 9. noadvertise
 
-  To make a list private (invisible to the lists command), the noadvertise
-  setting can be configured.  For example,
+  A pattern or the word ALL can be used to make a mailing list 
+  invisible when someone uses the "lists" command.  For example,
 
-    configset LISTNAME noadvertise = /./
+    configset LISTNAME noadvertise = ALL
 
+  would make a list private.
 
 8. subject_prefix
 
@@ -83,8 +84,8 @@ attention, in reverse order of importance.
 
     Subject: [cabbage] Re: Cold frames
 
-  The subject_prefix setting can be used to customize the Subject lines,
-  for example,
+  The subject_prefix setting can be used to customize the Subject header.
+  For example,
 
     configset cabbage subject_prefix = [CABBAGE: $SEQNO]
 
@@ -251,7 +252,16 @@ POP
 
   More examples are shown in "help admin_moderate".  For a more detailed 
   description of access_rules, see "help configset_access_rules".
-  
+
+
+To see the current values of the "essential" settings for your mailing
+list, use the following command:
+
+  configshow LISTNAME 1
+
+The number 1 stands for "wizard" or "skill" level 1.  
+See "help configset_config_access" for an explanation of wizard levels.
+
 
 Categories of settings
 ----------------------

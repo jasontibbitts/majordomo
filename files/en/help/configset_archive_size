@@ -8,22 +8,35 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname archive_size = unlimited
+configset listname archive_size = 100k
 
 
-A string decribing the maximum size of a single archive file.  When a
-message arrives that would cause an archive file to exceed the size set
-here, a new archive file is created with the final number incremented by
-one.
+$INCLUDE-config/archive_size
 
-Possible values are an integer followed by one of k, or m for
-kilobytes or messages.  The value 'unlimited' is also permitted, in
-which case the archives will not have the following period and two
-digits appended.
+If the archive size is unlimited, each archive file will include the
+list name, followed by a period and date, as determined by the
+archive_split configuration setting.  For example, the June 2001 archive
+of the potato mailing list might have the following file name:
+  potato.200106
 
-Note that changing this variable will only change the settings for new
-messages; old archives will not be renamed or altered in any way.
+If the archive size is limited, the name of each file will be followed
+by a hyphen and two digits.  For example, if the potato list has a 50
+message limit, the August 2001 messages might be split into three
+archives:
+  potato.200108-00
+  potato.200108-01
+  potato.200108-02
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+
+See Also:
+   help admin_delivery
+   help archive
+   help configset_archive_access
+   help configset_archive_date
+   help configset_archive_dir
+   help configset_archive_split
+   help configset_archive_url
+   help get
+   help put
+  
+$INCLUDE-help/foot

@@ -7,30 +7,36 @@ used by the person making the request.
 Formatting files are templates that support keyword variable substitutions.
 See "help variables" for more information on the use of keyword variables.
 
-At present, there are three interfaces supported:  text, wwwadm, and wwwusr.
-The text formatting is used for responses to requests from e-mail messages
-and the mj_shell program.  The wwwadm and wwwusr formatting is used by
-the WWW CGI programs.  Most format files are not supported by all three
-interfaces;  the interfaces are listed in parentheses at the beginning of
-the description for each file.
+At present, there are four interfaces supported:  text, wwwadm,
+wwwconfirm, and wwwusr.  The text formatting is used for responses to
+requests from e-mail messages and the mj_shell program.  The wwwadm,
+wwwconfirm, wwwusr formatting is used by the WWW CGI programs.  Most
+format files are not supported by all three interfaces;  the interfaces
+are listed in parentheses at the beginning of the description for each
+file.
 
 It is possible to retrieve any of these files using the get command,
 according to the interface name.  For example, to retrieve the 
 configshow_categories file for the wwwadm interface, use the command
   get-edit GLOBAL /format/wwwadm/configshow_categories
 
-The get-edit command wraps the file in a "put" command to make editing and
-replacing the file easier.  Note that the format files are stored in
+The get-edit command wraps the file in a "put" command to make editing
+and replacing the file easier.  Note that the format files are stored in
 a directory that is used by all domains at this site.  If you use the
 put command to improve a format file, you will actually be creating a
-copy of the file that is stored within a file space that is specific
-to one list in one domain.  See "help admin_domain" for a details about
-how domains are managed by Majordomo.
+copy of the file that is stored within a file space that is specific to
+one list in one domain.  See "help admin_domain" for a details about how
+domains are managed by Majordomo.
+
+The directories that hold revised files are not created automatically;
+it may be necessary for you to create them with the "put-dir" command
+before you edit any format files.  See "help put" and "help index" for
+more information.
 
 
 archive_attachment
 ------------------
-(text, wwwadm, wwwusr)  This file displays summary information
+(ALL)  This file displays summary information
 about any message body part which is not plain text, a container type
 (such as multipart/mixed) or an image.
 
@@ -43,7 +49,7 @@ about any message body part which is not plain text, a container type
 
 archive_container
 -----------------
-(text, wwwadm, wwwusr)  This file displays summary information 
+(ALL)  This file displays summary information 
 about a message body part which is a container type (such as
 multipart/related).
 
@@ -56,7 +62,7 @@ multipart/related).
 
 archive_edit_foot
 -----------------
-(text, wwwadm, wwwusr)  This file displays the closing tags to
+(ALL)  This file displays the closing tags to
 allow a message body part or its headers to be edited and replaced.
 
 (standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, 
@@ -65,7 +71,7 @@ allow a message body part or its headers to be edited and replaced.
 
 archive_edit_head
 -----------------
-(text, wwwadm, wwwusr)  This file displays a command line or HTML
+(ALL)  This file displays a command line or HTML
 form that allows a message body part or its headers to be edited and
 replaced.
 
@@ -75,7 +81,7 @@ replaced.
 
 archive_error
 -------------
-(text, wwwadm, wwwusr)  This file is displayed when the archive 
+(ALL)  This file is displayed when the archive 
 command fails or stalls.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOTAL_POSTS, USER)
@@ -83,7 +89,7 @@ command fails or stalls.
 
 archive_foot
 ------------
-(text, wwwadm, wwwusr)  This file is displayed at the bottom 
+(ALL)  This file is displayed at the bottom 
 of the output of the archive-index command.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
@@ -91,7 +97,7 @@ of the output of the archive-index command.
 
 archive_get_foot
 ----------------
-(text, wwwadm, wwwusr)  This file is displayed at the bottom of the output
+(ALL)  This file is displayed at the bottom of the output
 of the archive-get or archive-delete command.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
@@ -99,7 +105,7 @@ of the archive-get or archive-delete command.
 
 archive_get_head
 ----------------
-(text, wwwadm, wwwusr)  This file is displayed at the top of the output
+(ALL)  This file is displayed at the top of the output
 of the archive-get or archive-delete command.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
@@ -107,7 +113,7 @@ of the archive-get or archive-delete command.
 
 archive_head
 ------------
-(text, wwwadm, wwwusr)  This file is displayed at the top of the output
+(ALL)  This file is displayed at the top of the output
 of the archive-index command.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
@@ -115,7 +121,7 @@ of the archive-index command.
 
 archive_header
 --------------
-(text, wwwadm, wwwusr)  This file displays basic message headers,
+(ALL)  This file displays basic message headers,
 such as From, Subject, and Date.
  
 (standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE, 
@@ -127,7 +133,7 @@ such as From, Subject, and Date.
 
 archive_image
 -------------
-(text, wwwadm, wwwusr)  This file displays summary information about
+(ALL)  This file displays summary information about
 an image attachment to a posted message.  In the WWW interfaces, the 
 image is displayed inline.
 
@@ -140,7 +146,7 @@ image is displayed inline.
 
 archive_index
 -------------
-(text, wwwadm, wwwusr)  This file is displayed for each message in the
+(ALL)  This file is displayed for each message in the
 result of the archive-index command.
 
 (standard plus BODY_LINES, BYTE, BYTES, CGIDATA, CGIURL, CMDPASS, DATE, 
@@ -150,7 +156,7 @@ result of the archive-index command.
 
 archive_msg_foot
 ----------------
-(text, wwwadm, wwwusr)  This file is displayed at the end of a group
+(ALL)  This file is displayed at the end of a group
 of messages when the archive-get-immediate command is used.
 
 (standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES,
@@ -162,7 +168,7 @@ of messages when the archive-get-immediate command is used.
 
 archive_msg_head
 ----------------
-(text, wwwadm, wwwusr)  This file is displayed at the end of a group
+(ALL)  This file is displayed at the end of a group
 of messages when the archive-get-immediate command is used.
 
 (standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES,
@@ -174,7 +180,7 @@ of messages when the archive-get-immediate command is used.
 
 archive_none
 ------------
-(text, wwwadm, wwwusr)  This file is displayed when no messages were found
+(ALL)  This file is displayed when no messages were found
 in the archive.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
@@ -182,7 +188,7 @@ in the archive.
 
 archive_part_delete
 -------------------
-(text, wwwadm, wwwusr)  This file indicates that a message body
+(ALL)  This file indicates that a message body
 part has been removed.
 
 (standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, MSGNO, PART, USER)
@@ -190,7 +196,7 @@ part has been removed.
 
 archive_part_replace
 --------------------
-(text, wwwadm, wwwusr)  This file indicates that a message body
+(ALL)  This file indicates that a message body
 part has been replaced.
 
 (standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, MSGNO, PART, USER)
@@ -198,7 +204,7 @@ part has been replaced.
 
 archive_stats
 -------------
-(text, wwwadm, wwwusr)  This file is displayed when the 
+(ALL)  This file is displayed when the 
 archive-stats command is used.
 
 (standard plus AUTHORS, CGIDATA, CGIURL, CMDPASS, FINISH, KILOBYTES,
@@ -207,7 +213,7 @@ archive-stats command is used.
 
 archive_summary
 ---------------
-(text, wwwadm, wwwusr)  This file displays the statistics for one
+(ALL)  This file displays the statistics for one
 mailing list when the archive-summary command is used.
 
 (standard plus BYTES, CGIDATA, CGIURL, CMDPASS, FILE, LINES, MSGS,
@@ -216,7 +222,7 @@ mailing list when the archive-summary command is used.
 
 archive_summary_foot
 --------------------
-(text, wwwadm, wwwusr)  This file is displayed at the bottom of the
+(ALL)  This file is displayed at the bottom of the
 output when the archive-summary command is used.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
@@ -224,7 +230,7 @@ output when the archive-summary command is used.
 
 archive_summary_head
 --------------------
-(text, wwwadm, wwwusr)  This file is displayed at the top of the 
+(ALL)  This file is displayed at the top of the 
 output when the archive-summary command is used.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
@@ -232,7 +238,7 @@ output when the archive-summary command is used.
 
 archive_text_foot
 -----------------
-(text, wwwadm, wwwusr)  This file is displayed at the end of a 
+(ALL)  This file is displayed at the end of a 
 plain text message part.
 
 (standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE, 
@@ -244,7 +250,7 @@ plain text message part.
 
 archive_text_head
 -----------------
-(text, wwwadm, wwwusr)  This file is displayed at the beginning
+(ALL)  This file is displayed at the beginning
 of a plain text message part.
 
 (standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE, 
@@ -295,9 +301,27 @@ that have two possible values, on or off.
 
 configshow_categories
 ---------------------
-(text, wwwadm)  This file displays a list of configuration categories.
+(text, wwwadm)  This file displays information about one configuration
+setting category.
 
-(standard plus CATEGORIES, CGIDATA, CGIURL, CMDPASS, COMMENT, COUNT, USER)
+(standard plus CATEGORY, CGIDATA, CGIURL, CMDPASS, COMMENT, COUNT, 
+ SETTING, SETTINGS, USER)
+
+
+configshow_categories_foot
+--------------------------
+(text, wwwadm)  This file displays supplemental information after a 
+list of configuration setting categories.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+configshow_categories_head
+--------------------------
+(text, wwwadm)  This file displays preliminary information before
+a list of configuration setting categories.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
 
 
 configshow_enum
@@ -362,6 +386,56 @@ configuration setting.  It applies to settings that have short
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COMMENT, SETCOMMAND, 
  USER, VALUE, SETTING, LEVEL)
+
+
+createlist
+----------
+(text, wwwadm, wwwconfirm)  This file indicates that a new list
+has been created, and displays information about the list.
+
+(standard plus ALIASES, CGIDATA, CGIURL, CMDPASS, INACTIVE, NEWLIST, 
+ NOARCHIVE, OWNERS, PASSWORD, USER, WELCOME)
+
+
+createlist_destroy
+------------------
+(text, wwwadm, wwwconfirm)  This file indicates that a mailing list
+has been destroyed, and displays information about the list.
+
+(standard plus ALIASES, CGIDATA, CGIURL, CMDPASS, NEWLIST, USER)
+
+
+createlist_error
+----------------
+(text, wwwadm, wwwconfirm)  This file displays the reasons that a 
+list has not been created, destroyed, or renamed.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, NEWLIST, USER)
+
+
+createlist_nocreate
+-------------------
+(text, wwwadm, wwwconfirm)  This file displays the aliases for
+a mailing list.
+
+(standard plus ALIASES, CGIDATA, CGIURL, CMDPASS, NEWLIST, USER)
+
+
+createlist_regen
+----------------
+(text, wwwadm, wwwconfirm)  This file indicates that the aliases
+for every list in a domain have been regenerated.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+createlist_rename
+----------
+(text, wwwadm, wwwconfirm)  This file indicates that a mailing list
+has been renamed, and displays information about the list.
+
+(standard plus ALIASES, CGIDATA, CGIURL, CMDPASS, NEWLIST, OLDALIASES,
+ OLDLIST, USER)
 
 
 error

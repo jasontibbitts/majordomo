@@ -368,7 +368,8 @@ Section 1.2 - Second line - action
 1.2.15 - notify=(variable=value,...) - allows various attributes of
     a token identifier to be changed when a request requires approval.  
     See the last section of "help access_variables" for a description 
-    of the notification variables.
+    of the notification variables.  Up to four notify actions can be
+    used by one rule.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

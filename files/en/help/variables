@@ -157,6 +157,10 @@ See "help error_files" for a description of each of the error files.
 See "help format_files" for a description of each of the format files.
 See "help reply_files" for a description of each of the reply files.
 
+\$ALIASES
+  The mail aliases required by your system's message transport 
+  software for one or more mailing lists.
+
 \$APPROVALS
   The number of people who must use the accept command to approve
   a stalled request.
@@ -185,6 +189,9 @@ See "help reply_files" for a description of each of the reply files.
   permission to use the archive command for a particular mailing
   list.
 
+\$CATEGORY
+  A configuration setting category.
+
 \$CGIDATA
   A supplementary part of the URL of the current CGI script, for use
   in the web interfaces when the URL is used in an anchor 
@@ -201,9 +208,15 @@ See "help reply_files" for a description of each of the reply files.
 \$CMDPASS
   The password with which the current command was issued.
 
+\$COMMENT
+  A description of a configuration setting or category.
+
 \$CONSULT
   " " if the type of a stalled command is "consult"; '' otherwise.
   "consult" means that the moderators must confirm the command.
+
+\$COUNT
+  The number of settings in a particular configuration category.
 
 \$DATE
   The date at which a request was originally issued;  in some cases
@@ -227,6 +240,10 @@ See "help reply_files" for a description of each of the reply files.
   of a mailing list.  This value comes from the resend_host configuration
   setting (see "help configset_resend_host" for more details).
 
+\$INACTIVE
+  " " if the "active" configuration setting of a newly created mailing
+  list is off; '' otherwise.
+
 \$ISPOST
   " " if a token refers to a stalled posted message; '' if a token
   refers to a Majordomo command.
@@ -236,8 +253,25 @@ See "help reply_files" for a description of each of the reply files.
   "200008/12".  This is not the same as the sequence number.  
   See "help archive" for more details.
 
+\$NEWLIST
+  The most recent name of a mailing list that has been created,
+  renamed, or destroyed with the createlist command.
+
+\$NOARCHIVE
+  " " if the archive for a new mailing list was not created
+  automatically; '' otherwise.
+
+\$OLDALIASES
+  The original aliases of a mailing list that has been renamed with
+  the createlist command.
+
+\$OLDLIST
+  The original name of a mailing list that has been renamed with
+  the createlist command.
+
 \$PASSWORD
-  The personal password corresponding to a particular e-mail address.
+  The personal password corresponding to a particular e-mail address,
+  or the master password of a newly created mailing list.
 
 \$REMIND 
   The number of days before a reminder for a request that requires
@@ -261,6 +295,13 @@ See "help reply_files" for a description of each of the reply files.
   The sequence number of a message posted to a mailing list.  This
   value comes from the sequence_number configuration setting (see
   "help configset_sequence_number" for more information).
+
+\$SETTING
+  The name of a configuration setting category, in capital letters.
+
+\$SETTINGS
+  The names of the configuration settings within a particular 
+  configuration category.
 
 \$SUBJECT
   The Subject header of a posted message.
@@ -291,6 +332,10 @@ See "help reply_files" for a description of each of the reply files.
 
 \$VICTIM 
   The e-mail address of the person affected by a Majordomo command.
+
+\$WELCOME
+  " " if the owners' guide was mailed to the owners of a new mailing
+  list; '' otherwise.
 
 \$WILLACK
   " " if an acknowledgement message will be mailed if a token is

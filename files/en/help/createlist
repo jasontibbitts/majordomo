@@ -1,8 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-createlist[-force][-noarchive][-noheader][-nowelcome] listname owner
+createlist[-force][-inactive][-noarchive][-nowelcome] listname owner
 createlist-destroy listname
 createlist-nocreate listname owner
-createlist-pass[-force][-noarchive][-noheader][-nowelcome] listname password owner
+createlist-pass[-force][-inactive][-noarchive][-nowelcome] listname password owner
 createlist-regen
 createlist-rename listname newlistname
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -10,9 +10,9 @@ listname,  required, is an email list at this site
 owner,     required, is an email address for who will manage the list
 -destroy,  if specified, deletes instead of creating the list
 -force,    if specified, takes action even if list already exists
+-inactive, if specified, causes the "active" setting to be turned off
 -noarchive if specified, suppresses creation of the message archive directory
 -nocreate, if specified, shows suggested aliases but takes no action
--noheader, if specified, shortens the suggested aliases message
 -nowelcome,if specified, suppresses intro msg for new owner
 -pass,     if specified, allows the list's master password to be specified.
 -regen,    if specified, regenerates the mail aliases
@@ -54,7 +54,7 @@ ABC
 "help here_document" for a discussion of multi-line commands.
 
 The new_list file is sent to the list owners when a new list is
-created, unless the "-nowelcome" mode was specified. If you want to change
+created, unless the "nowelcome" mode was specified. If you want to change
 this message, use the following command:
   get-edit GLOBAL /new_list
 
@@ -77,17 +77,10 @@ in use, a set of sendmail aliases will be generated.  Consult the README
 files in the Majordomo software for further details on several common
 MTAs.
 
-If "createlist-regen" is used, all other options and arguments are
-ignored.  If Majordomo is maintaining your MTA configuration, the
-aliases file will be updated by this command.  Otherwise, a complete
-list of suggested MTA configurations for the site and each list is
-displayed.  Running the createlist-regen command is required if the
-aliases, debug, or sublists configuration settings for any list are
-changed.
 
-The command modes include the following:
+The following command modes are supported:
 
-  -destroy
+  destroy:
     The createlist-destroy command removes a list by renaming the list's
     directory, including a generation number to prevent successive
     destructions of the same list from overwriting one another. The list
@@ -97,45 +90,53 @@ The command modes include the following:
     by hand. It renames the list's directory to start with a comma and
     end with the deletion version number, as in ",test-list.0".
 
-  -force:
+  force:
     If the list already exists, the 'createlist' command will fail
     unless the 'force' argument is used.  Note that the owner address you
     enter when you force the list creation will replace any previous owner
     addresses associated with the list.
 
-  -noarchive:
+  inactive:
+    This command mode will cause the list's "active" configuration
+    setting to be turned off.  This will cause any subscription requests
+    posted messages, or other commands to be discarded until the "active" 
+    setting is turned on.  This feature allows the list owners to configure 
+    a new list and make other preparations before the list is made public.
+
+  noarchive:
     This argument suppresses creation of the message archive directory.
     WITHOUT '-noarchive', the directory "listname/public/archive" is
     created (regardless of the "configset archive_dir" setting).
 
-  -nocreate:
+  nocreate:
     This argument will cause 'createlist' to suggest the MTA
     configuration without actually creating the list; the command will not
     fail if the list already exists.
 
-  -noheader:
-    The instructional information that precedes the suggested
-    MTA configuration info will not be displayed.
+  nowelcome:
+    This mode will prevent the guide for new list owners from being
+    mailed to each owner of the new mailing list.
 
-  -nowelcome:
-  -quiet:
-    No introductory mail will be sent to the list owner.
-    (The 'quiet' and 'nowelcome' modes are identical.)
-
-  -pass:
+  pass:
     The master password will be stated explicitly on the command line,
     instead of being generated randomly.  The password must be at least
     as long as required by the password_min_length configuration
     setting.
 
-  -regen:
+  regen:
     The regen command mode will cause the mail aliases for every list
     within a domain to be regenerated.  In addition, every configuration
     file will be reparsed, and warnings will be displayed if any of the
     settings is incorrect.  The createlist-regen command is run
     automatically every time the software is upgraded.
 
-  -rename:
+    If Majordomo is maintaining your MTA configuration, the aliases file
+    will be updated automatically by this command.  Otherwise, a complete
+    list of suggested aliases for the domain will be displayed.  Running 
+    the createlist-regen command is required if the aliases, debug, 
+    or sublists configuration settings for any list are changed.
+
+  rename:
     The createlist-rename command will change the name of a mailing
     list.  All subscription information, archive file names, and 
     mail aliases will be updated automatically.  It may be necessary
@@ -144,20 +145,21 @@ The command modes include the following:
     use the configshow-declared command to see if any of the list's
     settings contain the old list name.
 
-Once a list has been renamed, it is possible to cause commands that use
-the old list name to be adjusted to use the new name automatically.  See
-"help configset_relocated_lists" for more details.
+    Once a list has been renamed, it is possible to cause commands that 
+    use the old list name to be adjusted to use the new name automatically.
+    See "help configset_relocated_lists" for more details.
 
-NOTE: Auxiliary lists are not created by the createlist command.  
-An auxiliary list is created by adding an address to it with the 
-subscribe command, or by mentioning it in the access rules (see
+Auxiliary lists cannot be created or destroyed with the createlist
+command.  An auxiliary list is created by adding an address to it with
+the subscribe command, or by mentioning it in the access rules (see
 "help auxiliary_list" for more details). 
 
 
 See Also:
-   help admin                  (how to manage a list after it is created)
-   help auxiliary_list         (introduction to sublists)
-   help configset                     (to configure the list once created)
+   help admin                 (how to manage a list after it is created)
+   help auxiliary_list        (introduction to sublists)
+   help configset             (to configure the list after it is created)
+   help configset_active      (to activate an "inactive" list)
    help configset_archive_dir (to specify a non-default archive directory)
    help configset_default_class       (to configure default subscriptions)
    help configset_default_flags       (to configure default subscriptions)
