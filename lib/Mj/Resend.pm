@@ -1326,7 +1326,7 @@ sub _r_ck_header {
                                  'MESSAGE_ID' => $id, 
                                  'DATE' => scalar localtime($data->{changetime}));
       push @$reasons, $msg;
-      $avars->{dup_msg_id} = $msg;
+      $avars->{dup_msg_id} = 1;
     }
 
     # Count the number of addresses in the To and Cc headers.
@@ -1488,6 +1488,7 @@ sub _r_ck_body {
     $avars->{checksum} ||= 0;
     $avars->{partial_checksum} ||= 0;
     $avars->{dup_checksum} ||= 0;
+    $avars->{dup_msg_id} ||= 0;
     $avars->{dup_partial_checksum} ||= 0;
   }
 
