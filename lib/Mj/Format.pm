@@ -537,10 +537,10 @@ sub show {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $arg1, $arg2, $arg3, $ok, $data) = @_;
   my $log = new Log::In 29, "$type, $vict";
-  my (@lists, $strip);
+  my (@lists, $bouncedata, $strip);
   $strip = $data->{strip};
 
-#  use Data::Dumper; print $out Dumper $data;
+  # use Data::Dumper; print $out Dumper $data;
 
   eprint($out, $type, "  Address: $vict\n");
 
@@ -579,7 +579,6 @@ sub show {
     eprint($out, $type, "    Address transforms to:\n");
     eprint($out, $type, "      $data->{xform}\n");
   }
-#  if ($xform ne $alias && $addr ne $alias && $stripaddr && $stripaddr ne $alias) {
   if ($strip ne $data->{alias}) {
     eprint($out, $type, "    Address aliased to:\n");
     eprint($out, $type, "      $data->{alias}\n");
@@ -605,7 +604,7 @@ sub show {
 
   @lists = keys %{$data->{lists}};
   unless (@lists) {
-    eprint($out, $type, "    Address is not subscribed to any lists\n");
+    eprint($out, $type, "    Address is not subscribed to any lists.\n");
     return 1;
   }
   eprintf($out, $type, "    Address is subscribed to %s list%s:\n",
@@ -620,6 +619,19 @@ sub show {
     eprint($out, $type, "        Subscriber flags:\n");
     for $i (@{$data->{lists}{$i}{flags}}) {
       eprint($out, $type, "          $i\n");
+    }
+    $bouncedata = $data->{lists}{$i}{bouncedata};
+    if ($bouncedata) {
+      if (keys %{$bouncedata->{M}}) {
+	eprint($out, $type, "        Has bounced the following messages:\n      ");
+	eprint($out, $type, join(" ", keys %{$bouncedata->{M}})."\n" );
+	if (@{$bouncedata->{UM}}) {
+	  eprint($out, $type, "        (plus ".scalar(@{$bouncedata->{UM}})." unnumbered messages.\n");
+	}
+      }
+      elsif (@{$bouncedata->{UM}}) {
+	eprint($out, $type, "        Has bounced ".scalar(@{$bouncedata->{UM}})." unnumbered messages.\n");
+      }
     }
     eprint($out, $type, "        Data last changed at ".
 	   gmtime($data->{lists}{$i}{changetime})." GMT.\n");

@@ -1626,7 +1626,7 @@ sub bounce_get {
     $data = $self->is_subscriber($addr);
   }
 
-  return unless $data;
+  return unless $data && $data->{bounce};
   return $self->_bounce_parse_data($data->{bounce});
 }
 
@@ -1697,6 +1697,7 @@ sub _bounce_parse_data {
       push @{$out->{"U$type"}}, $time;
     }
   }
+
   $out;
 }
 

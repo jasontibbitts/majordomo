@@ -3678,7 +3678,7 @@ sub show {
 sub _show {
   my ($self, $dummy, $user, $addr, $mode, $cmd) = @_;
   my $log = new Log::In 35;
-  my (%out, $aliases, $comm, $data, $i, $mess, $ok);
+  my (%out, $aliases, $bouncedata, $comm, $data, $i, $mess, $ok);
 
   # Extract mailbox and comment, transform and aliases
   $out{strip}   = $addr->strip;
@@ -3725,10 +3725,12 @@ sub _show {
 	 subtime    => $data->{subtime},
 	 changetime => $data->{changetime},
 	 flags      => [$self->{'lists'}{$i}->describe_flags($data->{'flags'})],
-	 bouncedata => $self->{lists}{$i}->bounce_get($addr),
 	};
-      $out{bouncestats} = $self->{lists}{$i}->bounce_gen_stats($out{bouncedata})
-	if $out{bouncedata};
+      $bouncedata = $self->{lists}{$i}->bounce_get($addr);
+      if ($bouncedata) {
+	$out{lists}{$i}{bouncedata}  = $bouncedata;
+	$out{lists}{$i}{bouncestats} = $self->{lists}{$i}->bounce_gen_stats($bouncedata);
+      }
     }
   }
   (1, \%out);

@@ -1,3 +1,7 @@
+2000-06-20  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Format.pm (show): Display bounce data as well.
+
 2000-06-20  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/MailOut.pm (handle_bounce): Send the bounce body to the
