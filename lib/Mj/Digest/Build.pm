@@ -49,7 +49,7 @@ use Mj::Digest::Text;
 sub build {
   my %args = @_;
   my $log = new Log::In 150;
-  my (%legal, @digests, @files, $data, $file, $i, $idxfn,
+  my (%legal, @digests, @files, @headers, $data, $file, $i, $idxfn,
       $idxfnref, $j, $msg, $parser, @nukes);
 
   %legal = ('mime' => 'MIME',
@@ -57,9 +57,14 @@ sub build {
 	    'index'=> 'Index',
 	    );
 
-  # Allow 'type' as a scalar argument instaed of 'types'
+  # Allow 'type' as a scalar argument instead of 'types'
   if ($args{type} && !$args{types}) {
     $args{types} = [$args{type}];
+  }
+
+  # Remove redundant "To" and "From" headers.
+  for $i (@{$args{'headers'}}) {
+    push(@headers, $i) unless ($i->[0] =~ /^(to|from)$/i);
   }
 
   # Figure out the name of the index function and get a ref to it for
@@ -80,7 +85,7 @@ sub build {
        tmpdir       => $args{tmpdir},
        from         => $args{from},
        to           => $args{to},
-       headers      => $args{headers},
+       headers      => \@headers,
       );
   }
 
