@@ -1,3 +1,49 @@
+2001-03-01  Michael Yount <csf@moscow.com>
+
+	* bin/mj_shell:  Bugfix:  allow command completion to work again.
+	Store multi-line commands as one history entry.
+	Indicate the Term::ReadLine library in use on startup.
+	Refer people to the new command_line help file.
+	Allow multi-line commands in interactive mode when the first
+	line ends in a backslash.
+
+	* lib/Majordomo.pm:  (domains)  Use a local symbol for the file
+	handle.
+	(substitute_vars_format)  Add support for displaying help files
+	in a separate web browser window.
+	(config_get_mutable, config_get_visible)  Bugfix:  do not always
+	use the GLOBAL context to determine if a setting is visible or
+	mutable.
+	(report, _report)  Change the semantics of the report command:
+	allow here documents, and expect to find the date criteria
+	before the action criteria.
+	
+	* lib/mj_cf_data.pl, lib/mj_cf_defs.pl:  Add support for the
+	GLOBAL www_help_window setting, which will cause help links in
+	the www interfaces to display the help files in a separate window.
+	Requested by David Miller.
+
+	* lib/Mj/CommandProps.pm:  Support the changes to the report command.
+
+	* lib/Mj/Config.pm:  (parse_access_array)  Bugfix:  return the
+	correct data.
+	(parse_inform)  Verify the names of the events that are being
+	monitored.
+
+	* lib/Mj/FileSpace.pm:  (put)  Only use File::Copy if needed.
+
+	* lib/Mj/Format.pm:  (configshow)  Add a HELPLINK substitution
+	to allow help documents for the settings to be viewed in a 
+	separate web browser window.
+	(help)  Add support for the GLOBAL www_help_window setting, which
+	allows help documents to be viewed in a separate browser window.
+
+	* lib/Mj/SimpleDB/Base.pm:  (_stringify)  Convert ^A characters
+	to spaces in individual fields as they are added to the string.
+
+	* lib/Mj/Token.pm:  (t_accept)  Bugfix:  determine whether or
+	not the request would cause an acknowledgement to be sent.
+
 2001-02-27  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Resend.pm (_munge_subject): Bugfix: don't delete subjects

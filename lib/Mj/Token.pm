@@ -597,7 +597,7 @@ sub t_accept {
   # not distribute it on to a mailing list.  Note that this could
   # have interesting side effects, good and bad, if used in
   # other ways.
-  if (defined $mode and $data->{'command'} eq 'post') {
+  if (defined $mode and $data->{'command'} =~ /^post/) {
     $data->{'mode'} .= $data->{'mode'} ? "-$mode" : $mode;
   }
 
@@ -671,6 +671,15 @@ sub t_accept {
 
   ($func = $data->{'command'}) =~ s/_(start|chunk|done)$//;
 
+  $data->{'ack'} = 1;
+  if ($func eq 'post') {
+    # determine whether or not the victim was notified.
+    unless ($self->{'lists'}{$data->{'list'}}->should_ack(
+         $data->{'sublist'}, $vict, 'f')) {
+      $data->{'ack'} = 0;
+    }
+  }
+
   # Hack to cause deliveries to happen asynchronously:
   # an "accept" message is mailed to the server, with
   # the server address in the From header.  No reply will be
@@ -718,10 +727,11 @@ sub t_accept {
 
   # If we're accepting a confirm token, we can just return the results
   # so that they'll be formatted by the core accept routine.
-  return (1, '', $data, \@out) if ($data->{'type'} eq 'confirm');
+  return (1, '', $data, \@out) 
+    if ($data->{'type'} eq 'confirm' or $data->{'type'} eq 'async');
 
-  # So we're accepting a consult token. We need to give back some
-  # useful info the the accept routine so the owner will know that the
+  # So we're accepting a consult or delay token. We need to give back some
+  # useful info to the accept routine so the owner will know that the
   # accept worked, but we also need to generate a separate reply
   # message and send it to the user so that they get the results from
   # that command they submitted so long ago...  To do this, we create
@@ -730,9 +740,7 @@ sub t_accept {
   # pretend we did a 'consult' (in $rreq) command so that the accept
   # routine will format it as we want for the reply to the owner.
   # Acknowledgements of posts take place in Mj::Resend::_post.
-  if ($data->{'command'} ne 'post') {
-    # Note that the victim was notified.
-    $data->{'ack'} = 1;
+  if ($func ne 'post') {
 
     # First make a tempfile
     ($tmp, %file) = $self->_list_file_get($data->{'list'}, "repl_fulfill", $repl);
@@ -767,13 +775,6 @@ sub t_accept {
       if ($data->{'victim'});
 
     unlink $tmp;
-  }
-  else {
-    # determine whether or not the victim was notified.
-    if ($self->{'lists'}{$data->{'list'}}->should_ack(
-         $data->{'sublist'}, $vict, 'f')) {
-      $data->{'ack'} = 1;
-    }
   }
 
   return (1, '', $data, [@out]);
