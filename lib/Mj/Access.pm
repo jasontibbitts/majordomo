@@ -1000,7 +1000,10 @@ sub _a_default {
     elsif ($args{'mismatch'} or $args{'posing'}) {
       $action = "_a_consult"   if $policy eq 'open';
       $action = "_a_conf_cons" if $policy eq 'open+confirm';
-      $reason = "The requester ($requester) and victim ($victim) do not match.";
+      $reason = "The requester ($requester) and victim ($victim) do not match."
+        if $args{'mismatch'};
+      $reason = "$self->{'sessionuser'} is masquerading as $requester."
+        if $args{'posing'};
     }
     unless ($action) {
       $action = "_a_allow"   if $policy eq 'open';
