@@ -780,7 +780,7 @@ my %commands =
    },
    'showtokens' =>
    {
-    'parser'   => [qw(email shell list global all real)],
+    'parser'   => [qw(email shell nohereargs list global all real)],
     'dispatch' => {'top' => 1,
                    'arguments' => {'action' => {'type' => 'SCALAR'}},
                    'modes'    =>  {
