@@ -209,7 +209,9 @@ They are specified like this:
 In addition, there are two other flags for use by developers:
 
   ASK  - ask questions about whether or not things should be done
-  SKIP - skip all non-essential configuration steps
+  SKIP - skip all non-essential configuration steps, including
+         the installation of configuration templates and regeneration
+         of the list configuration and MTA alias files.
 
 If you are making changes to the code or are frequently updating from CVS
 and you want to skip parts of the installation process, you can use SKIP to
