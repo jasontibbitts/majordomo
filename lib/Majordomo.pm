@@ -195,7 +195,7 @@ sub new {
   unless (defined($safe)) {
     $safe = new Safe;
 #    $safe->reval('$^W=0');
-    $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
+    $safe->permit_only(qw(const leaveeval not null pushmark return rv2sv stub));
   }
   unless (defined($tmpdir)) {
     $tmpdir = $self->_global_config_get('tmpdir');
@@ -245,7 +245,7 @@ sub connect {
   my $sess = shift;
   my $user = shift || 'unknown@anonymous';
   my $log = new Log::In 50, "$int, $user";
-  my ($err, $id, $ok, $path);
+  my ($err, $id, $ok, $path, $req);
 
   $user = new Mj::Addr($user);
   ($ok, $err) = $user->valid;
@@ -275,13 +275,18 @@ sub connect {
 
   # Now check if the client has access.  (Didn't do it earlier because we
   # want to save the session data first.)
-  ($ok, $err) =
-    $self->global_access_check(undef, undef, 'access', 'access', $user);
+  $req = {  
+          'command' => 'access',
+          'delay'   => 0,
+          'list'    => 'GLOBAL',
+          'user'    => $user,
+         };
+          
+  ($ok, $err) = $self->global_access_check($req);
 
   # Access check succeeded; now try the block_headers variable if applicable.
   if ($ok > 0 and ($int eq 'email' or $int eq 'request')) {
-    ($ok, $err) =
-      $self->check_headers($sess);
+    ($ok, $err) = $self->check_headers($sess);
   }
   # If the access check failed we tell the client to sod off.  Clearing the
   # sessionid prevents further actions.
@@ -333,19 +338,21 @@ processing done at the beginning.
 =cut
 sub dispatch {
   my ($self, $request, $extra) = @_;
-  my ($base_fun, $continued, $data, $func, $mess, $ok, $out, $over);
+  my (@res, $base_fun, $comment, $continued, $data, $func, 
+      $mess, $ok, $out, $over);
   my ($level) = 29;
   $level = 500 if ($request->{'command'} =~ /_chunk$/);
 
   ($base_fun = $request->{'command'}) =~ s/_(start|chunk|done)$//;
   $continued = 1 if $request->{'command'} =~ /_(chunk|done)/;
-  $request->{'list'} ||= 'GLOBAL';
 
-  $request->{'user'} ||= 'unknown@anonymous';
+  $request->{'delay'}    ||= 0;
+  $request->{'list'}     ||= 'GLOBAL';
+  $request->{'mode'}     ||= '';
+  $request->{'mode'}       = lc $request->{'mode'};
   $request->{'password'} ||= '';
-  $request->{'victim'} ||= '';
-  $request->{'mode'} ||= '';
-  $request->{'mode'} = lc $request->{'mode'};
+  $request->{'user'}     ||= 'unknown@anonymous';
+  $request->{'victim'}   ||= '';
 
   my $log  = new Log::In $level, "$request->{'command'}, $request->{'user'}";
 
@@ -359,6 +366,7 @@ sub dispatch {
     return [0, "Illegal list: \"$request->{'list'}\".\n"];
   }
 
+  # XXX Move this to Mj::Access.
   if ($request->{'password'} =~ /^[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}$/) {
     # The password given appears to be a latchkey, a temporary password.
     # If the latchkey exists and has not expired, convert the latchkey
@@ -425,26 +433,35 @@ sub dispatch {
   else {
     $over = 0;
   }
-  # ZZZ Iterate over the list of addresses.
+
   for (@{$request->{'victims'}}) { 
     $request->{'victim'} = $_;
     gen_cmdline($request) unless ($request->{'command'} =~ /_chunk|_done/);
     if (function_prop($request->{'command'}, 'top')) {
       $func = $request->{'command'};
-      push @$out, $self->$func($request, $extra);
+      @res = $self->$func($request, $extra);
+      push @$out, @res;
     }
     else {
       # Last resort; we found _nothing_ to call
      return [0, "No action implemented for $request->{'command'}"];
     }
-    if ($base_fun eq 'post' or $base_fun eq 'owner' and $out->[1]) {
-      $request->{'user'} = $out->[1];
-      if ($request->{'command'} eq 'owner_done' and @{$out->[2]}) {
+ 
+    $comment = '';
+    # owner_done returns the address of the originator,
+    # and bouncing addresses if any were identified.
+    if ($base_fun eq 'owner' and $res[1]) {
+      if ($request->{'command'} eq 'owner_done' and @{$res[1]}) {
         $base_fun = "bounce";
         $request->{'cmdline'} = "(bounce from " .
-                                join(" ", @{$out->[2]}) . ")";
+                                join(" ", @{$res[1]}) . ")";
       } 
     }
+    else {
+      # Obtain the comment for failed and stalled actions.
+      $comment = $res[1] if (defined $res[1] and $res[0] < 1);
+    }
+      
     # Inform on post_done and post and owner_done, 
     # but not on post_start or owner_start.
     $over = 2 if ($request->{'command'} eq 'post_start');
@@ -456,8 +473,8 @@ sub dispatch {
       # XXX How to handle an array of results?
       $self->inform($request->{'list'}, $base_fun, $request->{'user'}, 
                     $request->{'victim'}, $request->{'cmdline'}, 
-                    $self->{'interface'}, $out->[0], 
-                    !!$request->{'password'}+0, $over, '');
+                    $self->{'interface'}, $res[0], 
+                    !!$request->{'password'}+0, $over, $comment);
     }
   }
   $out;
@@ -481,7 +498,7 @@ returns them in an array.
 sub get_all_lists {
   my ($self, $user, $passwd, $regexp) = @_;
   my $log = new Log::In 100;
-  my (@lists, $always, $list);
+  my (@lists, $always, $list, $req);
 
   $user = new Mj::Addr($user);
   $self->_fill_lists;
@@ -506,11 +523,19 @@ sub get_all_lists {
 
     # Else do the full check
     next unless $self->_make_list($list);
-    if ($self->list_access_check($passwd, '', 'lists',
-				 $list, 'advertise', $user))
-      {
-	push @lists, $list;
-      }
+    $req = {
+            'cmdline'  => 'lists',
+            'command'  => 'advertise',
+            'delay'    => 0,
+            'list'     => $list,
+            'mode'     => '',
+            'password' => $passwd,
+            'user'     => $user
+           };
+
+    if ($self->list_access_check($req)) {
+      push @lists, $list;
+    }
   }
   sort @lists;
 }
@@ -643,7 +668,7 @@ sub standard_subs {
   return unless $self->valid_list($list, 1, 1);
   $whereami  = $self->_global_config_get('whereami');
 
-  if (defined $sublist) {
+  if (length $sublist) {
     $whoami = "$list-$sublist\@$whereami";
   }
   else {
@@ -1526,12 +1551,7 @@ sub get_start {
   $root = 1 if $request->{'path'} =~ m!^/!;
 
   ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 'get', 
-                             $request->{'user'}, $request->{'user'}, 
-                             $request->{'path'}, '', '',
-			                 'root' => $root);
-
+    $self->list_access_check($request, 'root' => $root);
 
   unless ($ok > 0) {
     return ($ok, $mess);
@@ -1649,9 +1669,8 @@ sub faq_start {
   my ($mess, $ok);
   
   ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'faq', $request->{'user'}, $request->{'user'});
+    $self->list_access_check($request);
+
   unless ($ok > 0) {
     return ($ok, $mess);
   }
@@ -1691,6 +1710,8 @@ sub help_start {
   my ($self, $request) = @_;
   my (@info, $file, $mess, $ok, $subs, $whoami, $wowner);
 
+  $request->{'list'} = 'GLOBAL';
+
   # convert, for example,
   #    "help configset access_rules" 
   # to "help configset_access_rules"
@@ -1703,9 +1724,7 @@ sub help_start {
   my $log = new Log::In 50, "$request->{'user'}, $request->{'topic'}";
 
   ($ok, $mess) =
-    $self->global_access_check($request->{'password'}, $request->{'mode'}, 
-                               $request->{'cmdline'}, 'help', 
-                               $request->{'user'}, $request->{'user'}, $topic);
+    $self->global_access_check($request);
 
   # No stalls should be allowed...
   unless ($ok > 0) {
@@ -1745,9 +1764,8 @@ sub info_start {
   my ($mess, $ok);
   
   ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'info', $request->{'user'}, $request->{'user'});
+    $self->list_access_check($request);
+
   unless ($ok > 0) {
     return ($ok, $mess);
   }
@@ -1789,9 +1807,8 @@ sub intro_start {
   my ($mess, $ok);
   
   ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'intro', $request->{'user'}, $request->{'user'});
+    $self->list_access_check($request);
+
   unless ($ok > 0) {
     return ($ok, $mess);
   }
@@ -1838,16 +1855,20 @@ sub password {
   my ($ok, $mess, $minlength);
   my $log = new Log::In 30, "$request->{'victim'}, $request->{'mode'}";
 
+  $request->{'list'} = 'GLOBAL';
+
+  $minlength = $self->_global_config_get('password_min_length');
   # Generate a password if necessary
   if ($request->{'mode'} =~ /gen|rand/) {
-    $request->{'newpasswd'} = Mj::Access::_gen_pw();
+    $request->{'newpasswd'} = Mj::Access::_gen_pw($minlength);
   }
+  return (0, "The password must be at least $minlength characters long.\n")
+    unless (length($request->{'newpasswd'}) >= $minlength);
 
   ($ok, $mess) =
-    $self->global_access_check($request->{'password'}, $request->{'mode'}, 
-                   $request->{'cmdline'}, 'password', $request->{'user'}, 
-                   $request->{'victim'}, $request->{'newpasswd'}, '', '',
-			       'password_length' => length($request->{'newpasswd'}));
+    $self->global_access_check($request, 'password_length' => 
+                               length($request->{'newpasswd'}));
+
   unless ($ok > 0) {
     return ($ok, $mess);
   }
@@ -1919,7 +1940,7 @@ This starts the file put operation.
 =cut
 sub put_start {
   my ($self, $request) = @_;
-  my ($ok, $mess);
+  my ($filedesc, $ok, $mess);
 
   # Initialize optional parameters.
   $request->{'xdesc'}     ||= '';
@@ -1927,26 +1948,23 @@ sub put_start {
   $request->{'ocset'}     ||= '';
   $request->{'oencoding'} ||= '';
   $request->{'olanguage'} ||= '';
+  $filedesc =   "$request->{'ocontype'}\002$request->{'ocset'}\002$request->{'oencoding'}\002$request->{'olanguage'}";
+  $request->{'arg3'} = $filedesc;
 
   my $log = new Log::In 30, "$request->{'list'}, $request->{'file'}, 
               $request->{'xdesc'}, $request->{'ocontype'}, $request->{'ocset'}, 
               $request->{'oencoding'}, $request->{'olanguage'}";
   
   # Check the password
-  ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 'put', 
-                             $request->{'user'}, $request->{'user'}, 
-                             $request->{'file'}, $request->{'xdesc'}, 
-     "$request->{'ocontype'}\002$request->{'ocset'}\002$request->{'oencoding'}\002$request->{'olanguage'}");
+  ($ok, $mess) = $self->list_access_check($request);
+
   unless ($ok > 0) {
     return ($ok, $mess);
   }
 
   $self->_put($request->{'list'}, $request->{'user'}, $request->{'user'}, 
               $request->{'mode'}, $request->{'cmdline'}, $request->{'file'}, 
-              $request->{'xdesc'},
-	  "$request->{'ocontype'}\002$request->{'ocset'}\002$request->{'oencoding'}\002$request->{'olanguage'}");
+              $request->{'xdesc'}, $filedesc);
 }
 
 sub _put {
@@ -2010,11 +2028,8 @@ sub request_response {
   my $log = new Log::In 50, "$request->{'list'}, $request->{'victim'}";
   my ($mess, $ok);
   
-  ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'request_response', $request->{'user'}, 
-                             $request->{'user'}, '', '', '');
+  ($ok, $mess) = $self->list_access_check($request);
+
   unless ($ok > 0) {
     return ($ok, $mess);
   }
@@ -2076,11 +2091,7 @@ sub index {
   $root = 1 if $request->{'path'} =~ m!^/! && $request->{'path'} ne '/help';
 
   # Check for access
-  ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'index', $request->{'user'}, $request->{'user'}, 
-                             $request->{'path'}, '', '', 'root' => $root);
+  ($ok, $mess) = $self->list_access_check($request, 'root' => $root);
 
   unless ($ok > 0) {
     return ($ok, $mess);
@@ -2554,6 +2565,8 @@ sub accept {
   my $log = new Log::In 30, scalar(@{$request->{'tokens'}}) . " tokens";
   my ($token, $ttoken, @out);
 
+  $request->{'list'} = 'GLOBAL';
+
   return (0, "No token was supplied.\n")
     unless (scalar(@{$request->{'tokens'}}));
 
@@ -2587,7 +2600,7 @@ sub accept {
           $data->{'victim'},
           $data->{'cmdline'},
           "token-$self->{'interface'}",
-          $tmp->[0], 0, 0, '');
+          $tmp->[0], 0, 0, $tmp->[1]);
 
     $mess ||= "Further approval is required.\n" if ($ok < 0);
     if ($ok) {
@@ -2661,11 +2674,8 @@ sub alias {
   return (0, "$request->{'newaddress'} is an invalid address.\n$mess")
     unless ($ok > 0);
 
-  ($ok, $mess) = 
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 'alias', 
-                             $request->{'user'}, $request->{'user'}, 
-                             $request->{'newaddress'}, '','');
+  ($ok, $mess) = $self->list_access_check($request);
+
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $mess);
@@ -2732,11 +2742,7 @@ sub announce {
   return (0, "Announcements to the DEFAULT list are not supported.\n")
     if ($request->{'list'} eq 'DEFAULT');
 
-  ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'announce', $request->{'user'}, $request->{'user'}, 
-                             $request->{'file'});
+  ($ok, $mess) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     return ($ok, $mess);
@@ -2873,10 +2879,7 @@ sub archive_start {
     unless ($request->{'args'});
 
   ($ok, $out) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'archive', $request->{'user'}, $request->{'user'}, 
-                             $request->{'args'});
+    $self->list_access_check($request);
 
   unless ($ok > 0) {
     return ($ok, $out);
@@ -2895,14 +2898,14 @@ sub archive_start {
 sub _archive {
   my ($self, $list, $user, $vict, $mode, $cmdline, $args) = @_;
   my $log = new Log::In 30, "$list, $args";
-  my ($mess, $ok);
+  my (@msgs, $mess, $ok);
   return 1 unless $args;
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
   if ($mode =~ /sync/) {
-    return $self->{'lists'}{$list}->archive_sync($args, $tmpdir);
+    @msgs = $self->{'lists'}{$list}->archive_find($args);
   }
-  my (@msgs) = $self->{'lists'}{$list}->archive_expand_range(0, $args);
+  @msgs = $self->{'lists'}{$list}->archive_expand_range(0, $args);
   $self->{'archct'} = 1;
   return (1, @msgs);
 }
@@ -2921,7 +2924,10 @@ sub archive_chunk {
   $list = $self->{'lists'}{$request->{'list'}};
 
 
-  if ($request->{'mode'} =~ /immediate/) {
+  if ($request->{'mode'} =~ /sync/) {
+    return $self->{'lists'}{$list}->archive_sync($result, $tmpdir);
+  }
+  elsif ($request->{'mode'} =~ /immediate/) {
     $buf = '';
     @msgs = @$result;
     for $i (@msgs) {
@@ -3003,11 +3009,7 @@ sub auxadd {
   $request->{'auxlist'} =~ /(.*)/;  
   $request->{'auxlist'} = $1;  
 
-  ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'auxadd', $request->{'user'}, $request->{'victim'}, 
-                             $request->{'auxlist'}, '','');
+  ($ok, $mess) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     $log->message(30, "info", "$request->{'victim'}: noaccess");
@@ -3059,11 +3061,8 @@ sub auxremove {
     return ($ok, $error) unless $ok;
   }
 
-  ($ok, $error) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'},
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'auxremove', $request->{'user'}, $addr, 
-                             $request->{'auxlist'} ,'','');
+  ($ok, $error) = $self->list_access_check($request);
+
   unless ($ok > 0) {
     $log->message(30, "info", "$addr: noaccess");
     return ($ok, $error);
@@ -3182,7 +3181,7 @@ sub configshow {
       elsif ($whence > 0) {
         $comment .= "This value was set by the DEFAULT list.\n";
       }
-      elsif ($whence < 0) {
+      elsif ($whence < 0 and $auto == 2) {
         $comment .= "This value was set by the list owners.\n";
       }
       elsif ($whence == 0) {
@@ -3221,15 +3220,13 @@ This replaces an entry in the master address database.
 sub changeaddr {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'victim'}, $request->{'user'}";
-  my (@out, @removed, $mismatch, $ok, $regexp, $error, $key, $data);
+  my ($ok, $error);
+  
+  $request->{'list'} = 'GLOBAL';
 
-  $regexp   = 0;
-  ($ok, $error) =
-    $self->global_access_check($request->{'password'}, $request->{'mode'}, 
-                               $request->{'cmdline'}, 'changeaddr', 
-                               $request->{'user'}, $request->{'victim'}, 
-                               '','','');
-  unless ($ok>0) {
+  ($ok, $error) = $self->global_access_check($request);
+
+  unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $error);
   }
@@ -3312,6 +3309,8 @@ sub createlist {
   my ($self, $request) = @_;
   my ($mess, $ok);
 
+  $request->{'list'} = 'GLOBAL';
+
   unless ($request->{'mode'} =~ /regen/) {
     return (0, "Must supply a list name.\n")
       unless $request->{'newlist'};
@@ -3334,11 +3333,7 @@ sub createlist {
   # users to run it, the information about the MTA configuration will
   # need to be sent to a different place than the results of the
   # command.
-  ($ok, $mess) = 
-    $self->global_access_check($request->{'password'}, $request->{'mode'}, 
-                               $request->{'cmdline'}, "createlist", 
-                               $request->{'user'}, $request->{'victim'}, 
-                               $request->{'victim'}, $request->{'newlist'});
+  ($ok, $mess) = $self->global_access_check($request);
     
   unless ($ok > 0) {
     return ($ok, $mess);
@@ -3532,11 +3527,7 @@ sub digest {
   my $log = new Log::In 30, "$request->{'mode'}, $request->{'list'}, 
                              $request->{'args'}";
 
-  my ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'digest', $request->{'user'}, '', 
-                             $request->{'args'}, '','');
+  my ($ok, $mess) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     $log->out("noaccess");
@@ -3640,6 +3631,8 @@ sub lists {
   my (@lines, @out, @sublists, $cat, $compact, $count, $data, $desc, 
       $digests, $flags, $i, $limit, $list, $mess, $ok, $sublist);
 
+  $request->{'list'} = 'GLOBAL';
+
   # Stuff the registration information to save lots of database lookups
   $self->_reg_lookup($request->{'user'});
 
@@ -3650,9 +3643,8 @@ sub lists {
   }
 
   # Check global access
-  ($ok, $mess) =
-    $self->global_access_check($request->{'password'}, $request->{'mode'}, 
-                               $request->{'cmdline'}, "lists", $request->{'user'});
+  ($ok, $mess) = $self->global_access_check($request);
+
   unless ($ok > 0) {
     return ($ok, $mess);
   }
@@ -3768,6 +3760,8 @@ sub reject {
   my (%file, $data, $desc, $ent, $file, $in, $inf, $inform, $line, $t, @out);
   my ($list_owner, $mj_addr, $mj_owner, $ok, $mess, $reason, $repl, $rfile);
   my ($sess, $site, $token, $victim);
+
+  $request->{'list'} = 'GLOBAL';
 
   return (0, "No token was supplied.\n")
     unless (scalar(@{$request->{'tokens'}}));
@@ -3957,15 +3951,13 @@ sub register {
   my $log = new Log::In  30, "$request->{'victim'}, $request->{'mode'}";
 
   $request->{'newpasswd'} ||= '';
+  $request->{'list'} = 'GLOBAL';
  
   # Do a list_access_check here for the address; subscribe if it succeeds.
   # The access mechanism will automatically generate failure notices and
   # confirmation tokens if necessary.
-  ($ok, $error) =
-    $self->global_access_check($request->{'password'}, $request->{'mode'}, 
-                               $request->{'cmdline'}, 'register', 
-                               $request->{'user'}, $request->{'victim'}, 
-                               $request->{'newpasswd'}, '', '');
+  ($ok, $error) = $self->global_access_check($request);
+
   unless ($ok > 0) {
     $log->message(30, "info", "noaccess");
     return ($ok, $error);
@@ -4023,10 +4015,10 @@ change, else address matching will fail to work properly.
 sub rekey {
   my ($self, $request) = @_;
   my $log = new Log::In 30;
+  
+  $request->{'list'} = 'GLOBAL';
 
-  my ($ok, $error) = 
-    $self->global_access_check($request->{'password'}, $request->{'mode'}, 
-                               $request->{'cmdline'}, "rekey", $request->{'user'});
+  my ($ok, $error) = $self->global_access_check($request);
 
   unless ($ok > 0) {
     $log->out("noaccess");
@@ -4138,12 +4130,7 @@ sub report_start {
      "$request->{'list'}, $request->{'user'}, $request->{'action'}";
   my ($mess, $ok);
 
-  ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 'report', 
-                             $request->{'user'}, $request->{'user'}, 
-                             $request->{'action'}, '', $request->{'date'});
-
+  ($ok, $mess) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     return ($ok, $mess);
@@ -4334,10 +4321,8 @@ sub set {
   return (0, "The set command is not supported for the $request->{'list'} list.\n")
     if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT'); 
 
-  ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-     $request->{'cmdline'}, $request->{'list'}, 'set', $request->{'user'}, 
-     $request->{'victim'}, $request->{'setting'}, '', $request->{'auxlist'});
+  ($ok, $mess) = $self->list_access_check($request);
+
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $mess);
@@ -4452,12 +4437,13 @@ sub show {
   my ($self, $request) = @_;
   my ($error, $ok, @out);
   my $log = new Log::In 30;
+
+  $request->{'list'} = 'GLOBAL';
  
   # We know each address is valid; the dispatcher took care of that for us.
-    $addr = $request->{'victim'};
-    ($ok, $error) =
-      $self->global_access_check($request->{'password'}, $request->{'mode'},                                      $request->{'cmdline'}, 'show', 
-                                 $request->{'user'}, $addr, '', '', '');
+  $addr = $request->{'victim'};
+  ($ok, $error) = $self->global_access_check($request);
+
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, {strip   => $addr->strip,
@@ -4554,16 +4540,16 @@ sub showtokens {
       return (0, "$request->{'action'} is not a legal command."); 
     }
   }
-  ($ok, $mess) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'showtokens', $request->{'user'}, '', '', '', '');
+
+  ($ok, $mess) = $self->list_access_check($request);
+
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $mess);
   }
   $self->_showtokens($request->{'list'}, $request->{'user'}, '', 
-                     $request->{'mode'}, $request->{'cmdline'}, $request->{'action'});
+                     $request->{'mode'}, $request->{'cmdline'}, 
+                     $request->{'action'});
 }
 
 sub _showtokens {
@@ -4579,7 +4565,9 @@ sub _showtokens {
     last unless $token;
     next unless $data->{'list'} eq $list || $list eq 'ALL';
     next if ($action and ($data->{'command'} ne $action)); 
+    next if ($data->{'type'} eq 'delay' and $mode !~ /delay/);
 
+    # Obtain file size
     if ($data->{'command'} eq 'post') {
       $data->{'size'} = (stat $data->{'arg1'})[7];
     }
@@ -4632,11 +4620,8 @@ sub subscribe {
   }
 
   ($ok, $error) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'subscribe', $request->{'user'}, 
-                             $request->{'victim'}, '',
-                             '', "", 'matches_list' => $matches_list,);
+    $self->list_access_check($request, 'matches_list' => $matches_list);
+
   unless ($ok > 0) {
     $log->message(30, "info", "noaccess");
     return ($ok, $error);
@@ -4752,7 +4737,7 @@ use Mj::Digest qw(in_clock);
 sub trigger {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'mode'}";
-  my (@ready, $list, $mode, $times);
+  my (@ready, $data, $key, $list, $ok, $mess, $mode, $times, $tmp);
   $mode = $request->{'mode'};
   @ready = ();
 
@@ -4774,6 +4759,22 @@ sub trigger {
   if ($mode =~ /^(da|t)/ or grep {$_ eq 'token'} @ready) {
     $self->t_expire;
     $self->t_remind;
+  }
+  # Mode: daily or delay - complete delayed requests
+  if ($mode =~ /^(da|de)/ or grep {$_ eq 'session'} @ready) {
+    @req = $self->t_fulfill;
+    while (@req) {
+      ($key, $data) = splice @req, 0, 2;
+      ($ok, $mess, $data, $tmp) =
+        $self->t_accept($key);
+      $self->inform($data->{'list'},
+                    $data->{'command'},
+                    $data->{'user'},
+                    $data->{'victim'},
+                    $data->{'cmdline'},
+                    "token-fulfill",
+                    $tmp->[0], 0, 0, $mess);
+    }
   }
   # Mode: daily or session - expire session data
   if ($mode =~ /^(da|s)/ or grep {$_ eq 'session'} @ready) {
@@ -4832,11 +4833,10 @@ sub unalias {
   my ($ok, $mess, $mismatch);
 
   $mismatch = !($request->{'user'}->alias eq $request->{'victim'}->alias);
+
   ($ok, $mess) = 
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'},
-                             'unalias', $request->{'user'}, $request->{'victim'},
-                             '', '','', 'mismatch' => $mismatch);
+    $self->list_access_check($request, 'mismatch' => $mismatch);
+
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $mess);
@@ -4869,6 +4869,8 @@ sub unregister {
   my $log = new Log::In 30, "$request->{'victim'}";
   my ($mismatch, $ok, $regexp, $error);
 
+  $request->{'list'} = 'GLOBAL';
+
   if ($request->{'mode'} =~ /regex/) {
     $mismatch = 0;
     $regexp   = 1;
@@ -4879,19 +4881,18 @@ sub unregister {
     $mismatch = !($request->{'user'} eq $request->{'victim'});
     $regexp   = 0;
   }
+
   ($ok, $error) =
-    $self->global_access_check($request->{'password'}, $request->{'mode'}, 
-                               $request->{'cmdline'}, 'unregister', 
-                               $request->{'user'}, $request->{'victim'}, 
-                               '','','', 'mismatch' => $mismatch,
-                               'regexp'   => $regexp,
-                              );
+    $self->global_access_check($request, 'mismatch' => $mismatch,
+                               'regexp'   => $regexp);
+
   unless ($ok > 0) {
     $log->message(30, "info", "$request->{'user'}:  noaccess");
     return  ($ok, $error);
   }
   $self->_unregister($request->{'list'}, $request->{'user'}, 
-                     $request->{'victim'}, $request->{'mode'}, $request->{'cmdline'});
+                     $request->{'victim'}, $request->{'mode'}, 
+                     $request->{'cmdline'});
 
 }
 
@@ -4966,21 +4967,19 @@ sub unsubscribe {
     $mismatch = !($request->{'user'} eq $addr);
     $regexp   = 0;
   }
+
   ($ok, $error) =
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'unsubscribe', $request->{'user'}, 
-                             $request->{'victim'}, 
-                             '','','', 'mismatch' => $mismatch,
-                             'regexp'   => $regexp,
-                            );
+    $self->list_access_check($request, 'mismatch' => $mismatch,
+                             'regexp'   => $regexp);
+
   unless ($ok>0) {
     $log->message(30, "info", "$addr:  noaccess");
     return ($ok, $error);
   }
    
   $self->_unsubscribe($request->{'list'}, $request->{'user'}, 
-                      $request->{'victim'}, $request->{'mode'}, $request->{'cmdline'});
+                      $request->{'victim'}, $request->{'mode'}, 
+                      $request->{'cmdline'});
 }
 
 sub _unsubscribe {
@@ -5050,6 +5049,8 @@ sub which {
   my (@matches, $data, $err, $hits, $match, $max_hits, $max_list_hits,
       $mess, $ok, $total_hits, $list);
 
+  $request->{'list'} = 'GLOBAL';
+
   # compile the pattern
   if ($request->{'mode'} =~ /regex/) {
     ($ok, $err, $request->{'regexp'}) = 
@@ -5069,9 +5070,7 @@ sub which {
     # if length($string) < 3 || ($mode =~ /regex/ && length($string) < 5);
 
   # Check global access, to get max hit limit
-  ($max_hits, $err) =
-    $self->global_access_check($request->{'password'}, $request->{'mode'}, 
-                               $request->{'cmdline'}, "which", $request->{'user'});
+  ($max_hits, $err) = $self->global_access_check($request);
 
   # Bomb if we're not allowed any hits
   return (0, $err)
@@ -5085,13 +5084,12 @@ sub which {
 
   # Loop over the lists that the user can see
  LIST:
-  for $list ($self->get_all_lists($request->{'user'}, $request->{'password'})) {
+  for $request->{'list'} 
+    ($self->get_all_lists($request->{'user'}, $request->{'password'})) {
     
     # Check access for this list, 
     ($max_list_hits, $err) =
-      $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                               $request->{'cmdline'}, $request->{'list'}, "which", 
-                               $request->{'user'});
+      $self->list_access_check($request);
 
     next unless $max_list_hits;
 
@@ -5165,11 +5163,7 @@ sub who_start {
     return ($ok, $error) unless $ok;
   }
 
-  ($ok, $error) = 
-    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             $base, $request->{'user'}, $request->{'user'}, 
-                             $request->{'regexp'}, '', $request->{'auxlist'});
+  ($ok, $error) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     $log->out("noaccess");
@@ -5179,11 +5173,11 @@ sub who_start {
   $self->{'unhide_who'} = ($ok > 1 ? 1 : 0);
   $self->_who($request->{'list'}, $request->{'user'}, '', 
               $request->{'mode'}, $request->{'cmdline'}, 
-              $request->{'regexp'}, '', $request->{'auxlist'});
+              $request->{'regexp'}, $request->{'auxlist'});
 }
 
 sub _who {
-  my ($self, $list, $requ, $victim, $mode, $cmdline, $regexp, $d, $sublist) = @_;
+  my ($self, $list, $requ, $victim, $mode, $cmdline, $regexp, $sublist) = @_;
   my $log = new Log::In 35, $list;
   my ($fh, $listing, $ok);
   my ($tmpl) = '';
