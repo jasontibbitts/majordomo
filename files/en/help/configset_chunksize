@@ -43,6 +43,7 @@ See Also:
    help admin_domain
    help announce
    help archive
+   help configset_max_in_core
    help faq
    help get
    help help
