@@ -351,6 +351,8 @@ my %commands =
     'dispatch' => {'top' => 1, 
                    'arguments' => {'newlist'   => {'type' => 'SCALAR',
                                                    'exclude' => 'regen'},
+                                   'newpasswd' => {'type' => 'SCALAR',
+                                                   'include' => 'pass'},
                                    'owners'   =>  {'type' => 'ARRAYELEM'}
                                   },
                    'hereargs'  => 'owners',
@@ -362,10 +364,12 @@ my %commands =
                                    'nocreate'    => 1,
                                    'noheader'    => 1,
                                    'nowelcome'   => 1,
+                                   'pass'        => 1,
                                    'regen'       => 1,
                                   },
                    'tokendata' => {'arg2' => 'owners',
                                    'arg1' => 'newlist',
+                                   'arg3' => 'newpasswd',
                                   }
                   },
     'access'   => {
