@@ -119,6 +119,7 @@ $site_name =
 
 # Parse the token and extract some useful data from it
 $token = $mj->t_recognize($ptoken) || "";
+$ok = 0;
 ($ok, $mess, @data) =
   $mj->dispatch('tokeninfo', 'unknown@anonymous', '', '', 'wconfirm',
 		'tokeninfo $token', '', '', '', $token)
