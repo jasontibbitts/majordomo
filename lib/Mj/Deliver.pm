@@ -159,7 +159,7 @@ sub deliver {
 	($args{probe} &&
 	 ($args{probeall}   ||
 	  $datref->{bounce} ||
-	  ($args{regexp} && Majordomo::re_match($args{regexp}, $addr)) ||
+	  ($args{regexp} && Majordomo::_re_match($args{regexp}, $addr)) ||
 	  (defined $args{bucket} &&
 	   $args{bucket} == (unpack("%16C*", $addr) % $args{buckets})
 	  )));
