@@ -41,14 +41,16 @@ digestdata should contain the parsed version of the 'digests' variable,
 containing hashrefs keyed on the digest name (and an additional
 'default_digest' key).  Each of those hashrefs conains:
 
+  index   - the index style (subject, subject_author, etc.)
   minmsg  - minimum number of messages in a digest
   minsize - minimum size of a digest (in bytes)
   maxage  - maximum age of oldest message in the digest
-  maxmsg  - maximum mumber of messages in a digest
+  maxmsg  - maximum number of messages in a digest
   maxsize - maximum size of a digest
   minage  - mimumum age of the newest message in the digest
   separate- minimum time between digests
-  mime    - default digest format is MIME
+  sort    - how the messages are sorted (author date numeric subject thread)
+  type    - digest format (index, mime, or text)
   times   - array of clock values
   desc    - digest description
 
@@ -221,7 +223,7 @@ decided if it should be pushed.  It returns only a flag, true if a digest
 should be generated.
 
 =cut
-use Mj::Util qw(in_clock);
+use Mj::Util qw(in_clock str_to_offset);
 sub decide {
   my $self = shift;
   my $s    = shift; # Digest state
@@ -232,25 +234,45 @@ sub decide {
   $log->out('no');
 
   # Check time; bail if not right time
-  return 0 unless Mj::Util::in_clock($p->{'times'});
+  unless (Mj::Util::in_clock($p->{'times'})) {
+    $log->out('no, it is not the correct time.');
+    return 0;
+  }
 
   # Check time difference; bail if a digest was 'recently' pushed.
-  return 0 if $p->{separate} && ($time - $s->{lastrun}) < $p->{separate};
+  if ($p->{separate} && $s->{lastrun} &&
+      ($time - $s->{lastrun}) < str_to_offset($p->{separate}, 0, 0, $s->{lastrun})) 
+  {
+    $log->out('no, a digest was issued too recently.');
+    return 0;
+  }
 
   # Check oldest message, push digest if too old (maxage)
-  if ($p->{maxage} && $time - $s->{oldest} > $p->{maxage}) {
+  if ($p->{maxage} && 
+      ($time - $s->{oldest}) > str_to_offset($p->{maxage}, 0, 0)) {
     $log->out('yes');
     return 1;
   }
 
   # Check sizes; bail if not enough messages or not enough bytes (minsize,
   # minmsg)
-  return 0 unless !$p->{minsize} || $s->{bytecount} >= $p->{minsize};
+  unless (!$p->{minsize} || $s->{bytecount} >= $p->{minsize}) {
+    $log->out('no, the messages are not large enough.');
+    return 0;
+  }
 
-  return 0 unless !$p->{minmsg} || scalar(@{$s->{messages}}) >= $p->{minmsg};
+  unless (!$p->{minmsg} || scalar(@{$s->{messages}}) >= $p->{minmsg}) {
+    $log->out('no, there are not enough messages.');
+    return 0;
+  }
 
   # Check newest message; bail if not old enough (minage)
-  return 0 unless !$p->{minage} || ($time - $s->{newest}) >= $p->{minage};
+  unless (!$p->{minage} || 
+          ($time - $s->{newest}) >= str_to_offset($p->{minage}, 0, 0)) 
+  {
+    $log->out('no, the newest message is too recent.');
+    return 0;
+  }
 
   # OK, we found no reason _not_ to push a digest
   $log->out('yes');
