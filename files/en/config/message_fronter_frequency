@@ -1,9 +1,4 @@
-Controls how often a message_fronter will be added to outgoing
-messages.  Set this to a number and on average fronters will be added
-to that percentage of messagees.  If this is set to 100 or greater,
-fronters will always be added.  If set to 0 or below, fronters will
-never be added (even if fronters are defined).
-
-Note that this only makes sense if one or more fronters have been set
-in message_fronter.  Note also that this only controls the probability
-that a fronter will be added; the process itself is random.
+The message_fronter_frequency setting contains a percentage.  This value,
+between 0 and 100, controls how often a fronter from the message_fronter 
+configuration setting will be added to posted messages when they are
+being delivered.  

@@ -21,17 +21,12 @@ configset GLOBAL admin_headers << ENDTAG
 ENDTAG
 
 
-If any of the headers matches one of these regexps, then the message
-will be bounced (sent to the list owner) for review.
+$INCLUDE-config/admin_headers
 
 NOTE: For help on admin_headers, please send "help configset admin_body"
 to the server. All syntax and information is identical, but the "nn"
 option (and its comma) which restricts matches to the first few lines is
 not present for headers.
-
-There are other header traps in place: See "help configset block_headers"
-for a description of headers which are both added and looked for.
-(Specifically, X-Loop has special meaning!)
 
 The admin_body, admin_headers, noarchive_body, noarchive_headers,
 taboo_body, and taboo_headers setting have a special characteristic.

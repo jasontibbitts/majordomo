@@ -8,21 +8,21 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname message_fronter_frequency = 100
+configset listname message_fronter_frequency = 50
 
 
-Controls how often a message_fronter will be added to outgoing
-messages.  Set this to a number and on average fronters will be added
-to that percentage of messagees.  If this is set to 100 or greater,
-fronters will always be added.  If set to 0 or below, fronters will
-never be added (even if fronters are defined).
+$INCLUDE-config/message_fronter_frequency
 
-Note that this only makes sense if one or more fronters have been set
-in message_fronter.  Note also that this only controls the probability
-that a fronter will be added; the process itself is random.
+This setting matters only if one or more fronters have been defined
+in the message_fronter setting.  This value only controls the probability
+that a fronter will be added; whether or not a fronter is added is
+determined randomly for each posted message.
+
 
 See Also:
    help admin_delivery
+   help configset_message_footer
+   help configset_message_footer_frequency
    help configset_message_fronter
 
 $INCLUDE-help/foot

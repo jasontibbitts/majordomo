@@ -1,9 +1,4 @@
-Controls how often a message_footer will be added to outgoing
-messages.  Set this to a number and on average footers will be added
-to that percentage of messagees.  If this is set to 100 or greater,
-footers will always be added.  If set to 0 or below, footers will
-never be added (even if footers are defined).
-
-Note that this only makes sense if one or more footers have been set
-in message_footer.  Note also that this only controls the probability
-that a footer will be added; the process itself is random.
+The message_footer_frequency setting contains a percentage.  This value,
+between 0 and 100, controls how often a footer from the message_footer 
+configuration setting will be added to posted messages when they are
+being delivered.  
