@@ -440,7 +440,7 @@ sub index {
 
 sub lists {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my (%lists, %legend, @desc, $list, $category, $count, $desc, $flags, $site);
+  my (%lists, %legend, $list, $category, $count, $data, $desc, $flags, $site);
   select $out;
   $count = 0;
 
@@ -449,13 +449,12 @@ sub lists {
   $site ||= $mj->global_config_get($request->{'user'}, $request->{'pass'}, 
                                    "whoami");
 
-  my ($ok, $defmode, @lists) = @$result;
+  my ($ok, @lists) = @$result;
 
   if ($ok <= 0) {
-    eprint($out, $type, "Lists failed: $defmode\n");
+    eprint($out, $type, "Lists failed: $lists[0]\n");
     return 1;
   }
-  $request->{'mode'} ||= $defmode;
   
   if (@lists) {
     eprint($out, $type, 
@@ -463,9 +462,8 @@ sub lists {
       unless $request->{'mode'} =~ /compact|tiny/;
     
     while (@lists) {
-      ($list, $category, $desc, $flags) = @{shift @lists};
-      # Build the data structure cat->list->[desc, flags]
-      $lists{$category}{$list} = [$desc, $flags];
+      $data = shift @lists;
+      $lists{$data->{'category'}}{$data->{'list'}} = $data;
     }
 
     for $category (sort keys %lists) {
@@ -473,24 +471,29 @@ sub lists {
         eprint($out, $type, "$category:\n");
       }
       for $list (sort keys %{$lists{$category}}) {
-        $desc  = $lists{$category}{$list}->[0];
-        $flags = $lists{$category}{$list}->[1];
+        $count++ unless ($list =~ /:/);
+        $data = $lists{$category}{$list};
+        $flags = $data->{'flags'};
         if ($request->{'mode'} =~ /tiny/) {
           eprint($out, $type, "$list\n");
           next;
         }
-        $desc ||= "";
-        $count++ unless ($desc =~ /auxiliary list/);
-        @desc = split(/\n/,$desc);
-        $desc[0] ||= "(no description)";
-        for (@desc) {
+        $desc  = $data->{'description'}
+                 || "(no description)";
+        for (split /\n/, $desc) {
           $legend{'+'} = 1 if $flags =~ /S/;
           eprintf($out, $type, " %s%-23s %s\n", 
                   $flags=~/S/ ? '+' : ' ',
-                  $list,
+                  $flags=~/shown/ ? '' : $list,
                   $_);
-          $list  = '';
-          $flags = '';
+          $flags = 'shown';
+        }
+        if ($request->{'mode'} =~ /aux/) {
+          eprintf($out, $type, "%sSubscribers: %4d\n", ' ' x 27, 
+                               $data->{'subs'})  if (exists $data->{'subs'});
+          eprintf($out, $type, "%sArchive URL: %s\n", ' ' x 27, 
+                               $data->{'archive'} || "(none)") 
+                               if (exists $data->{'archive'});
         }
         eprint($out, $type, "\n") if $request->{'mode'} =~ /long|enhanced/;
       }
@@ -770,7 +773,14 @@ sub report {
   }
 
   $request->{'command'} = "report_done";
-  $mj->dispatch($request);
+  ($ok, @tmp) = @{$mj->dispatch($request)};
+  if ($ok and $request->{'mode'} =~ /summary/) {
+    $mess = "\nThis report includes the following auxiliary lists:\n";
+    eprint($out, $type, $mess);
+    for $mess (@tmp) {
+      eprint($out, $type, "  $mess\n");
+    }
+  }
   1;
 }
 
