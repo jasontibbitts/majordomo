@@ -1,3 +1,9 @@
+2000-07-03  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm:  Include domain in HTML form (from Olivier Prenant).
+	Use Format to present output of sessioninfo.
+	Show the expiration date of a token.
+
 2000-07-01  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/BounceParser.pm (parse_lotus): Would accept an all-blank
