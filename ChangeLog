@@ -1,3 +1,11 @@
+2003-08-30  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm  (_get_msg_data)  Improve MIME
+	entity validation.
+
+	* lib/Mj/Resend.pm  (_r_ck_body, _add_fters) Improve 
+	validation of MIME body parts.
+
 2003-08-13  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Resend.pm:  (_r_strip_body)  Bugfix:  allow
@@ -9,7 +17,7 @@
 	* lib/Mj/Util.pm:  (plain_to_hyper)  Change the escape()
 	calling conventions
 	(clean_html)  Distinguish empty elements from elements
-        with content.
+	with content.
 	
 2003-08-12  Michael Yount <csf@moscow.com>
 

@@ -7281,6 +7281,9 @@ sub _get_msg_data {
   else {
     # no mode, "part" mode, or "part-edit" mode
     $ent = $parser->parse_open($spool);
+    # XLANG
+    return (0, "Unable to parse message.\n") unless ($ent);
+
     $table = {};
     $ok = Mj::MIMEParser::get_entity_structure($ent, 1, $table);
     if (exists $table->{'1'}) {
