@@ -174,10 +174,8 @@ sub deliver {
 	    }
 	  }
 	  else {
-warn "$eclass";
 	    if ($eclass eq 'all') {
 	      for $j (keys %{$args{classes}}) {
-warn "$j";
 		$dests->{$j}[$i]->add($addr, $canon);
 	      }
 	    }

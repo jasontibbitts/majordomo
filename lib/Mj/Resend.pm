@@ -349,7 +349,10 @@ sub _post {
     push @refs, $1;
   }
 
-  # Unlink the file and print out the archive copy
+  # Strip the subject prefix from the archive copy
+  (undef, $arcent) = $self->_subject_prefix($arcent, $list, $seqno);
+
+  # Print out the archive copy
   $file = "$tmpdir/mjr.$$.arc";
   open FINAL, ">$file" ||
     $::log->abort("Couldn't open archive output file, $!");
@@ -1223,8 +1226,7 @@ if someone needs it we can probably find a way to make it work at the
 expense of some accuracy in prefix removal.
 
 Returns two entities: one with the prefix, one with any existing prefix
-removed.  This allows for a future setup to give users the choice of
-receiving a prefix or not.
+removed.
 
 =cut
 sub _subject_prefix {
