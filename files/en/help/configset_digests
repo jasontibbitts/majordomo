@@ -322,6 +322,11 @@ used by default.  Three formats are supported:
   text  - Only plain text message parts are included.  All attachments
           are omitted.
 
+                                Caution
+
+If you remove a digest from the digests setting, any subscribers who
+receive that digest will stop receiving mail from the list.  
+
 
                                 Comments
 
