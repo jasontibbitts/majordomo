@@ -229,6 +229,11 @@ sub parse_interactive {
 
   while (defined($cmdline = $term->readline($prompt))) {
     $i = $/; $/ = $i; # Silence weird Perl bug
+
+    # Trim leading and trailing whitespace and remove tabs
+    $cmdline =~ s/^\s*(.*?)\s*$/$1/;
+    $cmdline =~ s/\t/ /g;
+
     @arglist = ();
     if ($cmdline =~ /^(.*)\s+\<\<\s*([A-Z]{3}[A-Z0-9]*)$/) {
       $cmdline = $1;
