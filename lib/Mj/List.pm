@@ -351,8 +351,9 @@ sub set {
     }
   }
   else {
-    ($ok, $mess) = $self->validate_aux($subl);
-    return ($ok, $mess) unless $ok;
+    return (0, "Unknown auxiliary list name \"$subl\".") 
+      unless $self->validate_aux($subl);
+    $self->_make_aux($subl);
     $key  = $addr->canon;
     $db   = $self->{'auxlists'}{$subl};
     $data = $db->lookup($key);
@@ -1297,8 +1298,7 @@ sub _make_aux {
 
 =head2 validate_aux
 
-Verify the existence of an auxiliary list.  Create the appropriate
-SubscriberList object if it does.
+Verify the existence of an auxiliary list.  
 
 =cut
 sub validate_aux {
@@ -1306,9 +1306,7 @@ sub validate_aux {
   my $name = shift;
 
   $self->_fill_aux;
-  return (0, "The $name auxiliary list does not exist.")
-    unless (exists $self->{'auxlists'}{$name});
-  $self->_make_aux($name);
+  exists $self->{'auxlists'}{$name};
 }
 
 
