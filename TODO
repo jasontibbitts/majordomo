@@ -71,6 +71,36 @@ turned into an "easy setup" script.
 Also, the temporary directory (and probably several other variables) needs
 to be made part of the site config instead of a per-domain configurable.
 
+Things currently hardcoded in the scripts:
+  $::BINDIR
+  $::LIBDIR
+  $::LISTDIR
+  $::UMASK
+  $::TMPDIR
+  $::LOCKDIR
+  $::WTMPDIR
+  $::UID
+  $::GID
+  $::TIMEOUT
+  $::CONCURRENCY
+  $::SIG_CHLD_IGNORE
+  $::LOCK_EX
+  $::LOCK_NB
+  $::LOCK_UN
+  $::O_WRONLY
+  $::O_CREAT
+  $::O_EXCL
+
+Things currently in SITE/config.pl:
+  cgi_bin
+  install_dir
+  mta_separator
+  queue_mode
+  database_backend
+  mta
+  mta_options (MTA specific)
+  site_password
+  cgi_url
 
 Wrapper Security
 ----------------
@@ -194,3 +224,14 @@ Auxiliary lists
 Convert the owners and bounce_recipients addresses into auxiliary
 lists to support address validation and access controls.
 
+Note that this has implications for how we choose moderator groups and
+such.  If we assume that the list is small, then we can just pull out the
+addresses.  But some features of sublists would then not be available.
+
+
+Configurable Subject: headers for digests
+-----------------------------------------
+Add an optional third line to the digests setting specifying the format of
+the subject header to be used when the digest is generated.  Allow standard
+digest substitutions (already defined in Mj::Resend::do_digests).  Add
+MSGCOUNT substitution for completeness.
