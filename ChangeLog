@@ -1,5 +1,10 @@
 Wed Sep 16 00:10:05 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* postinstall (install_response_files): Split the file
+ 	installation up into manageable chunks, so as to not exceed any
+ 	open files limits.
+	Pay attention to MAXFILES env variable.
+
 	* lib/Majordomo.pm (_re_match): Use $_ as the comparison string,
  	since it's already local and shared.  Simplify the reval'ed
  	string.

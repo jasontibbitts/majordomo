@@ -28,6 +28,7 @@ $ask   = $ENV{ASK};
 $skip  = $ENV{SKIP};
 $verb  = $ENV{VERBOSE};
 $quiet = $ENV{QUIET};
+$maxf  = $ENV{MAXFILES} || 40;
 $| = 1;
 
 # List of script files to be installed.
@@ -293,7 +294,7 @@ sub install_response_files {
   my $pass  = shift;
   my $files = shift;
   my $dirs  = shift;
-  my(@args, @dirs, $dir, $file, $i, $lang, $subj);
+  my(@args, @dirs, @oargs, $dir, $file, $i, $lang, $subj);
 
   # Grab the password if necessary
   $pw = $config->{'domain'}{$dom}{'master_password'};
@@ -308,20 +309,24 @@ sub install_response_files {
   # Copy dirs so we don't destroy the original array
   @dirs = @$dirs;
 
-  @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
+  @oargs = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
 	   "$config->{wtmpdir}/inst.$$");
 
   # Build the command file
   open FILE, ">$config->{wtmpdir}/inst.$$";
+  chmod(0644, "$config->{wtmpdir}/inst.$$");
   print FILE "default password $pw\n";
   # Make the directories
   while (($dir, $subj) = splice(@dirs, 0, 2)) {
     print FILE "put-dir GLOBAL /$dir $subj\n";
   }
-  # Put the files
+  # Put the files; first
   $i = 1;
-  while (($file, $subj) = each %{$files}) {
+  ($file, $subj) = each %{$files};
+  @args = @oargs;
 
+  # 
+  while (1) {
     # Extract the language to use
     ($lang) = $file =~ m!^([^/]*)!;
     if ($file =~ m!/informal/!) {
@@ -330,44 +335,62 @@ sub install_response_files {
 
     # If we have a ref instead of a string for the subject
     if (ref($subj)) {
-      print FILE "put-data GLOBAL /stock/$file text/plain $$subj[1] $$subj[2] $lang $$subj[0] <\@$i\n";
-      # Copy each file into the temp area, so Majordomo can read it.
+      print FILE "put-data GLOBAL /stock/$file text/plain $$subj[1] $$subj[2] $lang $$subj[0] <\@$i\n"
+	or die "Error writing to $config->{wtmpdir}/inst.$$: $!";
+      # Copy each file into the temp area, so Majordomo can read it.  First look for special names:
       if ($$subj[3]) {
 	cp("files/$$subj[3]", "$config->{wtmpdir}/inst.$$.$i");
       }
+      # Or just use the default
       else {
 	cp("files/$file", "$config->{wtmpdir}/inst.$$.$i");
       }
     }
-
     # Else assume we have an European language and use appropriate defaults.
     else {
-      print FILE "put-data GLOBAL /stock/$file text/plain ISO-8859-1 8bit $lang $subj <\@$i\n";
+      print FILE "put-data GLOBAL /stock/$file text/plain ISO-8859-1 8bit $lang $subj <\@$i\n"
+	or die "Error writing to $config->{wtmpdir}/inst.$$: $!";
       cp("files/$file", "$config->{wtmpdir}/inst.$$.$i");
     }
+
     chmod(0644, "$config->{wtmpdir}/inst.$$.$i");
     push @args, ("-f", "$config->{wtmpdir}/inst.$$.$i");
+    ($file, $subj) = each %{$files};
+
+    # We must stop and execute the command before we get too many files or
+    # if we've done the last of them
+    if (($i % $maxf) == 0 || !$file) {
+      close FILE;
+      $cmdline = join(' ', @args);
+      print "$cmdline\n" if $verb;
+      open SHELL, "$cmdline|" or die "Error executing $args[0], $?";
+      while (<SHELL>) {
+	print if $verb;
+	dot if />>>> / && !$verb;
+      }
+      close SHELL;
+
+      # Now clean up all of those temporary files we made.
+      close FILE;
+      unlink "$config->{wtmpdir}/inst.$$"
+	or die "Can't unlink $config->{wtmpdir}/inst.$$: $!";
+      while ($i > 0) {
+	unlink "$config->{wtmpdir}/inst.$$.$i"
+	  or die "Can't unlink $config->{wtmpdir}/inst.$$.$i: $!";
+	$i--;
+      }
+
+      # Start over with a new command file unless we're going to exit
+      if ($file) {
+	open FILE, ">$config->{wtmpdir}/inst.$$";
+	chmod(0644, "$config->{wtmpdir}/inst.$$");
+	print FILE "default password $pw\n";
+	@args = @oargs;
+      }
+    }
+
     $i++;
-  }
-  close FILE;
-  chmod(0644, "$config->{wtmpdir}/inst.$$");
-
-  # Now run the generated command line, piping the output back to us so we
-  # can hide it from the user.
-  $cmdline = join(' ', @args);
-  print "$cmdline\n" if $verb;
-  open SHELL, "$cmdline|" or die "Error executing $args[0], $?";
-  while (<SHELL>) {
-    print if $verb;
-    dot if />>>> / && !$verb;
-  }
-  close SHELL;
-
-  # Now clean up all of those temporary files we made.
-  unlink "$config->{wtmpdir}/inst.$$";
-  while ($i > 0) {
-    unlink "$config->{wtmpdir}/inst.$$.$i";
-    $i--;
+    last unless $file;
   }
   print "ok.\n" unless $quiet;
 }
