@@ -71,6 +71,7 @@ sub ask_domain {
 
   #---- Ask for qmail information
   if ($config->{'mta'} eq 'qmail') {
+    require "setup/mta_qmail.pl";
     ask_qmail_domain($config, $dom);
   }
 }
