@@ -165,7 +165,7 @@ to the configdef and configset commands, which require varying
 privileges according to which setting is being changed.  The 
 config_access setting may be used to change the requirements.
 
-(standard plus LEVEL, NEEDED, SETTING, USER)
+(standard plus LEVEL, MODE, NEEDED, SETTING, USER)
 
 relocated_list
 --------------
