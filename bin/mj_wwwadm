@@ -49,10 +49,10 @@ use Mj::Parser;
 
 my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists, 
     @settings, @values, @victims, $addr, $cgi, $cgidata, $cgiurl, 
-    $cs, $domain, $end, $falseuser, $fh, $func, $i, $j, $line, $list, 
-    $loc, $mess, $mj, $mode, $ofunc, $ok, $opass, $passw, $pathinfo, 
-    $raw, $req, $request, $result, $sess, $start, $str, $sublist, $subs, 
-    $tmp, $token, $truelist, $user);
+    $cs, $debug, $domain, $end, $falseuser, $fh, $func, $i, $j, $line,
+    $list, $loc, $mess, $mj, $mode, $ofunc, $ok, $opass, $passw,
+    $pathinfo, $raw, $req, $request, $result, $sess, $start, $str, 
+    $sublist, $subs, $tmp, $token, $truelist, $user);
 
 #----- Which commands are supported ?  -----#
 # First value:  Is a list required?
@@ -339,6 +339,9 @@ unless (defined $truelist and length $truelist) {
   }
   &login($mj, $subs, $mess);
 }
+
+$debug = $mj->list_config_get(undef, undef, $truelist, 'MAIN', 'debug') || 0;
+$::log->set_level($debug);
 
 unless ($passw) {
   &login($mj, $subs, '');
@@ -850,7 +853,7 @@ sub command {
   my ($str, $tmp);
 
   $subs->{'ERROR'} = Mj::Format::escape($message);
-  $::log->message(50, "info", $message) if $message;
+  $::log->message(20, "info", $message) if $message;
 
   $tmp = $mj->format_get_string('wwwadm', 'command', 'GLOBAL');
   $str = $mj->substitute_vars_format($tmp, $subs);
@@ -868,14 +871,15 @@ sub initialize_log {
 
   umask oct($::UMASK);
 
-  # Change the log level to a higher number (600) for complete debugging.
+  # After connecting, the log level is determined by the "debug"
+  # configuration setting.
   $::log = new Mj::Log;
   $::log->add
     (
      method      => 'handle',
      id          => 'wwwadm',
      handle      => \*STDERR,
-     level       => 50,
+     level       => 20,
      subsystem   => 'mail',
      log_entries => 1,
      log_exits   => 1,
@@ -900,7 +904,7 @@ sub login {
    if ($subs->{'COMMAND'} eq "login");
 
   if ($message) {
-    $::log->message(50, "info", $message);
+    $::log->message(20, "info", $message);
   }
 
   $tmp = $mj->format_get_string('wwwadm', 'login', $subs->{'LIST'});
@@ -919,7 +923,7 @@ sub newlist {
   my ($str, $tmp);
 
   $subs->{'ERROR'} = Mj::Format::escape($message);
-  $::log->message(50, "info", $message) if $message;
+  $::log->message(20, "info", $message) if $message;
 
   $tmp = $mj->format_get_string('wwwadm', 'newlist', $subs->{'LIST'});
   $str = $mj->substitute_vars_format($tmp, $subs);
@@ -942,7 +946,7 @@ sub usage {
   my ($str, $tmp);
 
   $subs->{'ERROR'} = Mj::Format::escape($message);
-  $::log->message(50, "info", $message) if $message;
+  $::log->message(20, "info", $message) if $message;
 
   if (defined $helpfile and length $helpfile) {
     $tmp = $mj->format_get_string('wwwadm', "welcome_$helpfile",
@@ -975,7 +979,7 @@ sub surrender {
   my $url = $cgi->script_name;
 
   if ($message) {
-    $::log->message(50, "info", $message);
+    $::log->message(20, "info", $message);
     $message = Mj::Format::escape($message);
   }
 

@@ -1,3 +1,10 @@
+2004-10-03  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Change the debug
+	level to match the appropriate debug setting.
+
+	* bin/mj_queuerun:  Limit each queue runner to 1000 messages.
+
 2004-09-30  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Resend.pm:  (_r_strip_body)  Alter the headers

@@ -53,7 +53,7 @@ use Mj::Format;
 use Mj::Log;
 use Mj::Parser;
 
-my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, 
+my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $debug,
     $domain, $extra, $falseuser, $func, $i, $list, $loc, $mj, $mess, $mode, 
     $ofunc, $ok, $opass, $part, $passw, $pathinfo, $raw, $request, 
     $result, $sess, $str, $sublist, $subs, $tmp, $truelist, $user);
@@ -278,6 +278,9 @@ unless (defined $truelist and length $truelist) {
   }
   &usage($mj, $cgi, $subs, $mess, 'choose_list');
 }
+
+$debug = $mj->list_config_get(undef, undef, $truelist, 'MAIN', 'debug') || 0;
+$::log->set_level($debug);
 
 #----- Address check -----#
 if ($commands{$func}->[1] and (!$user or $user =~ /example\.com$/i)) {
@@ -538,7 +541,7 @@ sub initialize_log {
      method      => 'handle',
      id          => 'wwwusr',
      handle      => \*STDERR,
-     level       => 50,
+     level       => 20,
      subsystem   => 'mail',
      log_entries => 1,
      log_exits   => 1,
@@ -556,7 +559,7 @@ sub login {
   my ($str, $tmp);
 
   $subs->{'ERROR'} = Mj::Format::escape($message);
-  $::log->message(50, "info", $message) if $message;
+  $::log->message(20, "info", $message) if $message;
 
   if ($printhdr) {
     print $cgi->header(-expires => '+10s');
@@ -582,7 +585,7 @@ sub usage {
 
   if (defined $message and length $message) {
     $subs->{'ERROR'} = Mj::Format::escape($message);
-    $::log->message(50, "info", $message);
+    $::log->message(20, "info", $message);
   }
   else {
     $subs->{'ERROR'} ||= '';
@@ -618,7 +621,7 @@ sub surrender {
   $domain ||= '';
 
   if ($message) {
-    $::log->message(50, "info", $message);
+    $::log->message(20, "info", $message);
     $message = Mj::Format::escape($message);
   }
 
@@ -657,8 +660,8 @@ EOM
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 2000, 2002, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
