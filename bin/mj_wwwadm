@@ -42,7 +42,7 @@ use Mj::Parser;
 
 my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists, 
     @settings, @values, $addr, $cgi, $cgidata, $cgiurl, $domain, 
-    $falseuser, $fh, $func, $i, $j, $line, $list, $mess, $mode, 
+    $falseuser, $fh, $func, $i, $j, $line, $list, $loc, $mess, $mode, 
     $mj, $ofunc, $ok, $opass, $passw, $pathinfo, $raw, $req, $request, 
     $result, $sess, $str, $sublist, $subs, $tmp, $token, $truelist, 
     $user);
@@ -261,7 +261,9 @@ unless ($raw) {
 @extra = $cgi->param('extra');
 
 if ($ofunc eq 'logout') {
-  &usage($mj, $subs, 'You have successfully signed out.', '');
+  $tmp = $mj->format_get_string('wwwadm', 'logout', $lists[0]);
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  &usage($mj, $subs, $str, '');
 }
 
 unless (length $lists[0]) {
@@ -295,14 +297,18 @@ unless ($passw) {
 $addr = new Mj::Addr($user);
 
 if (! defined $addr) {
-  ($ok, $mess) = (0, "The address is undefined.");
+  ($ok, $mess) = (0, $mj->format_error('undefined_address', $lists[0]));
 }
 else {
-  ($ok, $mess) = $addr->valid;
+  ($ok, $mess, $loc) = $addr->valid;
+  unless ($ok) {
+    $mess = $mj->format_error('invalid_address', $lists[0], 'ADDRESS' => $user, 
+                              'ERROR' => $mess, 'LOCATION' => $loc);
+  }
 }
 
 unless ($ok) {
-  &login($mj, $subs, qq(The address "$user" is invalid.\n$mess\n));
+  &login($mj, $subs, $mess);
 }
 
 if ($ofunc =~ /newfaq|newinfo|newintro/) {
@@ -339,7 +345,10 @@ elsif ($ofunc eq 'command') {
   &command($mj, $subs, '');
 }
 elsif (! exists $commands{$func}) {
-  &usage($mj, $subs, "$func is an unsupported command.", '');
+  &usage($mj, $subs, 
+         $mj->format_error('invalid_command', $lists[0], 
+                           'COMMAND' => $func),
+         '');
 }
 
 # The archive-get and get commands must use immediate mode,
@@ -355,13 +364,13 @@ elsif ($func eq 'who' and $mode !~ /enhanced/) {
 #----- Password check -----#
 if (! $passw) {
   &usage($mj, $subs, 
-         "A password is required to use the $func command.", '');
+         $mj->format_error('no_password', 'GLOBAL', 'COMMAND' => $func), '');
 }
 
 #----- List check -----#
 if ($commands{$func}->[0] and ! scalar @lists) {
   &usage($mj, $subs, 
-   "A mailing list must be provided to use the \"$func\" command.", '');
+         $mj->format_error('no_list', 'GLOBAL', 'COMMAND' => $func), '');
 }
 
 no strict 'refs';
@@ -544,12 +553,22 @@ elsif ($func ne 'showtokens') {
       }
     }
     elsif ($func eq 'subscribe' and scalar @extra == 1) {
+      # The administrator may have specified a name to go with the address.
       $tmp = $cgi->param('name');
       if (defined $tmp and $tmp =~ /\S/) {
         $addr = new Mj::Addr($extra[0]);
-        ($ok, $mess) = $addr->setcomment($tmp);
+
+        unless (defined $addr) {
+          &login($mj, $subs, $mj->format_error('undefined_address', $lists[0]));
+        }
+
+        ($ok, $mess, $loc) = $addr->setcomment($tmp);
         unless ($ok) {
-          &login($mj, $subs, "The name $tmp is invalid.\n$mess\n");
+          $mess = $mj->format_error($mess, 'GLOBAL');
+          &login($mj, $subs, 
+                 $mj->format_error('invalid_comment', $lists[0], 
+                                   'COMMENT' => $tmp, 'ERROR' => $mess,
+                                   'LOCATION' => $loc));
         }
         $request->{'victims'} = [ $addr ];
       }
@@ -605,7 +624,7 @@ elsif ($func ne 'showtokens') {
     $tmp = $cgi->param('owners');
     $tmp =~ s/\r?\n$//;
     if ($tmp !~ /\S/ and $user =~ /example.com/) {
-      &newlist($mj, $subs, "A valid list owner address was not supplied.\n")
+      &newlist($mj, $subs, $mj->format_error('undefined_address', 'GLOBAL'))
         unless ($mode =~ /destroy|nocreate|regen|rename/);
     }
     @extra = split "\r?\n", $tmp;

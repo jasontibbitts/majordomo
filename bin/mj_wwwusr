@@ -47,7 +47,7 @@ use Mj::Log;
 use Mj::Parser;
 
 my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, 
-    $domain, $extra, $falseuser, $func, $list, $mj, $mess, $mode, 
+    $domain, $extra, $falseuser, $func, $list, $loc, $mj, $mess, $mode, 
     $ofunc, $ok, $opass, $part, $passw, $pathinfo, $raw, $request, 
     $result, $sess, $str, $subs, $tmp, $user);
 
@@ -66,12 +66,12 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl,
                 'intro'         => [0, 0, 1, 'list'],
                 'lists'         => [0, 0, 0, 'lists'],
                 'password'      => [0, 1, 0, 'login'],
-                'register'      => [0, 1, 0, 'welcome'],
+                'register'      => [0, 1, 0, 'login'],
                 'set'           => [1, 1, 1, 'show'],
                 'show'          => [1, 1, 0, 'show'],
                 'subscribe'     => [0, 1, 1, 'list'],
                 'unalias'       => [1, 1, 0, 'show'],
-                'unregister'    => [1, 1, 0, 'welcome'],
+                'unregister'    => [1, 1, 0, 'login'],
                 'unsubscribe'   => [1, 1, 1, 'show'],
                 'welcome'       => [0, 0, 0, 'welcome'],
             );
@@ -209,7 +209,9 @@ if ($func eq 'logout') {
     Mj::Format::cgidata($mj, { 'password' => '',
                                'user'     => $user });
 
-  &usage($mj, $cgi, $subs, 'You have successfully signed out.', '');
+  $tmp = $mj->format_get_string('wwwusr', 'logout', 'GLOBAL');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  &usage($mj, $cgi, $subs, $str, '');
 }
 elsif ($func eq 'login') {
   $subs->{'COMMAND'} = 'welcome';
@@ -222,32 +224,47 @@ if ($func eq 'archive' and $mode =~ /get/ and ! $raw) {
 
 # Make sure the command is valid
 unless (exists $commands{$func}) {
-  &usage($mj, $cgi, $subs, qq(The "$func" command is not supported.), '');
+  &usage($mj, $cgi, $subs, $mj->format_error('invalid_command', 'GLOBAL', 
+         'COMMAND' => $func), '');
 }
 
 #----- Address check -----#
+if ($commands{$func}->[1] and (!$user or $user =~ /example\.com$/i)) {
+  &login($mj, $subs, $mj->format_error('undefined_address', 'GLOBAL'), 1);
+}
+
 $addr = new Mj::Addr($user);
 
-($ok, $mess) = $addr->valid;
+unless (defined $addr) {
+  &login($mj, $subs, $mj->format_error('undefined_address', 'GLOBAL'), 1);
+}
+  
+($ok, $mess, $loc) = $addr->valid;
 unless ($ok) {
-  &login($mj, $subs, qq(The address "$user" is invalid.\n$mess\n), 1);
+  $mess = $mj->format_error($mess, 'GLOBAL');
+  &login($mj, $subs, 
+         $mj->format_error('invalid_address', 'GLOBAL', 
+                           'ADDRESS' => $user, 'ERROR' => $mess,
+                           'LOCATION' => $loc),
+         1);
 }
 
 $tmp = $cgi->param('name');
 if (defined $tmp and $tmp =~ /\S/) {
-  ($ok, $mess) = $addr->setcomment($tmp);
+  ($ok, $mess, $loc) = $addr->setcomment($tmp);
   unless ($ok) {
-    &login($mj, $subs, qq(The name "$tmp" is invalid.\n$mess\n), 1);
+    $mess = $mj->format_error($mess, 'GLOBAL');
+    &login($mj, $subs, 
+           $mj->format_error('invalid_comment', 'GLOBAL', 'COMMENT' => $tmp, 
+                             'ERROR' => $mess, 'LOCATION' => $loc), 
+           1);
   }
-}
-
-if ($commands{$func}->[1] and (!$user or $user =~ /example\.com$/i)) {
-  &login($mj, $subs, qq(The address "$user" is invalid.), 1);
 }
 
 #----- Password check -----#
 if (! $passw) {
-  &login($mj, $subs, "A password is required to use the $func command.", 1)
+  &login($mj, $subs, $mj->format_error('no_password', 'GLOBAL',
+                                       'COMMAND' => $func), 1)
     if ($commands{$func}->[0]);
 }
 else {
@@ -271,7 +288,7 @@ if ($ofunc eq 'welcome') {
 @lists = $cgi->param('list');
 if ($commands{$func}->[2] and ! scalar @lists) {
   &usage($mj, $cgi, $subs, 
-         qq(A mailing list must be provided to use the "$func" command.),
+         $mj->format_error('no_list', 'GLOBAL'),
          '');
 }
 $lists[0] ||= 'GLOBAL';

@@ -169,7 +169,8 @@ else {
 
 unless (exists $commands{$func}) {
   &usage($mj, $cgi, $subs, 
-         qq(The "$action" command is not supported.));
+         $mj->format_error('invalid_command', 'GLOBAL', 
+                           'COMMAND' => $action));
 }
 
 if ($func eq 'welcome') {

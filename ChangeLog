@@ -1,3 +1,26 @@
+2002-11-28  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Move hard-coded English
+	into format and error files.
+
+	* bin/mj_shell:  Save debugging info to a file (mj_shell.debug)
+	instead of using syslog.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200211280.
+	Use error files for invalid address messages.
+
+	* lib/Mj/Addr.pm:  (_validate)  Return error message names instead
+	of hard-coding the messages themselves.
+
+	* lib/Mj/Config.pm:  (parse_address)  Obtain the error message
+	for an invalid address with a callback.
+
+	* lib/Mj/Format.pm:  (lists)  Bugfix:  escape list information
+	more thoroughly.
+
+	* lib/Mj/Log.pm:  (add)  Set autoflush on the file handle for
+	the "file" method of logging.
+
 2002-11-14  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Token.pm:  (get_moderator_alias)  Determine the
