@@ -897,68 +897,6 @@ EOC
    },
    );
 
-$file_header = q(# Most of this is completely bogus!
-
-# The configuration file for a majordomo mailing list.
-# Comments start with the first # on a line, and continue to the end
-# of the line. There is no way to escape the # character. The file
-# uses either a key = value for simple (i.e. a single) values, or uses
-# a here document
-#     key << END 
-#     value 1
-#     value 2
-#     [ more values 1 per line]
-#     END 
-# for installing multiple values in array types. Note that the here
-# document delimiter (END in the example above) must be the same at the end
-# of the list of entries as it is after the << characters.
-# Within a here document, the # sign is NOT a comment character.
-# A blank line is allowed only as the last line in the here document.
-#
-# The values can have multiple forms:
-#
-#	absolute_dir -- A root anchored (i.e begins with a /) directory 
-#	absolute_file -- A root anchored (i.e begins with a /) file 
-#	bool -- choose from: yes, no, y, n
-#	enum -- One of a list of possible values
-#	integer -- an integer (string made up of the digits 0-9,
-#		   no decimal point)
-#	float -- a floating point number with decimal point.
-#	regexp -- A perl style regular expression with
-# 		  leading and trailing /'s.
-#	restrict_post -- a series of space or : separated file names in which
-#                        to look up the senders address
-#	            (restrict-post should go away to be replaced by an
-#		     array of files)
-#	string -- any text up until a \\n stripped of
-#		  leading and trailing whitespace
-#	word -- any text with no embedded whitespace
-#
-# A blank value is also accepted, and will undefine the corresponding keyword.
-# The character Control-A may not be used in the file.
-#
-# A trailing _array on any of the above types means that that keyword
-# will allow more than one value.
-#
-# Within a here document for a string_array, the '-' sign takes on a special
-# significance.
-#
-#     To embed a blank line in the here document, put a '-' as the first
-#       and ONLY character on the line.
-#
-#     To preserve whitespace at the beginning of a line, put a - on the
-#       line before the whitespace to be preserved
-#
-#     To put a literal '-' at the beginning of a line, double it.
-#
-#
-# The default if the keyword is not supplied is given in ()'s while the 
-# type of value is given in [], the subsystem the keyword is used in is
-# listed in <>'s. (undef) as default value means that the keyword is not
-# defined or used.
-
-);
-
 #^L
 ### Local Variables: ***
 ### cperl-indent-level:2 ***
