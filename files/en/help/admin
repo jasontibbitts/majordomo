@@ -355,19 +355,9 @@ Section 6 - Creating and Running Lists (all the other stuff you need)
 
 Section 7 - Cookbook for common list owner problems
 
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-The remainder of this help file is the contents of
-'COOKBOOK' from the Mj2 distribution tree, as of 18 Mar 2000
-
-This file contains examples of how you would solve certain problems.  The
-answers are probably not complete; in many cases Mj2 is so flexible that
-there are many ways to solve the problem.
+This section contains examples of how you would solve certain problems.
+The answers are probably not complete; in many cases Mj2 is so flexible
+that there are many ways to solve the problem.
 
 Problem:
 -------
