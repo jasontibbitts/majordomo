@@ -600,17 +600,9 @@ elsif ($func ne 'showtokens') {
     $request->{'regexp'} = $cgi->param('pattern');
   }
   elsif ($func eq 'put') {
-    if ($ofunc eq 'newfaq') {
-      $request->{'file'} = '/faq';
-      $request->{'xdesc'} = 'Frequently Asked Questions';
-    }
-    elsif ($ofunc eq 'newinfo') {
-      $request->{'file'} = '/info';
-      $request->{'xdesc'} = 'List Information';
-    }
-    elsif ($ofunc eq 'newintro') {
-      $request->{'file'} = '/intro';
-      $request->{'xdesc'} = 'List Introductory Information';
+    if ($ofunc =~ /^new(faq|info|intro)/i) {
+      $request->{'file'} = "/$1";
+      $request->{'xdesc'} = 'default';
     }
     elsif ($ofunc =~ /^put/ and $cgi->param('args')) {
       Mj::Parser::parse_args($request, $cgi->param('args'), '');

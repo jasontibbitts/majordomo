@@ -530,16 +530,8 @@ sub parse_command {
     return 1;
   }
 
-  if ($true_command =~ /newfaq/) {
-    $args = "/faq Frequently Asked Questions";
-    $true_command = "put";
-  }
-  elsif ($true_command =~ /newinfo/) {
-    $args = "/info List Information";
-    $true_command = "put";
-  }
-  elsif ($true_command =~ /newintro/) {
-    $args = "/intro List Introductory Information";
+  if ($true_command =~ /new(faq|info|intro)/) {
+    $args = "/$1 default";
     $true_command = "put";
   }
 
