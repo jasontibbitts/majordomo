@@ -1585,8 +1585,8 @@ sub parse_digests {
   $data->{'default_digest'} = $table->[0][0] if $table->[0];
 
   for ($i=0; $i<@{$table}; $i++) {
-    $data->{$table->[$i][0]} = {};
-    $elem = $data->{$table->[$i][0]};
+    $data->{lc $table->[$i][0]} = {};
+    $elem = $data->{lc $table->[$i][0]};
 
     # times
     $elem->{'times'} = [];
