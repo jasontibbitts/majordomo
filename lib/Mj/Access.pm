@@ -952,7 +952,7 @@ sub _a_default {
 
   elsif (access_def($request, 'confirm2')) {
     $action = "_a_confirm2";
-    $reason = "By default, $request must be confirmed all persons involved."
+    $reason = "By default, $request must be confirmed by all persons involved."
   }
 
   elsif (access_def($request, 'access')) {
