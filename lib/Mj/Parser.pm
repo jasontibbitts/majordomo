@@ -461,7 +461,11 @@ sub parse_part {
   printf $outhandle "%s valid command%s processed",
     ("$count" || "No"), $count==1?"":"s";
   if ($count == 0) {
-    # Nothing
+    # No commands were found; log as an error under "parse".
+    $mj->inform('GLOBAL', 'parse', $user, $user, '(no valid commands)',
+                $mj->{'interface'}, 0, 0, 0, "No valid commands were found.",
+                $::log->elapsed);
+   
   }
   elsif ($count == 1) {
     if ($fail_count == 1) {

@@ -1,3 +1,8 @@
+2000-12-17  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Parser: (parse_part)  Inform about "parse" failure if
+	no valid commands were found.
+
 2000-12-16  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (standard_subs) Add CONFIRM_URL, WWWADM_URL
