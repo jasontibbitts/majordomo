@@ -3426,15 +3426,31 @@ sub who {
 
 sub g_get {
   my ($base, $mj, $out, $err, $type, $request, $result) = @_;
-  my ($chunk, $chunksize, $desc, $lastchar, $subs, $tmp);
+  my ($chunk, $chunksize, $desc, $dir, $file, $lastchar, $parent,
+      $path, $subs, $tmp);
   my ($ok, $mess) = @$result;
 
+  $path = $request->{'path'};
+  $file = $parent = $dir = '';
+
+  if ($path =~ m#(.*/)([^/]+)$#) {
+    $dir = $1;
+    $file = $2;
+    ($parent = $dir) =~ s#[^/]+/+$##;
+  }
+  else {
+    $file = $path;
+  }
+ 
   unless ($ok > 0) {
     return $ok if ($mess eq 'NONE');
     $subs = {
              $mj->standard_subs($request->{'list'}),
              'COMMAND' => &escape($base),
-             'ERROR' => &escape($mess || ''),
+             'ERROR'   => &escape($mess || ''),
+             'FILE'    => &escape($file),
+             'PARENT'  => &escape($parent),
+             'PATH'    => &escape($dir),
             };
 
     $tmp = $mj->format_get_string($type, 'get_error', $request->{'list'});
@@ -3452,6 +3468,9 @@ sub g_get {
              'CMDPASS'  => &escape($request->{'password'}, $type),
              'COMMAND'  => &escape($base),
              'DESCRIPTION' => &escape($mess->{'description'}, $type),
+             'FILE'    => &escape($file),
+             'PARENT'  => &escape($parent),
+             'PATH'    => &escape($dir),
              'USER'     => &escape("$request->{'user'}", $type),
             };
 

@@ -712,7 +712,7 @@ end of a put command, or an HTML form, that allows a document
 to be edited and replaced easily.
 
 (standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, CMDPASS, COMMAND,
- DESCRIPTION, REPLACECMD, USER)
+ DESCRIPTION, FILE, PARENT, PATH, REPLACECMD, USER)
 
 
 get_edit_head
@@ -722,7 +722,7 @@ beginning of a put command, or an HTML form, that allows a document
 to be edited and replaced easily.
 
 (standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, CMDPASS, COMMAND,
- DESCRIPTION, REPLACECMD, USER)
+ DESCRIPTION, FILE, PARENT, PATH, REPLACECMD, USER)
 
 
 get_error
@@ -730,7 +730,7 @@ get_error
 (text, wwwadm, wwwusr)  This file displays an error when the faq,
 get, info, or intro command fails.
 
-(standard plus COMMAND, ERROR)
+(standard plus COMMAND, ERROR, FILE, PARENT, PATH)
 
 
 get_foot
@@ -738,7 +738,8 @@ get_foot
 (text, wwwadm, wwwusr)  This file displays supplementary information when
 a document is displayed by the faq, get, info, or intro command.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DESCRIPTION, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DESCRIPTION, FILE,
+ PARENT, PATH, USER)
 
 
 get_head
@@ -746,7 +747,8 @@ get_head
 (text, wwwadm, wwwusr)  This file displays preliminary information when
 a document is displayed by the faq, get, info, or intro command.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DESCRIPTION, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DESCRIPTION, FILE,
+ PARENT, PATH, USER)
 
 
 head
