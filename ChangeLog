@@ -1,3 +1,13 @@
+2000-12-09  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* t/core.t: Add even more tests.  Now tests all of the core calls
+	that shell.t does, plus a few other things.
+
+	* lib/Mj/Addr.pm (_validate): Completely ignored case of two @
+	signs outside of comments.
+
+	* t/addr.t: Add tests for two @ signs outside of comments.
+
 2000-12-08  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm: (_unsubscribe) Add "farewell" mode, which

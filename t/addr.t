@@ -3,8 +3,8 @@ use Mj::Addr;
 use Mj::Log;
 
 $::log = new Mj::Log;
-$::log->add   
-    (   
+$::log->add
+    (
      method      => 'handle',
      id          => 'text',
      handle      => \*STDERR,
@@ -39,8 +39,10 @@ $::log->add
     'tibbs@[129.7.3.5]'],
    [1, q|A_Foriegner%across.the.pond@relay1.uu.net|,
     'A_Foriegner%across.the.pond@relay1.uu.net'],
+   [1, q|"Jason @ Tibbitts" <tibbs@uh.edu>|,
+    'tibbs@uh.edu', 'Jason @ Tibbitts'],
 
-#Bad    
+#Bad
    [0, q|tibbs@uh.edu Jason Tibbitts|],  # Full name illegally included
    [0, q|@uh.edu|],                      # Can't start with @
    [0, q|J <tibbs>|],                    # Not FQDN
@@ -63,6 +65,8 @@ $::log->add
    [0, q|tibbs@hpc.uh.edu.|],            # Address ends with a dot
    [0, q|sina.hpc.uh.edu|],              # No local-part@
    [0, q|tibbs@129.7.3.5|],              # Forgot to enclose IP in []
+   [0, q|tibbs@@math.uh.edu|],           # Two @s next to each other
+   [0, q|tibbs@math@uh.edu|],            # Two @s, not next to each other
 
 #OK depending on settings
    # Bang path
@@ -92,10 +96,10 @@ $::log->add
    ['tibbs@uh.edu (Homey (  j (\(\() t, ) Tibbs), nobody@example.com',
     'tibbs@uh.edu', 'nobody@example.com'],
    [q|"tib,bs@home"@hpc.uh.edu (J,LT ), Tibbs <tibbs@hpc.uh.edu>|,
-    '"tib,bs@home"@hpc.uh.edu', 'Tibbs <tibbs@hpc.uh.edu>'],						 
+    '"tib,bs@home"@hpc.uh.edu', 'Tibbs <tibbs@hpc.uh.edu>'],						
   );
 
-print "1..57\n";
+print "1..62\n";
 
 # Allocate a validator with some default settings
 Mj::Addr::set_params
@@ -128,8 +132,8 @@ for ($i = 0; $i<@t; $i++) {
 	print "ok\n";
       }
       else {
+	print "$t[$i][2]\n$addr\n";
 	print "not ok\n";
-	print STDERR "$t[$i][2]\n$addr\n";
       }
     }
     if ($ok && $t[$i][3]) {
@@ -137,18 +141,18 @@ for ($i = 0; $i<@t; $i++) {
 	print "ok\n";
       }
       else {
+	print "$t[$i][3]\n$com\n";
 	print "not ok\n";
-	print STDERR "$t[$i][3]\n$com\n";
       }
     }
   }
   elsif ($ok == 1) {
+    print "$t[$i][1]\n  expected to fail but didn't.\n";
     print "not ok\n";
-    print STDERR "$t[$i][1]\n  expected to fail but didn't.\n"
   }
   else {
+    print "$t[$i][1]\n$addr\n";
     print "not ok\n";
-    print STDERR "$t[$i][1]\n$addr\n";
   }
   next;
 }
@@ -162,10 +166,10 @@ for $i (@s) {
       print "ok\n";
     }
     else {
+      print "Expected $i->[$j], got $out[$j-1]\n";
       print "not ok\n";
-      print STDERR "Expected $i->[$j], got $out[$j-1]\n";
     }
-  }  
+  }
 }
 
 1;

@@ -10,7 +10,7 @@ $counter = 1;
 $debug = 0;
 $tmpdir = "/tmp/mjtest.$$";
 
-print "1..19\n";
+print "1..29\n";
 
 print "Load the stashed configuration\n";
 eval('$config = require ".mj_config"');
@@ -182,18 +182,93 @@ $result = $mj->dispatch($request, 1000);
 ok(1, $result->[0]);
 ok('Frobozz <ZoRk+infocom@Trinity.Example.NET>',$result->[1]{fulladdr});
 ok('ZoRk+infocom@trinity.example.net',          $result->[1]{stripaddr});
-
-print " addr_xforms, too\n";
 ok('zork@example.com',                          $result->[1]{canon});
 
+$request->{command} = 'who_done';
+$result = $mj->dispatch($request);
+ok(1, $result->[0]);
+
+print "Add an address to a sublist\n";
+$result = $mj->dispatch({user     => 'unknown@anonymous',
+			 password => 'gonzo',
+			 command  => 'subscribe',
+			 mode     => 'quiet-nowelcome',
+			 list     => 'bleeargh:harumph',
+			 victims  => ['deadline@example.com'],
+			});
+ok(1, $result->[0]);
+
+print "Make sure it worked\n";
+$request = {user     => 'unknown@anonymous',
+	    password => 'gonzo',
+	    command  => 'who_start',
+	    list     => 'bleeargh:harumph',
+	   };
+$result = $mj->dispatch($request);
+ok(1, $result->[0]);
+
+$request->{command} = 'who_chunk';
+$result = $mj->dispatch($request, 1000);
+ok(1, $result->[0]);
+ok('deadline@example.com', $result->[1]{fulladdr});
+
+$request->{command} = 'who_done';
+$result = $mj->dispatch($request);
+ok(1, $result->[0]);
+
+print "Add an alias\n";
+$result = $mj->dispatch({user     => 'zork@example.com',
+			 password => 'gonzo',
+			 command  => 'alias',
+			 newaddress=> 'enchanter@example.com',
+			});
+ok(1, $result->[0]);
+
+print "Add an alias to the first alias\n";
+$result = $mj->dispatch({user     => 'enchanter@example.com',
+			 password => 'gonzo',
+			 command  => 'alias',
+			 newaddress=> 'planetfall@example.com',
+			});
+ok(1, $result->[0]);
+
+print "Set a password\n";
+$result = $mj->dispatch({user     => 'enchanter@example.com',
+			 password => 'gonzo',
+			 command  => 'password',
+			 mode     => 'quiet',
+			 newpasswd=> 'suspect',
+			});
+ok(1, $result->[0]);
+
+print "Unsubscribe the (doubly) aliased address using the password\n";
+$result = $mj->dispatch({user     => 'unknown@anonymous',
+			 password => 'suspect',
+			 command  => 'unsubscribe',
+			 list     => 'bleeargh',
+			 victims  => ['planetfall@example.com'],
+			});
+ok(1, $result->[0]);
+
+
+# Things left to test:
+
+# access_rules
+
+# show
+
+# posting?  Allow addresses to be set, mail will be sent to them, which can
+# be stored in a file and examimed for proper content?
+
+# bounce processing?  parsing is already done, but no tests on actual
+# handling of bounces.
+
+# ???
 
 
 
-# Shut things down and delete the temporary directory.  For some reason,
-# some systems refuse to delete the directory.  I think this may have
-# something to do with NFS.
+
 undef $mj;
-
 exit 0;
 
 sub ok {

@@ -40,7 +40,7 @@ package Mj::Addr;
 use strict;
 use vars qw($addr %defaults %top_level_domains);
 #use Mj::Log;
-use overload 
+use overload
   '=='   => \&match,
   'eq'   => \&match,
   '""'   => \&full,
@@ -66,22 +66,22 @@ The following parameters can be set to either 0 or 1:
 
   allow_at_in_phrase         - Allow '@' in the 'phrase' part of addresses
                                like this:   ph@rase <user@example.com>
-  allow_bang_paths           - Allow old-style UUCP electronic-mail 
+  allow_bang_paths           - Allow old-style UUCP electronic-mail
                                addresses like this:  abcvax!defvax!user
   allow_comments_after_route - Allow (illegal) e-mail addresses like this:
                                  <user@example.com> comment
                                (the address is illegal because the comment
-                               should be before the <user@example.com> 
+                               should be before the <user@example.com>
                                part and not after it.)
   allow_ending_dot           - Allow a dot at the end of an e-mail address
                                e.g. like this:  user@example.com.
   limit_length               - Limit the length of 'user' and 'host' parts
-                               of user@host e-mail addresses to 64 
-                               characters each, as required by section 
+                               of user@host e-mail addresses to 64
+                               characters each, as required by section
                                4.5.3 of RFC821.
   require_fqdn               - Require fully qualified domain names.
-  strict_domain_check        - Check for valid top-level domain and for 
-                               correct syntax of domain-literals. 
+  strict_domain_check        - Check for valid top-level domain and for
+                               correct syntax of domain-literals.
 
   NOTE: Checking for a valid top-level domain is currently done by means of
         a table which is hard-coded at the end of this file, and which might
@@ -326,7 +326,7 @@ sub isvalid {
 
   $self->_parse unless $self->{parsed};
   $self->{'valid'};
-}  
+}
 
 =head2 isanon
 
@@ -552,6 +552,7 @@ sub _alias {
   }
 
   $data = $self->{p}{aliaslist}->lookup($self->{'xform'});
+
   if ($data) {
     $self->{'canon'} = $data->{target};
     $self->{'alias'} = $data->{striptarget};
@@ -602,7 +603,7 @@ sub _validate {
   # Trim leading and trailing whitespace; it hoses the algorithm
   s/^\s+//;
   s/\s+$//;
-  
+
   if ($_ eq "") {
 #    $log->out("failed");
     return (0, "Nothing at all in that address.\n");
@@ -621,7 +622,7 @@ sub _validate {
   while ($_ ne "") {
     $word = "";
     s/^\s+//;  # Trim leading whitespace
-    
+
     # Handle (ugh) nested parenthesized comments.  Man, RFC822 sucks.
     # Nested comments???  We do this first because otherwise the
     # parentheses get parsed separately as specials.  (Pulling out the
@@ -637,13 +638,13 @@ sub _validate {
 	  $comment .= $1;
 	}
       }
-      
+
       # If we don't have enough closing parentheses, we're hosed
       if ($nest) {
 #	$log->out("failed");
 	return (0, "Unmatched parenthesis in $comment $_\n");
       }
-      
+
       # Trim parentheses and trailing space from the comment
       $comment =~ s/^\(//;
       $comment =~ s/\)\s*$//;
@@ -651,7 +652,7 @@ sub _validate {
       push @phrase,  $comment;
       next;
     }
-    
+
     # Quoted strings are words; this leaves the quotes on the word/atom
     # unless it's part of the phrase.  XXX req #3
     if (s/^(\"(([^\"\\]|\\.)*)\")//) {
@@ -714,9 +715,14 @@ Did you mistype a period as a comma?\n");
 @words[0..$#words] _$1_ $_
 Did you mistype a period as a comma?\n", join('',@words), $_);
       }
-      
+
       # An '@' special puts us on the right hand side of an address
       if ($1 eq '@') {
+
+	# But we might already be on the RHS
+	if ($on_rhs) {
+	  return (0, "Only one \@ permitted outside of comments at: $words[-1] _$1_ $_\n");
+	}
 	$on_rhs = 1;
       }
 
@@ -794,7 +800,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
 
       # If in a bracketed section, specials are OK.
       next if $angle;
-      
+
       # If we're right of the route address, nothing is allowed to appear.
       # This is common, however, and is overrideable.
       if (!$self->{p}{'allow_comments_after_route'} && $right_of_route) {
@@ -807,7 +813,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
 	next;
       }
 
-      # Other specials are illegal 
+      # Other specials are illegal
       if ($words[$i] =~ /^[\Q$specials\E]/) {
 #	$log->out("failed");
 	return (0, sprintf("Illegal character in comment portion of address at: %s _%s_ %s\n",
@@ -835,7 +841,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
 #    $log->out("failed");
     return (0, "The address cannot begin with either '.' or '\@'.\n");
   }
-  
+
   $on_rhs = 0;
 
   # We can bail out early if we have just a bang path
@@ -846,7 +852,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
 #      $log->out;
       return (1, $words[0], join(" ", @comment)||"");
     }
-  
+
   for $i (0..$#words) {
     if ($i > 0 &&$words[$i] !~ /^[.@]/ && $words[$i-1] && $words[$i-1] !~ /^[.@]/) {
 #      $log->out("failed");
@@ -893,7 +899,7 @@ Did you try to perform an action on two lists at once?
 	return (0, "User name component \"$words[$i]\" contains illegal characters.\n");
       }
     }
-    
+
     if ($words[$i] !~ /^[.@]/ && $on_rhs) {
       $subdomain++;
     }
@@ -902,7 +908,7 @@ Did you try to perform an action on two lists at once?
       $domain_literal = 1;
     }
   }
-  
+
   if ($self->{p}{'require_fqdn'} && !$on_rhs) {
     if ($top_level_domains{lc($words[-1])}) {
 #      $log->out("failed");
@@ -994,7 +1000,7 @@ to be a legal top-level domain.\n");
    'aq' => 1,
    'ar' => 1,
    'as' => 1,
-   'at' => 1, 
+   'at' => 1,
    'au' => 1,
    'aw' => 1,
    'az' => 1,
