@@ -41,6 +41,47 @@ is the same as
 important for site administrators to remember if they decide to extend the help 
 system by improving or adding help files, using the get and put commands.)
 
+Command Syntax Notation
+-----------------------
+
+Many of the help files summarize the syntax of a command in the first
+few lines.  Braces ('[' and ']') indicate when a command mode or command 
+argument is optional.  The basic structure of a Majordomo command is 
+
+COMMAND[-MODE] [LIST] [ARGUMENTS]
+
+Some commands allow multiple-line arguments using a "here document"
+(see "help here_document" for more details).  The basic structure
+of a multiple-line command is
+
+COMMAND[-MODE] [LIST] [ARGUMENTS] <<TAG
+[ARGUMENTS]
+TAG
+
+where...
+
+COMMAND is a valid Majordomo command.  Each command has its own help page
+        (see "help topics" for a complete list).
+
+MODE is an extension of the command.  For example, in the "who-enhanced"
+     command, "who" is the command, and "enhanced" is the command mode.
+
+LIST is the name of a mailing list.  Mailing list names can consist of
+     any combination of letters, digits, and the following characters:
+       . _ -
+
+ARGUMENTS are extra information needed to complete a command.  The command
+          arguments vary from command to command.
+
+TAG marks where multi-line arguments begin and end.  It is usually three
+    or more capital letters.  The same tag must be used on the first and
+    last line of the command, and the tag on the last line must be on
+    the line by itself, without any spaces, tabs, or other characters.
+
+Suggestions for improvements to the Majordomo help system are welcome.
+Please send your comments to mj2-dev@csf.colorado.edu.
+
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ
