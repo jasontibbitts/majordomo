@@ -131,6 +131,7 @@ $Mj::Config::default_string = q(
  'apply_global_xforms'  => 1,
  'master_password'      => "$list.pass",
  'passwords'            => [],
+ 'password_min_length'  => 4,
  'site_name'            => 'Majordomo',
  'whereami'             => undef,
  'whoami'               => $list eq 'GLOBAL' ? 'majordomo' : $list,

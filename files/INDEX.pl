@@ -14,6 +14,7 @@
    'en/intro'                   => ['Intro',                                           'us-ascii', '7bit'],
    'en/welcome'                 => ['Welcome',                                         'us-ascii', '7bit'],
    'en/registered'              => ['Welcome to $SITE',                                'us-ascii', '7bit'],
+   'en/new_password'            => ['New password at $SITE',                           'us-ascii', '7bit'],
    'en/inform'                  => ['$UREQUEST $LIST',                                 'us-ascii', '7bit'],
    'en/repl_consult'            => ['Default consult mailreply file',                  'us-ascii', '7bit'],
    'en/repl_confirm'            => ['Default confirm mailreply file',                  'us-ascii', '7bit'],

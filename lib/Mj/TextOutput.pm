@@ -498,6 +498,35 @@ sub newfaq   {$_[10] = "/faq Frequently Asked Questions";      put(@_);}
 sub newinfo  {$_[10] = "/info List Information";               put(@_);}
 sub newintro {$_[10] = "/intro List Introductory Information"; put(@_);}
 
+=head2 password
+
+Allows the user to change their password (or have another one randomly
+generated).
+
+=cut
+sub password {
+  my ($mj, $name, $user, $passwd, $auth, $interface,
+      $infh, $outfh, $mode, $list, $args, @arglist) = @_;
+  my $log = new Log::In 27, "$args";
+  my ($cmdline, $mess, $ok);
+
+  $cmdline = "password" . ($mode?"=$mode":"") . " $args";
+
+  if ($mode =~ /rand|gen/) {
+   $pass = ''; $vict = $args;
+   }
+  else {
+    ($pass, $vict) = split(' ', $args, 2);
+  }
+  $vict ||= $user;
+  Mj::Format::password($mj, $outfh, $outfh, 'text', $user, $passwd, $auth,
+		       $interface, $cmdline, $mode, $list, $vict, $pass,
+		       '', '',
+		       $mj->dispatch('password', $user, $passwd, $auth,
+				     $interface, $cmdline, $mode, $list,
+				     $vict, $pass));
+}
+
 =head2 post
 
 This allows the posting of a message to a list without going through an

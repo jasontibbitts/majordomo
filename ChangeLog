@@ -1,3 +1,31 @@
+Mon Sep 14 00:44:27 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (_subscribe): Adding 'password' function made
+ 	"{password}" ambiguous.  Sigh.
+	(_reg_add): Fix update/replace confusion.
+
+	* lib/Mj/Access.pm (_d_advertise): Clean up; call _a_allow or
+ 	_a_deny as appropriate instead of returning magic variables.
+	(_a_denymess): New function to deny and return a message.
+	(_d_password): New function: default access controls for password.
+
+	* lib/Majordomo.pm (_subscribe): Generate the password.
+	(_register): Ditto.
+	(_reg_add): Don't generate passwords here.
+	(password): New function: change a registered user's password.
+
+	* files/INDEX.pl: Add 'new_password' file.
+
+	* lib/mj_cf_data.pl: Add 'password_min_length'.
+
+	* lib/Mj/Format.pm (password): New function; show output of
+ 	password function.
+
+	* lib/Mj/TextOutput.pm (password): New function; let user change
+ 	their password.
+
+	* lib/Mj/CommandProps.pm: Add password command entry.
+
 Sun Sep 13 02:09:14 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Resend.pm (_r_ck_body): Majordomo::_re_match doesn't need

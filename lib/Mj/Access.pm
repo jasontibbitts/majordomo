@@ -500,9 +500,9 @@ sub list_access_check {
   # Now figure out what to do
   for $i (@{$actions}) {
     no strict 'refs';
-    ($_, $arg) = split('=',$i,2);
+    ($func, $arg) = split(/[-=]/,$i,2);
     $arg ||= '';
-    $func = "_a_$_";
+    $func = "_a_$func";
     $func =~ s/\+/\_/g;
     # Handle stupid 8 character autoload uniqueness limit
     $func = '_a_conf_cons' if $func eq '_a_confirm_consult';
@@ -581,6 +581,13 @@ sub _a_deny {
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
   my $log = new Log::In 150, "$request";
   return (0, $request eq 'post' ? 'ack_denial' : 'repl_deny');
+}
+
+sub _a_denymess {
+  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
+      $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
+  my $log = new Log::In 150, "$request";
+  return (0, undef, $arg);
 }
  
 sub _a_allow {
@@ -729,7 +736,7 @@ sub _a_default {
     return $self->_a_allow(@_);
   }
 
-  # We'll use the arglist almost verbatim in a couple of places.
+  # We'll use the arglist almost verbatim in several places.
   shift @_;
 
   # Allow these if the user supplied their password, else confirm them.
@@ -797,14 +804,12 @@ sub _d_advertise {
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
   my $log = new Log::In 150, "";
   my (@adv, @noadv, $i);
+  shift @_;
 
-#  $safe = new Safe;
-#  $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
-  
   @adv = $self->_list_config_get($list, 'advertise');
 
   for $i (@adv) {
-    return 1 if Majordomo::_re_match($i, $requester);
+    return $self->_a_allow(@_) if Majordomo::_re_match($i, $requester);
   }
 
   # Somewhat complicated; we try not to check membership unless we
@@ -813,14 +818,36 @@ sub _d_advertise {
   for $i (@noadv) {
     if (Majordomo::_re_match($i, $requester)) {
       if ($self->{'lists'}{$list}->is_subscriber($requester)) {
-	return 1;
+	return $self->_a_allow(@_);
       }
-      return 0;
+      return $self->_a_deny(@_);
     }
   }
   # By default we allow
-  return 1;
+  return $self->_a_allow(@_);
 }  
+
+# Need to do minimum length checking
+sub _d_password {
+  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
+      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
+  my $log = new Log::In 150;
+  my ($minlength);
+  shift @_;
+
+  $minlength = $self->_global_config_get('password_min_length');
+
+  if ($args{'password_length'} >= $minlength) {
+    shift @_;
+    return $self->_a_denymess("Your new password must be at least $minlength characters long.\n", @_);
+  }
+
+  if ($args{'user_password'}) {
+    return $self->_a_allow(@_);
+  }
+
+  return $self->_a_confirm(@_);
+}
 
 # Provide the expected behavior for the post command.  This means we
 # have to check moderate and restrict_post, and all of the appropriate

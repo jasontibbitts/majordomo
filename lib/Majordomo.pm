@@ -302,7 +302,6 @@ sub dispatch {
 	unless $ok;
     }
   }
-
   if (function_prop($fun, 'top')) {
     @out = $self->$fun($user, $pass, $auth, $int, $cmd, $mode, $list, $vict, @extra);
   }
@@ -492,9 +491,6 @@ from it.
 Args is a hash; all keys in the reglist database are recignized, with the
 followig exceptions:
 
-password - the password of the user being added; if it is undefined, a
-pasword will be generated.
-
 list - a list to add to the set of lists that the user is in.
 
 update - should an existing entry be updated with any database values in
@@ -544,12 +540,8 @@ sub _reg_add {
 	    };
   }
 
-  # If password is undef in args, generate one
-  $args{password} = Mj::Access::_gen_pw()
-    if exists $args{password} && !defined $args{password};
-
   # Copy arguments 
-  if (!$existing || $args{replace}) {
+  if (!$existing || $args{'update'}) {
     for my $i (qw(regtime password language lists flags bounce warnings
 	       data1 data2 data3 data4 data5)) {
       $data->{$i} = $args{$i} if $args{$i};
@@ -563,7 +555,7 @@ sub _reg_add {
   }
 
   # Replace or add the entry
-  if ($existing && ($args{update} || $args{'list'})) {
+  if ($existing && ($args{'update'} || $args{'list'})) {
     $self->{reg}->replace('', $addr->canon, $data);
   }
   else {
@@ -1463,6 +1455,92 @@ sub _intro {
     return 0;
   }
   return 1;
+}
+
+=head2 password(..., password)
+
+This changes a user''s password.  If mode is 'gen' or 'rand' (generate or
+random) a password is randomly generated.
+
+=cut
+sub password {
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode, $list,
+      $vict, $pass) = @_;
+  my ($ok, $mess, $minlength);
+  my $log = new Log::In 30, "$vict, $mode";
+
+  # Generate a password if necessary
+  if ($mode =~ /gen|rand/) {
+    $pass = _gen_pw();
+  }
+
+  ($ok, $mess) =
+    $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
+			       'password', $user, $vict, $pass, '', '',
+			       'password_length' => length($pass));
+  unless ($ok > 0) {
+    return ($ok, $mess);
+  }
+
+  $self->_password($list, $user, $vict, $mode, $cmdline, $pass);  
+}
+
+sub _password {
+  my ($self, $list, $user, $vict, $mode, $cmdline, $pass) = @_;
+  my $log = new Log::In 35, "$vict";
+  my (%file, %subst, $desc, $ent, $file, $majord, $majord_own, $reg,
+      $sender, $site, $whereami);
+
+  # Make sure user is registered.  XXX This ends up doing two reg_lookops,
+  # which should probably be cached
+  $reg = $self->_reg_lookup($vict);
+  return (0, "$vict is not a registered user.")
+    unless $reg;
+
+  # Write out new data.
+  $self->_reg_add($vict,
+		  'password' => $pass,
+		  'update'   => 1,
+		 );
+
+  # Mail the password_set message to the victim if requested
+  if ($mode !~ /quiet/) {
+    $sender = $self->_global_config_get('sender');
+    $whereami = $self->_global_config_get('whereami');
+    $majord   = $self->_global_config_get('whoami');
+    $majord_own = $self->_global_config_get('whoami_owner');
+    $site       = $self->_global_config_get('site_name');
+
+    %subst = (
+	      MAJORDOMO => "$majord\@$whereami",
+	      OWNER     => "$majord_own\@$whereami",
+	      SITE      => $site,
+	      LIST      => $list,
+	      PASSWORD  => $pass,
+	     );
+
+    ($file, %file) = $self->_list_file_get('GLOBAL', 'new_password');
+    return 1 unless $file;
+
+    # Expand variables
+    $desc = $self->substitute_vars_string($file{'description'}, %subst);
+    $file = $self->substitute_vars($file, %subst);
+
+    $ent = build MIME::Entity
+      (
+       Path     => $file,
+       Type     => $file{'c-type'},
+       Charset  => $file{'charset'},
+       Encoding => $file{'c-t-encoding'},
+       Subject  => $desc,
+       Top      => 1,
+       Filename => undef,
+       'Content-Language:' => $file{'language'},
+      );
+
+    $self->mail_entity($sender, $ent, $vict);
+  }
+  1;
 }
 
 =head2 put_start(..., file, subject, content_type, content_transfer_encoding)
@@ -2684,7 +2762,7 @@ sub _register {
   my ($ok, $data, $exist, $welcome);
   
   if ($mode =~ /randpass/) {
-    $pw = undef;
+    $pw = Mj::Access::_gen_pw();
   }
 
   # Add to/update registration database
@@ -3038,14 +3116,15 @@ sub _subscribe {
 
   # dd to/update registration database
   ($exist, $rdata) =
-    $self->_reg_add($vict, 'password' => undef, 'list' => $list);
+    $self->_reg_add($vict, 'password' => Mj::Access::_gen_pw(), 'list' =>
+		    $list);
 
   $welcome = $self->_list_config_get($list, "welcome");
   $welcome = 1 if $mode =~ /welcome/;
   $welcome = 0 if $mode =~ /(nowelcome|quiet)/;
 
   if ($welcome) {
-    $ok = $self->welcome($list, $vict, 'PASSWORD' => $rdata->{password});
+    $ok = $self->welcome($list, $vict, 'PASSWORD' => $rdata->{'password'});
     unless ($ok) {
       # Perhaps complain to the list owner?
     }

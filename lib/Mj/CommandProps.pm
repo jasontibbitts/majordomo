@@ -251,9 +251,21 @@ my %commands =
    #   'mkdigest'       => {'parser' => [qw(email shell list)],
    #	       'dispatch' => {'top' => 1},
    #		       },
-#   'passwd'         => {'parser' => [qw(email shell list obsolete=configset real)],
-#			'dispatch' => {'top' => 1},
-#		       },
+   'password' =>
+   {
+    'parser'   => [qw(email shell real)],
+    'dispatch' => {'top' => 1},
+    'access'   => {
+		   'default' => 'special',
+		   'legal'   => {
+				 'master_password',
+				 'user_password',
+				 'mismatch',
+				 'password_length',
+				},
+		   'actions' => \%reg_actions,
+		  },
+   },
    'post' =>
    {
     'parser'   => [qw(email shell list real)],

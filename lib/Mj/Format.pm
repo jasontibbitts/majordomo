@@ -360,6 +360,23 @@ sub lists {
   1;
 }
 
+sub password {
+  my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
+      $list, $vict, $pass, $arg2, $arg3, $ok, $mess) = @_;
+  my $log = new Log::In 29, "$type";
+ 
+  if ($ok>0) {
+    eprint($out, $type, "Password set.\n");
+  }
+  else {
+    eprint($out, $type, "Password not set.\n");
+  }
+  if ($mess) {
+    eprint($out, $type, &indicate($mess, $ok));
+  }
+  $ok>0;
+}
+
 sub post {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $arg1, $arg2, $arg3, $ok, $mess) = @_;

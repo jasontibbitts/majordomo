@@ -1,4 +1,4 @@
-print "1..13\n";
+print "1..15\n";
 
 $| = 1;
 $counter = 1;
@@ -78,9 +78,19 @@ $e = qq!\Qenchanter\@example.com successfully aliased to zork\@example.com.\n!;
 $r = run('-p gonzo -u zork@example.com alias enchanter@example.com');
 ok($e, $r);
 
-# Unsubscribe the aliased address to make sure it took
+# Add an alias to the first alias
+$e = qq!\Qplanetfall\@example.com successfully aliased to enchanter\@example.com.\n!;
+$r = run('-p gonzo -u enchanter@example.com alias planetfall@example.com');
+ok($e, $r);
+
+# Set a password
+$e = qq!\QPassword set.\n!;
+$r = run('-p gonzo -u enchanter@example.com password suspect');
+ok($e, $r);
+
+# Unsubscribe the aliased address using the set password
 $e = qq!\QThe following address was removed from bleeargh:\n  zork\@example.com\n!;
-$r = run('-p gonzo unsubscribe bleeargh enchanter@example.com');
+$r = run('-p suspect unsubscribe bleeargh enchanter@example.com');
 ok($e, $r);
 
 

@@ -3,6 +3,13 @@
 Here you'll find information on major changes.  (Read the ChangeLog
 for the boring stuff.)  Items at the top are newer.
 
+Each registered user has a password which can be changed by the user and
+used to bypass the confirmation process.  User passwords are supplied just
+as owner passwords: using the approve command.
+
+An internal reorganization places all data known about Majordomo commands
+in one place, paving the way for easy extensions.
+
 A new variable, 'advertise_subscribed' serves to globally select whether
 users will be able to see a list if they are subscribed.  If this is off,
 the normal access restrictions on advertising apply.  (Note that the

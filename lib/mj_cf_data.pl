@@ -1392,6 +1392,20 @@ The following actions are permitted:
  XXX List all of the actions here!
 EOC
    },
+   'password_min_length' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(password)],
+    'visible'=> 0,
+    'global' => 1,
+    'comment'=> <<EOC,
+This sets the minimum length for user passwords.  This takes effect
+when a user is setting their password; passwords generated randomly
+will always be six characters long (currently).  There is no maximum
+password length, but for security reasons it is wise to enforce a
+lower limit.
+EOC
+   },
    'welcome' =>
    {
     'type'   => 'bool',
