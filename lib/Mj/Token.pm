@@ -581,7 +581,7 @@ sub t_accept {
   my $log   = new Log::In 60, $token;
   my (%file, @out, @tmp, $data, $ent, $ffunc, $fh, $file, $func, $line, 
       $mess, $notify, $ok, $origtype, $outfh, $repl, $rf, $sender, 
-      $server, $tmp, $tmpdir, $whoami);
+      $server, $td, $tmp, $tmpdir, $whoami);
 
   return (0, "The token database could not be initialized.\n")
     unless $self->_make_tokendb;
@@ -598,6 +598,13 @@ sub t_accept {
 
   # Tick off one approval
   $data->{'approvals'}--;
+
+  # Convert the token data into the appropriate hash entries
+  # that would have appeared in the original $request hash
+  $td = function_prop ($data->{'command'}, 'tokendata');
+  for $tmp (keys %$td) {
+    $data->{$td->{$tmp}} = $data->{$tmp};
+  }
 
   # If a delay was requested, change the token type and return.
   if ($data->{'type'} eq 'consult' and defined($delay) and $delay > 0) {
@@ -820,13 +827,6 @@ sub t_accept {
     ($tmp, %file) = $self->_list_file_get($data->{'list'}, "repl_fulfill", $repl);
     $outfh = new IO::File ">>$tmp";
     return (1, $token, $data, [@out]) unless $outfh;
-
-    # Convert the token data into the appropriate hash entries
-    # that would have appeared in the original $request hash
-    my ($td) = function_prop ($data->{'command'}, 'tokendata');
-    for (keys %$td) {
-      $data->{$td->{$_}} = $data->{$_};
-    }
 
     # Now pass those results to the formatter and have it spit its
     # output to our tempfile.
