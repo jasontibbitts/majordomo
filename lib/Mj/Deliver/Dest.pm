@@ -275,7 +275,7 @@ sub sendenvelope {
     # error processing of we couldn't.
     $ok = $self->{'envelopes'}[$ch]->address($self->{'addrs'}, $self->{'deferred'});
     # Return now if no addresses remain to be processed.
-    return 0 if (!@{$self->{'addrs'});
+    return 0 if (!@{$self->{'addrs'}});
     next if $ok == 0;
 
     if ($ok < 0 && @{$self->{'addrs'}} == 1) {
