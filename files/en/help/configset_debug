@@ -20,19 +20,22 @@ the aliases configuration setting.  Therefore, if the debug value is
 changed, the createlist-regen command should be run to regenerate the
 aliases.
 
-The debug value is used by the e-mail processing programs, mj_email,
-mj_enqueue, and mj_queuerun, for all e-mail messages.  The debug value
-has no effect upon the other interfaces (WWW, shell, etc.).
+The debug value is used by the e-mail processing programs (mj_email,
+mj_enqueue, mj_queuerun) for all e-mail messages.  It is also used by
+the WWW programs (mj_confirm, mj_wwwadm, mj_wwwusr).  The debug value
+has no effect upon the other programs.  See the "default debug" section
+of "help default" to learn how to change the debug level for the
+mj_shell program.
 
-The GLOBAL debug value affects messages that are sent to the
-Majordomo server address, $MJ.   
+The GLOBAL debug value affects messages that are sent to the Majordomo
+server address, $MJ.
 
-List-specific debug values affect messages that are
-posted to a mailing list or sent to the other list-specific addresses,
-such as the "owner" alias or the "request" alias.
+List-specific debug values affect messages that are posted to a mailing
+list or sent to the other list-specific addresses, such as the "owner"
+alias or the "request" alias.
 
 Debugging information will be stored in several files in the GLOBAL
-temporary.  This directory is controlled by the GLOBAL tmpdir
+temporary directory.  This directory is controlled by the GLOBAL tmpdir
 configuration setting.  Debugging information for e-mail messages is
 stored in the following files:
 
@@ -87,8 +90,16 @@ See Also:
    help admin_domain
    help configset_aliases
    help configset_tmpdir
+   help createlist
+   help default
+   help mj_confirm
    help mj_email
    help mj_enqueue
    help mj_queuerun
+   help mj_shell
+   help mj_shutdown
+   help mj_trigger
+   help mj_wwwadm
+   help mj_wwwusr
 
 $INCLUDE-help/foot
