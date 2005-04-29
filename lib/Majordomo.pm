@@ -4097,7 +4097,7 @@ sub _alias {
   $data = {
  	   'striptarget' => $to->strip,
  	   'stripsource' => $from->strip,
- 	   'target'     => $to->alias,
+ 	   'target'     => $to->canon,
  	  };
   $self->{'alias'}->add("", $to->xform, $data);
 
@@ -8776,9 +8776,9 @@ ACHUNK:
     $k = scalar @tmp;
     while (($j, $i) = splice(@tmp, 0, 2)) {
       # Do not show bookkeeping aliases.
-      next if ($j eq $i->{'striptarget'});
+      next if ($j eq $i->{'target'});
       $i->{'fulladdr'} = $j;
-      $i->{'canon'} = $i->{'striptarget'};
+      $i->{'canon'} = $i->{'target'};
       push @chunk, $i;
     }
     if ($k and scalar @chunk < $chunksize) {
