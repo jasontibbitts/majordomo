@@ -208,6 +208,17 @@ In another example, the following two commands:
 will cause the address new@example.com to become an alias for the
 address old@example.com.
 
+Administrators can prevent the results from being mailed using the
+"nomessage" command mode.  For example, the result of an e-mail message 
+containing the following commands:
+
+  default user old@example.com
+  alias-nomessage new2@example.com
+
+would not be mailed to old@example.com, but would instead be sent to
+the person who issued the commands.  An administrative password is
+required to use "nomessage" mode.
+
 
 Using list admin credentials for GLOBAL commands (advanced topic)
 -----------------------------------------------------------------

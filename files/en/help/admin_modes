@@ -1,10 +1,12 @@
-Every Majordomo command supports four administrative command modes.
+Every Majordomo command supports five administrative command modes.
 These modes are:
-  noinform -  Do not mail a notice to the list owners.
-  nolog    -  Do not record this command in the log.
-  quiet    -  Do not send a notice if the command is delayed.
-  rule     -  Act as if the "access_password_override" configuration
+  noinform  - Do not mail a notice to the list owners.
+  nolog     - Do not record this command in the log.
+  nomessage - Do not mail the results if the "default user" command
+              has been used.  See "help default" for more information.
+  quiet     - Do not send a notice if the command is delayed.
+  rule      - Act as if the "access_password_override" configuration
               setting were turned off.
-The noinform, nolog, and rule modes require the use of an administrative
-password.  For more details, see the "Administrative command modes"
-section of the "help admin_commands" document.
+The noinform, nolog, nomessage, and rule modes require the use of an
+administrative password.  For more details, see the "Administrative
+command modes" section of the "help admin_commands" document.

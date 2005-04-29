@@ -67,10 +67,11 @@ my %generic_actions =
 
 my %generic_modes =
   (
-   'noinform' => 1,
-   'nolog'    => 1,
-   'quiet'    => 1,
-   'rule'     => 1,
+   'noinform'  => 1,
+   'nolog'     => 1,
+   'nomessage' => 1,
+   'quiet'     => 1,
+   'rule'      => 1,
   );
 
 # a standard set of access_rules variables

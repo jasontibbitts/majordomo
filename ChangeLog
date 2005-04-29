@@ -1,3 +1,14 @@
+2005-04-29  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (dispatch)  The "nomessage" mode requires
+	an administrative password.
+
+	* lib/Mj/CommandProps.pm:  Support the "nomessage" command mode.
+
+	* lib/Mj/Parser.pm:  (parse_part)  Do not mail the results to
+	the address specified by the "default user" command if the
+	"nomessage" command mode is used.
+
 2005-04-28  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_alias)  Make the target the canonical
