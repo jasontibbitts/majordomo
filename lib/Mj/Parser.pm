@@ -458,7 +458,7 @@ sub parse_part {
       }
       elsif ($action =~ /^password|passwd$/) {
 	$args{'password'} = $cmdargs;
-	if (length($cmdargs)) {
+	if (defined $cmdargs and length $cmdargs) {
           print $outhandle $mj->format_error('default_set', $list, 
                                              'SETTING' => 'password',
                                              'VALUE' => $cmdargs);
@@ -543,7 +543,7 @@ sub parse_part {
 
       # If a new identity has been assumed, send the output
       # of the command to the new address.
-      if ($user ne $args{'reply_to'}) {
+      if ($user ne $args{'reply_to'} and $mode !~ /nomessage/) {
         $tmpdir = $mj->_global_config_get('tmpdir');
         $name = "$tmpdir/mje." . Majordomo::unique() . ".out";
         $outfh = new IO::File "> $name" or
@@ -558,7 +558,7 @@ sub parse_part {
                                        'text', $request, $result);
 
       # Mail the result if posing.
-      if ($user ne $args{'reply_to'}) {
+      if ($user ne $args{'reply_to'} and $mode !~ /nomessage/) {
         $outfh->close()
           or $::log->abort("Unable to close file $name: $!");
 
@@ -590,7 +590,7 @@ sub parse_part {
           );
 
         if ($ent and -s $name) {
-          $mj->mail_entity($sender, $ent, $user) if ($ent and -s $name);
+          $mj->mail_entity($sender, $ent, $user);
           print $outhandle 
             $mj->format_error('results_mailed', $list,
                               'USER' => $user,
