@@ -1,3 +1,13 @@
+2005-04-28  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_alias)  Make the target the canonical
+	address rather than the aliased address.
+	(who_chunk)  Use the target to find bookkeeping aliases.
+	Thanks to John Levine.
+
+	* lib/Mj/Addr.pm:  (_alias)  Do not use alias information from
+	a bookkeeping alias.
+
 2005-03-16  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (connect)  Use delete instead of undef

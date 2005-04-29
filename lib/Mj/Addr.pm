@@ -659,7 +659,8 @@ sub _alias {
 
   $data = $self->{p}{aliaslist}->lookup($self->{'xform'});
 
-  if ($data) {
+  # Use the alias data except for bookkeeping aliases
+  if ($data and $self->{'xform'} ne $data->{'target'}) {
     $self->{'canon'} = $data->{target};
     $self->{'alias'} = $data->{striptarget};
   }
