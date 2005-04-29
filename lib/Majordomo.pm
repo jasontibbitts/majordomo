@@ -657,6 +657,18 @@ sub dispatch {
       unless $ok > 0;
     $over = 1;
   }
+  elsif ($request->{'mode'} =~ /nomessage/) {
+    $ok = $self->validate_passwd($request->{'user'}, $request->{'password'},
+                                 $request->{'list'}, 'ALL');
+    return [0, $self->format_error('password_level', $request->{'list'},
+                                   'MODE'    => 'nomessage',
+                                   'SETTING' => '',
+                                   'LEVEL'   => $ok,
+                                   'NEEDED'  => 1,
+                                   'USER'    => "$request->{'user'}")]
+      unless $ok > 0;
+    $over = 1;
+  }
   else {
     $over = 0;
   }
