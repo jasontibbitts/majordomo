@@ -3194,7 +3194,7 @@ sub parse_taboo_body {
 	  "\$text =~ $re && (push \@out, (\'$epat\', \$&, $sev, \'$class\', 0));\n";
       }
     }
-    $max = $stop ? $stop > $max ? $stop : $max : 0; #Whee!
+    $max = $stop ? $stop > $max ? $stop : $max : 0 if $max; #Whee!
   }
 
   # Tack on the 'no match' condition, which provides us with a convenient
@@ -3909,6 +3909,7 @@ sub compile_pattern {
     }
     if ($force eq 'substring') {
       $id1 = $id2 = '"';
+      $pat = quotemeta($pat) if (defined $pat and length $pat);
     }
     elsif ($force eq 'exact') {
       $id1 = $id2 = '/';

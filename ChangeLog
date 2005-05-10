@@ -1,3 +1,9 @@
+2005-05-09  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm:  (parse_taboo_body)  The maximum line
+	count should always be zero (unlimited) if an unlimited
+	pattern is used.  Fixed by Richard Birkett.
+
 2005-04-29  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (dispatch)  The "nomessage" mode requires
