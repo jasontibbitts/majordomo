@@ -42,6 +42,9 @@ indicating the subscription address, such as:
 
   You are subscribed to the \$LIST list as \$MSGRCPT.
 
+If an announcement is sent using the "@qmail" method in the delivery
+rules, the MSGRCPT variable will not be expanded.
+See "help configset_delivery_rules" for an explanation of the "@qmail" method.
 
 As an example, the command
 
@@ -56,7 +59,9 @@ See Also:
    help admin_commands (a summary of all administrative commands)
    help admin_subscribers (for an introduction to delivery classes)
    help configset_access_rules (to limit access to this command)
+   help configset_delivery_rules
    help configset_whoami_owner (which appears in the From: header)
+   help get
    help put (how to store a document in the file space of a mailing list)
    help set (for an introduction to delivery classes)
    help variables (for substitutions that can be made in "filename")
