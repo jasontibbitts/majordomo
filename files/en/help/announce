@@ -15,6 +15,7 @@ may require more resources than a typical posted message, because a separate
 copy of the announcement is sent to every recipient.  The recipient's 
 address appears in the "To:" header, and the list owners' address 
 (from the whoami_owner configuration setting) appears in the "From:" header.
+The description of the file will appear in the "Subject:" header.  
 
 The announce command could be used to deliver periodic reminders, announcements 
 that need to reach only 'digest' subscribers, or to ask 'nomail' subscribers 
@@ -31,6 +32,9 @@ are chosen from Majordomo's central registry (see "help register" and
 and "nomail" classes are used to distinguish people who are subscribed
 to one or more mailing lists from those who are registered but not
 subscribed to any mailing lists.
+
+See "help put" and "help get" to learn how to create or edit a file, or
+change its description.
 
 The file that is distributed is a template that supports keyword
 variable substitutions.  The variables supported include the standard 

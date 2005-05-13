@@ -13,7 +13,7 @@ put-delete[-force] listname filename
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or GLOBAL)
 filename, required, is the pathname of the file or directory to create
-subject,  if specified, is a string that describes the file's contents
+description, if specified, is words that describe the file's contents
 -data,    if specified, causes the file type and other info to be stored
 -delete,  if specified, deletes a file or empty directory
 -dir,     if specified, creates an empty directory, not a file
@@ -37,12 +37,12 @@ with a leading slash, '/', will be created in the public section of the file
 space;  any file or directory name that starts with a '/' will be created
 in the private section of the file space.
 
-The description, if supplied, should be an unpunctuated string of words 
-separated by spaces.   It will appear in the Subject header if the file 
-is mailed to someone who uses the get command, or if the file is mailed 
-as a result of the "replyfile" or "mailfile" directives of the 
-access_rules configuration setting (see "help configset_access_rules" 
-for more details).
+The description should consist of one or more unpunctuated words
+separated by spaces.  It will appear in the Subject header if the file
+is mailed to someone who uses the get command or the announce command,
+or if the file is mailed as a result of the "replyfile" or "mailfile"
+directives of the access rules (see "help configset_access_rules" for
+more details).
 
 If the description is enclosed in quotes, the quotes will appear in the 
 output of the index command and anywhere else the subject is displayed.
@@ -122,6 +122,7 @@ would create an "emergency" help file that could be retrieved with the
 See Also:
    help access_variables 
    help admin_documents
+   help announce
    help configset_access_rules (to restrict access to the put command)
    help error_files
    help format_files
