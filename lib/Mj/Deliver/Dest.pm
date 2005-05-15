@@ -244,6 +244,11 @@ sub make_qqenvelope {
   my $self = shift;
   my $ch   = shift;
   my $host = $self->{'activehosts'}[$ch];
+  my ($personal);
+
+  if ($self->{size} == 1) {
+    $personal = '$MSGRCPT';
+  }
 
   return
     Mj::Deliver::QQEnvelope->new(
@@ -251,6 +256,7 @@ sub make_qqenvelope {
 				 'file'   => $self->{'file'},
 				 'host'   => $host,
                                  'qmail_path' => $self->{'qmail_path'},
+				 'personal' => $personal,
 				 %{$self->{'hostdata'}{$host}},
 				);
 }

@@ -1,3 +1,13 @@
+2005-05-15  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Deliver/Dest.pm:  (make_qqenvelope)  Support
+	personalization under qmail.
+	Implemented by John Levine.
+
+	* lib/Mj/Deliver/QQEnvelope.pm:  (new, address, send)
+	Support personalization under qmail.
+	Implemented by John Levine.
+
 2005-05-09  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm:  (parse_taboo_body)  The maximum line

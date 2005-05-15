@@ -35,6 +35,8 @@ Arguments:
   sender  - the address to show in the From_ line.  Bounces will go here.
   file    - the file containing the message text (headers and body) to send
   addrs   - a listref containing the addresses to send to
+  personal- if true, when this string is encountered it will be replaced
+            with the address of the current recipient.
 
 Sender has no default.  You can specify a file and add addresses later.
 
@@ -60,6 +62,7 @@ sub new {
 
   $self->{'sender'} = $args{'sender'};
   $self->{'qmail_path'} = $args{'qmail_path'};
+  $self->{'personal'} = $args{'personal'};
 
   if (defined $args{'file'}) {
     $self->file($args{'file'});
@@ -120,7 +123,13 @@ sub address {
   unless (ref $addr) {
     $addr = [$addr];
   }
-  
+
+  # If a message is meant to be sent to one recipient, keep the recipient
+  # address for later use.
+  if ($self->{'personal'}) {
+    $self->{'rcpt'} = $addr->[0];
+  }
+
   # Unlike SMTP, we don't have to worry about addresses being rejected
   # here, so we're OK if we add even one address.
   for $i (@{$addr}) {
@@ -139,12 +148,18 @@ This will abort (i.e. terminate the running program) if the Envelope has
 not yet been addressed, if a file has not been specified or if the file is
 in some way unreadable.
 
+It writes the envelope data to a temporary file, then runs qmail-queue.
+Normally, it opens the file and passes the file descriptor to qmail-queue,
+but if personal is set, it reads the file and passes its through a pipe
+so it can expand $MSGRCPT in the file.
+
 =cut
 
 sub send {
   my $self = shift;
   my $log  = new Log::In 150;
   my ($addfile, $fd1, $fd2, $pid, $qp);
+  local (*FH, *PR, *PW);      # local files for personal var expansion
   
   $log->abort("Sending unaddressed envelope") unless $self->{'addressed'};
   $log->abort("Sending empty envelope")       unless $self->{'file'};
@@ -152,14 +167,39 @@ sub send {
   $self->{'addfile'}->close()
     or $::log->abort("Unable to close file $self->{'addname'}: $!");
 
+  # we have to filter this for $MSGRCPT if it's personal
+  if ($self->{'personal'}) {
+      open (FH, $self->{'file'}) ||
+	  $log->abort("Failed to open envelope data file: $!");
+      pipe PR, PW or
+      	  $log->abort("Failed to open message pipe: $!");
+  }
+
   if ($pid = fork()) {
+      # If a message is personal (a probe), substitute for $MSGRCPT.
+    if ($self->{'personal'}) {
+	close PR;
+	my ($line);
+	while (defined ($line = <FH>)) {
+	    # Don't substitute after backslashed $'s
+	    $line =~ s/([^\\]|^) \Q$self->{personal}\E (\b|$ )/ $1 $self->{'rcpt'} /gx;
+            print PW $line or
+		$log->abort("Failed writing to message pipe: $!");
+        }
+	close FH; close PW;
+    }
     waitpid $pid, 0;
     unlink $self->{'addname'};
   }
   elsif (defined $pid) {
     close STDIN;
     close STDOUT;
-    $fd1 = POSIX::open ($self->{'file'});
+    if($self->{'personal'}) {
+	$fd1 = POSIX::dup (fileno PR);
+	close PR; close PW; close FH;
+    } else {
+	$fd1 = POSIX::open ($self->{'file'});
+    }
     $fd2 = POSIX::open ($self->{'addname'});
     unless (($fd1 == 0) && ($fd2 == 1) ) {
       $log->abort("Unable to produce proper file descriptors");
