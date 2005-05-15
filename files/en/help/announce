@@ -46,9 +46,6 @@ indicating the subscription address, such as:
 
   You are subscribed to the \$LIST list as \$MSGRCPT.
 
-If an announcement is sent using the "@qmail" method in the delivery
-rules, the MSGRCPT variable will not be expanded.
-See "help configset_delivery_rules" for an explanation of the "@qmail" method.
 
 As an example, the command
 
