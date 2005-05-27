@@ -140,9 +140,10 @@ The following command modes are supported:
 
     If Majordomo is maintaining your MTA configuration, the aliases file
     will be updated automatically by this command.  Otherwise, a complete
-    list of suggested aliases for the domain will be displayed.  Running 
-    the createlist-regen command is required if the aliases, debug, 
-    or sublists configuration settings for any list are changed.
+    list of suggested aliases for the domain will be displayed.
+    The createlist-regen command must be run if you wish to update the
+    aliases after the aliases, debug, priority, or sublists
+    configuration setting for any list has been changed.
 
   rename:
     The createlist-rename command will change the name of a mailing
@@ -177,13 +178,16 @@ See Also:
    help admin_domain
    help auxiliary_list        (introduction to sublists)
    help configset             (to configure the list after it is created)
+   help configset_aliases
    help configset_active      (to activate an "inactive" list)
    help configset_archive_dir (to specify a non-default archive directory)
+   help configset_debug
    help configset_default_class       (to configure default subscriptions)
    help configset_default_flags       (to configure default subscriptions)
    help configset_password_min_length
+   help configset_priority
    help configset_relocated_lists
-   help configset_sublists  (to make cause alias generation for aux lists)
+   help configset_sublists    (to make aliases for auxiliary lists)
    help shell_hook
 
 $INCLUDE-help/foot
