@@ -31,8 +31,6 @@ mj_trigger is a program designed to be put into the Majordomo user''s
 crontab and called periodically to inform Majordomo that it is time to
 execute its periodic functions.
 
-Majordomo currently understands hourly and daily functions.
-
 A sample crontab entry looks like:
 
   # Expire locks at midnight
@@ -94,11 +92,18 @@ I<latchkey_lifetime> settings).
 Restore the delivery mode of subscribers whose vacation periods have
 expired.
 
-=back
+=item B<hourly>
 
-Excepting B<digest>, which has its own setting, these triggers are
-invoked by the B<daily> trigger, or by the B<hourly> trigger at the
-times indicated by the I<triggers> configuration setting.
+The B<hourly> trigger will invoke any or all of the other trigger types,
+excepting the B<daily> trigger, subject to the time constraints in the 
+I<digests> and I<triggers> configuration settings.
+
+=item B<daily>
+
+The B<daily> trigger will invoke all of the other trigger types,
+excepting the B<hourly> trigger and the B<digest> trigger.
+
+=back
 
 By default, the mj_trigger program performs its functions for all
 of the Majordomo domains at a site.  However, it is possible to
@@ -219,8 +224,8 @@ exit 0;
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2001 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2001, 2005 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

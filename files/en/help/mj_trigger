@@ -9,8 +9,6 @@ DESCRIPTION
     crontab and called periodically to inform Majordomo that it is time to
     execute its periodic functions.
 
-    Majordomo currently understands hourly and daily functions.
-
     A sample crontab entry looks like:
 
       # Expire locks at midnight
@@ -59,9 +57,15 @@ DESCRIPTION
         Restore the delivery mode of subscribers whose vacation periods have
         expired.
 
-    Excepting digest, which has its own setting, these triggers are invoked
-    by the daily trigger, or by the hourly trigger at the times indicated by
-    the *triggers* configuration setting.
+    hourly
+        The hourly trigger will invoke any or all of the other trigger
+        types, excepting the daily trigger, subject to the time constraints
+        in the *digests* and *triggers* configuration settings.
+
+    daily
+        The daily trigger will invoke all of the other trigger types,
+        excepting the hourly trigger and the digest trigger.
+
 
     By default, the mj_trigger program performs its functions for all of the
     Majordomo domains at a site. However, it is possible to limit it to one
