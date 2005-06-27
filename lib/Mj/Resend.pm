@@ -712,6 +712,7 @@ sub _post {
   if ($mode !~ /archive/) {
     # Update post data
     $self->{'lists'}{$list}->post_add($user, time, 'F', $seqno);
+
     # Add headers
     for $i ($self->_list_config_get($list, 'message_headers')) {
       $i = $self->substitute_vars_string($i, $subs);
@@ -741,10 +742,6 @@ sub _post {
     # Add in Reply-To:
     $ent[2] = $self->_reply_to($ent[0]->dup, $list, $seqno, $user, $nonmembers);
     $ent[3] = $self->_reply_to($ent[1]->dup, $list, $seqno, $user, $nonmembers);
-
-    if ($i = $self->_list_config_get($list, 'reply_to')) {
-      $i = $self->substitute_vars_string($i, $subs);
-    }
 
     # Obtain list of lists to check for duplicates.
     $dup = {};
@@ -1681,7 +1678,8 @@ sub _r_strip_body {
   @parts = $ent->parts;
 
   if (@parts) {
-    $_ = $mt = $ent->effective_type;
+    $_ = $ent->head->get('content-type') || $ent->effective_type;
+    $mt = $ent->effective_type;
     $enc = $ent->head->mime_encoding;
     $char = $ent->head->mime_attr('content-type.charset') || 'iso-8859-1';
     ($verdict, $xform) = $safe->reval($code);
@@ -1690,7 +1688,8 @@ sub _r_strip_body {
 
     $level++;
     for $i (@parts) {
-      $_ = $mt = $i->effective_type;
+      $_ = $i->head->get('content-type') || $i->effective_type;
+      $mt = $i->effective_type;
       $enc = $i->head->mime_encoding;
       $char = $i->head->mime_attr('content-type.charset') 
                 || 'iso-8859-1';
