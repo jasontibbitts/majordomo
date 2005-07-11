@@ -241,7 +241,7 @@ sub ping_runners {
     $status = out($children->[$i], $message);
     if (! defined ($status)) {
       logmsg "$i is dead";
-      close $children->[$i];
+      close $children->[$i] if (defined $children->[$i]);
       undef $children->[$i];
       next;
     } 
