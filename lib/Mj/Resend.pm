@@ -1678,8 +1678,7 @@ sub _r_strip_body {
   @parts = $ent->parts;
 
   if (@parts) {
-    $_ = $ent->head->get('content-type') || $ent->effective_type;
-    $mt = $ent->effective_type;
+    $_ = $mt = $ent->effective_type;
     $enc = $ent->head->mime_encoding;
     $char = $ent->head->mime_attr('content-type.charset') || 'iso-8859-1';
     ($verdict, $xform) = $safe->reval($code);
@@ -1688,8 +1687,7 @@ sub _r_strip_body {
 
     $level++;
     for $i (@parts) {
-      $_ = $i->head->get('content-type') || $i->effective_type;
-      $mt = $i->effective_type;
+      $_ = $mt = $i->effective_type;
       $enc = $i->head->mime_encoding;
       $char = $i->head->mime_attr('content-type.charset') 
                 || 'iso-8859-1';
@@ -2763,7 +2761,7 @@ sub do_digests {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002, 2004 Jason Tibbitts for The Majordomo
+Copyright (c) 1997, 1998, 2002, 2004, 2005 Jason Tibbitts for The Majordomo
 Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
