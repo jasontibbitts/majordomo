@@ -253,6 +253,11 @@ sub new {
 sub DESTROY {
   my $self = shift;
   undef $self->{alias};
+
+  if (exists $self->{'sessionfh'}) {
+    close $self->{'sessionfh'};
+    delete $self->{'sessionfh'};
+  }
 }
 
 
@@ -2140,7 +2145,8 @@ sub list_config_set {
     }
     else {
       ($ok, $mess) = $self->_list_config_set($request->{'list'},
-                                             $request->{'setting'}, @tmp);
+                                             $request->{'setting'},
+                                             @{$request->{'value'}});
     }
   }
 
@@ -7604,7 +7610,7 @@ sub _subscribe {
 
   $ml = $self->_global_config_get('password_min_length');
 
-  # dd to/update registration database
+  # Add to/update registration database
   if ($sublist eq 'MAIN') {
     $tmp = $::log->elapsed;
 

@@ -1,3 +1,9 @@
+2005-08-09  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (list_config_set)  Change the setting
+	to the new value, not the default value, in "noforce" mode.
+	Fixed by Richard Birkett.
+
 2005-05-15  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Deliver/Dest.pm:  (make_qqenvelope)  Support
