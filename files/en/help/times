@@ -188,7 +188,7 @@ try to extend the patterns (like tacking an hour on a day-of-year spec).
    - hourly:    same as 'always'
    - never:     never take this action even if the opportunity arises
    - none:      same as 'never'
-   - daily:     the action is taken every midnight
+   - daily:     once each day, between midnight and 1am.
    - weekly:    the action is taken every Sunday at 1am
    - monthly:   the action is taken on the first day of every month at 3am
    - quarterly: the action is taken on the first day of each quarter at 4am
