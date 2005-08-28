@@ -90,11 +90,12 @@ numbatches=N
   Divide the message recipients into exactly N batches.
 
 sort
-  Sort the address list.  
+  Sort the address list by domain.  
 
   Including the "sort" option causes the list to be sorted, but beware
-  that this takes time and memory. This is not necessary (and will have no
-  effect) if Majordomo is configured to use a database backend.  
+  that this takes time and memory.  This option will have no effect unless
+  Majordomo is configured to store its information in plain text database
+  files.
 
 Unless the host parameters specify otherwise, the recipients will not
 be separated into batches.  
