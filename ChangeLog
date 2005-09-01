@@ -1,3 +1,9 @@
+2005-08-31  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/SimpleDB/Text.pm:  (add)  If the key already exists,
+	replace the data if "force" mode is used.
+	Thanks to SRE.
+
 2005-08-09  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (list_config_set)  Change the setting

@@ -94,7 +94,7 @@ This adds a row to the database.
 This returns a list:
 
   flag - truth on success
-  data - if failure, a ref to the data that already exists for the key
+  data - a ref to the data that already exists for the key
 
 =cut
 sub add {
@@ -117,16 +117,27 @@ sub add {
       or $::log->abort("Unable to close file $self->{'name'}: $!");
   }
   
-  # Already locked, no need to lock again
-  $fh = new Mj::File $self->{'name'}, 'U+<';
-
-  if ($mode =~ /force/i || !($data = $self->lookup($key, $fh))) {
-    $fh->seek(0,2);
-    $fh->print("$key\001" . $self->_stringify($argref) . "\n");
-    $done = 1;
+  $fh = new Mj::FileRepl($self->{name});
+  $data = $self->lookup($key, $fh);
+  if ($data) {
+    if ($mode =~ /force/i) {
+      $fh->print("$key\001" . $self->_stringify($argref) . "\n");
+      $fh->copy;
+      $fh->commit;
+      return (1, $data);
+    }
+    else {
+      $fh->abandon;
+      return (undef, $data);
+    }
   }
-  $fh->close;
-  ($done, $data);
+
+  # The existing file has been copied by the lookup.  
+  # Add the new entry to the end of the file.
+  $fh->print("$key\001" . $self->_stringify($argref) . "\n");
+  $fh->commit;
+
+  (1, $data);
 }
 
 =head2 remove(mode, key)
@@ -638,8 +649,8 @@ sub lookup_quick_regexp {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2005 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
