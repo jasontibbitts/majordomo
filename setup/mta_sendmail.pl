@@ -50,7 +50,7 @@ sub setup_sendmail_domain {
 
   ($tmpfile, $tmpfh) = tempfile();
   print $tmpfh "default password $pw\n\n";
-  print $tmpfh "createlist-regen\n";
+  print $tmpfh "createlist-regen-noinform\n";
   close $tmpfh;
 
   @args = ("$config->{'install_dir'}/bin/mj_shell", '-u', 

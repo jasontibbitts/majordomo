@@ -12,7 +12,7 @@
 # DEFAULT:personal:  Place the address of the recipient in the To header.
 #   Add a footer that explains how to unsubscribe.
 
-configset DEFAULT:personal comments <<LLL
+configset-noinform DEFAULT:personal comments <<LLL
 This template is used to cause a separate copy of
 each message posted to a mailing list to be sent
 to each subscriber.  The address of the subscriber 
@@ -22,7 +22,7 @@ header will contain the list's address.
 To apply these settings to a mailing list, 
 use the following command:
 
-configshow-merge-append DEFAULT:personal LISTNAME
+configshow-merge-append-noinform DEFAULT:personal LISTNAME
 
 (Substitute the name of your mailing list 
 for LISTNAME.) The "append" mode is necessary 
@@ -34,23 +34,23 @@ to each recipient, these settings may strain your
 mail server.  Use with caution.
 LLL
 
-configset DEFAULT:personal bounce_probe_frequency = 1
-configset DEFAULT:personal override_reply_to = 1
-configset DEFAULT:personal reply_to = $WHOAMI
+configset-noinform DEFAULT:personal bounce_probe_frequency = 1
+configset-noinform DEFAULT:personal override_reply_to = 1
+configset-noinform DEFAULT:personal reply_to = $WHOAMI
 
-configset DEFAULT:personal message_footer <<ABCD
+configset-noinform DEFAULT:personal message_footer <<ABCD
 ---
 To leave the $LIST list, write to $MJ.
 In the body of the message, put only this command:
   unsubscribe $LIST $MSGRCPT
 ABCD
 
-configset DEFAULT:personal delete_headers <<DEFG
+configset-noinform DEFAULT:personal delete_headers <<DEFG
 To
 Cc
 DEFG
 
-configset DEFAULT:personal message_headers <<GHIJ
+configset-noinform DEFAULT:personal message_headers <<GHIJ
 To: $MSGRCPT
 GHIJ
 
@@ -58,7 +58,7 @@ GHIJ
 # Add headers for core mail list commands, as specified in the
 # IETF RFC 2369.
 
-configset DEFAULT:rfc2369 comments <<KLMN
+configset-noinform DEFAULT:rfc2369 comments <<KLMN
 The RFC 2369 template adds the following
 headers to posted messages:
 
@@ -84,7 +84,7 @@ The archive_url setting should also be changed
 to reflect the location of the list archives.
 KLMN
 
-configset DEFAULT:rfc2369 message_headers <<OPQR
+configset-noinform DEFAULT:rfc2369 message_headers <<OPQR
 List-Archive: <$ARCURL>
 List-Help: <mailto:$MJ?body=help>
 List-ID: <$LIST.$HOST>
