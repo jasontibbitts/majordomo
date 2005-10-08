@@ -264,7 +264,8 @@ invalid_from
 
 interface
   This variable contains the name of the interface used to make a
-  request, such as 'email', 'shell', or 'wwwadm'.
+  request, such as 'email', 'shell', or 'wwwadm'.  See "help report"
+  for a complete list of interfaces.
 
 limit
   This variable is set if any of the limit_hard, limit_lower, or
@@ -561,6 +562,7 @@ See Also:
    help auxiliary_list
    help configset_access_password_override
    help configset_access_rules        (to restrict access to any command)
+   help report
    help times
    help variables (for file substitution variables)
 
