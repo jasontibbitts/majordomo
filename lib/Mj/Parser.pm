@@ -250,7 +250,8 @@ sub parse_part {
   my $inhandle    = $args{'infh'};
   my $outhandle   = $args{'outfh'};
   my $title       = $args{'title'};
-  my $interface   = $mj->{'interface'};
+  my $interface   = exists $args{'interface'} ? 
+                      $args{'interface'} : $mj->{'interface'};
   my $attachments = $args{'attachments'};
   my $list        = $args{'deflist'} || 'GLOBAL';
 
