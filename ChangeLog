@@ -1,3 +1,13 @@
+2005-10-09  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_list_file_execute)  Pass the interface
+	(hardcoded to "shell") as an argument to parse_part().
+
+	* lib/Mj/Parser.pm:  (parse_part)  Accept the interface as
+	an argument, to allow files executed by mj_trigger to be
+	parsed as if they came from mj_shell.
+	Thanks to Roger Klorese.
+
 2005-08-31  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/SimpleDB/Text.pm:  (add)  If the key already exists,

@@ -8106,7 +8106,7 @@ use Mj::Parser;
 use IO::File;
 sub _list_file_execute {
   my ($self, $list, $file, $subs) = @_;
-  my ($infh, $int);
+  my ($infh);
   ($file) = $self->_list_file_get(list => $list,
 				  file => $file,
 				  subs => $subs,
@@ -8116,22 +8116,18 @@ sub _list_file_execute {
   $infh = new IO::File "<$file";
   return unless $infh;
 
-  # XXX Alter interface to allow command parsing.
-  $int = $self->{'interface'};
-  $self->{'interface'} = 'shell';
-
+  # Say the interface is "shell" to allow command parsing.
   # XXX What if failure occurs?
   Mj::Parser::parse_part(
         $self,
         'attachments' => '',
         'infh' => $infh,
+        'interface' => 'shell',
         'outfh' => \*STDOUT,
         'password' => '',
         'reply_to' => '',
         'title' => $file,
   );
-
-  $self->{'interface'} = $int;
 
   unlink $file if $subs;
   1;
