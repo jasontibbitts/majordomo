@@ -3909,7 +3909,7 @@ sub compile_pattern {
     }
     if ($force eq 'substring') {
       $id1 = $id2 = '"';
-      $pat = quotemeta($pat) if (defined $pat and length $pat);
+      # metacharacter escapes are added later.
     }
     elsif ($force eq 'exact') {
       $id1 = $id2 = '/';

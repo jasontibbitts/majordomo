@@ -1,3 +1,9 @@
+2005-10-27  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm:  (compile_pattern)  Remove redundant
+	escaping of metacharacters.
+	Thanks to Roger Klorese.
+
 2005-10-09  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_list_file_execute)  Pass the interface
