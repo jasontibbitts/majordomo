@@ -1,3 +1,9 @@
+2005-11-08  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (who_chunk)  Change control characters
+	into hyphens in the delivery class.
+	Thanks to Rado S.
+
 2005-10-27  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm:  (compile_pattern)  Remove redundant

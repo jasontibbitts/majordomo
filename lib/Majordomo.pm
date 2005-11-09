@@ -8828,7 +8828,7 @@ CHUNK:
         $i->{'bouncestats'} = $list->bounce_gen_stats($i->{'bouncedata'});
         next unless ($i->{'bouncestats'}->{'month'} > 0);
       }
-
+      
       $i->{'canon'} = $j;
       push @chunk, $i;
     }
@@ -8869,8 +8869,12 @@ CHUNK:
 
 	if (($i->{'class'} eq 'nomail') && $i->{'classarg2'}) {
 	  # classarg2 holds information on the original class
-	  $i->{'origclassdesc'} =
-	    $list->describe_class(split("\002", $i->{'classarg2'}, 3), 1);
+          @tmp = split("\002", $i->{'classarg2'}, 3);
+	  $i->{'origclassdesc'} = $list->describe_class(@tmp, 1);
+          $j = $tmp[0];
+          $j .= "-$tmp[1]" if (defined $tmp[1] and length $tmp[1]);
+          $j .= "-$tmp[2]" if (defined $tmp[2] and length $tmp[2]);
+          $i->{'classarg2'} = $j;
 	}
       }
       push @out, $i;
