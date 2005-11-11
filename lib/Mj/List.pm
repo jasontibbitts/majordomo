@@ -878,7 +878,12 @@ sub flag_set {
   $log->out('no');
   my ($flags, $data);
   return unless $flags{$flag};
-  return 0 unless $addr->isvalid;
+
+  unless ($addr->isvalid) {
+    $flags = $self->get_flags('nonmember_flags');
+    return 1 if $flags =~ /$flags{$flag}[3]/;
+    return 0;
+  }
 
   $flags = $addr->retrieve("$self->{name}-flags")
     unless ($sublist eq 'MAIN');

@@ -1,3 +1,9 @@
+2005-11-11  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/List.pm:  (flag_set)  Treat an invalid address as
+	a nonmember instead of always returning zero.
+	Thanks to Rado S.
+
 2005-11-08  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (who_chunk)  Change control characters
