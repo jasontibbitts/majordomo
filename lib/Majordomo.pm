@@ -3810,6 +3810,7 @@ list names.
 
 =cut
 
+use Mj::Format;
 sub valid_list {
   my $self   = shift;
   my $name   = shift || "";
@@ -3825,13 +3826,13 @@ sub valid_list {
   }
 
   unless (legal_list_name($name)) {
-    return (undef, undef,
-            $self->format_error('invalid_list', 'GLOBAL', 'LIST' => $name));
+    return (undef, undef, $self->format_error('invalid_list', 'GLOBAL', 
+             'LIST' => Mj::Format::sescape($name)));
   }
   if ($sublist) {
     unless (legal_list_name($sublist)) {
-      return (undef, undef,
-              $self->format_error('invalid_list', 'GLOBAL', 'LIST' => $sublist));
+      return (undef, undef, $self->format_error('invalid_list', 'GLOBAL', 
+               'LIST' => Mj::Format::sescape($sublist)));
     }
   }
 
@@ -3860,8 +3861,8 @@ sub valid_list {
     if (length($reloc->{$oname}->{'file'})) {
       $subs = {
                 $self->standard_subs('GLOBAL'),
-                'LIST' => $oname,
-                'NEWLIST' => $name,
+                'LIST' => Mj::Format::sescape($oname),
+                'NEWLIST' => Mj::Format::sescape($name),
               };
 
       $tmp = $self->_list_file_get_string(list => 'GLOBAL',
@@ -3883,7 +3884,7 @@ sub valid_list {
 
   # The list is not supported at this site.
   $mess ||= $self->format_error('unknown_list', 'GLOBAL',
-                                'LIST' => $oname);
+                                'LIST' => Mj::Format::sescape($oname));
   return ('', '', $mess);
 }
 

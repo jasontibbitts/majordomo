@@ -1,3 +1,9 @@
+2005-12-08  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (valid_list)  Escape dollar signs
+	in substitution variables to avoid looping.
+        Thanks to Marc Fournier.
+
 2005-11-11  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/List.pm:  (flag_set)  Treat an invalid address as
