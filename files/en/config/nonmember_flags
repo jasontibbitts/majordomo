@@ -1,6 +1,5 @@
-A list of flags which apply to users who are not list members when they 
-send messages to the list.  Only acknowledgement flags, hidepost,
-and postblock make sense in this case.  These flags include:
+These flags are applied to posted messages that are sent by
+non-subscribers.  The flags include:
 
   ackdeny
   ackpost

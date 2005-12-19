@@ -23,11 +23,10 @@ $INCLUDE-config/delivery_rules
 
 Rules must be separated from one another with blank lines.
 
-The first line of each rule must contain either a Majordomo pattern
-or the word ALL.  For each recipient of a message, the first rule
-that matches the address of the recipient is used.  See "help patterns"
-for more information about Majordomo patterns.
-The "ALL" pattern matches
+The first line of each rule must contain either a Majordomo pattern or
+the word ALL.  For each recipient of a message, the first rule that
+matches the address of the recipient is used.  See "help patterns" for
+more information about Majordomo patterns.  The "ALL" pattern matches
 any address, so any rule that follows a rule with the ALL pattern will
 be ignored.  
 

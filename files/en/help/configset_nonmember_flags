@@ -18,10 +18,9 @@ MNO
 $INCLUDE-config/nonmember_flags
 
 See Also:
+   help admin_moderate
    help configset_allowed_flags (for flags subscribers can change)
    help configset_default_flags (for subscriber flag defaults)
-   help set                     (for subscriber flag settings)
+   help set
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
