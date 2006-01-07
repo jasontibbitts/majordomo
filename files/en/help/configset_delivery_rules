@@ -147,10 +147,14 @@ timeout=N
 If the dsn, onex, or pipelining parameter is used, the esmtp parameter
 must also be specified.
 
-If, instead of a host name, the string "@qmail" is used, Majordomo
-will open a direct connection to the qmail-queue program and directly
-inject the message into the qmail delivery system.  This assumes, of
-course, that you are running qmail.
+If, instead of a host name, the word "@qmail" is used, e.g.,
+
+  ALL
+  hosts=(@qmail)
+
+then Majordomo will open a direct connection to the qmail-queue program
+and directly inject the message into the qmail delivery system.  This
+assumes, of course, that you are running qmail.
 
 
                                 Examples
