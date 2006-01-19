@@ -1,3 +1,8 @@
+2006-01-19  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/List.pm:  (set)  Add "exists" test to quell warning.
+	Thanks to Brock Rozen.
+
 2005-12-08  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (valid_list)  Escape dollar signs

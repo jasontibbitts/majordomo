@@ -462,7 +462,7 @@ sub set {
       $rset = $flags{$inv}->[0];
       $isflag = $inv;
     }
-    elsif ($rset = $classes{$class[0]}->[0]) {
+    elsif (exists $classes{$class[0]} and $rset = $classes{$class[0]}->[0]) {
       $isflag = 0;
     }
     else {
