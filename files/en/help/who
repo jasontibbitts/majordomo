@@ -79,6 +79,9 @@ For the GLOBAL pseudo-list, export mode causes a group of "register"
 commands to be displayed. For regular lists, export mode shows a bunch
 of subscribe and set commands.  
 
+If "enhanced" or "export" mode is used without an administrative
+password, information about the settings will not be displayed.
+
 If "bounce" mode is specified, only those addresses that have
 experienced delivery failures will be shown. Refer to 
 "help configset_bounce_max_age" for additional information on bounce 

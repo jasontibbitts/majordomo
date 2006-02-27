@@ -768,8 +768,8 @@ variables.  See "help configset_dup_lifetime" for an explanation of the
 body checks.
 
 
-Adjust the output of the which command
---------------------------------------
+Allow the which command to show more e-mail addresses
+-----------------------------------------------------
 Unless a site or domain administrative password is used, a maximum of 1
 address will be returned for each mailing list when someone uses the
 which command.  The following rule will change the maximum to 5
@@ -778,6 +778,18 @@ addresses.
 which
 allow=5
 ALL
+
+
+Allow the who command to show setting info
+------------------------------------------
+Unless an administrative password is used, the who-export and
+who-enhanced commands will not show information about settings.  The
+following rule will allow information about other subscribers' settings
+to be seen by list members.
+
+who
+allow=2
+@MAIN
 
 
 Delay unsubscriptions

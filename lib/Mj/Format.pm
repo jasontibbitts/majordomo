@@ -3304,14 +3304,14 @@ sub who {
         eprint($out, $type, "$line\n");
         next;
       }
-      elsif ($request->{'mode'} =~ /export/ && $i->{'classdesc'} 
-             && $i->{'flagdesc'}) 
-      {
+      elsif ($request->{'mode'} =~ /export/) { 
         $line = "subscribe-nowelcome-noinform $source $i->{'fulladdr'}\n";
-        if ($i->{'origclassdesc'}) {
-          $line .= "set-noinform $source $i->{'origclassdesc'} $i->{'stripaddr'}\n";
+        if ($i->{'classdesc'} && $i->{'flagdesc'}) {
+          if ($i->{'origclassdesc'}) {
+            $line .= "set-noinform $source $i->{'origclassdesc'} $i->{'stripaddr'}\n";
+          }
+          $line .= "set-noinform $source $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
         }
-        $line .= "set-noinform $source $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
         eprint($out, $type, "$line\n");
         next;
       }
