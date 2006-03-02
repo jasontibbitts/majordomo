@@ -2157,8 +2157,8 @@ sub sessioninfo {
 sub set {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my (@changes, @tmp, $change, $count, $files, $flag, $i, $init, 
-      $j, $list, $lsubs, $ok, $settings, $str, $subs);
+  my (@changes, @tmp, $cdesc, $change, $count, $files, $flag, $i, 
+      $init, $j, $list, $lsubs, $ok, $settings, $str, $subs);
  
   @changes = @$result; 
   $count = $init = 0;
@@ -2275,17 +2275,18 @@ sub set {
         if ($flag eq $change->{'class'}->[0] or 
             $flag eq join ("-", @{$change->{'class'}})) 
         {
+          $cdesc = $lsubs->{'CLASSDESC'};
           $str = 'selected';
         }
         else {
+          $cdesc = $settings->{'classes'}[$j]->{'desc'};
           $str = '';
         }
 
         if ($settings->{'classes'}[$j]->{'allow'} or $type eq 'wwwadm') {
           push @{$lsubs->{'CLASSES'}}, $flag;
           push @{$lsubs->{'SELECTED'}}, $str;
-          push @{$lsubs->{'CLASS_DESCRIPTIONS'}}, 
-               $settings->{'classes'}[$j]->{'desc'};
+          push @{$lsubs->{'CLASS_DESCRIPTIONS'}}, $cdesc;
         }
       }    
       $str = $mj->substitute_vars_format($files->{'main'}, $lsubs);
@@ -2314,8 +2315,8 @@ sub set {
 sub show {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my (@lists, @tmp, $bouncedata, $error, $flag, $gsubs, $i, $j, $k,
-      $lsubs, $settings, $show, $str, $subs, $tmp, $tmp2);
+  my (@lists, @tmp, $bouncedata, $cdesc, $error, $flag, $gsubs, $i, 
+      $j, $k, $lsubs, $settings, $show, $str, $subs, $tmp, $tmp2);
   my ($ok, $data) = @$result;
   $error = [];
 
@@ -2506,17 +2507,18 @@ sub show {
         if ($flag eq $data->{'lists'}{$i}{'class'} or $flag eq 
             "$data->{'lists'}{$i}{'class'}-$data->{'lists'}{$i}{'classarg'}-$data->{'lists'}{$i}{'classarg2'}") 
         {
+          $cdesc = $lsubs->{'CLASSDESC'};
           $str = 'selected';
         }
         else {
+          $cdesc = $settings->{'classes'}[$j]->{'desc'};
           $str = '';
         }
 
         if ($settings->{'classes'}[$j]->{'allow'} or $type eq 'wwwadm') {
           push @{$lsubs->{'CLASSES'}}, $flag;
           push @{$lsubs->{'SELECTED'}}, $str;
-          push @{$lsubs->{'CLASS_DESCRIPTIONS'}}, 
-               $settings->{'classes'}[$j]->{'desc'};
+          push @{$lsubs->{'CLASS_DESCRIPTIONS'}}, $cdesc;
         }
       }    
     }

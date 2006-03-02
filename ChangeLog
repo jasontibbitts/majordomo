@@ -1,3 +1,9 @@
+2006-03-01  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Format.pm:  (set, show)  Show the date at which
+	a subscriber's timed "nomail" setting will end in a menu of 
+	delivery classes.
+
 2006-02-27  Michael Yount <csf@moscow.com>
 
         * lib/Mj/Format.pm:  (who)  Display a list of subscribe commands
