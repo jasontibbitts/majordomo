@@ -771,7 +771,7 @@ elsif ($commands{$func}->[1] eq 'showtokens') {
   $request->{'mode'} = '';
   my (%seen);
   for $list (@lists, @mlists) {
-    next if (exists $seen{$list});
+    next if (exists $seen{lc $list});
     $request->{'list'} = $list;
     $result = $mj->dispatch($request);
     # Increase the token count if any tokens were found.

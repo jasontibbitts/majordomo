@@ -1,3 +1,9 @@
+2006-07-01  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Avoid duplicated tokens for the 
+	"showtokens ALL" command.
+	Thanks to Steven Orr.
+
 2006-03-01  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Format.pm:  (set, show)  Show the date at which
