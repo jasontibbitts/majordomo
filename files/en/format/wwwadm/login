@@ -29,10 +29,10 @@
 </tr>
 <tr>
   <td valign="top">
-    Address: <input name="user" size="32" value="$USER">
+    Email: <input name="user" size="32" value="$USER">
   </td>
   <td valign="top">
-    Optionally, type your e-mail address into the <b>Address</b>
+    Optionally, type your e-mail address into the <b>Email</b>
     box.
   </td>
 <tr>
