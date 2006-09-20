@@ -1,3 +1,9 @@
+2006-09-20  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Util.pm:  (re_match)  Treat the text or pattern as
+	a single line when untainting to avoid truncation.
+	Thanks to Alvaro Herrera.
+
 2006-07-01  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Avoid duplicated tokens for the 

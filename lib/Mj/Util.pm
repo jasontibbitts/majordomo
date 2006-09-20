@@ -617,9 +617,9 @@ sub re_match {
   # Hack; untaint things.  That's why we're running inside a safe
   # compartment. XXX Try it without the untainting; it has a speed penalty.
   # Routines that need it can untaint as appropriate before calling.
-  $_ =~ /(.*)/;
+  $_ =~ /(.*)/s;
   $_ = $1;
-  $re =~ /(.*)/;
+  $re =~ /(.*)/s;
   $re = $1;
 
   if ($arr) {
