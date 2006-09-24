@@ -33,11 +33,6 @@ A message with "CONFIRM" in the subject line is sent to the new
 subscriber's address.  The confirmation message contains instructions
 for confirming the subscription (using the "accept" command).
 
-Sometimes the list name plus your email address is too long, and
-your mail tool will 'wrap' the line by inserting a hard return or
-line break. See the syntax section of "help commands" for how to
-diagnose and fix this problem.
-
 The first time an address is subscribed to a list at this site, an entry
 in the registration database is created for that address, and a personal
 password is assigned.  Only one password is assigned to a given address,
@@ -118,7 +113,7 @@ The "changeaddr" command can update the registry and subscriber
 databases all at one time.
 
 List owners can subscribe more than one address to a mailing list
-using a "here document" or "here file" (see "help commands" for
+using a "here document" or "here file" (see "help here_document" for
 a description of here files.)  For example, to subscribe the
 addresses a@example.com and b@example.com to a list, the owner
 could use the following command:
@@ -143,9 +138,9 @@ See Also:
    help approve     (authentication to avoid the confirmation process)
    help auxiliary_list (which is used to manage a set of addresses)
    help changeaddr  (which replaces one address with another)
-   help commands    (for an explanation of "here files")
    help configset_welcome       (determines if welcome messages are sent)
    help configset_welcome_files (determines which welcome messages are sent)
+   help here_document
    help password    (which changes an individual's password)
    help register    (which registers, and creates a password for, an address)
    help unregister  (which removes an address from all lists)
