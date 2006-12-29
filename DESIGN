@@ -147,10 +147,10 @@ include an extension file at startup.)
 An Email's Trip through the System:
 -----------------------------------
 
-An incoming email gets into the system either by being piped to mj_resend
-or by someone/thing running the post command.  Either way, the text of the
-email is stored in a file and this filename is passed to the post function
-in Resend.pm.
+An incoming email gets into the system either by being piped to
+mj_email, mj_enqueue, or by someone/thing running the post command.
+Either way, the text of the email is stored in a file and this filename
+is passed to the post function in Resend.pm.
 
 This function takes apart the file and does MIME parsing on it.  Then it
 looks for approval passwords in the header and body (and a planned approval
