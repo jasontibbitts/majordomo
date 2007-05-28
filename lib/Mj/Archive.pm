@@ -751,9 +751,9 @@ use Mj::MIMEParser qw(collect_data);
 sub _sync_msgs {
   my ($self, $file, $tmpdir, $split, $count, $qp) = @_;
   my $log = new Log::In 250, $file;
-  my (@out, $arcname, $arcnum, $blank, $data, $entity, $lastfrom,
-      $length, $line, $lines, $mbox, $modified, $num, $parser, $seen, 
-      $tf2, $tmpfh, $tmpfile); 
+  my (@msgs, @out, $arcname, $arcnum, $blank, $data, $entity, $i, 
+      $lastfrom, $length, $line, $lines, $mbox, $modified, $num, 
+      $parser, $seen, $tf2, $tmpfh, $tmpfile); 
  
   $file =~ /^((?:[\w\-\.]+\.)?\d+)(-\d\d)?$/;
   $arcname = $1;
@@ -797,7 +797,15 @@ sub _sync_msgs {
           $entity->head->replace("X-Archive-Number", $arcnum);
           $count++;
         }
+
         $arcnum =~ m#/(\d+)$#; $num = $1;
+        if (defined $msgs[$num]) {
+          for ($i = $num + 1; defined $msgs[$i]; $i++) {};
+          $entity->head->replace("X-Archive-Number", "$arcname/$i");
+          $num = $i;
+        }
+        $msgs[$num]++;
+          
         $data = collect_data($entity, $qp);
 
         # Parsing may have modified the message.
