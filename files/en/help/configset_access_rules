@@ -329,6 +329,10 @@ The forward action takes one parameter, the address to which the command
 is forwarded.  The default value is the address in the whoami_owner
 configuration setting.
 
+A notice indicating that the message was forwarded will be sent to the
+author of the message if the author's "ackstall" setting is enabled.
+See "help set" for an explanation of that setting.
+
 
 mailfile
 --------
