@@ -398,7 +398,7 @@ post_block
 
 posts
   This variable contains the total number of posts the user has made,
-  including the current one, that are tracked in the post database.  Posts
+  excluding the current one, that are tracked in the post database.  Posts
   are tracked in this database for twice the number of days in the
   dup_lifetime setting.
 
@@ -406,17 +406,18 @@ posts_last_24hours
 posts_last_7days
 posts_last_30days
   These variables contain the number of posts the user has made within the
-  specified time periods, including the current message.
+  specified time periods, excluding the current message.
 
 posts_this_day
 posts_this_week
 posts_this_month
-  These variables contain the number of posts the user has made since the
-  beginning of the current day, week and month, respectively.  A week
-  begins on Sunday.  Note the difference between these and the previous
-  three variables: if it is 5PM, a post made at 8PM the previous day will
-  be counted in $posts_last_24hours but not in $posts_this_day because it
-  occurred before midnight on the current day.
+  These variables contain the number of posts, excluding the current
+  message, the user has made since the beginning of the current day, week
+  and month, respectively.  A week begins on Sunday.  Note the difference
+  between these and the previous three variables: if it is 5PM, a post
+  made at 8PM the previous day will be counted in $posts_last_24hours but
+  not in $posts_this_day because it occurred before midnight on the
+  current day.
 
 quoted_lines
   This variable contains the number of lines in a posted message that 
