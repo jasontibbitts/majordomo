@@ -28,9 +28,8 @@ by the Majordomo server.  For this reason, it is highly recommended that
 you customize the whoami_owner configuration setting instead of changing
 the sender configuration setting.
 
-Although the "sender" address may appear in the "Sender:" header of some
-e-mail messages, that header is usually added by the software that
-performs the delivery (such as Sendmail), not by Majordomo.
+Majordomo will add a "Sender:" header containing the address in this
+setting to each message that is posted to a mailing list.
 
 If there is no domain given in the address, for example:
   configset mylist sender = webmaster
