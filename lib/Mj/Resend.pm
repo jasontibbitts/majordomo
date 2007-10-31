@@ -2185,13 +2185,17 @@ sub _trim_approved {
 	$pos = $ofh->tell;
 	$line = $ofh->getline;
 
-	# If it's blank, make a new body and copy everything after the
-	# blank into it, replace the old body with the new one and return
-	# the entity.
-	if (!defined($line) || $line !~ /\S/) {
+	# If it's blank, or if it's not obviously a header, make a new body 
+	# and copy the rest of the body into it, replace the old body 
+	# with the new one and return the entity.
+	if (!defined($line) || $line !~ /\S/ || 
+            $line !~ /^[^\x00-\x1f\x7f-\xff :]+:/) {
 	  $nbody = new MIME::Body::File $self->tempname;
 	  $obody = $oent->bodyhandle;
 	  $nfh   = $nbody->open('w');
+          if (defined($line) && $line =~ /\S/) {
+	    $nfh->print($line);
+	  }
 	  while (defined ($line = $ofh->getline)) {
 	    $nfh->print($line);
 	  }

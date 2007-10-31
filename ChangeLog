@@ -1,3 +1,9 @@
+2007-10-31  Michael Yount <minkel07@verizon.net>
+
+	* lib/Mj/Resend.pm:  (_trim_approved)  If the body begins
+	with an Approved: line and a non-blank line, make sure the
+	following line resembles a header.
+
 2007-05-28  Michael Yount <minkel07@verizon.net>
 
 	* lib/Majordomo.pm:  Update the version number.
