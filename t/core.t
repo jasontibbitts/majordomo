@@ -31,7 +31,7 @@ mkdir "$tmpdir/SITE/files/en/error", 0700 || die;
 mkdir "$tmpdir/SITE/files/en/config", 0700 || die;
 
 open FILE, ">$tmpdir/SITE/files/INDEX.pl";
-print FILE "\$files = {}; \$dirs = []; [\$files, \$dirs];\n";
+print FILE "\$files = {};\n";
 close FILE;
 
 open FILE, ">$tmpdir/SITE/files/en/config/whereami";

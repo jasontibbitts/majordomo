@@ -1,32 +1,8 @@
-2007-10-31  Michael Yount <minkel07@verizon.net>
+2009-09-23  Michael Yount <myount07@verizon.net>
 
-	* lib/Mj/Resend.pm:  (_trim_approved)  If the body begins
-	with an Approved: line and a non-blank line, make sure the
-	following line resembles a header.
-
-2007-05-28  Michael Yount <minkel07@verizon.net>
-
-	* lib/Majordomo.pm:  Update the version number.
-
-	* lib/Mj/Archive.pm:  (_sync_msgs)  Adjust archive numbers if
-	duplicates are found.  Suggested by Roger Klorese.
-
-2006-12-29  Michael Yount <csf@moscow.com>
-
-	* postinstall:  Remove reference to mj_resend.
-	Thanks to Michael Weiser.
-
-2006-09-20  Michael Yount <csf@moscow.com>
-
-	* lib/Mj/Util.pm:  (re_match)  Treat the text or pattern as
-	a single line when untainting to avoid truncation.
-	Thanks to Alvaro Herrera.
-
-2006-07-01  Michael Yount <csf@moscow.com>
-
-	* bin/mj_wwwadm:  Avoid duplicated tokens for the 
-	"showtokens ALL" command.
-	Thanks to Steven Orr.
+	* t/core.t:  Correct the return value from the dummy 
+	INDEX.pl file for the core tests.
+	Thanks to Donald R. Laster Jr.
 
 2006-03-01  Michael Yount <csf@moscow.com>
 
