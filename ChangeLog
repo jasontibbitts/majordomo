@@ -1,3 +1,9 @@
+2011-01-24  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm: Remove slashes and double dots from filenames returned
+	by _list_file_get.  This is a quick fix for a bug that allows disclosure of
+	any file via the help command (CVE-2011-0049).
+
 2009-09-23  Michael Yount <myount07@verizon.net>
 
 	* t/core.t:  Correct the return value from the dummy 
