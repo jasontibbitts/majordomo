@@ -3521,7 +3521,7 @@ sub _list_file_get {
   my $lang = $args{lang};
 
   # $file might have bad stuff in it
-  $file =~ s!/?\.\./?!!g;
+  $file =~ s!\.\.!!g;
 
   # Account for list:sublist
   if ($list =~ /^([^:\s]+):/) {
