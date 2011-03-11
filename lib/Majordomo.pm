@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1201101240";
+$VERSION = "0.1201103110";
 $unique = 'AAA';
 
 use strict;
@@ -3521,7 +3521,9 @@ sub _list_file_get {
   my $lang = $args{lang};
 
   # $file might have bad stuff in it
-  $file =~ s!\.\.!!g;
+  if ($file =~ /\.\./) {
+    $file = 'invalid_contains_dots';
+  }
 
   # Account for list:sublist
   if ($list =~ /^([^:\s]+):/) {
