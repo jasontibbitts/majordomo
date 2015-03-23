@@ -1,13 +1,13 @@
 Impossible de modifier les droits vers l'utilisateur "$UID",
-groupe "$GID" pour le fichier ou le répertoire "$FILE".
+groupe "$GID" pour le fichier ou le rÃ©pertoire "$FILE".
 
 **** $ERROR
 
-Vous avez trois possibilités :
-  * arrêter le processus de configuration.
-  * ignorer le problème et continuer.
-  * afficher les commandes shell à exécuter pour réparer ce problème
-    et continuer. (Ces commandes devront être exécutées en tant que
-    root ou un autre utilisateur qui a les privilèges suffisants.)
+Vous avez trois possibilitÃ©s :
+  * arrÃªter le processus de configuration.
+  * ignorer le problÃ¨me et continuer.
+  * afficher les commandes shell Ã  exÃ©cuter pour rÃ©parer ce problÃ¨me
+    et continuer. (Ces commandes devront Ãªtre exÃ©cutÃ©es en tant que
+    root ou un autre utilisateur qui a les privilÃ¨ges suffisants.)
 
 Que voulez vous faire ensuite ?

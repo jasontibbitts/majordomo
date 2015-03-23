@@ -1,7 +1,7 @@
-==== EXPÉRIMENTAL : N'UTILISEZ PAS mysql A MOINS QUE VOUS DÉVELOPPIEZ ====
+==== EXPÃ‰RIMENTAL : N'UTILISEZ PAS mysql A MOINS QUE VOUS DÃ‰VELOPPIEZ ====
 ==                                                                      ==
-==      Vous avez le module DBD::mysql d'installé, qui supporte le      ==
-==  gestionnaire de bases de données MySQL. Entrez "mysql" à l'invite   ==
+==      Vous avez le module DBD::mysql d'installÃ©, qui supporte le      ==
+==  gestionnaire de bases de donnÃ©es MySQL. Entrez "mysql" Ã  l'invite   ==
 ==                    pour utiliser une base MySQL.                     ==
 ==                                                                      ==
 ==========================================================================

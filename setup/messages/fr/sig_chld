@@ -1,13 +1,13 @@
 Gestion des email
 
-Est ce que $SIG{CHLD} = 'IGNORE' supprime les fils de votre système ?
+Est ce que $SIG{CHLD} = 'IGNORE' supprime les fils de votre systÃ¨me ?
 
-Sur la majorité des systèmes, le fait d'ignorer les signaux à propos
-des processus fils fait que le système les supprime pour vous. Sur
+Sur la majoritÃ© des systÃ¨mes, le fait d'ignorer les signaux Ã  propos
+des processus fils fait que le systÃ¨me les supprime pour vous. Sur
 certains, toutefois, cela ne se produit pas et Majordomo doit utiliser
-une méthode un peu plus sale.
+une mÃ©thode un peu plus sale.
 
-Si vous ne connaissez pas la réponse, dites "yes". Si mj_queueserv
-commence à accumuler des fils zombie, réinstallez et répondez "no" à
+Si vous ne connaissez pas la rÃ©ponse, dites "yes". Si mj_queueserv
+commence Ã  accumuler des fils zombie, rÃ©installez et rÃ©pondez "no" Ã 
 cette question.
 

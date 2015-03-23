@@ -3,10 +3,10 @@ Configuration du domaine "$DOMAIN"
 Quelle est l'adresse email du gestionnaire de ce domaine ?
 (cette adresse ne doit pas commencer par "$WHOAMI-owner".)
 
-Les messages envoyés à $WHOAMI-owner@$WHEREAMI seront automatiquement
-transférés à cette adresse.
+Les messages envoyÃ©s Ã  $WHOAMI-owner@$WHEREAMI seront automatiquement
+transfÃ©rÃ©s Ã  cette adresse.
 
-Vous pouvez spécifier une adresse email complète, ou juste la partie
+Vous pouvez spÃ©cifier une adresse email complÃ¨te, ou juste la partie
 locale. Si vous ne mettez que la partie locale, "@$WHEREAMI" sera
-ajouté à l'adresse automatiquement.
+ajoutÃ© Ã  l'adresse automatiquement.
 

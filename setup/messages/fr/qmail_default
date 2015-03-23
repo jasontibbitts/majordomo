@@ -1,10 +1,10 @@
 Parametrage de la gestion de emails
 
-Majordomo doit il gérer les fichiers .qmail-default automatiquement ?
+Majordomo doit il gÃ©rer les fichiers .qmail-default automatiquement ?
 
-Majordomo peut le mécanisme de fichiers .qmail-default et gérer les
+Majordomo peut le mÃ©canisme de fichiers .qmail-default et gÃ©rer les
 fichiers .qmail-default pour vous. Notez que si vous avez d'autres
-entrées (non Majordomo) dans vos .qmail-default, Majordomo ne les
-écrasera pas. Il vous donnera juste un avertissement et laissera les
-fichiers inchangés.
+entrÃ©es (non Majordomo) dans vos .qmail-default, Majordomo ne les
+Ã©crasera pas. Il vous donnera juste un avertissement et laissera les
+fichiers inchangÃ©s.
 

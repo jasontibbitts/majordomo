@@ -1,9 +1,9 @@
-Emplacement du fichier de configuration (ù
+Emplacement du fichier de configuration (Ã¹
 
 Ou est ce que Majordomo garde son fichier de configuration ?
 
-Majordomo conserve certains paramètres dans un fichier de
-configuration, habituellement appelé majordomo.cf et situé dans le
-répertoire "/etc". Si vous ne pensez pas installer Majordomo en tant
+Majordomo conserve certains paramÃ¨tres dans un fichier de
+configuration, habituellement appelÃ© majordomo.cf et situÃ© dans le
+rÃ©pertoire "/etc". Si vous ne pensez pas installer Majordomo en tant
 que root, utilisez une autre destination.
 

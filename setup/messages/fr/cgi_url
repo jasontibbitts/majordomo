@@ -2,9 +2,9 @@ Parametrage de l'interface Web
 
 Quelle est l'adresse du dossier cgi-bin du serveur web ?
 
-Majordomo en a besoin pour pouvoir construire des URL qui se réfèrent
+Majordomo en a besoin pour pouvoir construire des URL qui se rÃ©fÃ¨rent
 au programme dans le dossier cgi-bin de votre serveur web. Par
-exemple, si vous accédez au programme "plouf.cgi" à l'adresse :
+exemple, si vous accÃ©dez au programme "plouf.cgi" Ã  l'adresse :
   http://www.exemple.fr/cgi-bin/plouf.cgi
 Vous mettrez la valeur suivante :
   http://www.exemple.fr/cgi-bin/

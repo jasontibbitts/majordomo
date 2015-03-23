@@ -1,12 +1,12 @@
 Emplacement de stockage
 
-Ou est ce que les données des listes Majordomo seront gardées ?
+Ou est ce que les donnÃ©es des listes Majordomo seront gardÃ©es ?
 
-Ce répertoire aura un sous répertoire pour chaque domaine de votre
-site. Chaque répertoire de domaine aura un sous répertoire pour
+Ce rÃ©pertoire aura un sous rÃ©pertoire pour chaque domaine de votre
+site. Chaque rÃ©pertoire de domaine aura un sous rÃ©pertoire pour
 chaque liste de ce domaine.
 
-Ce répertoire ne doit pas être un répertoire contenant des listes
-gérées par Majordomo 1, car Majordomo 2 stocke ses listes dans un
-format différent.
+Ce rÃ©pertoire ne doit pas Ãªtre un rÃ©pertoire contenant des listes
+gÃ©rÃ©es par Majordomo 1, car Majordomo 2 stocke ses listes dans un
+format diffÃ©rent.
 

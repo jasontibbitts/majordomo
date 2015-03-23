@@ -1,15 +1,15 @@
 Parametrage de la gestion de emails
 
 Voudriez vous que Majordomo ignore la casse dans les adresses email
-par défaut ?
+par dÃ©faut ?
 
 Si vous dites "yes", par exemple, "julien@exemple.fr" et
-"JULIEN@exemple.fr" seront considérées comme la même adresse.
+"JULIEN@exemple.fr" seront considÃ©rÃ©es comme la mÃªme adresse.
 
 Si vous dites "no", "julien@exemple.fr" et "JULIEN@exemple.fr" seront
-considérées comme étant des adresses différentes. Cette approche est
+considÃ©rÃ©es comme Ã©tant des adresses diffÃ©rentes. Cette approche est
 conforme aux normes Internet d'email, mais peut engendrer des
-problèmes si un abonné utilise différentes casses de son adresse.
+problÃ¨mes si un abonnÃ© utilise diffÃ©rentes casses de son adresse.
 
-Répondre "yes" est recommandé.
+RÃ©pondre "yes" est recommandÃ©.
 

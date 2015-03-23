@@ -3,7 +3,7 @@ Parametrage de la gestion de emails
 Majordomo doit il faire des liens vers les fichiers d'alias et
 d'utilisateurs virtuels ?
 
-Certaines version de Sendmail se plaindront à propos des permissions
-des fichiers d'alias générés. Majordomo essaye de passer outre ça en
-créant des liens symboliques.
+Certaines version de Sendmail se plaindront Ã  propos des permissions
+des fichiers d'alias gÃ©nÃ©rÃ©s. Majordomo essaye de passer outre Ã§a en
+crÃ©ant des liens symboliques.
 

@@ -3,6 +3,6 @@ Parametrage de la gestion de emails
 Combien de temps est ce que les processus de traitement de queue
 attendront sans rien faire avant de quitter ?
 
-Les processus de traitement de queue quitteront automatiquement après
-ce nombre de secondes d'inactivité.
+Les processus de traitement de queue quitteront automatiquement aprÃ¨s
+ce nombre de secondes d'inactivitÃ©.
 

@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------
-Le "router" suivant doit être placé dans la section "Routers" de votre
+Le "router" suivant doit Ãªtre placÃ© dans la section "Routers" de votre
 fichier de configuration d'Exim :
 
 majordomo_aliases_$DOMAIN:

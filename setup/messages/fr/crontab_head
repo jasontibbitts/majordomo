@@ -1,9 +1,9 @@
-Le programme mj_trigger effectue des tâches de maintenances
-périodiques, tels l'envoi des compilations, la suppression des données
-expirées des bases de données de Majordomo, et la suppression des
-verrous qui ne sont plus utilisés.
+Le programme mj_trigger effectue des tÃ¢ches de maintenances
+pÃ©riodiques, tels l'envoi des compilations, la suppression des donnÃ©es
+expirÃ©es des bases de donnÃ©es de Majordomo, et la suppression des
+verrous qui ne sont plus utilisÃ©s.
 
-Ajoutez les entrées suivantes a la crontab de l'utilisateur "$UID".
+Ajoutez les entrÃ©es suivantes a la crontab de l'utilisateur "$UID".
 (ne les ajoutez pas a la crontab de root ou d'un autre utilisateur.)
 
 

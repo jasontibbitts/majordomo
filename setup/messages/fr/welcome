@@ -1,22 +1,22 @@
-Bienvenue au système de configuration de Majordomo.
+Bienvenue au systÃ¨me de configuration de Majordomo.
 
-Pour pouvoir configurer Majordomo proprement lorsqu'il est installé,
-nous devons savoir certaines informations sur votre système.
+Pour pouvoir configurer Majordomo proprement lorsqu'il est installÃ©,
+nous devons savoir certaines informations sur votre systÃ¨me.
 
-Si vous avez configuré Majordomo 2 avant, vos réponses précédentes
-seront récupérées du fichier ".mj_config" dans ce répertoire. La
-réponse par défaut à chaque questions sera présentée entre crochets.
-Pour accepter la valeur par défaut, appuyez sur la touchée Entrée.
-Sinon, vous aurez à entrer la bonne réponse à la question avant
-d'appuyer sur la touche Entrée.
+Si vous avez configurÃ© Majordomo 2 avant, vos rÃ©ponses prÃ©cÃ©dentes
+seront rÃ©cupÃ©rÃ©es du fichier ".mj_config" dans ce rÃ©pertoire. La
+rÃ©ponse par dÃ©faut Ã  chaque questions sera prÃ©sentÃ©e entre crochets.
+Pour accepter la valeur par dÃ©faut, appuyez sur la touchÃ©e EntrÃ©e.
+Sinon, vous aurez Ã  entrer la bonne rÃ©ponse Ã  la question avant
+d'appuyer sur la touche EntrÃ©e.
 
-Il y a une vingtaine de questions de base à propos de votre site, et
-une dizaine spécifiques à chaque domaine que vous voulez utiliser dans
+Il y a une vingtaine de questions de base Ã  propos de votre site, et
+une dizaine spÃ©cifiques Ã  chaque domaine que vous voulez utiliser dans
 Majordomo 2.
 
-Lisez bien chaque question. Si l'une des question n'est pas très
-claire, envoyez poliment une demande d'explication à l'équipe de
-développement à mj2-dev@lists.mj2.org (en anglais).
+Lisez bien chaque question. Si l'une des question n'est pas trÃ¨s
+claire, envoyez poliment une demande d'explication Ã  l'Ã©quipe de
+dÃ©veloppement Ã  mj2-dev@lists.mj2.org (en anglais).
 
-Appuyez sur Entrée pour continuer.
+Appuyez sur EntrÃ©e pour continuer.
 

@@ -1,7 +1,7 @@
-Majordomo possède une interface de base de données simple, implémentée
-en utilisant des fichiers texte. Les bases de données utilisant cette
-méthode peuvent être affichées et éditées à la main, mais leur accès
-est très lent. Entrez "text" a l'invite pour utiliser des bases de
-données en texte.
+Majordomo possÃ¨de une interface de base de donnÃ©es simple, implÃ©mentÃ©e
+en utilisant des fichiers texte. Les bases de donnÃ©es utilisant cette
+mÃ©thode peuvent Ãªtre affichÃ©es et Ã©ditÃ©es Ã  la main, mais leur accÃ¨s
+est trÃ¨s lent. Entrez "text" a l'invite pour utiliser des bases de
+donnÃ©es en texte.
 
 

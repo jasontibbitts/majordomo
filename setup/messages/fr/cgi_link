@@ -1,13 +1,13 @@
 Parametrage de l'interface Web
 
-Majordomo peut il faire un lien vers les programmes dans le répertoire
+Majordomo peut il faire un lien vers les programmes dans le rÃ©pertoire
 cgi-bin ?
 
 Certains serveurs web permettent l'utilisation d'un lien vers les
-programmes dans le dossier cgi-bin. D'autres requièrent une copie
-séparée de chaque programme.
-Majordomo essaye d'éviter la confusion en laissant tous ses fichiers
+programmes dans le dossier cgi-bin. D'autres requiÃ¨rent une copie
+sÃ©parÃ©e de chaque programme.
+Majordomo essaye d'Ã©viter la confusion en laissant tous ses fichiers
 ensembles.
 
-Si vous n'êtes pas sur, répondez non.
+Si vous n'Ãªtes pas sur, rÃ©pondez non.
 

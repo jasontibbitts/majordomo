@@ -1,10 +1,10 @@
 Parametrage de la gestion de emails
 
-Dans quel répertoire est ce que les liens doivent être fait ?
+Dans quel rÃ©pertoire est ce que les liens doivent Ãªtre fait ?
 
-Ce doit être un répertoire appartenant à root avec des permissions
-assez restrictives pour permettre à sendmail de rester paisible. Le
-processus d'installation ne créera pas ce répertoire pour vous. Vous
+Ce doit Ãªtre un rÃ©pertoire appartenant Ã  root avec des permissions
+assez restrictives pour permettre Ã  sendmail de rester paisible. Le
+processus d'installation ne crÃ©era pas ce rÃ©pertoire pour vous. Vous
 devez vous assurer qu'il existe et qu'il a les permissions
-appropriées.
+appropriÃ©es.
 

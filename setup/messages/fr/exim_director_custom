@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------
-Le "director" suivant doit être placé dans la section "Directors" de
+Le "director" suivant doit Ãªtre placÃ© dans la section "Directors" de
 votre fichier de configuration d'Exim :
 
 majordomo_aliases_$DOMAIN:

@@ -2,18 +2,18 @@ Parametrage de la gestion de emails
 
 Voulez vous que Majordomo utilise le mode de queues ?
 
-Majordomo peut être exécuté dans deux modes :
+Majordomo peut Ãªtre exÃ©cutÃ© dans deux modes :
 
-Le mode direct, chaque message qui arrive est traité immédiatement par
-un nouveau processus Majordomo. Aucunes limites ne sont placées sur le
-nombre de messages qui peuvent être traités en même temps. Utiliser le
-mode direct peut entraîner une grande charge du serveur si beaucoup de
+Le mode direct, chaque message qui arrive est traitÃ© immÃ©diatement par
+un nouveau processus Majordomo. Aucunes limites ne sont placÃ©es sur le
+nombre de messages qui peuvent Ãªtre traitÃ©s en mÃªme temps. Utiliser le
+mode direct peut entraÃ®ner une grande charge du serveur si beaucoup de
 messages arrivent en un court moment.
 
 Le mode avec queue, chaque message qui arrive est mis dans une queue
-pour être traité par un programme séparé. En général, les messages mis
-en queue sont traités immédiatement, mais le nombre de messages
-traités en même temps est restreint pour limiter l'utilisation des
+pour Ãªtre traitÃ© par un programme sÃ©parÃ©. En gÃ©nÃ©ral, les messages mis
+en queue sont traitÃ©s immÃ©diatement, mais le nombre de messages
+traitÃ©s en mÃªme temps est restreint pour limiter l'utilisation des
 ressources de l'ordinateur.
 
 Utiliser le mode de queue ?

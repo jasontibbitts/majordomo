@@ -1,7 +1,7 @@
-===== EXPÉRIMENTAL : N'UTILISEZ PAS sql A MOINS QUE VOUS DÉVELOPPIEZ =====
+===== EXPÃ‰RIMENTAL : N'UTILISEZ PAS sql A MOINS QUE VOUS DÃ‰VELOPPIEZ =====
 ==                                                                      ==
-== Vous avez le module DBI ainsi que les modules DBD appropriés, ce qui ==
-== vous permet d'utiliser un moteur de bases de données SQL, plutôt que ==
+== Vous avez le module DBI ainsi que les modules DBD appropriÃ©s, ce qui ==
+== vous permet d'utiliser un moteur de bases de donnÃ©es SQL, plutÃ´t que ==
 == le moteur Berkeley DB.                                               ==
 ==                                                                      ==
 == Pour l'utiliser, entrez 'sql' a l'invite.                            ==

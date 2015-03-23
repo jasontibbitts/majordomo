@@ -1,15 +1,15 @@
 Configuration du domaine "$DOMAIN".
 
-À quelle adresse Majordomo recevra il ses messages ?
+Ã€ quelle adresse Majordomo recevra il ses messages ?
 
-C'est l'adresse vers laquelle les commandes envoyés au serveur seront
-en envoyées.
+C'est l'adresse vers laquelle les commandes envoyÃ©s au serveur seront
+en envoyÃ©es.
 
-Si vous utilisez l'adresse "majordomo" pour des listes gérées par
-Majordomo 1, vous voudrez peut être utiliser une différente adresse
+Si vous utilisez l'adresse "majordomo" pour des listes gÃ©rÃ©es par
+Majordomo 1, vous voudrez peut Ãªtre utiliser une diffÃ©rente adresse
 comme "mj2".
 
-Vous pouvez spécifier une adresse complète, ou juste la partie locale.
-Si vous omettez le nom du domaine, "@WHEREAMI" sera ajouté à l'adresse
+Vous pouvez spÃ©cifier une adresse complÃ¨te, ou juste la partie locale.
+Si vous omettez le nom du domaine, "@WHEREAMI" sera ajoutÃ© Ã  l'adresse
 automatiquement.
 
