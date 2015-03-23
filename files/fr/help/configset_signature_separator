@@ -1,10 +1,10 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  signature_separator = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : /^[-_]/
-Type de donnée    : expression rationnelle
-Catégorie         : miscellany
-Mot de passe      : Modifié avec le mot de passe global.
+Valeur par dÃ©faut : /^[-_]/
+Type de donnÃ©e    : expression rationnelle
+CatÃ©gorie         : miscellany
+Mot de passe      : ModifiÃ© avec le mot de passe global.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXEMPLE :
@@ -13,20 +13,20 @@ configset GLOBAL signature_separator = /^[-_]/
 
 $INCLUDE-config/signature_separator
 
-Le séparateur de signature standard est une ligne consistant en
+Le sÃ©parateur de signature standard est une ligne consistant en
 seulement deux tirets suivit d'un espace. Toutefois, beaucoup
 d'utilisateurs ignorent ce standard et beaucoup de sites utilisent des
-underscores à la place des tirets. Par conséquent, un motif plus large
-est généralement plus utile.
+underscores Ã  la place des tirets. Par consÃ©quent, un motif plus large
+est gÃ©nÃ©ralement plus utile.
 
 Certains documents, comme les messages de confirmation qui sont
-envoyés aux modérateurs d'une liste commencent par "__ ". Ceci est
-fait pour empêcher Majordomo de traiter les commandes du message de
-confirmation par accident. Gardez cela en tête si vous modifiez la
+envoyÃ©s aux modÃ©rateurs d'une liste commencent par "__ ". Ceci est
+fait pour empÃªcher Majordomo de traiter les commandes du message de
+confirmation par accident. Gardez cela en tÃªte si vous modifiez la
 valeur de "signature_separator".
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin
    help admin_domain
    help patterns

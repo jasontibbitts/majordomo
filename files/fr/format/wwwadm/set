@@ -1,11 +1,11 @@
 <!-- Majordomo set format file -->
 <pre>
   Parametres de $VICTIM sur la liste &quot;$LIST&quot; :
-    Réception $CLASSDESC
+    RÃ©ception $CLASSDESC
     Options :
       $FLAGDESC
-  ?PARTIAL Une compilation partielle des messages a été
-  ?PARTIAL envoyée.
+  ?PARTIAL Une compilation partielle des messages a Ã©tÃ©
+  ?PARTIAL envoyÃ©e.
   Derniere modification $CHANGETIME.
 </pre>
  

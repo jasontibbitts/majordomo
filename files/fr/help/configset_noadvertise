@@ -7,9 +7,9 @@ configset liste noadvertise <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : aucune
-Type de donnée    : tableau d'expressions rationnelles.
-Catégorie         : lists
+Valeur par dÃ©faut : aucune
+Type de donnÃ©e    : tableau d'expressions rationnelles.
+CatÃ©gorie         : lists
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -21,15 +21,15 @@ ENDTAG
 $INCLUDE-config/noadvertise
 
 
-Les paramètres de configuration "noadvertise" et "advertise" pourront
-être rendus inactifs par l'action "advertise" des règles d'accès.
+Les paramÃ¨tres de configuration "noadvertise" et "advertise" pourront
+Ãªtre rendus inactifs par l'action "advertise" des rÃ¨gles d'accÃ¨s.
 
-Si le paramètre GLOBAL "advertise_subscribed" est actif, une liste
-sera affichée par la commande "lists" si la personne faisant la
-requête est abonnée a la liste. C'est vrai quelque soit la valeur du
-paramètre "noadvertise", "advertise" ou les règles d'accès.
+Si le paramÃ¨tre GLOBAL "advertise_subscribed" est actif, une liste
+sera affichÃ©e par la commande "lists" si la personne faisant la
+requÃªte est abonnÃ©e a la liste. C'est vrai quelque soit la valeur du
+paramÃ¨tre "noadvertise", "advertise" ou les rÃ¨gles d'accÃ¨s.
 
-Voila des règles d'accès qui implémentent la même fonctionnalité
+Voila des rÃ¨gles d'accÃ¨s qui implÃ©mentent la mÃªme fonctionnalitÃ©
 qu'"advertise" et "noadvertise" :
 
 configset liste access_rules <<ENDACCESSRULES
@@ -46,7 +46,7 @@ allow
 ALL
 ENDACCESSRULES
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help configset_advertise
    help configset_advertise_subscribed
    help lists

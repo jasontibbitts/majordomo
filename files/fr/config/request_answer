@@ -1,8 +1,8 @@
-Le paramètre "request_answer" contrôle ce qui arrive aux messages
-envoyés à "liste-request" pour chaque liste du domaine. Les trois
-valeurs supportées sont :
+Le paramÃ¨tre "request_answer" contrÃ´le ce qui arrive aux messages
+envoyÃ©s Ã  "liste-request" pour chaque liste du domaine. Les trois
+valeurs supportÃ©es sont :
 
 majordomo - Les commandes du messages seront traites.
-owner     - Le message sera envoyé aux administrateurs de la liste.
-responce  - Le contenu du document "request_response" sera envoyé a
+owner     - Le message sera envoyÃ© aux administrateurs de la liste.
+responce  - Le contenu du document "request_response" sera envoyÃ© a
             l'auteur du message.

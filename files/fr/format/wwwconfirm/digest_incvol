@@ -1,7 +1,7 @@
 <!-- Majordomo digest_incvol format file -->
-Le numéro de volume de la compilation a été incrémentée de un.
+Le numÃ©ro de volume de la compilation a Ã©tÃ© incrÃ©mentÃ©e de un.
 
 Utilisez la commande suivante pour avoir la liste des compilation
-ainsi que leurs numéros :
+ainsi que leurs numÃ©ros :
   configshow $LIST digest_issues
 

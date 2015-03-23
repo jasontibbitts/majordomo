@@ -2,16 +2,16 @@
  <input type="submit" name="func" value="set">
 </form>
 <p>
-Référez vous a la page d'aide
+RÃ©fÃ©rez vous a la page d'aide
 $HELP:SET 
-pour plus d'explications sur les réglages
+pour plus d'explications sur les rÃ©glages
 </p>
 <p>
-Normalement, une case a cocher apparaît a côté du nom de
-chaque paramètre, mais les modérateurs peuvent utiliser
-le paramètre
+Normalement, une case a cocher apparaÃ®t a cÃ´tÃ© du nom de
+chaque paramÃ¨tre, mais les modÃ©rateurs peuvent utiliser
+le paramÃ¨tre
 $HELP:ALLOWED_FLAGS
-pour vous empêcher de changer vos réglages. Chaque
-paramètre que vous ne pouvez pas modifier sera marqué
+pour vous empÃªcher de changer vos rÃ©glages. Chaque
+paramÃ¨tre que vous ne pouvez pas modifier sera marquÃ©
 par un <b>X</b> si il est mis, et un <b>O</b> sinon.
 </p>

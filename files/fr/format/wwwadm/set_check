@@ -1,14 +1,14 @@
 <!-- Majordomo set_check format file -->
-<h4 align=center>Paramètres de $FULLADDR</h4>
+<h4 align=center>ParamÃ¨tres de $FULLADDR</h4>
   <input type="hidden" name="victims" value="$STRIPADDR">
 
 <p>
-Les détails a propos des modes de réception et des 13 paramètres
-personnels apparaissent ci dessous. Si vous modifiez le mode ou les réglages,
+Les dÃ©tails a propos des modes de rÃ©ception et des 13 paramÃ¨tres
+personnels apparaissent ci dessous. Si vous modifiez le mode ou les rÃ©glages,
 cliquez sur le bouton <b>set</b> pour rendre vos changements permanents.
 </p>
 <p>
-Pour supprimer cette adresse sans envoyer de message d'adieu à $STRIPADDR,
+Pour supprimer cette adresse sans envoyer de message d'adieu Ã  $STRIPADDR,
 cliquez sur le bouton <b>unsubscribe</b>. Pour l'enlever en lui envoyant un message
 d'adieu, cliquez sur le bouton <b>unsubscribe-farewell</b>.
 </p>
@@ -20,164 +20,164 @@ d'adieu, cliquez sur le bouton <b>unsubscribe-farewell</b>.
 
 <dl>
   <dt>
-  Mode de réception&nbsp;:
+  Mode de rÃ©ception&nbsp;:
   <select name="$VICTIM">
     <option value="$CLASSES" $SELECTED>$CLASS_DESCRIPTIONS
   </select>
   </dt>
-  <dd>Les modes de réceptions déterminent la
-  façon dont les messages postés sur la liste $LIST
+  <dd>Les modes de rÃ©ceptions dÃ©terminent la
+  faÃ§on dont les messages postÃ©s sur la liste $LIST
   arrivent a $VICTIM. Les choix possibles sont les sont disponibles
   dans le menu&nbsp;:</dd>
     <dl>
-      <dt><b>Chaque message comme il est posté</b> (each)</dt>
-      <dd>L'abonné recevra une copie de chaque message.</dd>
+      <dt><b>Chaque message comme il est postÃ©</b> (each)</dt>
+      <dd>L'abonnÃ© recevra une copie de chaque message.</dd>
 
-      <dt><b>Chaque message non dupliqué</b> (unique)</dt>
-      <dd>L'abonné recevra une copie de chaque message a moins
-      qu'il ai déjà été posté sur
+      <dt><b>Chaque message non dupliquÃ©</b> (unique)</dt>
+      <dd>L'abonnÃ© recevra une copie de chaque message a moins
+      qu'il ai dÃ©jÃ  Ã©tÃ© postÃ© sur
       une autre liste sur $SITE a laquelle la personne est aussi
-      abonnée.</dd>
+      abonnÃ©e.</dd>
 
       <dt><b>Aucun messages</b> (nomail)</dt>
-      <dd>L'abonné ne recevra pas de messages de la liste
+      <dd>L'abonnÃ© ne recevra pas de messages de la liste
       $LIST.</dd>
 
       <dt><b>Rerecevoir les messages</b> (mail)</dt>
-      <dd>Si l'abonné est en ce moment abonné avec le
+      <dd>Si l'abonnÃ© est en ce moment abonnÃ© avec le
       mode <b>aucun messages</b>, il va recommencer a recevoir les
       messages.  Autrement, cette option n'a aucun effet.</dd>
 
       <dt><i>Le reste...</i> (digest)</dt>
-      <dd>L'abonné recevra les messages sous forme de
+      <dd>L'abonnÃ© recevra les messages sous forme de
       compilation.  Chaque compilation a 3 formats&nbsp;:</dd>
       <dl>
         <dt>index</dt>
-        <dd>L'abonné recevra un sommaire des messages, mais pas
-        les messages eux mêmes.</dd>
+        <dd>L'abonnÃ© recevra un sommaire des messages, mais pas
+        les messages eux mÃªmes.</dd>
 
         <dt>mime</dt>
-        <dd>Chaque message sera inclus en fichier attaché.</dd>
+        <dd>Chaque message sera inclus en fichier attachÃ©.</dd>
 
         <dt>text</dt>
         <dd>Seul le texte de chaque message sera inclus dans la
-        compilation. Aucun fichier attaché (pages web, images,
-        etc.) ne sera envoyé a l'abonné.</dd>
+        compilation. Aucun fichier attachÃ© (pages web, images,
+        etc.) ne sera envoyÃ© a l'abonnÃ©.</dd>
       </dl>
        
     </dl>
 
     <p>
-    Référez vous à la page $HELP:SET pour plus
-    d'informations sur les modes de réceptions.
+    RÃ©fÃ©rez vous Ã  la page $HELP:SET pour plus
+    d'informations sur les modes de rÃ©ceptions.
     </p>
 
   </dd>
 </dl>
 
 <p>
-Les modes de réceptions vous offrent pas mal de
-possibilités, mais d'autres options personnelles ont juste deux
-valeurs <b>activé</b> ou <b>désactivé</b>. Cochez
-les cases a côté d'une option pour en changer sa valeur.
+Les modes de rÃ©ceptions vous offrent pas mal de
+possibilitÃ©s, mais d'autres options personnelles ont juste deux
+valeurs <b>activÃ©</b> ou <b>dÃ©sactivÃ©</b>. Cochez
+les cases a cÃ´tÃ© d'une option pour en changer sa valeur.
 </p>
 
 <dl>
   <dt>$ACKDENY_CHECKBOX ackdeny</dt>
   <dd>
-    Sélectionnez la pour avertir l'abonné lorsque l'un
-    de ses messages a été rejeté a cause d'une
-    restriction d'accès à la liste.
+    SÃ©lectionnez la pour avertir l'abonnÃ© lorsque l'un
+    de ses messages a Ã©tÃ© rejetÃ© a cause d'une
+    restriction d'accÃ¨s Ã  la liste.
   </dd>
 
   <dt>$ACKPOST_CHECKBOX ackpost</dt>
   <dd>
-    Sélectionnez la pour avertir l'abonné lorsque l'un
-    de ses messages a été accepté et est
-    délivré.
+    SÃ©lectionnez la pour avertir l'abonnÃ© lorsque l'un
+    de ses messages a Ã©tÃ© acceptÃ© et est
+    dÃ©livrÃ©.
   </dd>
 
   <dt>$ACKREJECT_CHECKBOX ackreject</dt>
   <dd>
-    Sélectionner la pour avertir l'abonné lorsque l'un
+    SÃ©lectionner la pour avertir l'abonnÃ© lorsque l'un
     de ses messages ou l'une de ses commandes a Majordomo a
-    été rejeté par un modérateur de la
+    Ã©tÃ© rejetÃ© par un modÃ©rateur de la
     liste.
   </dd>
 
   <dt>$ACKSTALL_CHECKBOX ackstall</dt>
   <dd>
-    Sélectionnez la pour avertir l'abonné lorsque l'un
-    de ses messages est mis en attente pour être validé
-    par un modérateur.
+    SÃ©lectionnez la pour avertir l'abonnÃ© lorsque l'un
+    de ses messages est mis en attente pour Ãªtre validÃ©
+    par un modÃ©rateur.
   </dd>
 
   <dt>$ELIMINATECC_CHECKBOX eliminatecc</dt>
   <dd>
-    Sélectionnez la pour éviter que l'abonné ne
-    reçoive deux copies du message lorsque quelqu'un envoie un
-    message a l'abonné et a la liste.
+    SÃ©lectionnez la pour Ã©viter que l'abonnÃ© ne
+    reÃ§oive deux copies du message lorsque quelqu'un envoie un
+    message a l'abonnÃ© et a la liste.
   </dd>
 
   <dt>$HIDEADDRESS_CHECKBOX hideaddress</dt>
   <dd>
-    Sélectionnez la pour éviter que l'adresse de
-    l'abonné n'apparaisse lorsque quelqu'un consulte la liste
-    des abonnés avec la commande $HELP:WHO.
+    SÃ©lectionnez la pour Ã©viter que l'adresse de
+    l'abonnÃ© n'apparaisse lorsque quelqu'un consulte la liste
+    des abonnÃ©s avec la commande $HELP:WHO.
   </dd>
 
   <dt>$HIDEALL_CHECKBOX hideall</dt>
   <dd>
-    Sélectionnez la pour éviter que l'adresse ou le nom
-    de l'abonné n'apparaisse lorsque quelqu'un consulte la
-    liste des abonnés avec la commande $HELP:WHO.
+    SÃ©lectionnez la pour Ã©viter que l'adresse ou le nom
+    de l'abonnÃ© n'apparaisse lorsque quelqu'un consulte la
+    liste des abonnÃ©s avec la commande $HELP:WHO.
   </dd>
 
   <dt>$HIDEPOST_CHECKBOX hidepost</dt>
   <dd>
-    Sélectionnez la pour ne pas que les messages de
-    l'abonné n'apparaissent dans l'archive publique.
+    SÃ©lectionnez la pour ne pas que les messages de
+    l'abonnÃ© n'apparaissent dans l'archive publique.
   </dd>
 
   <dt>$POSTBLOCK_CHECKBOX postblock</dt>
   <dd>
-    Sélectionnez la pour que tous les messages postés
-    par cet abonné soient modérés.
+    SÃ©lectionnez la pour que tous les messages postÃ©s
+    par cet abonnÃ© soient modÃ©rÃ©s.
   </dd>
 
   <dt>$PREFIX_CHECKBOX prefix</dt>
   <dd>
-    Sélectionnez la pour que le préfixe qui indique le
-    nom de la liste apparaisse dans l'en-tête Sujet de tous les
+    SÃ©lectionnez la pour que le prÃ©fixe qui indique le
+    nom de la liste apparaisse dans l'en-tÃªte Sujet de tous les
     messages.
   </dd>
 
   <dt>$REPLYTO_CHECKBOX replyto</dt>
   <dd>
-    Sélectionnez la pour que les réponses de cet
-    abonné soient envoyées à la liste. Sinon, les
-    réponses de l'abonné seront peut être
-    envoyées à l'auteur du message auquel
-    l'abonné réponds.
+    SÃ©lectionnez la pour que les rÃ©ponses de cet
+    abonnÃ© soient envoyÃ©es Ã  la liste. Sinon, les
+    rÃ©ponses de l'abonnÃ© seront peut Ãªtre
+    envoyÃ©es Ã  l'auteur du message auquel
+    l'abonnÃ© rÃ©ponds.
   </dd>
 
   <dt>$REWRITEFROM_CHECKBOX rewritefrom</dt>
   <dd>
-    Sélectionnez la pour modifier l'en-tête From des
-    messages que l'abonné envoie a la liste. L'en-tête
-    From contiendra alors la même chose que lorsque
-    l'abonné s'est abonné a la liste.
+    SÃ©lectionnez la pour modifier l'en-tÃªte From des
+    messages que l'abonnÃ© envoie a la liste. L'en-tÃªte
+    From contiendra alors la mÃªme chose que lorsque
+    l'abonnÃ© s'est abonnÃ© a la liste.
   </dd>
 
   <dt>$SELFCOPY_CHECKBOX selfcopy</dt>
   <dd>
-    Sélectionnez la pour que l'abonné reçoive
+    SÃ©lectionnez la pour que l'abonnÃ© reÃ§oive
     aussi les messages qu'il poste sur la liste.
   </dd>
 </dl>
 
 <p>
-$VICTIM est abonné a la liste $LIST depuis $SUBTIME.<br> Ses
-options ont été modifiées pour la dernière
+$VICTIM est abonnÃ© a la liste $LIST depuis $SUBTIME.<br> Ses
+options ont Ã©tÃ© modifiÃ©es pour la derniÃ¨re
 fois le $CHANGETIME.
 </p>

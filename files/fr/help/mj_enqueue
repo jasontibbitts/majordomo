@@ -1,54 +1,54 @@
 NOM
-    mj_enqueue - Ajouter un message au système de queue.
+    mj_enqueue - Ajouter un message au systÃ¨me de queue.
 
 DESCRIPTION
     Le programme "mj_enqueue" est un petit processus qui effectue deux
-    tâches au seing du système de queue de messages. Premièrement, il
-    stoque une copie du message dans la queue appropriée pour être
-    traîtée ensuite par le programme de traîtement de queue.
-    Deuxièmement, il tente de contacter le programme de gestion de
-    queue, "mj_queueserv", pour lui indiquer qu'un message est arrivé.
-    Si le programme de gestion de queue n'est pas déjà lancé,
+    tÃ¢ches au seing du systÃ¨me de queue de messages. PremiÃ¨rement, il
+    stoque une copie du message dans la queue appropriÃ©e pour Ãªtre
+    traÃ®tÃ©e ensuite par le programme de traÃ®tement de queue.
+    DeuxiÃ¨mement, il tente de contacter le programme de gestion de
+    queue, "mj_queueserv", pour lui indiquer qu'un message est arrivÃ©.
+    Si le programme de gestion de queue n'est pas dÃ©jÃ  lancÃ©,
     "mj_enqueue" le lancera.
 
-    Le répertoire dans lequel l'email est stoqué dépends de plusieurs
+    Le rÃ©pertoire dans lequel l'email est stoquÃ© dÃ©pends de plusieurs
     choses :
 
-    La priorité du domaine
-        La priorité du domaine vers laquelle le message a été envoyé.
+    La prioritÃ© du domaine
+        La prioritÃ© du domaine vers laquelle le message a Ã©tÃ© envoyÃ©.
 
     Le nom du domaine
-        Le nom du domaine vers lequel le message a été envoyé.
+        Le nom du domaine vers lequel le message a Ã©tÃ© envoyÃ©.
 
-    La priorité de la liste
-        La priorité de la liste à laquelle le message a été envoyé.
+    La prioritÃ© de la liste
+        La prioritÃ© de la liste Ã  laquelle le message a Ã©tÃ© envoyÃ©.
 
     Le type de message
-        Le type de message qui a été envoyé. Il y a quatre types de
+        Le type de message qui a Ã©tÃ© envoyÃ©. Il y a quatre types de
         base :
 
         list
-            Le message est supposé être distribué aux abonnés d'une
+            Le message est supposÃ© Ãªtre distribuÃ© aux abonnÃ©s d'une
             liste.
 
         majordomo
-            Le message contient des commandes qui doivent être
-            traîtées par le serveur Majordomo.
+            Le message contient des commandes qui doivent Ãªtre
+            traÃ®tÃ©es par le serveur Majordomo.
 
         owner
-            Le message est supposé être envoyé aux administrateurs ou
-            modérateurs de la liste.
+            Le message est supposÃ© Ãªtre envoyÃ© aux administrateurs ou
+            modÃ©rateurs de la liste.
 
         request
-            Le but de ce message dépendra du paramètre de
-            configuration GLOBAL "request_answer". Par défaut, les
-            commandes du message seront traîtées par le serveur.
+            Le but de ce message dÃ©pendra du paramÃ¨tre de
+            configuration GLOBAL "request_answer". Par dÃ©faut, les
+            commandes du message seront traÃ®tÃ©es par le serveur.
 
     Utilisez les commandes "help admin_domain" et "help
     configset_priority" pour en savoir plus sur les domaines
-    Majordomo et les priorités.
+    Majordomo et les prioritÃ©s.
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_domain
    help configset_priority
    help configset_request_answer

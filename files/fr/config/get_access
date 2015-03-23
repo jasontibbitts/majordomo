@@ -1,19 +1,19 @@
-Le paramètre "get_access" est utilisé pour restreindre l'accès a la
+Le paramÃ¨tre "get_access" est utilisÃ© pour restreindre l'accÃ¨s a la
 commande "get".
 
-Les valeurs suivantes sont supportées :
+Les valeurs suivantes sont supportÃ©es :
 
-  open          -  Tout le monde à accès
+  open          -  Tout le monde Ã  accÃ¨s
 
-  open+password -  Toutes les personnes enregistrées sur ce domaine si
-                   leur mot de passe est spécifié.
+  open+password -  Toutes les personnes enregistrÃ©es sur ce domaine si
+                   leur mot de passe est spÃ©cifiÃ©.
 
-  list          -  Tous les abonnés de la liste peuvent y accéder.
+  list          -  Tous les abonnÃ©s de la liste peuvent y accÃ©der.
 
-  list+password -  Tous les abonnés de la liste peuvent y accéder.
+  list+password -  Tous les abonnÃ©s de la liste peuvent y accÃ©der.
 
   closed        -  Seul les administrateurs de la liste peuvent y
-                   accéder.
+                   accÃ©der.
 
-Le paramètre "access_rules" permet de créer des règles pour passer
-outre ce paramètre.
+Le paramÃ¨tre "access_rules" permet de crÃ©er des rÃ¨gles pour passer
+outre ce paramÃ¨tre.

@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  return_subject = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : yes
-Type de donnée    : booléen, entre : 0 n no, 1 y yes
-Catégorie         : reply
+Valeur par dÃ©faut : yes
+Type de donnÃ©e    : boolÃ©en, entre : 0 n no, 1 y yes
+CatÃ©gorie         : reply
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,18 +13,18 @@ configset GLOBAL return_subject = no
 
 $INCLUDE-config/return_subject
 
-Par exemple, si le sujet originel du message étais :
+Par exemple, si le sujet originel du message Ã©tais :
   Sujet : Salut Majordomo
-et "return_subject" est actif, le sujet de la réponse sera :
+et "return_subject" est actif, le sujet de la rÃ©ponse sera :
   Sujet : Majordomo results: Salut Majordomo
-Si "return_subject" est désactivé, le sujet de la réponse sera :
+Si "return_subject" est dÃ©sactivÃ©, le sujet de la rÃ©ponse sera :
   Sujet : Majordomo results
 
-Seule les 40 premiers caractères du sujet d'origine seront utilisés
-dans la réponse si ce paramètre est activé.
+Seule les 40 premiers caractÃ¨res du sujet d'origine seront utilisÃ©s
+dans la rÃ©ponse si ce paramÃ¨tre est activÃ©.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_domain
    help configset_block_headers
    help configset_message_headers

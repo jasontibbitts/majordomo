@@ -3,9 +3,9 @@ configset liste digest_issues <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : aucune
-Type de donnée    : compilations
-Catégorie         : deliver
+Valeur par dÃ©faut : aucune
+Type de donnÃ©e    : compilations
+CatÃ©gorie         : deliver
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -18,14 +18,14 @@ EXEMPLE :
 
 $INCLUDE-config/digest_issues
 
-Pour modifier le numéro de volume d'une compilation, la commande
-"digest-incvol" devrait être utilisée. Référez vous à "help digest"
-pour plus de détails.
+Pour modifier le numÃ©ro de volume d'une compilation, la commande
+"digest-incvol" devrait Ãªtre utilisÃ©e. RÃ©fÃ©rez vous Ã  "help digest"
+pour plus de dÃ©tails.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
-   help configset_digests (sur la manière de configurer les
+   help configset_digests (sur la maniÃ¨re de configurer les
 			   compilations)
    help configset_digest_index_format
    help digest

@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname bounce_probe_pattern = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : aucune
-Type de donnée    : expression rationnelle
-Catégorie         : bounce
+Valeur par dÃ©faut : aucune
+Type de donnÃ©e    : expression rationnelle
+CatÃ©gorie         : bounce
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -12,29 +12,29 @@ configset listname bounce_probe_pattern = /exemple\.com/i
 
 $INCLUDE-config/bounce_probe_pattern
 
-Si vous recevez un message en erreur que le système automatisé n'a pu
-traiter ou qu'il n'a pas réussi à trouver quel était l'abonné
-impliqué, ou si vous pensez (peut être parce que vous savez lire les
-messages en erreur) que l'adresse qui pose problème est sur le domaine
-"exemple.com", mais vous avez sept abonnés sur ce domaine, et que vous
-ne désirez pas tous les supprimer, vous pouvez mettre /exemple\.com/
-ou "exemple.com" (avec les guillemets) dans le paramètre
+Si vous recevez un message en erreur que le systÃ¨me automatisÃ© n'a pu
+traiter ou qu'il n'a pas rÃ©ussi Ã  trouver quel Ã©tait l'abonnÃ©
+impliquÃ©, ou si vous pensez (peut Ãªtre parce que vous savez lire les
+messages en erreur) que l'adresse qui pose problÃ¨me est sur le domaine
+"exemple.com", mais vous avez sept abonnÃ©s sur ce domaine, et que vous
+ne dÃ©sirez pas tous les supprimer, vous pouvez mettre /exemple\.com/
+ou "exemple.com" (avec les guillemets) dans le paramÃ¨tre
 "bounce_probe_patterns", attendez le prochain message, et les adresses
-seront testées. Si vous aviez raison, l'adresse en erreur sera
-identifiée par le processeurs d'erreurs, et sera automatiquement
-testée jusqu'à ce qu'elle soit supprimée ou qu'elle arrête de
+seront testÃ©es. Si vous aviez raison, l'adresse en erreur sera
+identifiÃ©e par le processeurs d'erreurs, et sera automatiquement
+testÃ©e jusqu'Ã  ce qu'elle soit supprimÃ©e ou qu'elle arrÃªte de
 retourner des erreurs.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_subscribers
-   help configset_bounce_max_age   (combien de temps les données
-                                    d'erreurs seront gardées)
+   help configset_bounce_max_age   (combien de temps les donnÃ©es
+                                    d'erreurs seront gardÃ©es)
    help configset_bounce_max_count (nombre maximum d'erreurs
-                                    conservées)
-   help configset_bounce_probe_frequency (à quelle fréquence des tests
+                                    conservÃ©es)
+   help configset_bounce_probe_frequency (Ã  quelle frÃ©quence des tests
                                           sont ils fait)
-   help configset_bounce_recipients      (qui reçoit les rapports
+   help configset_bounce_recipients      (qui reÃ§oit les rapports
                                           d'erreur)
 
 $INCLUDE-help/foot

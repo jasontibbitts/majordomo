@@ -1,10 +1,10 @@
  
       $LIST:
-        Abonné comme    $FULLADDR
-        Abonné le       $SUBTIME
+        AbonnÃ© comme    $FULLADDR
+        AbonnÃ© le       $SUBTIME
         Dernier changement $CHANGETIME
-        Réception       $CLASSDESC
+        RÃ©ception       $CLASSDESC
         Messages en erreur : ?NUMBERED_BOUNCES
-        ?UNNUMBERED_BOUNCES messages en erreur sans numéro d'identification.
-        Options d'abonné :
+        ?UNNUMBERED_BOUNCES messages en erreur sans numÃ©ro d'identification.
+        Options d'abonnÃ© :
           $FLAGDESC

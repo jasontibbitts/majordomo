@@ -2,34 +2,34 @@ NOM
     mj_queueserv - Programme de gestion de queue
 
 SYNOPSIS
-    Lancé uniquement par "mj_enqueue" ; ne sera pas lancé à la main.
+    LancÃ© uniquement par "mj_enqueue" ; ne sera pas lancÃ© Ã  la main.
 
 DESCRIPTION
     "mj_queueserv", le gestionnaire de queue Majordomo, est un petit
-    programme qui gère plusieurs programmes de traîtement de queue. Il
-    est sensé être lancé par le programme "mj_enqueue". Il ne doit
-    jamais y avoir plus d'un programme "mj_queueserv" en même temps.
+    programme qui gÃ¨re plusieurs programmes de traÃ®tement de queue. Il
+    est sensÃ© Ãªtre lancÃ© par le programme "mj_enqueue". Il ne doit
+    jamais y avoir plus d'un programme "mj_queueserv" en mÃªme temps.
 
-    "mj_queueserv" fork immédiatement et se désassocie de son
-    processus père pour qu'il puisse s'executer comme un démon. Il
+    "mj_queueserv" fork immÃ©diatement et se dÃ©sassocie de son
+    processus pÃ¨re pour qu'il puisse s'executer comme un dÃ©mon. Il
     ouvre un socket et attends des connexions d'autres programmes
     Majordomo, tels "mj_enqueue", "mj_queuerun", ou "mj_shutdown". Si
-    il reste sans rien faire pour une certaine période ou si il lui
-    est demandé de s'eteindre (référez vous à la page de
+    il reste sans rien faire pour une certaine pÃ©riode ou si il lui
+    est demandÃ© de s'eteindre (rÃ©fÃ©rez vous Ã  la page de
     "mj_shutdown") il se terminera.
 
     Lorsqu'un processus "mj_enqueue" stoque un message dans la queue
     de messages, il contacte le serveur de queue et lui indique qu'un
-    message devrait être traité. Si le serveur de queue est déjà en
-    train de gérer plusieurs programmes de traîtement de queue, il
+    message devrait Ãªtre traitÃ©. Si le serveur de queue est dÃ©jÃ  en
+    train de gÃ©rer plusieurs programmes de traÃ®tement de queue, il
     tentera de les contacter pour en trouver un de disponible. Si il
     n'y en a pas de disponible et que le nombre maximum de programmes
-    de traîtement de queue n'est pas atteint, le gestionnaire de queue
-    en lancera un. Si un nouveau programme de traîtement de queue ne
-    peut pas être traité, le gestionnaire de queue note que le systeme
-    est occupé et attends le prochain message venant de "mj_queuerun".
+    de traÃ®tement de queue n'est pas atteint, le gestionnaire de queue
+    en lancera un. Si un nouveau programme de traÃ®tement de queue ne
+    peut pas Ãªtre traitÃ©, le gestionnaire de queue note que le systeme
+    est occupÃ© et attends le prochain message venant de "mj_queuerun".
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help mj_email
    help mj_enqueue
    help mj_queuerun

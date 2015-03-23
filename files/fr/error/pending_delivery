@@ -1,5 +1,5 @@
-Le message $MSGNO n'a pas été supprimé.
-Le message est toujours en attente d'être envoyé dans une ou plusieurs
+Le message $MSGNO n'a pas Ã©tÃ© supprimÃ©.
+Le message est toujours en attente d'Ãªtre envoyÃ© dans une ou plusieurs
 compilations pour la liste $LIST. Pour forcer la suppression, utilisez
 la commande :
   archive-delete-force $LIST $MSGNO

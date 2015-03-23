@@ -3,9 +3,9 @@ configset liste ack_attach_original <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : fail stall
-Type de donnée    : énumérée, entre : fail reject stall succeed all
-Catégorie         : reply
+Valeur par dÃ©faut : fail stall
+Type de donnÃ©e    : Ã©numÃ©rÃ©e, entre : fail reject stall succeed all
+CatÃ©gorie         : reply
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -17,24 +17,24 @@ ENDTAG
 $INCLUDE-config/ack_attach_original
 
 Le fait d'inclure le message original lors d'une confirmation peut
-aider le destinataire à avoir une meilleur idée de quel message parle
+aider le destinataire Ã  avoir une meilleur idÃ©e de quel message parle
 cette confirmation.
 
-Le message de confirmation lui même peut être choisi en utilisant
-l'action "replyfile" du paramètre "access_rules" pour les résultat
-"fail" et "stall". Par défaut, les messages de confirmation utilisés
-sont "ack_success", "ack_stall", "rejection", et "ack_denial". Référez
-vous à "help reply_files" pour une description complète de chaque
+Le message de confirmation lui mÃªme peut Ãªtre choisi en utilisant
+l'action "replyfile" du paramÃ¨tre "access_rules" pour les rÃ©sultat
+"fail" et "stall". Par dÃ©faut, les messages de confirmation utilisÃ©s
+sont "ack_success", "ack_stall", "rejection", et "ack_denial". RÃ©fÃ©rez
+vous Ã  "help reply_files" pour une description complÃ¨te de chaque
 fichier.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_moderate
-   help configset_access_rules  (pour savoir comment spécifier les
-                                 fichiers de réponses (replyfiles))
-   help configset_default_flags (pour pré régler les paramètres "ack")
+   help configset_access_rules  (pour savoir comment spÃ©cifier les
+                                 fichiers de rÃ©ponses (replyfiles))
+   help configset_default_flags (pour prÃ© rÃ©gler les paramÃ¨tres "ack")
    help configset_nonmember_flags
    help reply_files
-   help set                     (pour régler paramètre des abonnés)
+   help set                     (pour rÃ©gler paramÃ¨tre des abonnÃ©s)
 
 $INCLUDE-help/foot

@@ -61,37 +61,37 @@
 
 <p>
 Ce formulaire de commandes vous permet d'envoyer des commandes
-administratives à Majordomo. Certaines de ces commandes, comme
+administratives Ã  Majordomo. Certaines de ces commandes, comme
 <b>report-summary</b>, ont un tiret dans leur nom. Le morceau qui suit
-le tiret est appelé le <i>mode de commande</i>.
+le tiret est appelÃ© le <i>mode de commande</i>.
 </p>
 <p>
-Il y a plusieurs étapes requises pour utiliser ce formulaire.
+Il y a plusieurs Ã©tapes requises pour utiliser ce formulaire.
 </p>
 <ol>
   <li>Choisir la commande dans le menu <b>Commande</b>.</li>
 
-  <li>Assurez vous que la liste spécifiée dans
+  <li>Assurez vous que la liste spÃ©cifiÃ©e dans
   <b>Liste</b> est correcte.</li>
 
   <li>Un mot de passe administratif est requis pour utiliser ce
-  formulaire. Le mot de passe de votre liste doit déjà
-  être marqué par 14 astérisques dans le champ
+  formulaire. Le mot de passe de votre liste doit dÃ©jÃ 
+  Ãªtre marquÃ© par 14 astÃ©risques dans le champ
   <b>Mot de passe</b>. Si ce n'est pas le cas, entrez un mot de passe
   administratif dans le champ.  An administrative password is required
   to use this form.</li>
 
   <li>Si il y a besoin de plus d'informations pour cette commande,
-  ajoutez ces informations dans le champ juste à droite du
+  ajoutez ces informations dans le champ juste Ã  droite du
   menu.</li>
 
   <li>Appuyez sur le bouton <b>Executer la commande</b>.</li>
 </ol>
 
 <p>
-Pour en savoir plus a propos d'une commande particulière,
-sélectionnez <b>help</b> dans le menu de commandes, tapez le
-nom de la commande (sans le mode) dans le champ à droit, et
+Pour en savoir plus a propos d'une commande particuliÃ¨re,
+sÃ©lectionnez <b>help</b> dans le menu de commandes, tapez le
+nom de la commande (sans le mode) dans le champ Ã  droit, et
 appuyez sur le bouton <b>Executer la commande</b>. Vous verrez une
 description de ce que fait la commande en question.
 </p>

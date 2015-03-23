@@ -1,18 +1,18 @@
-La liste $NEWLIST a été créée.
+La liste $NEWLIST a Ã©tÃ© crÃ©Ã©e.
 
-Les propriétaires de la liste sont :
+Les propriÃ©taires de la liste sont :
   $OWNERS
 
 Le mot de passe administratif de la liste est $PASSWORD
 
-?WELCOME Le guide concernant les nouveaux propriétaires a été envoyé
-?WELCOME à chaque gestionnaire.
-?NOARCHIVE La liste n'a pas encore de répertoire pour contenir les
+?WELCOME Le guide concernant les nouveaux propriÃ©taires a Ã©tÃ© envoyÃ©
+?WELCOME Ã  chaque gestionnaire.
+?NOARCHIVE La liste n'a pas encore de rÃ©pertoire pour contenir les
 ?NOARCHIVE archives.
-?INACTIVE Le paramètre de configuration "active" doit être activé
+?INACTIVE Le paramÃ¨tre de configuration "active" doit Ãªtre activÃ©
 ?INACTIVE pour pouvoir utiliser cette liste.
 
-Si les alias ont besoin d'être mis a jours, ils sont affiché ci dessous :
+Si les alias ont besoin d'Ãªtre mis a jours, ils sont affichÃ© ci dessous :
 
 ?ALIASES
 

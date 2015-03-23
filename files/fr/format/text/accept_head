@@ -1,8 +1,8 @@
-Le ticket $TOKEN a été accepté pour la commande :
+Le ticket $TOKEN a Ã©tÃ© acceptÃ© pour la commande :
   Commande : $CMDLINE
   De :       ?REQUESTER
   Date :     $DATE
   Session :  $SESSIONID
 
-Le résultat de la commande est :
+Le rÃ©sultat de la commande est :
 

@@ -9,17 +9,17 @@
 
   <input type="radio" name="func" value="digest-check" checked>
     digest-check&nbsp;:
-    Procéder a l'envoi de la compilation &dquot;$DIGESTNAME&dquot;
-    immédiatement si les conditions sont bonnes.<br>
+    ProcÃ©der a l'envoi de la compilation &dquot;$DIGESTNAME&dquot;
+    immÃ©diatement si les conditions sont bonnes.<br>
 
   <input type="radio" name="func" value="digest-force">
     digest-force&nbsp;:
     Forcer l'envoi de la compilation &dquot;$DIGESTNAME&dquot;
-    immédiatement.<br>
+    immÃ©diatement.<br>
 
   <input type="radio" name="func" value="digest-incvol">
     digest-incvol&nbsp;:
-    Incrémente le numéro de volume de &quot;$DIGESTNAME&quot;
+    IncrÃ©mente le numÃ©ro de volume de &quot;$DIGESTNAME&quot;
     d'un.<br>
 
   <input type="submit" value="Issue Command">
@@ -33,15 +33,15 @@
 
 <tr><td>Dernier envoi</td>                     <td>?LAST_RUN</td></tr>
 
-<tr><td>Prochain envoi le ou après</td>        <td>?NEXT_RUN</td></tr>
+<tr><td>Prochain envoi le ou aprÃ¨s</td>        <td>?NEXT_RUN</td></tr>
 
-<tr><td>Âge du plus vieux message</td>         <td>?OLDEST_AGE</td></tr>
+<tr><td>Ã‚ge du plus vieux message</td>         <td>?OLDEST_AGE</td></tr>
 
-<tr><td>Âge maximal permis</td>                <td>?MAX_AGE</td></tr>
+<tr><td>Ã‚ge maximal permis</td>                <td>?MAX_AGE</td></tr>
 
-<tr><td>Âge of newest message</td>             <td>?NEWEST_AGE</td></tr>
+<tr><td>Ã‚ge of newest message</td>             <td>?NEWEST_AGE</td></tr>
 
-<tr><td>Âge minimum requis</td>                <td>?MIN_AGE</td></tr>
+<tr><td>Ã‚ge minimum requis</td>                <td>?MIN_AGE</td></tr>
 
 <tr><td>Nombre minimal de messages</td>        <td>?MIN_MSGS</td></tr>
 

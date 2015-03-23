@@ -2,56 +2,56 @@
 intro[-edit] liste
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 liste, requis, une liste de ce domaine.
--edit, si spécifié, rends le document intro facile à éditer et
+-edit, si spÃ©cifiÃ©, rends le document intro facile Ã  Ã©diter et
        remplacer
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 La commande "intro" affiche le message d'introduction d'une liste, si
 il existe.
 
-Dans les versions récentes de Majordomo 1, le document "intro" est
-envoyé comme message de bienvenue aux nouveaux abonnés lorsqu'ils
-s'abonnent. Majordomo 2 enverra le document "info" à la place. Le
-résultat est que le document "intro" n'est en général pas utilisé. et
-cette commande n'est supportée que pour des raisons de compatibilité.
+Dans les versions rÃ©centes de Majordomo 1, le document "intro" est
+envoyÃ© comme message de bienvenue aux nouveaux abonnÃ©s lorsqu'ils
+s'abonnent. Majordomo 2 enverra le document "info" Ã  la place. Le
+rÃ©sultat est que le document "intro" n'est en gÃ©nÃ©ral pas utilisÃ©. et
+cette commande n'est supportÃ©e que pour des raisons de compatibilitÃ©.
 
-Le paramètre de configuration "welcome_files" peut être ajusté pour
+Le paramÃ¨tre de configuration "welcome_files" peut Ãªtre ajustÃ© pour
 utiliser le document "intro" comme message de bienvenue, si le
-propriétaire de la liste le préfère.
+propriÃ©taire de la liste le prÃ©fÃ¨re.
 
-Le document "intro" supporte les variables de substitutions (référez
-vous à "help variables" pour plus de détails).
+Le document "intro" supporte les variables de substitutions (rÃ©fÃ©rez
+vous Ã  "help variables" pour plus de dÃ©tails).
 
-Le mode de commande "edit" permet d'éditer et remplacer simplement le
+Le mode de commande "edit" permet d'Ã©diter et remplacer simplement le
 document existant. Par exemple, la commande :
   intro-edit liste-test
 
-affichera le contenu du document "intro" entouré d'une commande
+affichera le contenu du document "intro" entourÃ© d'une commande
 "newintro" :
 
 newintro liste-test <<ADGBEH
 
-La liste-test est ouverte à tous ceux qui s'intéressent au nouveau
-Majordomo présent sur \$SITE. Toutefois, cette liste est
-modérée pour éviter les débordements. Si vous avez des questions à
-propos de la modération, écrivez à \$OWNER.
+La liste-test est ouverte Ã  tous ceux qui s'intÃ©ressent au nouveau
+Majordomo prÃ©sent sur \$SITE. Toutefois, cette liste est
+modÃ©rÃ©e pour Ã©viter les dÃ©bordements. Si vous avez des questions Ã 
+propos de la modÃ©ration, Ã©crivez Ã  \$OWNER.
 ADGBEH
 
-Référez vous à "help here_document" et "help newintro" pour plus
+RÃ©fÃ©rez vous Ã  "help here_document" et "help newintro" pour plus
 d'informations sur le remplacement du document "intro".
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_documents (pour en savoir plus sur l'espace de stockage
                          d'une liste)
-   help configset_access_rules  (pour restreindre l'accès à cette
+   help configset_access_rules  (pour restreindre l'accÃ¨s Ã  cette
                                  commande)
-   help configset_intro_access  (pour restreindre l'accès à cette
+   help configset_intro_access  (pour restreindre l'accÃ¨s Ã  cette
                                  commande)
    help configset_welcome_files (pour modifier le message de bienvenue)
-   help get   (pour un autre moyen de récupérer ce fichier)
+   help get   (pour un autre moyen de rÃ©cupÃ©rer ce fichier)
    help faq  (un autre document en relation avec la liste)
    help info (un autre document en relation avec la liste)
-   help newintro (pour créer ou remplacer le document "intro")
+   help newintro (pour crÃ©er ou remplacer le document "intro")
 
 $INCLUDE-help/foot

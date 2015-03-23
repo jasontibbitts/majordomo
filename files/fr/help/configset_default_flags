@@ -3,9 +3,9 @@ configset liste default_flags <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : (prefix replyto selfcopy)
-Type de donnée    : énumérée, listes des paramètres personnels
-Catégorie         : reply deliver
+Valeur par dÃ©faut : (prefix replyto selfcopy)
+Type de donnÃ©e    : Ã©numÃ©rÃ©e, listes des paramÃ¨tres personnels
+CatÃ©gorie         : reply deliver
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -17,23 +17,23 @@ LLL
 
 $INCLUDE-config/default_flags
 
-NOTE : Cela fournit les paramètres par défaut des nouveaux abonnés.
-Une fois abonné, la personne peut modifier ses paramètre pour chaque
+NOTE : Cela fournit les paramÃ¨tres par dÃ©faut des nouveaux abonnÃ©s.
+Une fois abonnÃ©, la personne peut modifier ses paramÃ¨tre pour chaque
 abonnement et pour chaque liste.
 
-Référez vous à "help set" pour plus d'informations, ainsi que sur les
-compilations et le mode de non réception de messages, et une meilleur
+RÃ©fÃ©rez vous Ã  "help set" pour plus d'informations, ainsi que sur les
+compilations et le mode de non rÃ©ception de messages, et une meilleur
 description de ce que chaque option fait.
 
 
-Référez vous aussi à :
-   help configset_allowed_flags   (restreint les possibilités des
+RÃ©fÃ©rez vous aussi Ã  :
+   help configset_allowed_flags   (restreint les possibilitÃ©s des
                                    utilisateurs)
-   help configset_default_class   (contrôle le type de réception
+   help configset_default_class   (contrÃ´le le type de rÃ©ception
                                    'digest', 'each', etc)
-   help configset_nonmember_flags (règle les options par défaut des
-                                   non abonnés)
-   help set       (pour savoir comment un utilisateur peut règler ses
+   help configset_nonmember_flags (rÃ¨gle les options par dÃ©faut des
+                                   non abonnÃ©s)
+   help set       (pour savoir comment un utilisateur peut rÃ¨gler ses
                    options avec la commande "set")
 
 $INCLUDE-help/foot

@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste archive_size = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : "unlimited" (pas de limite)
-Type de donnée    : chaîne
-Catégorie         : archive
+Valeur par dÃ©faut : "unlimited" (pas de limite)
+Type de donnÃ©e    : chaÃ®ne
+CatÃ©gorie         : archive
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -15,20 +15,20 @@ $INCLUDE-config/archive_size
 
 Si la taille de l'archive est "unlimited", chaque fichier d'archive
 inclura le nom de la liste, suivi d'un point et d'une date,
-déterminée par le paramètre "archive_split". Par exemple, l'archive de
+dÃ©terminÃ©e par le paramÃ¨tre "archive_split". Par exemple, l'archive de
 Juin 2001 de la liste poire pourra avoir le nom suivant :
   poire.200106
 
-Si la taille  de l'archive est limitée, le nom de fichier sera suivi
-d'un tiret et de 2 chiffres. Par exemple, si la liste poire à une
-limite de 50 messages, les messages d'Août 2001 seront découpés dans
+Si la taille  de l'archive est limitÃ©e, le nom de fichier sera suivi
+d'un tiret et de 2 chiffres. Par exemple, si la liste poire Ã  une
+limite de 50 messages, les messages d'AoÃ»t 2001 seront dÃ©coupÃ©s dans
 trois archives :
   poire.200108-00
   poire.200108-01
   poire.200108-02
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
    help archive
    help configset_archive_access

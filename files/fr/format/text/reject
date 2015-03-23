@@ -1,10 +1,10 @@
-Le ticket $TOKEN a été rejeté pour la requête :
+Le ticket $TOKEN a Ã©tÃ© rejetÃ© pour la requÃªte :
   Commande : $CMDLINE
   De :       ?REQUESTER
   Date :     $DATE
   Session :  $SESSIONID
 
-?NOTIFIED Un message de notice a été envoyé à $VICTIM.
+?NOTIFIED Un message de notice a Ã©tÃ© envoyÃ© Ã  $VICTIM.
 
 ?ERROR
 

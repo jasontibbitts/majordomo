@@ -1,6 +1,6 @@
-Le paramètre "archive_date" détermine quelle date est utilisée lorsque
-les messages postés sont stockés dans l'archive. Il y a deux
-possibilités, "arrival" pour la date d'arrivée, et "delivery" pour la
-date d'envoi. Ces deux dates peuvent différer lorsqu'un message est
-modéré, et que les modérateurs ne l'approuvent pas le jour de son
-arrivée.
+Le paramÃ¨tre "archive_date" dÃ©termine quelle date est utilisÃ©e lorsque
+les messages postÃ©s sont stockÃ©s dans l'archive. Il y a deux
+possibilitÃ©s, "arrival" pour la date d'arrivÃ©e, et "delivery" pour la
+date d'envoi. Ces deux dates peuvent diffÃ©rer lorsqu'un message est
+modÃ©rÃ©, et que les modÃ©rateurs ne l'approuvent pas le jour de son
+arrivÃ©e.

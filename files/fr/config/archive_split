@@ -1,5 +1,5 @@
-Un mot décrivant comment les archives devraient être découpées. Voici
-les possibilités, ainsi que quelques exemples de noms de fichiers
+Un mot dÃ©crivant comment les archives devraient Ãªtre dÃ©coupÃ©es. Voici
+les possibilitÃ©s, ainsi que quelques exemples de noms de fichiers
 d'archives :
 
   yearly    - LISTE.1999        un fichier par an
@@ -8,5 +8,5 @@ d'archives :
   weekly    - LISTE.2002102     un fichier par semaine
   daily     - LISTE.20011101    un fichier par jour
 
-La modification de ce paramètre n'affectera que les nouveaux fichier
-d'archives ; les anciens ne seront pas altérés.
+La modification de ce paramÃ¨tre n'affectera que les nouveaux fichier
+d'archives ; les anciens ne seront pas altÃ©rÃ©s.

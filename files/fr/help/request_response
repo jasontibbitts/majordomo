@@ -4,25 +4,25 @@ request_response liste <<TAG
 liste, requise, est le nom d'une liste
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-L'action "request_response" est utilisé dans dans les paramètre de
-configuration "access_rules" pour déterminer qui a accès à un
-répondeur automatique.
+L'action "request_response" est utilisÃ© dans dans les paramÃ¨tre de
+configuration "access_rules" pour dÃ©terminer qui a accÃ¨s Ã  un
+rÃ©pondeur automatique.
 
-Chaque liste possède un alias email "-request". normalement, les
-messages envoyés à cette adresse seront traités comme si ils avaient
-été envoyés au serveur à $MJ.
+Chaque liste possÃ¨de un alias email "-request". normalement, les
+messages envoyÃ©s Ã  cette adresse seront traitÃ©s comme si ils avaient
+Ã©tÃ© envoyÃ©s au serveur Ã  $MJ.
 
 il est possible de configurer l'adresse "-request" pour envoyer
-automatiquement un message en réponse. Cela sera effectif avec la
+automatiquement un message en rÃ©ponse. Cela sera effectif avec la
 commande suivante :
 
   configset GLOBAL request_answer = response
 
-Cela modifie toutes les listes du domaine. Il n'y à pas de possibilité
+Cela modifie toutes les listes du domaine. Il n'y Ã  pas de possibilitÃ©
 de modifier cela liste par liste.
 
-Les administrateurs du domaine peuvent vouloir restreindre l'accès aux
-réponses automatiques en utilisant le paramètre "access_rules" sur la
+Les administrateurs du domaine peuvent vouloir restreindre l'accÃ¨s aux
+rÃ©ponses automatiques en utilisant le paramÃ¨tre "access_rules" sur la
 liste GLOBAL. Par exemple, la commande suivante :
 
 configset GLOBAL access_rules <<LLL
@@ -31,10 +31,10 @@ deny
 !/exemple.fr/
 LLL
 
-N'autoriserai l'accès qu'aux gens venant du domaine "exemple.fr".
+N'autoriserai l'accÃ¨s qu'aux gens venant du domaine "exemple.fr".
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help access_variables 
    help admin_documents
    help configset_access_rules

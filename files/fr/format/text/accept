@@ -1,13 +1,13 @@
-Le ticket $TOKEN a été accepté pour la requête :
+Le ticket $TOKEN a Ã©tÃ© acceptÃ© pour la requÃªte :
   Commande : $CMDLINE
   De :       ?REQUESTER
   Date :     $DATE
   Session :  $SESSIONID
 
-La commande a réussi. ?SUCCEED
-La commande est en attente, et peut nécessiter une approbation. ?STALL
-La commande a échouée. ?FAIL
-Les résultats ont été envoyés a $VICTIM. ?NOTIFIED
+La commande a rÃ©ussi. ?SUCCEED
+La commande est en attente, et peut nÃ©cessiter une approbation. ?STALL
+La commande a Ã©chouÃ©e. ?FAIL
+Les rÃ©sultats ont Ã©tÃ© envoyÃ©s a $VICTIM. ?NOTIFIED
 
 ?ERROR
 

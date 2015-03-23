@@ -1,10 +1,10 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  advertise_subscribed = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : yes
-Type de donnée    : booléen, entre : 0 n no, 1 y yes
-Catégorie         : address
-Mot de passe      : Visible avec un mot de passe. Modifiée avec le mot
+Valeur par dÃ©faut : yes
+Type de donnÃ©e    : boolÃ©en, entre : 0 n no, 1 y yes
+CatÃ©gorie         : address
+Mot de passe      : Visible avec un mot de passe. ModifiÃ©e avec le mot
 		    de passe global.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -14,12 +14,12 @@ configset GLOBAL advertise_subscribed = 1
 
 $INCLUDE-config/advertise_subscribed
 
-Si ce paramètre est désactivé, les "access_rules", ainsi que les
-paramètres "noadvertise" et "advertise" sont examinés pour déterminer
+Si ce paramÃ¨tre est dÃ©sactivÃ©, les "access_rules", ainsi que les
+paramÃ¨tres "noadvertise" et "advertise" sont examinÃ©s pour dÃ©terminer
 si cette liste est visible.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help configset_access_rules
    help configset_advertise
    help configset_noadvertise

@@ -1,29 +1,29 @@
 <!-- Majordomo newlist format file -->
 <pre>$ERROR</pre>
 
-<h4 align=center>Créer une liste</h4>
+<h4 align=center>CrÃ©er une liste</h4>
 <p>
 <ol>
 
   <li>
     Entrez le nom de la nouvelle liste dans le champ <b>Nom de la
-      liste</b>. Les noms de listes peuvent être composés
-    de lettres, chiffres, tiret (-), souligné (_), ou point
+      liste</b>. Les noms de listes peuvent Ãªtre composÃ©s
+    de lettres, chiffres, tiret (-), soulignÃ© (_), ou point
     (.). Les noms de listes ne sont pas sensibles a la casse&nbsp;:
-    les minuscules et les majuscules sont traitées de
-    manière identique.
+    les minuscules et les majuscules sont traitÃ©es de
+    maniÃ¨re identique.
 
   <li>
-    Si vous avez envie de spécifier un mot de passe pour cette
+    Si vous avez envie de spÃ©cifier un mot de passe pour cette
     nouvelle liste, entrez le dans le champ <b>mot de passe</b>. Le
     mot de passe doit au moins faire $PWLENGTH de long.
 
   <li>
-    Entrez l'adresse email des propriétaires dans le grand
+    Entrez l'adresse email des propriÃ©taires dans le grand
     champ.  Mettez une adresse email par ligne.
 
   <li>
-    Appuyez sur le bouton <b>createlist</b> pour créer la
+    Appuyez sur le bouton <b>createlist</b> pour crÃ©er la
     liste.
 
 </ol>
@@ -71,7 +71,7 @@
   <input type="submit" name="func" value="createlist-rename">
 </form>
 
-<h4 align="center">Détruire une liste</h4>
+<h4 align="center">DÃ©truire une liste</h4>
 <p>
 <ol>
   <li>
@@ -79,7 +79,7 @@
 
   <li>
     Appuyez sur le bouton <b>createlist-destroy</b> pour
-    détruire la liste.
+    dÃ©truire la liste.
 
 </ol>
 </p>

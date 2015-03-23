@@ -2,34 +2,34 @@ NOM
     mj_email - Interface email de Majordomo
 
 DESCRIPTION
-    L'interface email de Majordomo, mj_email, traite 4 différents
+    L'interface email de Majordomo, mj_email, traite 4 diffÃ©rents
     types de messages :
 
     list
-        Le message est supposé être distribué aux abonnés d'une liste.
+        Le message est supposÃ© Ãªtre distribuÃ© aux abonnÃ©s d'une liste.
 
     majordomo
-        Le message contient des commandes qui doivent être traîtées
+        Le message contient des commandes qui doivent Ãªtre traÃ®tÃ©es
         par le serveur Majordomo.
 
     owner
-        Le message est supposé être envoyé aux administrateurs ou
-        modérateurs de la liste.
+        Le message est supposÃ© Ãªtre envoyÃ© aux administrateurs ou
+        modÃ©rateurs de la liste.
 
     request
-        Le but de ce message dépendra du paramètre de configuration
-        GLOBAL "request_answer". Par défaut, les commandes du message
-        seront traîtées par le serveur.
+        Le but de ce message dÃ©pendra du paramÃ¨tre de configuration
+        GLOBAL "request_answer". Par dÃ©faut, les commandes du message
+        seront traÃ®tÃ©es par le serveur.
 
-    La commande "mj_email" a été supplantée par trois programmes qui
+    La commande "mj_email" a Ã©tÃ© supplantÃ©e par trois programmes qui
     constituent le systeme de gestion de queue de Majordomo :
-    "mj_enqueue", "mj_queueserv" et "mj_queuerun". Le système de
-    gestion de queue limite le nombre de programmes qui peuvent être
-    utilisés en même temps. Le résultat est que le système de queue
-    permet de traîter plus efficacement les périodes de forte
-    activités.
+    "mj_enqueue", "mj_queueserv" et "mj_queuerun". Le systÃ¨me de
+    gestion de queue limite le nombre de programmes qui peuvent Ãªtre
+    utilisÃ©s en mÃªme temps. Le rÃ©sultat est que le systÃ¨me de queue
+    permet de traÃ®ter plus efficacement les pÃ©riodes de forte
+    activitÃ©s.
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help configset_aliases
    help configset_request_answer
    help mj_enqueue

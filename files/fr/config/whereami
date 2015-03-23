@@ -1,5 +1,5 @@
-Le paramètre de configuration "whereami" devrait contenir le nom de
+Le paramÃ¨tre de configuration "whereami" devrait contenir le nom de
 domaine entier du serveur, comme  "machine.exemple.com" si vous voulez
 que les utilisateurs envoient a des adresses comme
-"LISTE@machine.exemple.com". Ce paramètre s'applique uniquement a la
+"LISTE@machine.exemple.com". Ce paramÃ¨tre s'applique uniquement a la
 pseudo liste GLOBAL.

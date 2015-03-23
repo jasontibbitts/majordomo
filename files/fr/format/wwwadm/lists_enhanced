@@ -1,10 +1,10 @@
 <!-- Majordomo lists_enhanced format file -->
 <pre>
-  Abonnements trouvées pour $USER&nbsp;: $SUBSCRIPTIONS 
-  un '+' apparait à côté des listes où vous êtes
-  abonnés.
-  Utilisez la commande 'info' pour en savoir plus à propos d'une
+  Abonnements trouvÃ©es pour $USER&nbsp;: $SUBSCRIPTIONS 
+  un '+' apparait Ã  cÃ´tÃ© des listes oÃ¹ vous Ãªtes
+  abonnÃ©s.
+  Utilisez la commande 'info' pour en savoir plus Ã  propos d'une
   liste.
-  Utilisez la commande 'show' pour avoir plus d'informations à propos
+  Utilisez la commande 'show' pour avoir plus d'informations Ã  propos
   de vos abonnements.
 </pre>

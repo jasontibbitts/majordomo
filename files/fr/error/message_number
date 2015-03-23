@@ -1,8 +1,8 @@
-Les commandes "edit, "part" et "replace" nécessitent qu'un numéro de
-message leur soit passé. Le message dont vous avez entré le numéro :
+Les commandes "edit, "part" et "replace" nÃ©cessitent qu'un numÃ©ro de
+message leur soit passÃ©. Le message dont vous avez entrÃ© le numÃ©ro :
 
   $MSGNO
 
-ne correspond a aucun numéro de message dans l'archive de la liste
+ne correspond a aucun numÃ©ro de message dans l'archive de la liste
 $LIST.
 

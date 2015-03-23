@@ -1,6 +1,6 @@
-Le paramètre "log_lifetime" contient un nombre de jours pendant lequel
-les entrées de log de Majordomo seront gardées. Majordomo enregistre
-au moins une ligne dans son log par action effectuée (commande,
-message sur une liste, etc). Si une requête affecte plusieurs adresses
-(par exemple, si plusieurs adresses sont abonnées a une liste en une
-seule commande), une ligne sera enregistrée par adresse.
+Le paramÃ¨tre "log_lifetime" contient un nombre de jours pendant lequel
+les entrÃ©es de log de Majordomo seront gardÃ©es. Majordomo enregistre
+au moins une ligne dans son log par action effectuÃ©e (commande,
+message sur une liste, etc). Si une requÃªte affecte plusieurs adresses
+(par exemple, si plusieurs adresses sont abonnÃ©es a une liste en une
+seule commande), une ligne sera enregistrÃ©e par adresse.

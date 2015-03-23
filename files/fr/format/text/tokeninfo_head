@@ -1,5 +1,5 @@
 Informations sur le ticket $TOKEN :
-Généré le :       $DATE
+GÃ©nÃ©rÃ© le :       $DATE
 Par :             $REQUESTER
 Type :            $TYPE
 Par la commande : $CMDLINE

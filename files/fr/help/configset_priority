@@ -3,9 +3,9 @@ configset GLOBAL priority = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset liste priority = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : 10
-Type de donnée    : entier
-Catégorie         : miscellany
+Valeur par dÃ©faut : 10
+Type de donnÃ©e    : entier
+CatÃ©gorie         : miscellany
 Mot de passe      : Le mot de passe du site est disponible pour
                     modifier cette valeur
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -15,23 +15,23 @@ configset liste priority = 15
 
 $INCLUDE-config/priority
 
-Ce paramètre n'a de sens que si la mise en attente des message est
-utilisée, et si qmail n'est pas le serveur d'emails.
+Ce paramÃ¨tre n'a de sens que si la mise en attente des message est
+utilisÃ©e, et si qmail n'est pas le serveur d'emails.
 
-Les message entrants sont traités par le programme "mj_enqueue".
-"mj_enqueue" possède deux options, '-P' et '-p', qui sont utilisées
-pour déterminer la priorité du domaine, et de la liste à laquelle le
-message est envoyé. Si ces options ne sont pas utilisées, "mj_enqueue"
-prendra la valeur par défaut qui est 10. Un numéro plus élevé signifie
-une priorité plus élevée, et les domaines avec des priorités plus
-élevées seront toujours traités plus vite que les autres. quelquesoit
-la priorité de leurs listes.
+Les message entrants sont traitÃ©s par le programme "mj_enqueue".
+"mj_enqueue" possÃ¨de deux options, '-P' et '-p', qui sont utilisÃ©es
+pour dÃ©terminer la prioritÃ© du domaine, et de la liste Ã  laquelle le
+message est envoyÃ©. Si ces options ne sont pas utilisÃ©es, "mj_enqueue"
+prendra la valeur par dÃ©faut qui est 10. Un numÃ©ro plus Ã©levÃ© signifie
+une prioritÃ© plus Ã©levÃ©e, et les domaines avec des prioritÃ©s plus
+Ã©levÃ©es seront toujours traitÃ©s plus vite que les autres. quelquesoit
+la prioritÃ© de leurs listes.
 
-La modification de ce paramètre ne prendra pas effet tant que la
-commande "createlist-regen" n'aura pas été lancée pour régénérer les
+La modification de ce paramÃ¨tre ne prendra pas effet tant que la
+commande "createlist-regen" n'aura pas Ã©tÃ© lancÃ©e pour rÃ©gÃ©nÃ©rer les
 alias email.
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_domain
    help createlist
 

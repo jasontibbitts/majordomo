@@ -21,6 +21,6 @@
   <td align="center"><input type="checkbox" name="$ADDRESS" value="$SETTINGS" $SETTING_CHECKED>
 </tr>
 <tr><td colspan="12">Message de diagnostique du dernier message revenu en erreur&nbsp;: ?BOUNCE_DIAGNOSTIC </td></tr>
-<tr><td colspan="12">Erreurs dans la semaine écoulée&nbsp;: ?BOUNCE_WEEK </td></tr>
-<tr><td colspan="12">Erreurs dans le mois écoulé&nbsp;: ?BOUNCE_MONTH </td></tr>
+<tr><td colspan="12">Erreurs dans la semaine Ã©coulÃ©e&nbsp;: ?BOUNCE_WEEK </td></tr>
+<tr><td colspan="12">Erreurs dans le mois Ã©coulÃ©&nbsp;: ?BOUNCE_MONTH </td></tr>
 <tr><td colspan="12">Nombre d'erreurs&nbsp;: ?BOUNCE_NUMBERS </td></tr>

@@ -1,4 +1,4 @@
-Le paramètre "max_mime_header_length" règle la taille maximum de
-l'en-tête d'un volet MIME. Réglez la à 0 pour désactiver la taille
-maximum. La taille, ainsi qu'un booléen pour excès de cette limite
-peuvent être utilisés dans "access_rules".
+Le paramÃ¨tre "max_mime_header_length" rÃ¨gle la taille maximum de
+l'en-tÃªte d'un volet MIME. RÃ©glez la Ã  0 pour dÃ©sactiver la taille
+maximum. La taille, ainsi qu'un boolÃ©en pour excÃ¨s de cette limite
+peuvent Ãªtre utilisÃ©s dans "access_rules".

@@ -1,7 +1,7 @@
-C'était le document d'aide "$TOPIC" de
+C'Ã©tait le document d'aide "$TOPIC" de
 Majordomo 2, version $VERSION.
 
 Pour la liste de tous les documents d'aide, envoyez la commande
 suivante :
    help topics
-dans le corps d'un message à $MJ.
+dans le corps d'un message Ã  $MJ.

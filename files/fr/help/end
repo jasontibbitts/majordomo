@@ -2,26 +2,26 @@
 end
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-Les quatre commandes ".", "exit", "quit" et "stop" sont équivalentes
-à "end".
+Les quatre commandes ".", "exit", "quit" et "stop" sont Ã©quivalentes
+Ã  "end".
 
-La commande "end" demande à Majordomo d'arrêter de lire les commandes
+La commande "end" demande Ã  Majordomo d'arrÃªter de lire les commandes
 d'un email, ou termine l'interface interactive "mj_shell". Lors de
-l'analyse d'un email, Majordomo s'arrêtera si il trouve une liste qui
-correspond à un motif de "configset GLOBAL signature_separator" (par
-défaut, c'est une ligne séparant par un tiret ou un caractère
-souligné).
+l'analyse d'un email, Majordomo s'arrÃªtera si il trouve une liste qui
+correspond Ã  un motif de "configset GLOBAL signature_separator" (par
+dÃ©faut, c'est une ligne sÃ©parant par un tiret ou un caractÃ¨re
+soulignÃ©).
 
-La commande "end" est une manière d'ignorer automatiquement les
-signatures insérées, mais souvenez vous que voue devez absolument
-n'avoir aucun texte inséré au début du message lorsque vous envoyez
-des commandes à Majordomo.
+La commande "end" est une maniÃ¨re d'ignorer automatiquement les
+signatures insÃ©rÃ©es, mais souvenez vous que voue devez absolument
+n'avoir aucun texte insÃ©rÃ© au dÃ©but du message lorsque vous envoyez
+des commandes Ã  Majordomo.
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help mj_shell        (pour un analyseur en ligne de commande pour
-			 éviter les email)
-   help configset signature_separator (pour une autre manière
-				       d'arrêter l'analyse)
+			 Ã©viter les email)
+   help configset signature_separator (pour une autre maniÃ¨re
+				       d'arrÃªter l'analyse)
 
 $INCLUDE-help/foot
 

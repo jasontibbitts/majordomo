@@ -3,9 +3,9 @@ configset liste delete_headers <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : X-Confirm-Reading-To ... (seul le 1er est affiché)
-Type de donnée    : tableau de chaînes
-Catégorie         : deliver
+Valeur par dÃ©faut : X-Confirm-Reading-To ... (seul le 1er est affichÃ©)
+Type de donnÃ©e    : tableau de chaÃ®nes
+CatÃ©gorie         : deliver
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -25,13 +25,13 @@ ENDTAG
 
 $INCLUDE-config/delete_headers
 
-Ajouter un nom d'en-tête à ce paramètre supprimera toutes les
-instances de ces en-têtes. La suppression des en-têtes arrive avant
-tous les autres paramètres, comme le paramètre "message_headers", qui
-ajoute des en-têtes au message.
+Ajouter un nom d'en-tÃªte Ã  ce paramÃ¨tre supprimera toutes les
+instances de ces en-tÃªtes. La suppression des en-tÃªtes arrive avant
+tous les autres paramÃ¨tres, comme le paramÃ¨tre "message_headers", qui
+ajoute des en-tÃªtes au message.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
    help configset_message_headers
    help configset_override_reply_to

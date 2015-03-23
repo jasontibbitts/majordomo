@@ -3,9 +3,9 @@ configset liste description_long <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : aucune
-Type de donnée    : tableau de chaînes
-Catégorie         : lists
+Valeur par dÃ©faut : aucune
+Type de donnÃ©e    : tableau de chaÃ®nes
+CatÃ©gorie         : lists
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,25 +13,25 @@ EXEMPLE :
 configset liste description_long << ENDTAG
 Voici ma meilleur liste !
 
-Vous pouvez en savoir plus à propos de cette liste en envoyant
+Vous pouvez en savoir plus Ã  propos de cette liste en envoyant
 la commande :
   info liste 
-dans le corps d'un message à \$MJ
+dans le corps d'un message Ã  \$MJ
 ENDTAG
 
 
 $INCLUDE-config/description_long
 
-Si ce paramètre est vide, le contenu du paramètre description sera
-affiché par la commande "lists". Si les deux paramètres sont vides,
-"(no description)" sera utilisé.
+Si ce paramÃ¨tre est vide, le contenu du paramÃ¨tre description sera
+affichÃ© par la commande "lists". Si les deux paramÃ¨tres sont vides,
+"(no description)" sera utilisÃ©.
 
-La longueur de la description peut être limitée par le paramètre de
-configuration "description_max_lines". Par défaut, il n'y a pas de
+La longueur de la description peut Ãªtre limitÃ©e par le paramÃ¨tre de
+configuration "description_max_lines". Par dÃ©faut, il n'y a pas de
 limite.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_monitor
    help configset_default_lists_format
    help configset_description

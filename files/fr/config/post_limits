@@ -1,14 +1,14 @@
-Le paramètre "post_limits" règle la limite de fréquence des messages
+Le paramÃ¨tre "post_limits" rÃ¨gle la limite de frÃ©quence des messages
 qu'un individu a le droit de poster sur la liste. Le format de chaque
 ligne est :
 
   motif | soft_limits | hard_limits | lower_limits
 
-Le motif sera testé avec les adresses email des auteurs des messages.
-La première ligne qui correspond et qui fera qu'une limite "soft" ou
+Le motif sera testÃ© avec les adresses email des auteurs des messages.
+La premiÃ¨re ligne qui correspond et qui fera qu'une limite "soft" ou
 "hard" soit atteinte comparativement a l'historique des messages
-postés par cet auteur. Par défaut, lorsque la limite "soft" est
-atteinte, les message seront envoyés pour modération ; si la limite
-"hard" est atteinte, les messages seront rejetés ; et si la limite
-basse n'est pas réatteinte, les messages seront envoyés pour
-modération.
+postÃ©s par cet auteur. Par dÃ©faut, lorsque la limite "soft" est
+atteinte, les message seront envoyÃ©s pour modÃ©ration ; si la limite
+"hard" est atteinte, les messages seront rejetÃ©s ; et si la limite
+basse n'est pas rÃ©atteinte, les messages seront envoyÃ©s pour
+modÃ©ration.

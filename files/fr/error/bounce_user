@@ -1,13 +1,13 @@
 Utilisateur : $VICTIM
 Statut :      $STATUS
 Diagnostic :  $DIAGNOSTIC
-Cette adresse n'est pas abonnée à la liste $LIST. ?NONMEMBER
+Cette adresse n'est pas abonnÃ©e Ã  la liste $LIST. ?NONMEMBER
 
 Statistiques de bounces pour cet utilisateur :
-  Bounces dans les dernières 24 heures :      $BOUNCES_DAY
+  Bounces dans les derniÃ¨res 24 heures :      $BOUNCES_DAY
   Bounces dans les 7 derniers jours :         $BOUNCES_WEEK
   Bounces dans les 30 derniers jours :        $BOUNCES_MONTH
-  Nombre de messages en erreurs consécutifs : ?CONSECUTIVE
+  Nombre de messages en erreurs consÃ©cutifs : ?CONSECUTIVE
   Pourcentage de messages en erreurs :        ?BOUNCE_PERCENT
 
 $REASONS

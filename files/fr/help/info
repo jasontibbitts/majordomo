@@ -2,7 +2,7 @@
 info[-edit] liste
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 liste, requis, la liste en question
--edit, si spécifiée, rends le document info facile à éditer et
+-edit, si spÃ©cifiÃ©e, rends le document info facile Ã  Ã©diter et
        remplacer
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -12,46 +12,46 @@ EXEMPLE :
 La commande "info" affiche un fichier d'information de la liste, si il
 existe.
 
-Le document "info" est inclus dans le message de bienvenue qui est reçu
-par les nouveaux abonnés lorsqu'ils s'abonnent à la liste. Les
-propriétaires de listes peuvent utiliser différents documents dans les
-messages de bienvenue en ajustant le paramètre "welcome_files".
+Le document "info" est inclus dans le message de bienvenue qui est reÃ§u
+par les nouveaux abonnÃ©s lorsqu'ils s'abonnent Ã  la liste. Les
+propriÃ©taires de listes peuvent utiliser diffÃ©rents documents dans les
+messages de bienvenue en ajustant le paramÃ¨tre "welcome_files".
 
-Le document "info" supporte les variables de substitutions (référez
-vous à "help variables" pour plus de détails).
+Le document "info" supporte les variables de substitutions (rÃ©fÃ©rez
+vous Ã  "help variables" pour plus de dÃ©tails).
 
-Le mode "edit" est prévu pour aider les gestionnaires de listes à
-éditer et remplacer le document existant facilement. Par exemple, la
+Le mode "edit" est prÃ©vu pour aider les gestionnaires de listes Ã 
+Ã©diter et remplacer le document existant facilement. Par exemple, la
 commande :
   info-edit liste-test
 
-Afficherais le contenu du document "info" entouré d'une commande
+Afficherais le contenu du document "info" entourÃ© d'une commande
 "newinfo" :
 
 newinfo liste-test <<ADGBEH
 
-Pour envoyer un message à la liste, envoyez un message à :
+Pour envoyer un message Ã  la liste, envoyez un message Ã  :
   \$WHOAMI
 
-Si vous avez des questions à propos de la liste test, écrivez à :
+Si vous avez des questions Ã  propos de la liste test, Ã©crivez Ã  :
   \$OWNER
 
 ADGBEH
 
-Référez vous à "help here_document" et "help newinfo" pour plus
+RÃ©fÃ©rez vous Ã  "help here_document" et "help newinfo" pour plus
 d'informations sur le remplacement du document "info".
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_documents (pour en apprendre sur l'espace de fichiers
                          d'une liste)
-   help configset_access_rules  (pour restreindre l'accès à cette
+   help configset_access_rules  (pour restreindre l'accÃ¨s Ã  cette
                                  commande)
-   help configset_info_access   (pour restreindre l'accès à cette
+   help configset_info_access   (pour restreindre l'accÃ¨s Ã  cette
                                  commande)
    help configset_welcome_files (pour modifier le message de bienvenue)
-   help faq   (un autre document relié à la liste)
-   help get   (pour une autre façon de récupérer ce fichier)
-   help intro (un autre document relié à la liste)
-   help newinfo (pour créer ou remplacer le document info)
+   help faq   (un autre document reliÃ© Ã  la liste)
+   help get   (pour une autre faÃ§on de rÃ©cupÃ©rer ce fichier)
+   help intro (un autre document reliÃ© Ã  la liste)
+   help newinfo (pour crÃ©er ou remplacer le document info)
 
 $INCLUDE-help/foot

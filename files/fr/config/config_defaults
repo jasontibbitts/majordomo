@@ -1,4 +1,4 @@
-Le paramètre "config_defaults" est une liste de modèles de
-configuration. Les modèles doivent exister et être accessibles via
-la pseudo liste DEFAULT. Si des paramètres entrent en conflit, le
-modèle qui est en premier dans la liste sera utilisé.
+Le paramÃ¨tre "config_defaults" est une liste de modÃ¨les de
+configuration. Les modÃ¨les doivent exister et Ãªtre accessibles via
+la pseudo liste DEFAULT. Si des paramÃ¨tres entrent en conflit, le
+modÃ¨le qui est en premier dans la liste sera utilisÃ©.

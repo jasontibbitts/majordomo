@@ -1,37 +1,37 @@
 __ 
-La requête suivante :
+La requÃªte suivante :
 
   "$CMDLINE"
 
-a été envoyé à $SITE
+a Ã©tÃ© envoyÃ© Ã  $SITE
 par $REQUESTER.
 
-Cette requête sera effectuée le ou après le :
+Cette requÃªte sera effectuÃ©e le ou aprÃ¨s le :
 
   $FULFILL
 
-à moins que vous arrêtiez.
+Ã  moins que vous arrÃªtiez.
 
-Pour accepter ou rejeter cette requête, choisissez l'une des
-possibilités suivantes :
+Pour accepter ou rejeter cette requÃªte, choisissez l'une des
+possibilitÃ©s suivantes :
 
-1. Répondez a $MJ 
+1. RÃ©pondez a $MJ 
    avec l'une des commandes suivantes dans le corps du message :
 
     accept
     reject
 
-   (Le numéro $TOKEN doit être dans le sujet du message)
+   (Le numÃ©ro $TOKEN doit Ãªtre dans le sujet du message)
 
-2. Répondez à $MJ 
+2. RÃ©pondez Ã  $MJ 
    avec l'une des commandes suivantes dans le corps du message :
 
     accept $TOKEN
     reject $TOKEN
 
-La requête a été mise en attente pour la raison suivante :
+La requÃªte a Ã©tÃ© mise en attente pour la raison suivante :
 
   $REASONS
 
-Si vous désirez communiquer avec une personne, envoyez un email à
+Si vous dÃ©sirez communiquer avec une personne, envoyez un email Ã 
 $OWNER.

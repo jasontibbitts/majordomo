@@ -1,8 +1,8 @@
-Aucun identificateur de ticket n'a été fourni. Vous devez spécifier un
-ticket valide pour que cette commande réussisse.
+Aucun identificateur de ticket n'a Ã©tÃ© fourni. Vous devez spÃ©cifier un
+ticket valide pour que cette commande rÃ©ussisse.
 
-Un ticket d'identification valide consiste en 12 caractères
-hexadécimaux (0 à 9 et A à F), séparés en trois groupes par des
+Un ticket d'identification valide consiste en 12 caractÃ¨res
+hexadÃ©cimaux (0 Ã  9 et A Ã  F), sÃ©parÃ©s en trois groupes par des
 tirets. Par exemple, l'identificateur suivant est valide :
 
   ABCD-EF34-5678

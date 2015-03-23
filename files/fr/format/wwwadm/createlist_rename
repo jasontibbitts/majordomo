@@ -1,10 +1,10 @@
 <!-- Majordomo createlist_rename format file -->
 <p>
-La liste $OLDLIST a été renommée en $NEWLIST.
+La liste $OLDLIST a Ã©tÃ© renommÃ©e en $NEWLIST.
 </p>
 
 <p>
-Si les anciens alias de la liste doivent être supprimés,
+Si les anciens alias de la liste doivent Ãªtre supprimÃ©s,
 ils apparaissent ci dessous&nbsp;:
 <p>
 
@@ -13,8 +13,8 @@ ils apparaissent ci dessous&nbsp;:
 </pre>
 
 <p>
-Si les alias doivent être mis a jour, ils sont
-spécifiés ci dessous&nbsp;:
+Si les alias doivent Ãªtre mis a jour, ils sont
+spÃ©cifiÃ©s ci dessous&nbsp;:
 </p>
 
 <pre>

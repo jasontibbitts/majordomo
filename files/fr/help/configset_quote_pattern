@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste quote_pattern = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : /^( - | : | > | [a-z]+> )/xi
-Type de donnée    : expression rationnelle
-Catégorie         : moderate
+Valeur par dÃ©faut : /^( - | : | > | [a-z]+> )/xi
+Type de donnÃ©e    : expression rationnelle
+CatÃ©gorie         : moderate
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -14,22 +14,22 @@ configset liste quote_pattern = /^( - | : | > | [a-z]+> )/xi
 $INCLUDE-config/quote_pattern
 
 Parfois, certaines personnes vont "quoter" en entier les messages
-précédents dans leurs réponses. Ce faisant, ils vont grossir de
+prÃ©cÃ©dents dans leurs rÃ©ponses. Ce faisant, ils vont grossir de
 beaucoup la taille du message. Si la conversation continue, la
-discussion peut devenir difficile à suivre à cause de la quantité de
-texte "quoté" des messages précédents.
+discussion peut devenir difficile Ã  suivre Ã  cause de la quantitÃ© de
+texte "quotÃ©" des messages prÃ©cÃ©dents.
 
-La variable d'accès "percent_quoted" contient le pourcentage de lignes
+La variable d'accÃ¨s "percent_quoted" contient le pourcentage de lignes
 dans le corps du message qui correspondent au motif de
-"quote_pattern". Le paramètre "quoted_lines" contient le nombre total
-de lignes qui correspondent à ce paramètre. Ces variables peuvent être
-utilisées dans les "access_rules" pour établir des limites sur le
-texte "quoté" dans les réponses. Référez vous à "help
+"quote_pattern". Le paramÃ¨tre "quoted_lines" contient le nombre total
+de lignes qui correspondent Ã  ce paramÃ¨tre. Ces variables peuvent Ãªtre
+utilisÃ©es dans les "access_rules" pour Ã©tablir des limites sur le
+texte "quotÃ©" dans les rÃ©ponses. RÃ©fÃ©rez vous Ã  "help
 access_variables" et "help configset_access_rules" pour plus de
-détails. Par défaut, il n'y a pas de limites.
+dÃ©tails. Par dÃ©faut, il n'y a pas de limites.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help access_variables
    help admin_moderate
    help configset_access_rules

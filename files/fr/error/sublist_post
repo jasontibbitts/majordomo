@@ -1,8 +1,8 @@
-Le message n'a pu etre posté a la sous liste $SUBLIST
+Le message n'a pu etre postÃ© a la sous liste $SUBLIST
 de la liste $LIST. La sous liste n'est pas publique.
 
 Pour en savoir plus sur les sous listes, envoyez la commande suivante
-dans le corps d'un message à $MJ :
+dans le corps d'un message Ã  $MJ :
 
   help auxiliary_list
 

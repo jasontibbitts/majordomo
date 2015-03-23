@@ -1,10 +1,10 @@
 <!-- Majordomo createlist format file -->
 <p>
-La liste $NEWLIST a été créée.
+La liste $NEWLIST a Ã©tÃ© crÃ©Ã©e.
 </p>
 
 <p>
-Les propriétaires sont&nbsp;
+Les propriÃ©taires sont&nbsp;
 <ul>
 <li> $OWNERS
 </ul>
@@ -14,19 +14,19 @@ Le mot de passe de la liste est <b>$PASSWORD</b>.
 </p>
 
 <p>
-?WELCOME Le guide concernant les nouveaux propriétaires a
-?WELCOME été envoyé à chaque
+?WELCOME Le guide concernant les nouveaux propriÃ©taires a
+?WELCOME Ã©tÃ© envoyÃ© Ã  chaque
 ?WELCOME gestionnaire.<br>
-?NOARCHIVE La liste n'a pas encore de répertoire pour contenir
+?NOARCHIVE La liste n'a pas encore de rÃ©pertoire pour contenir
 ?NOARCHIVE les archives.<br>
-?INACTIVE Le paramètre de configuration &quot;active&quot; doit
-?INACTIVE être activé pour pouvoir uiliser cette
+?INACTIVE Le paramÃ¨tre de configuration &quot;active&quot; doit
+?INACTIVE Ãªtre activÃ© pour pouvoir uiliser cette
 ?INACTIVE liste.<br>
 </p>
 
 <p>
-Si les alias ont besoin d'être mis a jours, ils sont
-affichés ci dessous&nbsp;:
+Si les alias ont besoin d'Ãªtre mis a jours, ils sont
+affichÃ©s ci dessous&nbsp;:
 </p>
 
 <pre>
@@ -35,7 +35,7 @@ affichés ci dessous&nbsp;:
 
 <p>
 Appuyez sur le bouton <b>configshow</b> pour passer en revue et/ou
-modifier les paramètres de configuration de la liste. Vous
+modifier les paramÃ¨tres de configuration de la liste. Vous
 pourriez avoir a rentrer le mot de passe de la nouvelle liste.
 
 <form method="POST" action="$CGIURL">

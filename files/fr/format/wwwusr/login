@@ -1,8 +1,8 @@
 
 <pre>?ERROR</pre>
 <p>
-<b>Utilisateurs enregistrés :</b>
-Si vous vous êtes déjà enregistrés ou si vous vous êtes déjà abonné a
+<b>Utilisateurs enregistrÃ©s :</b>
+Si vous vous Ãªtes dÃ©jÃ  enregistrÃ©s ou si vous vous Ãªtes dÃ©jÃ  abonnÃ© a
 une liste sur $SITE, et que vous avez votre mot de passe, inscrivez
 vous ici.<br>
 
@@ -17,9 +17,9 @@ vous ici.<br>
 
 <p>
 <b>Nouveaux utilisateurs :</b>
-Si vous ne vous êtes pas enregistrés, ou que vous n'êtes abonné a
+Si vous ne vous Ãªtes pas enregistrÃ©s, ou que vous n'Ãªtes abonnÃ© a
 aucunne liste sur $SITE, enregistrez vous pour obtenir un mot de
-passe. Un message de confirmation sera envoyé a votre adresse
+passe. Un message de confirmation sera envoyÃ© a votre adresse
 email.<br>
 
 <form method="POST" action="$CGIURL">
@@ -32,11 +32,11 @@ email.<br>
 
 <p>
 <b>Mot de passe perdu ?</b>
-Si vous êtes enregistrés ou que vous êtes abonné a une liste sur
+Si vous Ãªtes enregistrÃ©s ou que vous Ãªtes abonnÃ© a une liste sur
 $SITE, mais que vous ne connaissez pas votre mot de passe, utilisez ce
-formulaire pour qu'il vous soit envoyé a votre adresse email. Pour des
-raisons de sécurité, un message de confirmation vous sera tout d'abord
-envoyé.<br>
+formulaire pour qu'il vous soit envoyÃ© a votre adresse email. Pour des
+raisons de sÃ©curitÃ©, un message de confirmation vous sera tout d'abord
+envoyÃ©.<br>
 
 <form method="POST" action="$CGIURL">
   <input type="hidden" name="list" value="$LIST">

@@ -3,10 +3,10 @@
       Adresse de destination   : $STRIPADDR
       Commentaire de l'adresse : ?COMMENT
     L'adresse se transforme en : ?XFORM
-    Adresse aliasée à:         ?ALIAS
+    Adresse aliasÃ©e Ã :         ?ALIAS
     Alias vers cette adresse : ?ALIASES
-    Enregistrée comme          ?FULLADDR
-    Enregistrée le             ?REGTIME
+    EnregistrÃ©e comme          ?FULLADDR
+    EnregistrÃ©e le             ?REGTIME
     Dernier changement         ?RCHANGETIME
     Administrateur de          ?OWNERSHIPS liste
-    Abonné à                   ?COUNT listes
+    AbonnÃ© Ã                    ?COUNT listes

@@ -1,10 +1,10 @@
-Pour afficher les paramètres d'une catégorie particulière, utilisez la
-commande "configshow" et mettez le nom de la catégorie en lettres
+Pour afficher les paramÃ¨tres d'une catÃ©gorie particuliÃ¨re, utilisez la
+commande "configshow" et mettez le nom de la catÃ©gorie en lettres
 capitales, par exemple :
   configshow $LIST ACCESS
 
-Chaque paramètre de configuration possède son propre fichier d'aide.
-Par exemple, pour obtenir l'aide du réglage "whoami", utilisez la
+Chaque paramÃ¨tre de configuration possÃ¨de son propre fichier d'aide.
+Par exemple, pour obtenir l'aide du rÃ©glage "whoami", utilisez la
 commande :
   help configset_whoami
 

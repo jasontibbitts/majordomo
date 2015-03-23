@@ -1,7 +1,7 @@
-Le paramètre "chunksize" limite la mémoire utilisée pour les actions
-qui auront peut être besoin de beaucoup de ressources. Par exemple,
-pour une valeur de 100, les adresses seront traitées par groupe de
-100. De plus grandes valeurs feront que les commandes s'exécuteront un
-peu plus vite et utiliseront plus de mémoire. Des valeurs plus petites
-feront que les commandes s'exécuteront un peu plus lentement et
-utiliseront moins de mémoire.
+Le paramÃ¨tre "chunksize" limite la mÃ©moire utilisÃ©e pour les actions
+qui auront peut Ãªtre besoin de beaucoup de ressources. Par exemple,
+pour une valeur de 100, les adresses seront traitÃ©es par groupe de
+100. De plus grandes valeurs feront que les commandes s'exÃ©cuteront un
+peu plus vite et utiliseront plus de mÃ©moire. Des valeurs plus petites
+feront que les commandes s'exÃ©cuteront un peu plus lentement et
+utiliseront moins de mÃ©moire.

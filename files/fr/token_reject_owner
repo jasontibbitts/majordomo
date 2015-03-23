@@ -1,19 +1,19 @@
-La requête
+La requÃªte
   "$CMDLINE"
-pour le ticket $TOKEN, qui a été envoyée le
+pour le ticket $TOKEN, qui a Ã©tÃ© envoyÃ©e le
   $DATE 
 par
   $REQUESTER
-a été rejetée par
+a Ã©tÃ© rejetÃ©e par
   $REJECTER 
 
-Parce que les tickets rejetés peuvent être le résultat d'une tentative
-de contrefaçon ou d'une attaque, ce message est envoyé pour donner
-toutes les informations disponibles sur la transaction qui a causé la
-génération de ce ticket.
+Parce que les tickets rejetÃ©s peuvent Ãªtre le rÃ©sultat d'une tentative
+de contrefaÃ§on ou d'une attaque, ce message est envoyÃ© pour donner
+toutes les informations disponibles sur la transaction qui a causÃ© la
+gÃ©nÃ©ration de ce ticket.
 
-Si une raison a été donnée pour le rejet, elle apparaît ici :
+Si une raison a Ã©tÃ© donnÃ©e pour le rejet, elle apparaÃ®t ici :
 $MESSAGE
 
-Tout ce qui est en relation à propos de la session $SESSIONID
-sera inclus en fichier attaché.
+Tout ce qui est en relation Ã  propos de la session $SESSIONID
+sera inclus en fichier attachÃ©.

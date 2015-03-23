@@ -1,5 +1,5 @@
-Le paramètre "tmpdir" contient le répertoire dans lequel Majordomo
+Le paramÃ¨tre "tmpdir" contient le rÃ©pertoire dans lequel Majordomo
 stocke ses messages temporaires lorsqu'il est en train d'envoyer des
-messages ou de traiter des commandes. Pour des raisons de sécurité, ce
-répertoire ne devrait pas être accessible par les utilisateurs
+messages ou de traiter des commandes. Pour des raisons de sÃ©curitÃ©, ce
+rÃ©pertoire ne devrait pas Ãªtre accessible par les utilisateurs
 normaux.

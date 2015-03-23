@@ -1,7 +1,7 @@
 <!-- Majordomo tokeninfo_head_post format file -->
 <p>
-Un message a été posté sur la liste $LIST sur
-$SITE. Un résumé du message apparaît ci
+Un message a Ã©tÃ© postÃ© sur la liste $LIST sur
+$SITE. Un rÃ©sumÃ© du message apparaÃ®t ci
 dessous&nbsp;:
 </p>
 
@@ -13,7 +13,7 @@ dessous&nbsp;:
 </table>
 
 <form method="POST" action="$CGIURL">
-?CONSULT?WILLACK <p>Si vous désirez expliquer vos raisons
+?CONSULT?WILLACK <p>Si vous dÃ©sirez expliquer vos raisons
 ?CONSULT?WILLACK d'$HELP:ACCEPTer ou de $HELP:REJECTer la commande,
 ?CONSULT?WILLACK entrez la ici&nbsp;:
 ?CONSULT?WILLACK </p>
@@ -27,7 +27,7 @@ dessous&nbsp;:
     </td>
     <td>
       Cliquez sur le bouton <b>accept</b> pour approuver le message et
-      l'envoyer aux abonnés de la liste $LIST.
+      l'envoyer aux abonnÃ©s de la liste $LIST.
     </td>
     </tr>
   <tr>
@@ -36,8 +36,8 @@ dessous&nbsp;:
     </td>
     <td>
       Cliquez sur le bouton <b>accept-archive</b> pour approuver le
-      message. Le message sera stocké dans les archives mais ne sera
-      pas distribué aux abonnés.
+      message. Le message sera stockÃ© dans les archives mais ne sera
+      pas distribuÃ© aux abonnÃ©s.
     </td>
   </tr>
   <tr>
@@ -46,8 +46,8 @@ dessous&nbsp;:
     </td>
     <td>
       Cliquez sur le bouton <b>accept-hide</b> pour approuver le
-      message et l'envoyer aux abonnés de la liste. Le message ne sera
-      pas affiché dans la archive publiques.
+      message et l'envoyer aux abonnÃ©s de la liste. Le message ne sera
+      pas affichÃ© dans la archive publiques.
     </td>
   </tr>
   <tr>
@@ -56,7 +56,7 @@ dessous&nbsp;:
     </td>
     <td>
       Cliquez sur le bouton <b>reject</b> pour rejeter le message.
-?CONSULT?WILLACK  Une explication sera envoyée a $VICTIM.
+?CONSULT?WILLACK  Une explication sera envoyÃ©e a $VICTIM.
 ?CONSULT?WILLACK    </td>
 ?CONSULT?WILLACK  </tr>
 ?CONSULT?WILLACK  <tr>
@@ -66,7 +66,7 @@ dessous&nbsp;:
 ?CONSULT?WILLACK    <td>
 ?CONSULT?WILLACK      Cliquez sur le bouton <b>reject-quiet</b> pour
 ?CONSULT?WILLACK      rejeter le message.
-?CONSULT?WILLACK      Aucune explication ne sera envoyée à $VICTIM.
+?CONSULT?WILLACK      Aucune explication ne sera envoyÃ©e Ã  $VICTIM.
     </td>
   </tr>
 </table>
@@ -77,11 +77,11 @@ dessous&nbsp;:
 
 <p>
 <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=0&amp;a=tokeninfo-part" target="_part">
-  (Voir le message complet dans une fenêtre
-  séparée)
+  (Voir le message complet dans une fenÃªtre
+  sÃ©parÃ©e)
 </a><br>
 <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=0&amp;a=tokeninfo-part-edit">
-  (Éditer le message)
+  (Ã‰diter le message)
 </a>
 </p>
 

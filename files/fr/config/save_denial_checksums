@@ -1,5 +1,5 @@
-Le paramètre "save_denial_checksums" détermine si des sommes de
-contrôle des corps des messages postés sont sauvegardés si un message
-est refusé par des règles d'accès. Les sommes de contrôle sont
-utilisées pour éviter que des duplicata de messages soit envoyés aux
-abonnés d'autres listes.
+Le paramÃ¨tre "save_denial_checksums" dÃ©termine si des sommes de
+contrÃ´le des corps des messages postÃ©s sont sauvegardÃ©s si un message
+est refusÃ© par des rÃ¨gles d'accÃ¨s. Les sommes de contrÃ´le sont
+utilisÃ©es pour Ã©viter que des duplicata de messages soit envoyÃ©s aux
+abonnÃ©s d'autres listes.

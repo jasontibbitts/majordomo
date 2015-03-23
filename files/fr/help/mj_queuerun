@@ -3,24 +3,24 @@ NOM
 
 DESCRIPTION
     Le programme de traitement des queues, mj_queuerun, examine une
-    série de répertoires de queues pour y trouver des messages. Chaque
-    message qu'il trouve sera traité à moins qu'un autre programme
-    soit déjà en train de le traiter. Lorsqu'un répertoire contient
-    plus d'un messages, les messages seront traités dans le désordre.
+    sÃ©rie de rÃ©pertoires de queues pour y trouver des messages. Chaque
+    message qu'il trouve sera traitÃ© Ã  moins qu'un autre programme
+    soit dÃ©jÃ  en train de le traiter. Lorsqu'un rÃ©pertoire contient
+    plus d'un messages, les messages seront traitÃ©s dans le dÃ©sordre.
 
-    Un compteur est gardé pour chaque message dans chaque répertoire.
-    Si un problème technique a fait échouer un programme de
-    queue, un message peut être examiné plus d'une fois. Si un message
-    ne peut pas être traité au bout de trois fois, un message
-    d'urgence sera gardé pour la quatrième fois. Si le message ne peut
-    être traité la quatrième fois, il sera supprimé.
+    Un compteur est gardÃ© pour chaque message dans chaque rÃ©pertoire.
+    Si un problÃ¨me technique a fait Ã©chouer un programme de
+    queue, un message peut Ãªtre examinÃ© plus d'une fois. Si un message
+    ne peut pas Ãªtre traitÃ© au bout de trois fois, un message
+    d'urgence sera gardÃ© pour la quatriÃ¨me fois. Si le message ne peut
+    Ãªtre traitÃ© la quatriÃ¨me fois, il sera supprimÃ©.
 
-    Après que tous les messages ont été traités, le programme attendra
-    qu'un nouveau message lui soit attribué par le serveur de queue,
-    mj_queueserv. Si un message est reçu, il examinera de nouveau tous
-    les répertoires. Sinon, il attendra un peu et quittera.
+    AprÃ¨s que tous les messages ont Ã©tÃ© traitÃ©s, le programme attendra
+    qu'un nouveau message lui soit attribuÃ© par le serveur de queue,
+    mj_queueserv. Si un message est reÃ§u, il examinera de nouveau tous
+    les rÃ©pertoires. Sinon, il attendra un peu et quittera.
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help mj_email
    help mj_enqueue
    help mj_queueserv

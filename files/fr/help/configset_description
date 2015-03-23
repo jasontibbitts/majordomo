@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste description = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : aucune
-Type de donnée    : chaîne
-Catégorie         : lists
+Valeur par dÃ©faut : aucune
+Type de donnÃ©e    : chaÃ®ne
+CatÃ©gorie         : lists
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -14,7 +14,7 @@ configset liste description = ma meilleur liste
 $INCLUDE-config/description
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_monitor
    help configset_category
    help configset_description_long

@@ -1,14 +1,14 @@
-Ce paramètre fournis un mécanisme pour rechercher les fichiers. Les
-entrées sont de la forme :
+Ce paramÃ¨tre fournis un mÃ©canisme pour rechercher les fichiers. Les
+entrÃ©es sont de la forme :
 
   liste:chemin
 
 ou 'liste' est le nom d'une liste et 'chemin' le chemin dans l'espace
-de fichiers de la liste. 'liste' peut être vide, dans ce cas, la liste
-courante est utilisée. 'chemin' peut être vide aussi, dans ce cas, la
-racine de l'espace de fichiers est utilisé. Par conséquent ':' se
-réfère a la racine de l'espace de fichiers de cette liste.
+de fichiers de la liste. 'liste' peut Ãªtre vide, dans ce cas, la liste
+courante est utilisÃ©e. 'chemin' peut Ãªtre vide aussi, dans ce cas, la
+racine de l'espace de fichiers est utilisÃ©. Par consÃ©quent ':' se
+rÃ©fÃ¨re a la racine de l'espace de fichiers de cette liste.
 
-Pour accéder aux fichiers d'une autre liste, cette liste doit contenir
-le nom de la liste dans son paramètre "file_share". Si ce n'est pas le
+Pour accÃ©der aux fichiers d'une autre liste, cette liste doit contenir
+le nom de la liste dans son paramÃ¨tre "file_share". Si ce n'est pas le
 cas, la ligne en question.

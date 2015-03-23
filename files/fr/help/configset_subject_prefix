@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste subject_prefix = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : [\$LIST]
-Type de donnée    : chaîne
-Catégorie         : deliver
+Valeur par dÃ©faut : [\$LIST]
+Type de donnÃ©e    : chaÃ®ne
+CatÃ©gorie         : deliver
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,22 +13,22 @@ configset liste subject_prefix = [\$LIST: \$SEQNO]
 
 $INCLUDE-config/subject_prefix
 
-Le préfixe ne sera ajouté qu'au messages qui sont envoyés aux abonnés
-qui ont le paramètre "prefix" activé. Le préfixe sera automatiquement
-supprimé des messages qui sont envoyés aux abonnés dont le paramètre
-"prefix" est désactivé. Référez vous à "help set" pour plus
+Le prÃ©fixe ne sera ajoutÃ© qu'au messages qui sont envoyÃ©s aux abonnÃ©s
+qui ont le paramÃ¨tre "prefix" activÃ©. Le prÃ©fixe sera automatiquement
+supprimÃ© des messages qui sont envoyÃ©s aux abonnÃ©s dont le paramÃ¨tre
+"prefix" est dÃ©sactivÃ©. RÃ©fÃ©rez vous Ã  "help set" pour plus
 d'informations.
 
-Ce paramètre supporte les variables standard, ainsi que la variable
-\$SEQNO. Référez vous à "help variables" pour une introduction aux
+Ce paramÃ¨tre supporte les variables standard, ainsi que la variable
+\$SEQNO. RÃ©fÃ©rez vous Ã  "help variables" pour une introduction aux
 variables de substitution.
 
-Le paramètre "subject_prefix" n'affecte que le sujet des messages qui
-sont délivrés. Référez vous à "help configset_digests" pour des
-détails sur le paramètrage des sujet des compilations.
+Le paramÃ¨tre "subject_prefix" n'affecte que le sujet des messages qui
+sont dÃ©livrÃ©s. RÃ©fÃ©rez vous Ã  "help configset_digests" pour des
+dÃ©tails sur le paramÃ¨trage des sujet des compilations.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
    help configset_delete_headers
    help configset_message_headers

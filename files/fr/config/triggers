@@ -1,12 +1,12 @@
-Les triggers sont les actions qui arrivent périodiquement, au plus,
-une fois par heure. Ils sont utilisés pour supprimer les données
-expirées ainsi que pour terminer les opérations en attente.
+Les triggers sont les actions qui arrivent pÃ©riodiquement, au plus,
+une fois par heure. Ils sont utilisÃ©s pour supprimer les donnÃ©es
+expirÃ©es ainsi que pour terminer les opÃ©rations en attente.
 
 Chaque trigger consiste en un nom et plusieurs heures auxquelles le
-trigger est exécuté. Le nom et les heures sont séparés par des barres
+trigger est exÃ©cutÃ©. Le nom et les heures sont sÃ©parÃ©s par des barres
 verticales ('|') ou des ':', comme :
 
   session  | monday(6,12,18), thursday(8)
 
-Référez vous à "help times" pour une description complète de la
+RÃ©fÃ©rez vous Ã  "help times" pour une description complÃ¨te de la
 syntaxe.

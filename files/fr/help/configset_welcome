@@ -3,9 +3,9 @@ configset  GLOBAL  welcome = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset liste welcome = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : yes
-Type de donnée    : booléen, entre : 0 n no, 1 y yes
-Catégorie         : reply
+Valeur par dÃ©faut : yes
+Type de donnÃ©e    : boolÃ©en, entre : 0 n no, 1 y yes
+CatÃ©gorie         : reply
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -14,18 +14,18 @@ configset GLOBAL welcome = 1
 
 INCLUDE-config/welcome
 
-Dans les deux cas, le paramètre de configuration "welcome_files"
-détermine quels documents sont affichés dans le message de bienvenue.
+Dans les deux cas, le paramÃ¨tre de configuration "welcome_files"
+dÃ©termine quels documents sont affichÃ©s dans le message de bienvenue.
 
-Il est possible de passer outre la valeur de ce paramètre en ligne de
-commande. Si ce paramètre est désactivé, les commandes
-"register-welcome" ou "subscribe-welcome" enverront quand même le
-message de bienvenue. Si ce paramètre est activé, les commandes
-"register-nowelcome" ou "subscribe-nowelcome" empêcheront le message
-de bienvenue d'être envoyé.
+Il est possible de passer outre la valeur de ce paramÃ¨tre en ligne de
+commande. Si ce paramÃ¨tre est dÃ©sactivÃ©, les commandes
+"register-welcome" ou "subscribe-welcome" enverront quand mÃªme le
+message de bienvenue. Si ce paramÃ¨tre est activÃ©, les commandes
+"register-nowelcome" ou "subscribe-nowelcome" empÃªcheront le message
+de bienvenue d'Ãªtre envoyÃ©.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
   help admin_documents
   help configset_farewell
   help configset_farewell_files

@@ -1,27 +1,27 @@
 <!-- Majordomo who_head format file -->
-<h4 align=center>Supprimer des adresses ou modifier leurs paramètres</h4>
+<h4 align=center>Supprimer des adresses ou modifier leurs paramÃ¨tres</h4>
 
 <p>
-Pour supprimer des abonnés de la liste, cochez la case le concernant.
+Pour supprimer des abonnÃ©s de la liste, cochez la case le concernant.
 Pour supprimer les adresses sans rien dire, cliquez le bouton
 <b>unsubscribe-nofarewell</b>. Pour envoyer un message d'adieu, cliquez
 sur le bouton <b>unsubscribe-farewell</b> a la place.
 </p>
 
 <p>
-Chaque abonné a son mode de réception et ses
-réglages personnels. Pour chaque abonné dont vous
-souhaitez modifier les réglages, cochez la case le concernant.
-Pour modifier sa méthode de réception, choisissez la
-nouvelle méthode dans le menu qui est juste a la droite de
-l'adresse.  Pour modifier les réglages, cochez/décochez
+Chaque abonnÃ© a son mode de rÃ©ception et ses
+rÃ©glages personnels. Pour chaque abonnÃ© dont vous
+souhaitez modifier les rÃ©glages, cochez la case le concernant.
+Pour modifier sa mÃ©thode de rÃ©ception, choisissez la
+nouvelle mÃ©thode dans le menu qui est juste a la droite de
+l'adresse.  Pour modifier les rÃ©glages, cochez/dÃ©cochez
 l'une des cases qui apparaissent en dessous de l'adresse. Enfin,
 cliquez sur le bouton $HELP:SET.
 </p>
 
 <p>
-Cliquez sur l'adresse d'un abonné pour avoir une description
-plus étendue des réglages de cette adresse.
+Cliquez sur l'adresse d'un abonnÃ© pour avoir une description
+plus Ã©tendue des rÃ©glages de cette adresse.
 </p>
 
 <form method="POST" action="$CGIURL">
@@ -38,6 +38,6 @@ plus étendue des réglages de cette adresse.
 <table border>
 <tr>
   <td colspan="7">Adresse</td>
-  <td colspan="6">Méthode de réception</td>
+  <td colspan="6">MÃ©thode de rÃ©ception</td>
 </tr>
 

@@ -1,5 +1,5 @@
 NOM
-    mj_shutdown - Demande à un serveur de queue de quitter
+    mj_shutdown - Demande Ã  un serveur de queue de quitter
 
 SYNOPSIS
     mj_shutdown
@@ -7,11 +7,11 @@ SYNOPSIS
 DESCRIPTION
     Le programme mj_shutdown envoie un message au programme
     mj_queueserv lui demandant de quitter. Le programme mj_queueserv
-    n'est pas tué. Les programmes de traitement de queue sont
-    autorisés à terminer leur travail. (Ils s'apercevront que le
-    serveur est arrêté lorsqu'ils demanderont du travail.)
+    n'est pas tuÃ©. Les programmes de traitement de queue sont
+    autorisÃ©s Ã  terminer leur travail. (Ils s'apercevront que le
+    serveur est arrÃªtÃ© lorsqu'ils demanderont du travail.)
 
-    Le programme mj_shutdown doit être exécuté par l'utilisateur
+    Le programme mj_shutdown doit Ãªtre exÃ©cutÃ© par l'utilisateur
     Majordomo.
 
   Options
@@ -19,13 +19,13 @@ DESCRIPTION
     Le programme mj_shutdown supporte l'option suivante :
 
     -t *delai*
-        Normalement, il est demandé au serveur de quitter
-	immédiatement. Si cette option est utilisée, le serveur
-	attendra *délai* secondes avant de quitter. Cette option est
-	utile pour remettre à plus tard le traitement des messages
-	lorsque l'on met à jour le logiciel.
+        Normalement, il est demandÃ© au serveur de quitter
+	immÃ©diatement. Si cette option est utilisÃ©e, le serveur
+	attendra *dÃ©lai* secondes avant de quitter. Cette option est
+	utile pour remettre Ã  plus tard le traitement des messages
+	lorsque l'on met Ã  jour le logiciel.
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help mj_email
    help mj_enqueue
    help mj_queuerun

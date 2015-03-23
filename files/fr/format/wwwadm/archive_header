@@ -4,6 +4,6 @@
   <tr><td>De</td><td>?HEADER_FROM</td>
   <tr><td>Sujet</td><td>?HEADER_SUBJECT</td>
   <tr><td>Date</td><td>?HEADER_DATE</td>
-  <tr><td>Numéro de Message</td><td>?HEADER_X_ARCHIVE_NUMBER</td>
+  <tr><td>NumÃ©ro de Message</td><td>?HEADER_X_ARCHIVE_NUMBER</td>
 </table>
 </p>

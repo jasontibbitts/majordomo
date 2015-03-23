@@ -1,35 +1,35 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 show adresse
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-adresse, requise, est une adresse inscrite ou enregistrée sur ce site
+adresse, requise, est une adresse inscrite ou enregistrÃ©e sur ce site
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 La commande "show" fourni les informations suivantes :
 
- - Si l'adresse est légale ou non
+ - Si l'adresse est lÃ©gale ou non
  - Le nom de la boite, ainsi que le commentaire extraits de l'adresse
- - Ce en quoi l'adresse se transforme, ainsi que les différentes
-   adresses équivalentes
- - Les alias attachés à cette adresse
- - Les listes auxquelles la personne est abonnée
+ - Ce en quoi l'adresse se transforme, ainsi que les diffÃ©rentes
+   adresses Ã©quivalentes
+ - Les alias attachÃ©s Ã  cette adresse
+ - Les listes auxquelles la personne est abonnÃ©e
  - La date d'enregistrement de l'adresse
- - La date de dernière modification de l'adresse
- - Pour chaque liste à laquelle l'adresse est inscrite :
-      - Quelle adresse reçoit les messages
-      - La date d'abonnement à la liste
-      - Le mode de réception
-      - Les paramètres personnels
-      - La date de dernière modification
+ - La date de derniÃ¨re modification de l'adresse
+ - Pour chaque liste Ã  laquelle l'adresse est inscrite :
+      - Quelle adresse reÃ§oit les messages
+      - La date d'abonnement Ã  la liste
+      - Le mode de rÃ©ception
+      - Les paramÃ¨tres personnels
+      - La date de derniÃ¨re modification
 
-La commande 'show' est exécutée si l'adresse faisant la demande et
-l'adresse demandée sont les mêmes. Dans le cas contraire, un ticket
-est généré et l'adresse demandée doit "accept"er la demande.
+La commande 'show' est exÃ©cutÃ©e si l'adresse faisant la demande et
+l'adresse demandÃ©e sont les mÃªmes. Dans le cas contraire, un ticket
+est gÃ©nÃ©rÃ© et l'adresse demandÃ©e doit "accept"er la demande.
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help access_variables
    help commands
    help configset_access_rules (pour restreindre l'utilisation de show)
-   help who   (pour tous les abonnés d'une liste)
+   help who   (pour tous les abonnÃ©s d'une liste)
    help which (pour tous les abonnements d'une personne)
 
 $INCLUDE-help/foot

@@ -3,20 +3,20 @@
 [Volet $PART $CONTENT_TYPE $CHARSET ($SIZE kilo octets)]<br>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$TOKEN%20$PARTh&amp;func=tokeninfo-part" target="_part">
-    (Afficher les en-têtes dans une fenêtre
-    séparée)
+    (Afficher les en-tÃªtes dans une fenÃªtre
+    sÃ©parÃ©e)
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$TOKEN%20$PART&amp;func=tokeninfo-part" target="_part">
-    (Voir le texte dans une fenêtre séparée)
+    (Voir le texte dans une fenÃªtre sÃ©parÃ©e)
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$TOKEN%20$PARTh&amp;func=tokeninfo-part-edit">
-    (Éditer les en-têtes)
+    (Ã‰diter les en-tÃªtes)
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$TOKEN%20$PART&amp;func=tokeninfo-part-edit">
-    (Éditer le texte)
+    (Ã‰diter le texte)
   </a>
 
 ?SUBPART  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$TOKEN%20$PART&amp;func=tokeninfo-part-delete">

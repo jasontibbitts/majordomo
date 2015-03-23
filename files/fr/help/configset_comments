@@ -7,27 +7,27 @@ configset liste comments <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : aucune
-Type de donnée    : chaînes
-Catégorie         : miscellany
+Valeur par dÃ©faut : aucune
+Type de donnÃ©e    : chaÃ®nes
+CatÃ©gorie         : miscellany
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXEMPLE :
 configset GLOBAL comments << ENDTAG
-9 Mai 1999 - création de la liste
+9 Mai 1999 - crÃ©ation de la liste
 ENDTAG
 
 
 $INCLUDE-config/comments
 
-Le paramètre "comments" est utilisé dans les patrons de configuration
+Le paramÃ¨tre "comments" est utilisÃ© dans les patrons de configuration
 pour donner des instructions. Par exemple, le patron DEFAULT:personal
-contient les instructions pour appliquer les autres paramètres d'un
-patron à une liste grâce à la commande "configset".
+contient les instructions pour appliquer les autres paramÃ¨tres d'un
+patron Ã  une liste grÃ¢ce Ã  la commande "configset".
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_config   (pour une descriptions des patrons de
                         configuration)
    help here_document

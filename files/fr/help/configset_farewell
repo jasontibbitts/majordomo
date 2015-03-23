@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste farewell = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : no
-Type de donnée    : booléen, entre : 0 n no, 1 y yes
-Catégorie         : reply
+Valeur par dÃ©faut : no
+Type de donnÃ©e    : boolÃ©en, entre : 0 n no, 1 y yes
+CatÃ©gorie         : reply
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -12,15 +12,15 @@ configset GLOBAL farewell = 1
 
 INCLUDE-config/farewell
 
-Dans les deux cas, le paramètre de configuration "farewell_files"
-détermine quels documents sont envoyés dans le message d'adieu.
+Dans les deux cas, le paramÃ¨tre de configuration "farewell_files"
+dÃ©termine quels documents sont envoyÃ©s dans le message d'adieu.
 
-Il est possible de passer outre la valeur de ce paramètre avec la
-ligne de commande. Si il est désactivé, la commande
-"unsubscribe-farewell" l'enverra. Si il est activé, la commande
+Il est possible de passer outre la valeur de ce paramÃ¨tre avec la
+ligne de commande. Si il est dÃ©sactivÃ©, la commande
+"unsubscribe-farewell" l'enverra. Si il est activÃ©, la commande
 "unsubscribe-nofarewell" empechera son envoi.
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
   help admin_documents
   help configset_farewell_files
   help register

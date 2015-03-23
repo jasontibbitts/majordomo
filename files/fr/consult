@@ -1,31 +1,31 @@
 __ 
-La requête suivante
+La requÃªte suivante
 
   "$CMDLINE"
 
-a été envoyée à $SITE
+a Ã©tÃ© envoyÃ©e Ã  $SITE
 par $REQUESTER.
 
 votre confirmation est requise pour les raisons suivante :
 
   $REASONS
 
-Pour accepter ou rejeter cette requête, choisissez l'une de ces
-possibilités :
+Pour accepter ou rejeter cette requÃªte, choisissez l'une de ces
+possibilitÃ©s :
 
-1. Si vous avez la possibilité de naviguer sur le web, visitez 
+1. Si vous avez la possibilitÃ© de naviguer sur le web, visitez 
    <$URL>
    et suivez les instructions qui y sont.
 
-2. Répondez à $MJ 
+2. RÃ©pondez Ã  $MJ 
    avec l'une de ces commandes dans le corps du message :
 
     accept
     reject
 
-   (Le numéro $TOKEN doit être dans le sujet du message)
+   (Le numÃ©ro $TOKEN doit Ãªtre dans le sujet du message)
 
-3. Répondez à $MJ 
+3. RÃ©pondez Ã  $MJ 
    avec l'une de ces commandes dans le corps du message :
    
     accept $TOKEN
@@ -36,6 +36,6 @@ possibilités :
    disponibles sur la page
    <$WWWADM_URL/$LIST?func=showtokens>
 
-Si vous ne répondez pas dans les $EXPIRE jours, ce ticket expirera, et
-la requête ne sera pas complétée
+Si vous ne rÃ©pondez pas dans les $EXPIRE jours, ce ticket expirera, et
+la requÃªte ne sera pas complÃ©tÃ©e
 

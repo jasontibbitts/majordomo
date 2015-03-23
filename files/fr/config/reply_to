@@ -1,4 +1,4 @@
-Le paramètre "reply_to" contient l'adresse qui sera placée dans
-l'en-tête "Reply-To" des messages postés. Si le message à déjà une
-en-tête "Reply-To", elle ne sera remplacée que si le paramètre
+Le paramÃ¨tre "reply_to" contient l'adresse qui sera placÃ©e dans
+l'en-tÃªte "Reply-To" des messages postÃ©s. Si le message Ã  dÃ©jÃ  une
+en-tÃªte "Reply-To", elle ne sera remplacÃ©e que si le paramÃ¨tre
 "override_reply_to" est actif.

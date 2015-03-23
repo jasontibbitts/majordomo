@@ -1,28 +1,28 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste subject_re_strip = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : yes
-Type de donnée    : booléen, entre : 0 n no, 1 y yes
-Catégorie         : moderate
+Valeur par dÃ©faut : yes
+Type de donnÃ©e    : boolÃ©en, entre : 0 n no, 1 y yes
+CatÃ©gorie         : moderate
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
  
 EXEMPLE :
 configset liste subject_re_strip = yes
 
-Fonctionne en parallèle avec "subject_re_pattern", pour supprimer les
-indicateurs de réponses accumulés.
+Fonctionne en parallÃ¨le avec "subject_re_pattern", pour supprimer les
+indicateurs de rÃ©ponses accumulÃ©s.
 
-Certains logiciels de courrier utilisent des chaînes autres que "Re:"
-dans les réponses, comme : "SV:", "AW:", "RE^2:", etc. comme
-indicateurs de réponses. Lorsque plusieurs logiciels ce courriers
+Certains logiciels de courrier utilisent des chaÃ®nes autres que "Re:"
+dans les rÃ©ponses, comme : "SV:", "AW:", "RE^2:", etc. comme
+indicateurs de rÃ©ponses. Lorsque plusieurs logiciels ce courriers
 insistent en ajoutant le leur, les messages peuvent en transporter une
 bonne couche. Lorsque "subject_re_strip" est actif, tous les
-indicateurs de réponses qui correspondent à "subject_re_pattern"
-seront supprimés et remplacés par "Re:".
+indicateurs de rÃ©ponses qui correspondent Ã  "subject_re_pattern"
+seront supprimÃ©s et remplacÃ©s par "Re:".
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
    help configset_subject_prefix
    help configset_subject_re_pattern

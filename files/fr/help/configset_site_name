@@ -1,10 +1,10 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  site_name = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : [définie durant l'installation]
-Type de donnée    : chaîne
-Catégorie         : miscellany
-Mot de passe      : Modifiée par le mot de passe global.
+Valeur par dÃ©faut : [dÃ©finie durant l'installation]
+Type de donnÃ©e    : chaÃ®ne
+CatÃ©gorie         : miscellany
+Mot de passe      : ModifiÃ©e par le mot de passe global.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXEMPLE :
@@ -14,12 +14,12 @@ configset GLOBAL site_name = La boutique email de Bruno
 $INCLUDE-config/site_name
 
 La description "site_name" peut se retrouver dans beaucoup de
-documents et paramètres de configuration utilisant la variable \$SITE.
-Référez vous à "help variables" pour une introduction aux
+documents et paramÃ¨tres de configuration utilisant la variable \$SITE.
+RÃ©fÃ©rez vous Ã  "help variables" pour une introduction aux
 substitutions de variables.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_domain
    help configset_whereami
    help error_files

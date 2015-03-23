@@ -1,5 +1,5 @@
-Le paramètre "aliases" détermine quels adresses email sont disponibles
-pour le public pour une liste spécifique. Les valeurs suivantes sont
+Le paramÃ¨tre "aliases" dÃ©termine quels adresses email sont disponibles
+pour le public pour une liste spÃ©cifique. Les valeurs suivantes sont
 reconnues :
 
   Alias                Adresses email pour cette alias
@@ -20,5 +20,5 @@ reconnues :
 Pour l'instant, les aliases owner, request et resend sont
 obligatoires.
 
-Lorsque la valeur de ce paramètre a été changé, la commande
-"createlist-regen" doit être lancée pour régénérer les alias.
+Lorsque la valeur de ce paramÃ¨tre a Ã©tÃ© changÃ©, la commande
+"createlist-regen" doit Ãªtre lancÃ©e pour rÃ©gÃ©nÃ©rer les alias.

@@ -1,10 +1,10 @@
-La liste $OLDLIST a été renommée en $NEWLIST.
+La liste $OLDLIST a Ã©tÃ© renommÃ©e en $NEWLIST.
 
-Si les anciens alias de la liste doivent être supprimés,
+Si les anciens alias de la liste doivent Ãªtre supprimÃ©s,
 ils apparaissent ci dessous :
 ?OLDALIASES
 
-Si les alias doivent être mis a jour, ils sont
-spécifiés ci dessous :
+Si les alias doivent Ãªtre mis a jour, ils sont
+spÃ©cifiÃ©s ci dessous :
 ?ALIASES
 

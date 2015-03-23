@@ -1,4 +1,4 @@
-Le paramètre "max_header_line_length" contient la longueur maximale en
-caractères qu'une ligne d'en-tête peut faire. Par défaut, un message
-avec une en-tête qui excède cette limite sera envoyé aux modérateurs
+Le paramÃ¨tre "max_header_line_length" contient la longueur maximale en
+caractÃ¨res qu'une ligne d'en-tÃªte peut faire. Par dÃ©faut, un message
+avec une en-tÃªte qui excÃ¨de cette limite sera envoyÃ© aux modÃ©rateurs
 pour approbation.

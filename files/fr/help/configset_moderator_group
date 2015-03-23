@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste moderator_group = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : 0
-Type de donnée    : entier
-Catégorie         : moderate
+Valeur par dÃ©faut : 0
+Type de donnÃ©e    : entier
+CatÃ©gorie         : moderate
 Mot de passe      : Visible uniquement avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,9 +13,9 @@ configset liste moderator_group = 2
 $INCLUDE-config/moderator_group
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_moderate
-   help configset_moderators (pour des infos plus détaillées)
+   help configset_moderators (pour des infos plus dÃ©taillÃ©es)
    help configset_owners
 
 $INCLUDE-help/foot

@@ -1,19 +1,19 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  wwwadm_url = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : [définie durant l'installation]
-Type de donnée    : chaîne
-Catégorie         : miscellany
+Valeur par dÃ©faut : [dÃ©finie durant l'installation]
+Type de donnÃ©e    : chaÃ®ne
+CatÃ©gorie         : miscellany
 Mot de passe      : Visible avec un mot de passe. Modifiable avec le
 		    mot de passe global.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXEMPLE :
-configset GLOBAL wwwadm_url = aucun serveur configuré
+configset GLOBAL wwwadm_url = aucun serveur configurÃ©
 
 $INCLUDE-config/wwwadm_url
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help configset_confirm_url
    help configset_wwwusr_url
    help mj_confirm

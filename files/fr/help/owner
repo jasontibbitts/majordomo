@@ -2,12 +2,12 @@
 owner
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-La commande "owner" est exécutée lorsqu'un message est envoyé aux
-adresses LISTE-owner ou LISTE-moderator pour une liste. L'accès à ces
-deux adresses peut être restreint en utilisant le paramètre de
+La commande "owner" est exÃ©cutÃ©e lorsqu'un message est envoyÃ© aux
+adresses LISTE-owner ou LISTE-moderator pour une liste. L'accÃ¨s Ã  ces
+deux adresses peut Ãªtre restreint en utilisant le paramÃ¨tre de
 configuration "block_headers".
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_moderate
    help configset_aliases
    help configset_block_headers

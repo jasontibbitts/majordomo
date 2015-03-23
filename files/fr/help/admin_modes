@@ -4,10 +4,10 @@ administratifs. Ces modes sont :
 	      gestionnaires de la liste.
   nolog    -  Ne pas enregistrer cette commande dans les logs.
   quiet    -  Ne pas envoyer de message d'information si la commande
-	      est retardée.
-  rule     -  Agir comme si le paramètre de configuration
-	      "access_password_override" étais désactivé.
+	      est retardÃ©e.
+  rule     -  Agir comme si le paramÃ¨tre de configuration
+	      "access_password_override" Ã©tais dÃ©sactivÃ©.
 L'utilisation des modes "noinform", "nolog" et "rule" necessite un mot
-de passe administratif.  Pour plus de détails, référez vous à la
+de passe administratif.  Pour plus de dÃ©tails, rÃ©fÃ©rez vous Ã  la
 section "Modes de commande administratifs" de la page d'aide "help
 admin_commands".

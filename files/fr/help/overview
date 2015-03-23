@@ -1,203 +1,203 @@
-                    Une introduction à Majordomo 2
+                    Une introduction Ã  Majordomo 2
 
-Ce message d'aide vous provient du Majordomo présent sur
+Ce message d'aide vous provient du Majordomo prÃ©sent sur
   $SITE
 
-Vous pouvez interagir avec Majordomo en envoyant des commandes à
+Vous pouvez interagir avec Majordomo en envoyant des commandes Ã 
   $MJ
 dans le corps d'un message. Ne mettez surtout pas vos commandes dans
 le sujet ! Majordomo ne traite que les commandes qui sont dans le
 corps du messages.
 
-Majordomo est fait pour gérer des listes de diffusions électroniques
-automatiquement. Ce document présente un aperçu de la manière dont
+Majordomo est fait pour gÃ©rer des listes de diffusions Ã©lectroniques
+automatiquement. Ce document prÃ©sente un aperÃ§u de la maniÃ¨re dont
 Majordomo fonctionne, du point de vue d'une personne voulant
-participer à une liste. Si vous cherchez un aperçu du point de vue
+participer Ã  une liste. Si vous cherchez un aperÃ§u du point de vue
 d'un administrateur, utilisez la commande "help admin".
 
-Ce document décrit beaucoup de commandes communes, mais certaines
-fonctionnalités ne sont pas mentionnées ici. Pour avoir un aperçu
+Ce document dÃ©crit beaucoup de commandes communes, mais certaines
+fonctionnalitÃ©s ne sont pas mentionnÃ©es ici. Pour avoir un aperÃ§u
 complet de la liste des commandes disponibles, utilisez la commande
-"help commands". Pour avoir la liste complète des commandes Majordomo,
+"help commands". Pour avoir la liste complÃ¨te des commandes Majordomo,
 utilisez la commande "help topics".
 
 Adresses email importantes 
 --------------------------
 
-Ce serveur Majordomo est lancé sur le domaine "$WHEREAMI".  Il y a
-deux adresses importantes qui sont communes à toutes les listes de ce
+Ce serveur Majordomo est lancÃ© sur le domaine "$WHEREAMI".  Il y a
+deux adresses importantes qui sont communes Ã  toutes les listes de ce
 domaine
 
 $MJ
 
-  C'est l'adresse du serveur, l'adresse à laquelle les commandes
+  C'est l'adresse du serveur, l'adresse Ã  laquelle les commandes
   Majordomo (comme "subscribe", "help", ou "lists") doivent TOUJOURS
-  être envoyées. Les messages envoyés à cette adresse seront traités
+  Ãªtre envoyÃ©es. Les messages envoyÃ©s Ã  cette adresse seront traitÃ©s
   automatiquement. Personne ne lira jamais ces messages.
 
 $MJOWNER
 
   C'est l'adresse de la ou des personnes qui administrent le domaine
-  entier. Écrivez leurs en cas d'urgence, comme une boucle d'emails ou
-  des erreurs systèmes.
+  entier. Ã‰crivez leurs en cas d'urgence, comme une boucle d'emails ou
+  des erreurs systÃ¨mes.
 
-En plus, il y à deux adresses uniques pour chaque liste qui sont
-gérées par ce domaine. Remplacez LISTE par le nom de la liste.
+En plus, il y Ã  deux adresses uniques pour chaque liste qui sont
+gÃ©rÃ©es par ce domaine. Remplacez LISTE par le nom de la liste.
 
 LISTE@$WHEREAMI
 
-  C'est l'adresse à laquelle vous devez envoyer vos messages, une fois
-  que vous vous êtes abonnés à la liste. Les messages postés peuvent
-  être lu par des centaines ou des milliers de personnes. N'envoyez
-  JAMAIS de commandes Majordomo à cette adresse.
+  C'est l'adresse Ã  laquelle vous devez envoyer vos messages, une fois
+  que vous vous Ãªtes abonnÃ©s Ã  la liste. Les messages postÃ©s peuvent
+  Ãªtre lu par des centaines ou des milliers de personnes. N'envoyez
+  JAMAIS de commandes Majordomo Ã  cette adresse.
 
 LISTE-owner@$WHEREAMI
 
-  C'est l'adresse de la ou des personnes qui gèrent la liste. Si vous
-  avez une question spécifique, écrivez aux gestionnaires à cette
+  C'est l'adresse de la ou des personnes qui gÃ¨rent la liste. Si vous
+  avez une question spÃ©cifique, Ã©crivez aux gestionnaires Ã  cette
   adresse.
 
-Quelles sont les listes qui sont gérées à $WHEREAMI ?
+Quelles sont les listes qui sont gÃ©rÃ©es Ã  $WHEREAMI ?
 ---------------------------------------------------------------
 
   Pour avoir la liste des listes publiques sur ce domaine, avec une
-  brève description de chaque liste, utilisez la commande
+  brÃ¨ve description de chaque liste, utilisez la commande
 
     lists
 
-  Si vous désirez avoir plus de détails à propos de chaque liste,
-  comme le nombre d'abonnés et la fréquence des messages postés,
+  Si vous dÃ©sirez avoir plus de dÃ©tails Ã  propos de chaque liste,
+  comme le nombre d'abonnÃ©s et la frÃ©quence des messages postÃ©s,
   utilisez cette commande :
 
     lists-full
 
-  Il y a trois commandes associées avec chaque liste, le document
-  questions fréquemment posées (faq), le document "info" et le
+  Il y a trois commandes associÃ©es avec chaque liste, le document
+  questions frÃ©quemment posÃ©es (faq), le document "info" et le
   document "intro". Pour obtenir ces documents pour une liste
-  spécifique, utilisez les commandes suivantes :
+  spÃ©cifique, utilisez les commandes suivantes :
 
     faq LISTE
     info LISTE
     intro LISTE
 
-Abonnement à une liste
+Abonnement Ã  une liste
 ----------------------
 
-  Une fois que vous avez décidé que vous désiriez vous abonner à une
-  ou plusieurs listes sur ce système, vous pouvez envoyer des
-  commandes à Majordomo. Vous n'avez pas besoin de demander au
-  propriétaire de la liste (en général), et le faire par vous même
-  fera gagner BEAUCOUP de temps à tout le monde. Rappelez vous que le
-  gestionnaire de la liste est en général un volontaire qui a d'autres
-  chats à fouetter, et que beaucoup de gens s'abonnent à des listes.
+  Une fois que vous avez dÃ©cidÃ© que vous dÃ©siriez vous abonner Ã  une
+  ou plusieurs listes sur ce systÃ¨me, vous pouvez envoyer des
+  commandes Ã  Majordomo. Vous n'avez pas besoin de demander au
+  propriÃ©taire de la liste (en gÃ©nÃ©ral), et le faire par vous mÃªme
+  fera gagner BEAUCOUP de temps Ã  tout le monde. Rappelez vous que le
+  gestionnaire de la liste est en gÃ©nÃ©ral un volontaire qui a d'autres
+  chats Ã  fouetter, et que beaucoup de gens s'abonnent Ã  des listes.
 
-  Pour recevoir les messages de la liste à l'adresse de laquelle vous
+  Pour recevoir les messages de la liste Ã  l'adresse de laquelle vous
   envoyez ce message, envoyez simplement une commande "subscribe" au
-  serveur, comme expliqué dans l'aide de subscribe. Pour récupérer ce
-  fichier, envoyez la ligne suivante dans le corps d'un message envoyé
-  à $MJ
+  serveur, comme expliquÃ© dans l'aide de subscribe. Pour rÃ©cupÃ©rer ce
+  fichier, envoyez la ligne suivante dans le corps d'un message envoyÃ©
+  Ã  $MJ
 
     help subscribe
 
   Vous devez fournir au moins le nom de la liste, vous pouvez aussi
   ajouter votre nom et votre adresse, si ce n'est pas celle qui est
-  dans vos en-têtes. Par exemple :
+  dans vos en-tÃªtes. Par exemple :
 
     subscribe LISTE
 
     subscribe LISTE Votre Nom <votreadresse@votredomaine.fr>
 
   Suivant la configuration de la liste, vous pouvez soit vous
-  retrouver abonné immédiatement, ou vous recevrez peut être une
+  retrouver abonnÃ© immÃ©diatement, ou vous recevrez peut Ãªtre une
   demande d'autorisation pour confirmer votre abonnement. Cela peut
-  être un peu lourd, mais ça évite que vous soyez abonné à l'insu de
-  votre plein gré par une personne mal intentionnés. Dans ce cas,
-  suivez les instructions données dans "help accept". (Ou envoyez une
-  commande "reject" (rejet) si vous ne désirez pas être abonné.)
+  Ãªtre un peu lourd, mais Ã§a Ã©vite que vous soyez abonnÃ© Ã  l'insu de
+  votre plein grÃ© par une personne mal intentionnÃ©s. Dans ce cas,
+  suivez les instructions donnÃ©es dans "help accept". (Ou envoyez une
+  commande "reject" (rejet) si vous ne dÃ©sirez pas Ãªtre abonnÃ©.)
 
   Il se peut aussi que votre message soit transmis au gestionnaire de
   la liste pour approbation, certaines listes ayant des listes
-  d'attente, ou des politiques d'abonnement. Si votre requête est
-  transmise pour approbation, le propriétaire de la liste vous
-  contactera peut être après votre demande, ou il vous abonnera quand
+  d'attente, ou des politiques d'abonnement. Si votre requÃªte est
+  transmise pour approbation, le propriÃ©taire de la liste vous
+  contactera peut Ãªtre aprÃ¨s votre demande, ou il vous abonnera quand
   il aura le temps.
 
-  Lors de l'abonnement, vous recevrez peut être un message
-  d'introduction contenant les règles de la liste et les fonctions.
-  S'il vous plaît, SAUVEGARDEZ CE MESSAGE pour utilisation ultérieure,
-  car il contient toutes les informations nécessaires à votre
-  désabonnement. Si vous perdez ce message et que vous désirez une
-  autre copie des règles, envoyez ce message d'une ligne à
+  Lors de l'abonnement, vous recevrez peut Ãªtre un message
+  d'introduction contenant les rÃ¨gles de la liste et les fonctions.
+  S'il vous plaÃ®t, SAUVEGARDEZ CE MESSAGE pour utilisation ultÃ©rieure,
+  car il contient toutes les informations nÃ©cessaires Ã  votre
+  dÃ©sabonnement. Si vous perdez ce message et que vous dÃ©sirez une
+  autre copie des rÃ¨gles, envoyez ce message d'une ligne Ã 
   $MJ :
 
     info LISTE
 
-  ...en remplaçant, bien entendu, "LISTE" par le vrai nom de la liste.
+  ...en remplaÃ§ant, bien entendu, "LISTE" par le vrai nom de la liste.
 
 Votre mot de passe personnel
 ----------------------------
 
-  Lorsque vous vous abonnez pour la première fois à une liste, vous
-  aller recevoir un mot de passe, et votre adresse sera enregistrée
+  Lorsque vous vous abonnez pour la premiÃ¨re fois Ã  une liste, vous
+  aller recevoir un mot de passe, et votre adresse sera enregistrÃ©e
   par Majordomo. Quelque soit le nombre d'abonnements que vous avez,
   vous n'aurez jamais plus d'un mot de passe pour votre adresse email.
 
   Une fois que vous avez obtenu un mot de passe, vous pouvez
-  l'utiliser pour éviter d'avoir toujours à confirmer vos actes
-  lorsque vous modifiez vos paramètres ou vos abonnements.
+  l'utiliser pour Ã©viter d'avoir toujours Ã  confirmer vos actes
+  lorsque vous modifiez vos paramÃ¨tres ou vos abonnements.
 
-  Référez vous à "help approve" et "help default" pour savoir comment
+  RÃ©fÃ©rez vous Ã  "help approve" et "help default" pour savoir comment
   utiliser votre mot de passe lorsque vous utilisez des commandes.
 
-  De plus, si ce site est configuré pour utiliser l'interface WWW de
+  De plus, si ce site est configurÃ© pour utiliser l'interface WWW de
   Majordomo, vous pouvez utiliser votre mot de passe pour effectuer
-  toutes vos opérations à l'adresse suivante :
+  toutes vos opÃ©rations Ã  l'adresse suivante :
     $WWWUSR_URL
 
-Désabonnement de listes
+DÃ©sabonnement de listes
 -----------------------
 
   Le message d'introduction originel devrait contenir la commande
-  exacte pour désabonner de la liste. Toutefois, dans la majorité des
-  cas, vous aurez juste à envoyer une commande "unsubscribe" suivie du
+  exacte pour dÃ©sabonner de la liste. Toutefois, dans la majoritÃ© des
+  cas, vous aurez juste Ã  envoyer une commande "unsubscribe" suivie du
   nom de la liste :
        unsubscribe LISTE
-  Cette commande peut échouer dans le cas ou votre adresse a été
-  modifiée depuis que vous vous êtes inscrit pour la première fois à
+  Cette commande peut Ã©chouer dans le cas ou votre adresse a Ã©tÃ©
+  modifiÃ©e depuis que vous vous Ãªtes inscrit pour la premiÃ¨re fois Ã 
   la liste.
 
   Pour supprimer une adresse autre que celle que vous utilisez pour
-  envoyer la requête, référez vous à "help unsubscribe" pour avoir les
-  détails sur comment vous désabonner. Si vous avez votre ancien mot
+  envoyer la requÃªte, rÃ©fÃ©rez vous Ã  "help unsubscribe" pour avoir les
+  dÃ©tails sur comment vous dÃ©sabonner. Si vous avez votre ancien mot
   de passe, vous pouvez rapidement supprimer votre ancienne adresse
-  même si vous n'avez plus accès à votre ancien compte. Si votre
-  ancien compte transfère les messages vers votre nouveau compte, vous
+  mÃªme si vous n'avez plus accÃ¨s Ã  votre ancien compte. Si votre
+  ancien compte transfÃ¨re les messages vers votre nouveau compte, vous
   pouvez aussi utiliser la commande "accept" depuis votre nouveau
-  compte une fois que le serveur vous aura demandé confirmation.
+  compte une fois que le serveur vous aura demandÃ© confirmation.
 
-  Si vous voulez vous désabonner de toutes les listes d'un serveur en
-  une fois, envoyez la commande "unregister" à la place de
-  "unsubscribe". Cela supprimera intégralement votre adresse de toutes
+  Si vous voulez vous dÃ©sabonner de toutes les listes d'un serveur en
+  une fois, envoyez la commande "unregister" Ã  la place de
+  "unsubscribe". Cela supprimera intÃ©gralement votre adresse de toutes
   les listes de $MJ.
 
 Envoi de messages
 -----------------
 
   Lorsque vous postez un message sur une liste, votre message peut ne
-  pas être envoyé aux abonnés immédiatement. Il y a beaucoup de
+  pas Ãªtre envoyÃ© aux abonnÃ©s immÃ©diatement. Il y a beaucoup de
   raisons possibles pour que cela arrive, par exemple : 
-    - La liste peut être modérée
+    - La liste peut Ãªtre modÃ©rÃ©e
     - Vous avez accidentellement inclus un mot ou une phrase que
-      Majordomo à pris comme une commande
-    - La liste peut être configurée pour requérir une confirmation du
-      modérateur pour les messages des nouveaux abonnés.
-  Si votre message est modéré ou interdit, vous recevrez en général un
-  message vous informant de ce qui s'est passé. Sinon, utilisez la
+      Majordomo Ã  pris comme une commande
+    - La liste peut Ãªtre configurÃ©e pour requÃ©rir une confirmation du
+      modÃ©rateur pour les messages des nouveaux abonnÃ©s.
+  Si votre message est modÃ©rÃ© ou interdit, vous recevrez en gÃ©nÃ©ral un
+  message vous informant de ce qui s'est passÃ©. Sinon, utilisez la
   commande :
 
     help set
 
-  Pour apprendre à utiliser les réglages personnels, ensuite, utilisez
+  Pour apprendre Ã  utiliser les rÃ©glages personnels, ensuite, utilisez
   la commande :
 
     set LISTE
@@ -206,41 +206,41 @@ Envoi de messages
 
     show 
 
-  pour afficher vos réglages courants. Si les réglages qui commencent
-  avec "ack" sont désactivés, vous ne recevrez pas de notification à
-  propos de l'avancée de vos messages postés.
+  pour afficher vos rÃ©glages courants. Si les rÃ©glages qui commencent
+  avec "ack" sont dÃ©sactivÃ©s, vous ne recevrez pas de notification Ã 
+  propos de l'avancÃ©e de vos messages postÃ©s.
 
 Recevoir des compilations
 -------------------------
 
-  Une liste peut être configurée pour envoyer des messages en groupes
-  en une collection appelée compilation (digest en anglais). Chaque
-  liste peut avoir plusieurs compilations de configurées. Le moyen le
-  plus simple de modifier son mode de réception pour recevoir une
-  compilation (en substituant à LISTE le nom de la liste) :
+  Une liste peut Ãªtre configurÃ©e pour envoyer des messages en groupes
+  en une collection appelÃ©e compilation (digest en anglais). Chaque
+  liste peut avoir plusieurs compilations de configurÃ©es. Le moyen le
+  plus simple de modifier son mode de rÃ©ception pour recevoir une
+  compilation (en substituant Ã  LISTE le nom de la liste) :
 
     set LISTE digest
 
   Trois formats de compilations sont disponibles pour chaque
   compilation : MIME, text et index. Les compilations MIME contiennent
-  chaque message dans une partie séparée, ce qui est le format le plus
+  chaque message dans une partie sÃ©parÃ©e, ce qui est le format le plus
   commun. Les compilations text incluent uniquement les messages en
   texte bruts. Les compilations index affichent le sujet et quelques
   autres informations de chaque message, mais le contenu des messages
   est omis.
 
-  Pour choisir un nouveau format de compilation, ajoutez son nom après
+  Pour choisir un nouveau format de compilation, ajoutez son nom aprÃ¨s
   le le mot "digest" dans la commande set, par exemple :
 
     set LISTE digest-mime
 
   Chaque liste peut avoir plusieurs compilations. Pour avoir la
-  description des compilation disponibles pour une liste particulière,
+  description des compilation disponibles pour une liste particuliÃ¨re,
   utilisez la commande suivante :
 
     lists-full LISTE
 
-  Par exemple, si une liste à trois compilations (jour, semaine et
+  Par exemple, si une liste Ã  trois compilations (jour, semaine et
   bimensuelle), utiliser leur nom dans la commande set, par exemple :
    
     set LISTE digest-jour-index
@@ -250,27 +250,27 @@ Recevoir des compilations
 Partir en vacances
 ------------------
 
-  Pour arrêter de recevoir des messages d'une liste temporairement,
-  utilisez le paramètre "nomail". L'exemple le plus simple est :
+  Pour arrÃªter de recevoir des messages d'une liste temporairement,
+  utilisez le paramÃ¨tre "nomail". L'exemple le plus simple est :
 
     set LISTE nomail
 
-  Ensuite, lorsque vous désirerez rerecevoir les message de la liste,
+  Ensuite, lorsque vous dÃ©sirerez rerecevoir les message de la liste,
   utiliser la commande :
   
     set LISTE nomail-return
 
-  Toutefois, vous pouvez demander à Majordomo de recommencer à vous
-  envoyer les messages après une période. Par exemple, si vous désirez
+  Toutefois, vous pouvez demander Ã  Majordomo de recommencer Ã  vous
+  envoyer les messages aprÃ¨s une pÃ©riode. Par exemple, si vous dÃ©sirez
   partir pendant 15 jours, utilisez la commande :
 
     set LISTE nomail-15d
 
-  Si vous revenez plus tôt, vous pouvez toujours utiliser le réglage
-  "nomail-return" pour recommencer à recevoir les messages.
+  Si vous revenez plus tÃ´t, vous pouvez toujours utiliser le rÃ©glage
+  "nomail-return" pour recommencer Ã  recevoir les messages.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help alias
    help commands
    help faq

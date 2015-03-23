@@ -1,13 +1,13 @@
 <!-- Majordomo report_head format file -->
 
 <p align="center">
-  Activité sur $SITE<br>
+  ActivitÃ© sur $SITE<br>
   Du $START au $FINISH
 </p>
 
 <p>
-Cliquez sur le nom de la commande d'un évènement pour avoir
-les informations détaillées de cet événement.
+Cliquez sur le nom de la commande d'un Ã©vÃ¨nement pour avoir
+les informations dÃ©taillÃ©es de cet Ã©vÃ©nement.
 </p>
 
 <table width="100%">
@@ -17,6 +17,6 @@ les informations détaillées de cet événement.
   <th>Adresse</th>
   <th align="right">Statut</th>
   <th align="right">Heure</th>
-  <th align="right">Temps écoulé</th>
+  <th align="right">Temps Ã©coulÃ©</th>
 </tr>
 

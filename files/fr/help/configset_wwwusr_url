@@ -1,19 +1,19 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  wwwusr_url = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : [définie durant l'installation]
-Type de donnée    : chaîne
-Catégorie         : access
-Mot de passe      : Visible avec un mot de passe. Modifiée avec le mot
+Valeur par dÃ©faut : [dÃ©finie durant l'installation]
+Type de donnÃ©e    : chaÃ®ne
+CatÃ©gorie         : access
+Mot de passe      : Visible avec un mot de passe. ModifiÃ©e avec le mot
 		    de passe global.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXEMPLE :
-configset GLOBAL wwwusr_url = aucun serveur configuré
+configset GLOBAL wwwusr_url = aucun serveur configurÃ©
 
 $INCLUDE-config/wwwusr_url
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help configset_confirm_url
    help configset_wwwadm_url
    help mj_confirm

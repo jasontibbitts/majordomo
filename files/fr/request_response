@@ -1,48 +1,48 @@
-Ce message est automatiquement envoyé en réponse à votre récent
-message à $REQUEST.
+Ce message est automatiquement envoyÃ© en rÃ©ponse Ã  votre rÃ©cent
+message Ã  $REQUEST.
 
-Toutes les requêtes administratives, abonnement et désabonnement
-inclus, sont gérées par un serveur automatisé. Lisez ce message avec
+Toutes les requÃªtes administratives, abonnement et dÃ©sabonnement
+inclus, sont gÃ©rÃ©es par un serveur automatisÃ©. Lisez ce message avec
 attention, vous y trouverez certainement les informations qui vous
-intéressent.
+intÃ©ressent.
 
 
 ABONNEMENTS
 ===========
 
-Pour vous abonner de la liste $LIST, envoyez un message à
+Pour vous abonner de la liste $LIST, envoyez un message Ã 
   $MJ
 Dans le corps (pas dans le sujet) du message, mettez la commande :
   subscribe $LIST
 
-Si vous désirez vous abonner avec une adresse différente de celle avec
-laquelle vous écrivez, utilisez la commande suivante :
+Si vous dÃ©sirez vous abonner avec une adresse diffÃ©rente de celle avec
+laquelle vous Ã©crivez, utilisez la commande suivante :
   subscribe $LIST ADRESSE
-(Remplacez ADRESSE par l'adresse avec laquelle vous désirez vous
+(Remplacez ADRESSE par l'adresse avec laquelle vous dÃ©sirez vous
  abonner.)
 
 
-DÉSABONNEMENTS
+DÃ‰SABONNEMENTS
 ==============
 
-Pour vous désabonner de la liste $LIST, envoyez un message à
+Pour vous dÃ©sabonner de la liste $LIST, envoyez un message Ã 
   $MJ
 Dans le corps (pas dans le sujet) du message, mettez la commande :
   unsubscribe $LIST
 
-Si vous désirez vous désabonner avec une adresse différente de celle
-avec laquelle vous écrivez, utilisez la commande suivante :
+Si vous dÃ©sirez vous dÃ©sabonner avec une adresse diffÃ©rente de celle
+avec laquelle vous Ã©crivez, utilisez la commande suivante :
   unsubscribe $LIST ADRESSE
-(Remplacez ADRESSE par l'adresse avec laquelle vous désirez vous
+(Remplacez ADRESSE par l'adresse avec laquelle vous dÃ©sirez vous
  abonner.)
 
 Si vous ne connaissez pas l'adresse de votre abonnement, vous pouvez
-envoyer la commande pour voir la liste complète des abonnés, si
-toutefois cette fonctionnalité a peut être été restreinte par les
+envoyer la commande pour voir la liste complÃ¨te des abonnÃ©s, si
+toutefois cette fonctionnalitÃ© a peut Ãªtre Ã©tÃ© restreinte par les
 administrateurs :
   who $LIST
 
-Si vous désirez chercher toutes les listes publiques du domaine pour
+Si vous dÃ©sirez chercher toutes les listes publiques du domaine pour
 vos abonnements, utilisez la commande suivante :
   which MOTIF
 Remplacez MOTIF par un morceau de votre adresse. Par exemple, si vous
@@ -53,13 +53,13 @@ avec comme adresse jane@example.org, utilisez la commande :
 AIDE
 ====
 
-Pour en connaître plus à propos du serveur et les commandes qu'il
-comprends, envoyez un message à
+Pour en connaÃ®tre plus Ã  propos du serveur et les commandes qu'il
+comprends, envoyez un message Ã 
   $MJ
 Et dans le corps du message, mettez la commande :
   help
 
 Pour contacter les administrateurs de la liste $LIST, envoyez un
-message à :
+message Ã  :
   $OWNER
 

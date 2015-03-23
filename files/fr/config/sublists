@@ -1,5 +1,5 @@
-Les sous listes sont utilisées pour définir des listes auxiliaires qui
-sont affichées par la commande "lists-aux". Chaque ligne contient le
-nom de la sous liste (la sous liste doit déjà exister) suivi d'un ':'
-et d'une description optionnelle. La description est utilisée pour
+Les sous listes sont utilisÃ©es pour dÃ©finir des listes auxiliaires qui
+sont affichÃ©es par la commande "lists-aux". Chaque ligne contient le
+nom de la sous liste (la sous liste doit dÃ©jÃ  exister) suivi d'un ':'
+et d'une description optionnelle. La description est utilisÃ©e pour
 l'affichage de la commande "lists-aux".

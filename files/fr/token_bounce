@@ -1,15 +1,15 @@
-La requête suivante :
+La requÃªte suivante :
   "$CMDLINE"
-a été envoyée à $SITE le
+a Ã©tÃ© envoyÃ©e Ã  $SITE le
   $DATE
 par $REQUESTER.
 
-La requête n'a pas été exécutée totalement car les instructions du
-ticket $TOKEN n'ont pas pu être envoyées à
+La requÃªte n'a pas Ã©tÃ© exÃ©cutÃ©e totalement car les instructions du
+ticket $TOKEN n'ont pas pu Ãªtre envoyÃ©es Ã 
   $VICTIM
 pour les raisons suivantes :
 $REASONS
 
 $DELETED
-Le message d'erreur qui décrit le problème de réception est attaché.
-(Le message est a été traité par le gestionnaire d'erreurs $HANDLER.)
+Le message d'erreur qui dÃ©crit le problÃ¨me de rÃ©ception est attachÃ©.
+(Le message est a Ã©tÃ© traitÃ© par le gestionnaire d'erreurs $HANDLER.)

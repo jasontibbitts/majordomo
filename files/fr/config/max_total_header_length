@@ -1,4 +1,4 @@
-Le paramètre "max_total_header_length" contient la taille maximum de
-toutes les en-têtes d'un message. Par défaut, un message qui
-excéderait cette limite serais envoyé aux modérateurs pour
+Le paramÃ¨tre "max_total_header_length" contient la taille maximum de
+toutes les en-tÃªtes d'un message. Par dÃ©faut, un message qui
+excÃ©derait cette limite serais envoyÃ© aux modÃ©rateurs pour
 approbation.

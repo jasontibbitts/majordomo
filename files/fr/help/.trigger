@@ -1,4 +1,4 @@
-fichier d'aide par défaut pour les commandes non utilisateurs
+fichier d'aide par dÃ©faut pour les commandes non utilisateurs
 R
 text/plain
 ISO-8859-15

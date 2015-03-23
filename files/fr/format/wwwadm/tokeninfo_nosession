@@ -1,14 +1,14 @@
 <!-- Majordomo tokeninfo_nosession format file -->
 <p>
-Le $DATE, $REQUESTER a fait la requête suivante sur $SITE&nbsp;:
+Le $DATE, $REQUESTER a fait la requÃªte suivante sur $SITE&nbsp;:
 <blockquote>
 $CMDLINE
 </blockquote>
 </p>
 
 <form method="POST" action="$CGIURL">
-?WILLACK Si vous désirez expliquer les raisons pour
-?WILLACK $HELP:ACCEPTer ou $HELP:REJECTer la requête, entrez la
+?WILLACK Si vous dÃ©sirez expliquer les raisons pour
+?WILLACK $HELP:ACCEPTer ou $HELP:REJECTer la requÃªte, entrez la
 ?WILLACK ici&nbsp;:
 ?WILLACK <br>
 ?WILLACK <textarea rows="4" cols="70" name="xplanation">
@@ -21,16 +21,16 @@ $CMDLINE
     </td>
     <td>
       Cliquez sur le bouton <b>accept</b> pour approuver la
-      requête.
+      requÃªte.
 ?ISPOST  <tr>
 ?ISPOST    <td>
 ?ISPOST      <input type="submit" name="func" value="accept-archive">
 ?ISPOST    </td>
 ?ISPOST    <td>
 ?ISPOST      Cliquez sur le bouton <b>accept-archive</b> pour
-?ISPOST      approuver la requête. Le message sera
-?ISPOST      stockée dans les archives mais ne sera pas
-?ISPOST      distribuée aux abonnés
+?ISPOST      approuver la requÃªte. Le message sera
+?ISPOST      stockÃ©e dans les archives mais ne sera pas
+?ISPOST      distribuÃ©e aux abonnÃ©s
 ?ISPOST    </td>
 ?ISPOST  <tr>
 ?ISPOST    <td>
@@ -38,7 +38,7 @@ $CMDLINE
 ?ISPOST    </td>
 ?ISPOST    <td>
 ?ISPOST      Cliquez sur le bouton <b>accept-hide</b> pour approuver
-?ISPOST      la requête. Le message ne sera pas affiché
+?ISPOST      la requÃªte. Le message ne sera pas affichÃ©
 ?ISPOST      dans les archives publiques.
 ?ISPOST    </td>
     </td>
@@ -48,8 +48,8 @@ $CMDLINE
     </td>
     <td>
       Cliquez sur le bouton <b>reject</b> pour rejeter la
-      requête.
-?WILLACK Une explication sera envoyée à $VICTIM.
+      requÃªte.
+?WILLACK Une explication sera envoyÃ©e Ã  $VICTIM.
     </td>
 ?WILLACK  <tr>
 ?WILLACK    <td>
@@ -57,8 +57,8 @@ $CMDLINE
 ?WILLACK    </td>
 ?WILLACK    <td>
 ?WILLACK      Cliquez sur <b>reject-quiet</b> pour rejeter la
-?WILLACK      requête. Aucune explication ne sera
-?WILLACK      envoyée à $VICTIM.
+?WILLACK      requÃªte. Aucune explication ne sera
+?WILLACK      envoyÃ©e Ã  $VICTIM.
 ?WILLACK    </td>
 </table>
   

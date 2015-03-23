@@ -7,34 +7,34 @@ liste, requis, la liste en question (ou global)
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 La commande "newinfo" remplacera le contenu du fichier "/info" qui est
-affiché par la commande "info". Par défaut, ce fichier est aussi
-envoyé aux nouveaux abonnés lorsqu'ils s'abonnent à une liste (référez
-vous à "help configset_welcome_files" pour plus de détails).
+affichÃ© par la commande "info". Par dÃ©faut, ce fichier est aussi
+envoyÃ© aux nouveaux abonnÃ©s lorsqu'ils s'abonnent Ã  une liste (rÃ©fÃ©rez
+vous Ã  "help configset_welcome_files" pour plus de dÃ©tails).
 
-Le nouveau contenu du fichier info doit être inclu dans un document
-"ici" (référez vous à "help here_document" pour plus de détails). Par
+Le nouveau contenu du fichier info doit Ãªtre inclu dans un document
+"ici" (rÃ©fÃ©rez vous Ã  "help here_document" pour plus de dÃ©tails). Par
 exemple, la commande suivante remplacera le contenu du fichier info
-avec la phrase "Salut, abonné !" :
+avec la phrase "Salut, abonnÃ© !" :
 
 newinfo LISTE <<ABCD
-Salut, abonné !
+Salut, abonnÃ© !
 ABCD
 
 La commande "newinfo" est un raccourci pour la commande "put". Par
-exemple, la commande "put" suivante est identique à la commande
-"newinfo" de l'exemple précédent :
+exemple, la commande "put" suivante est identique Ã  la commande
+"newinfo" de l'exemple prÃ©cÃ©dent :
 
 put LISTE /info List Information <<ABCD
-Salut, abonné !
+Salut, abonnÃ© !
 ABCD
 
-Par défaut, un mot de passe administratif est requis pour utiliser la
-commande "newinfo". Les restrictions d'accès de la commande "put"
-(déterminées par le paramètre "access_rules) s'appliquent à la
+Par dÃ©faut, un mot de passe administratif est requis pour utiliser la
+commande "newinfo". Les restrictions d'accÃ¨s de la commande "put"
+(dÃ©terminÃ©es par le paramÃ¨tre "access_rules) s'appliquent Ã  la
 commande "newinfo".
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_documents
    help configset_access_rules
    help configset_welcome_files

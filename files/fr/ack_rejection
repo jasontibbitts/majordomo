@@ -1,12 +1,12 @@
-La requête
+La requÃªte
   "$CMDLINE"
 que vous avez fait le
   $DATE
-a été rejetée par les modérateurs de la liste $LIST.
+a Ã©tÃ© rejetÃ©e par les modÃ©rateurs de la liste $LIST.
 
-Si une raison a été donnée pour justifier ce rejet, elle
-apparaît ici :
+Si une raison a Ã©tÃ© donnÃ©e pour justifier ce rejet, elle
+apparaÃ®t ici :
 $MESSAGE
 
-Tout ce qui est en rapport à propos de la session
-$SESSIONID sera inclus en fichier attaché.
+Tout ce qui est en rapport Ã  propos de la session
+$SESSIONID sera inclus en fichier attachÃ©.

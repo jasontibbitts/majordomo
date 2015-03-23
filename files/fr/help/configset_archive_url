@@ -3,9 +3,9 @@ configset  GLOBAL  archive_url = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset liste archive_url = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : vide
-Type de donnée    : chaîne
-Catégorie         : archive
+Valeur par dÃ©faut : vide
+Type de donnÃ©e    : chaÃ®ne
+CatÃ©gorie         : archive
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -15,17 +15,17 @@ configset liste archive_url = http://www.example.org/archives/
 
 $INCLUDE-config/archive_url
 
-Si votre liste à une archive Internet qui n'est pas maintenue par
-Majordomo, le paramètre "archive_url" peut être utilisé pour afficher
+Si votre liste Ã  une archive Internet qui n'est pas maintenue par
+Majordomo, le paramÃ¨tre "archive_url" peut Ãªtre utilisÃ© pour afficher
 son emplacement. Cet emplacement est habituellement l'adresse Internet
 d'une page WWW ou d'un dossier FTP.
 
-Cet emplacement est affiché avec la commande "lists-full". Il peut
-aussi être utilisé dans le paramètre "message_headers" en utilisant la
+Cet emplacement est affichÃ© avec la commande "lists-full". Il peut
+aussi Ãªtre utilisÃ© dans le paramÃ¨tre "message_headers" en utilisant la
 variable ARCURL.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
    help archive
    help configset_message_headers 

@@ -1,4 +1,4 @@
 La commande "priority" permet de dire quels domaines et listes
-seront traités en premier lorsque des messages sont mis en file
+seront traitÃ©s en premier lorsque des messages sont mis en file
 d'attente. Plus le nombre est grand, plus le domaine ou la liste sont
-traités rapidement.
+traitÃ©s rapidement.

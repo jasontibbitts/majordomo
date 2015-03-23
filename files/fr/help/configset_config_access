@@ -7,9 +7,9 @@ configset liste config_access <<ENDTAG
 [VALEURS]
 ENDTAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : vide
-Type de donnée    : tableau d'accès
-Catégorie         : access
+Valeur par dÃ©faut : vide
+Type de donnÃ©e    : tableau d'accÃ¨s
+CatÃ©gorie         : access
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -20,15 +20,15 @@ ENDTAG
 
 $INCLUDE-config/config_access
 
-Certains paramètres de configuration doivent pouvoir garder un niveau
-de visibilité de zéro, ou un paramètre peut ne pas avoir d'effet dans
+Certains paramÃ¨tres de configuration doivent pouvoir garder un niveau
+de visibilitÃ© de zÃ©ro, ou un paramÃ¨tre peut ne pas avoir d'effet dans
 certaines circonstances.
 
-Pour les listes ordinaires, seul le paramètre "debug" doit avoir un
-niveau de visibilité de zéro.
+Pour les listes ordinaires, seul le paramÃ¨tre "debug" doit avoir un
+niveau de visibilitÃ© de zÃ©ro.
 
-Pour la pseudo liste GLOBAL, les paramètres suivants doivent avoir un
-niveau de visibilité de zéro :
+Pour la pseudo liste GLOBAL, les paramÃ¨tres suivants doivent avoir un
+niveau de visibilitÃ© de zÃ©ro :
   chunksize
   debug
   max_in_core
@@ -43,7 +43,7 @@ niveau de visibilité de zéro :
   www_help_window
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_domain
    help configset
    help configshow

@@ -1,4 +1,4 @@
-Le paramètre "post_lifetime" règle la durée de vie des statistiques de
-messages. Ces statistiques sont utilisées par le paramètre
-"post_limits" pour restreindre l'accès aux personnes qui postent trop
+Le paramÃ¨tre "post_lifetime" rÃ¨gle la durÃ©e de vie des statistiques de
+messages. Ces statistiques sont utilisÃ©es par le paramÃ¨tre
+"post_limits" pour restreindre l'accÃ¨s aux personnes qui postent trop
 de messages.

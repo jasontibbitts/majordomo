@@ -1,3 +1,3 @@
-Si le paramètre "override_reply_to" est actif, et que le paramètre de
-configuration "reply_to" est rempli, l'en-tête reply-to sera remplacée
-pour chaque message posté.
+Si le paramÃ¨tre "override_reply_to" est actif, et que le paramÃ¨tre de
+configuration "reply_to" est rempli, l'en-tÃªte reply-to sera remplacÃ©e
+pour chaque message postÃ©.

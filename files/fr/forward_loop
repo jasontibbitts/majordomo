@@ -1,8 +1,8 @@
-# La commande suivante n'a pas été transférée à :
+# La commande suivante n'a pas Ã©tÃ© transfÃ©rÃ©e Ã  :
 #   $NEWADDRESS
 # au lieu de :
 #   $USER
-# car cela aurais résulté d'une boucle
+# car cela aurais rÃ©sultÃ© d'une boucle
 
 $CMDLINE
 

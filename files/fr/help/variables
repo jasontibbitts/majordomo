@@ -1,51 +1,51 @@
-          Variables de substitutions et modèles de fichiers
+          Variables de substitutions et modÃ¨les de fichiers
 
-Lorsque Majordomo envoie un message en réponse à une requête, le
-document qui est envoyé est en général un modèle. Le modèle peut avoir
-un ou plusieurs mots clés variables, pour lesquelles Majordomo
-substitue automatiquement la valeur appropriée. Les variables de
-substitutions sont constituées d'une signe dollar, suivi de lettres
-capitales et caractères souligné.
+Lorsque Majordomo envoie un message en rÃ©ponse Ã  une requÃªte, le
+document qui est envoyÃ© est en gÃ©nÃ©ral un modÃ¨le. Le modÃ¨le peut avoir
+un ou plusieurs mots clÃ©s variables, pour lesquelles Majordomo
+substitue automatiquement la valeur appropriÃ©e. Les variables de
+substitutions sont constituÃ©es d'une signe dollar, suivi de lettres
+capitales et caractÃ¨res soulignÃ©.
 
 Par exemple, lorsque vous utilisez la commande :
    help overview
-Vers la fin du document, il est écrit :
+Vers la fin du document, il est Ã©crit :
    Majordomo 2, version \$VERSION
-Toutefois, ce que vous voyez sur votre écran est :
+Toutefois, ce que vous voyez sur votre Ã©cran est :
    Majordomo 2, version $VERSION
 
-Majordomo substitue automatiquement le numéro de version pour le mot
-clé VERSION.
+Majordomo substitue automatiquement le numÃ©ro de version pour le mot
+clÃ© VERSION.
 
 L'utilisation la plus importante des variables de substitutions est
 dans les documents "faq", "info" et "intro" qui sont disponibles via
-les commandes des mêmes noms. Les variables de substitutions sont
-aussi utilisées par certains paramètres de configuration ainsi que les
+les commandes des mÃªmes noms. Les variables de substitutions sont
+aussi utilisÃ©es par certains paramÃ¨tres de configuration ainsi que les
 commandes "announce" et "help".
 
-Les variables de substitutions ne sont pas la même chose que les
-variables d'accès. Référez vous à "help access_variables" pour plus
-d'informations sur les variables d'accès.
+Les variables de substitutions ne sont pas la mÃªme chose que les
+variables d'accÃ¨s. RÃ©fÃ©rez vous Ã  "help access_variables" pour plus
+d'informations sur les variables d'accÃ¨s.
 
-Comme exemple d'utilisation, utiliser la chaîne suivante dans un
+Comme exemple d'utilisation, utiliser la chaÃ®ne suivante dans un
 fichier :
   \$MJ
 affichera l'adresse de l'interface email de Majordomo avant que
 l'utilisateur ne voie le contenu du fichier.
 
-Lorsque vous éditez un document qui contient des variables de
+Lorsque vous Ã©ditez un document qui contient des variables de
 substitutions, assurez vous de laisser assez de place pour que le
-texte soit inséré à la place de la variable. Autrement, les lignes
-dans le fichier pourraient être plus longues que ce que vous
+texte soit insÃ©rÃ© Ã  la place de la variable. Autrement, les lignes
+dans le fichier pourraient Ãªtre plus longues que ce que vous
 supposiez.
 
-Les variables qui ne sont pas supportées par un document spécifique ou
-un paramètre de configuration ne seront pas altérées. Référez vous à
+Les variables qui ne sont pas supportÃ©es par un document spÃ©cifique ou
+un paramÃ¨tre de configuration ne seront pas altÃ©rÃ©es. RÃ©fÃ©rez vous Ã 
 "help error_files", "help format_files" et "help reply_files" pour une
 liste des documents et des substitutions qu'ils supportent.
 
-La variable \$INCLUDE peut être utilisée pour incorporer un document
-séparé au document courant. Cette variable doit être suivie d'un tiret
+La variable \$INCLUDE peut Ãªtre utilisÃ©e pour incorporer un document
+sÃ©parÃ© au document courant. Cette variable doit Ãªtre suivie d'un tiret
 et de l'emplacement du fichier dans l'espace de la liste. Par exemple,
 la substitutions suivante :
 
@@ -53,78 +53,78 @@ la substitutions suivante :
 
 inclura le contenu du document "help topics" dans le fichier
 courant. La ligne qui contient la substitution doit se terminer
-immédiatement après l'emplacement du fichier.
+immÃ©diatement aprÃ¨s l'emplacement du fichier.
 
 Les fichiers inclus peuvent aussi utiliser la substitution \$INCLUDE,
-mais plus de 3 niveaux d'imbrication sont pris en compte comme étant
+mais plus de 3 niveaux d'imbrication sont pris en compte comme Ã©tant
 une boucle infinie, ce qui cause l'affichage d'un message d'erreur.
 
-La substitution \$INCLUDE est supportée par les fichiers de réponses,
+La substitution \$INCLUDE est supportÃ©e par les fichiers de rÃ©ponses,
 mais pas par les fichiers d'erreurs ou les fichiers de format.
 
-Si vous avez mal écris une variable, ou utilisé une qui n'est pas
-définie, elle vous apparaîtra exactement comme vous l'avez écrite, le
+Si vous avez mal Ã©cris une variable, ou utilisÃ© une qui n'est pas
+dÃ©finie, elle vous apparaÃ®tra exactement comme vous l'avez Ã©crite, le
 dollar inclus.
 
-Vous pouvez empêcher la substitution de s'effectuer en précédant le
+Vous pouvez empÃªcher la substitution de s'effectuer en prÃ©cÃ©dant le
 dollar par un anti-slash, comme dans :
   \\$MAJORDOMO
-qui apparaîtra simplement comme "\$MAJORDOMO" après que les
-substitutions soient effectuées.
+qui apparaÃ®tra simplement comme "\$MAJORDOMO" aprÃ¨s que les
+substitutions soient effectuÃ©es.
 
-De plus, le texte peut être limité et justifié, comme illustré dans
+De plus, le texte peut Ãªtre limitÃ© et justifiÃ©, comme illustrÃ© dans
 cet exemple :
   \$LIST:-18 X \$COMMAND:11
 
-Le nom de la liste sera remplis d'espaces jusqu'au 18è caractère et
-sera justifié à gauche. La commande est remplie jusqu'à 11 caractères
-et est justifiée à gauche. Si le nom de la liste est "aardvark" et que
+Le nom de la liste sera remplis d'espaces jusqu'au 18Ã¨ caractÃ¨re et
+sera justifiÃ© Ã  gauche. La commande est remplie jusqu'Ã  11 caractÃ¨res
+et est justifiÃ©e Ã  gauche. Si le nom de la liste est "aardvark" et que
 la commande est "subscribe", la ligne ainsi produite sera :
   aardvark           X   subscribe
 
-Le remplissage est très pratique pour les commandes, comme
-"who-enhanced" qui affiche une table de données avec chaque colonne
-alignée proprement.
+Le remplissage est trÃ¨s pratique pour les commandes, comme
+"who-enhanced" qui affiche une table de donnÃ©es avec chaque colonne
+alignÃ©e proprement.
 
-Référez vous à "help get" et "help put" pour plus d'informations sur
-comment voir et modifier et créer les fichiers d'erreurs, de format et
-de réponses qui utilisent ces substitutions.
+RÃ©fÃ©rez vous Ã  "help get" et "help put" pour plus d'informations sur
+comment voir et modifier et crÃ©er les fichiers d'erreurs, de format et
+de rÃ©ponses qui utilisent ces substitutions.
 
 
 Variables de substitutions standards
 -----------------------------------
 
-Il y a un jeu de variables de substitutions, qui s'appliquent à la
-majorité des fichiers d'erreurs, de format et de réponses de
+Il y a un jeu de variables de substitutions, qui s'appliquent Ã  la
+majoritÃ© des fichiers d'erreurs, de format et de rÃ©ponses de
 Majordomo. Leurs noms et valeurs (dans le contexte de la liste GLOBAL)
-sont affichés ci dessous. Naturellement, certaines de ces variables
+sont affichÃ©s ci dessous. Naturellement, certaines de ces variables
 (LIST, OWNER, REQUEST, SUBLIST, et WHOAMI) varieront suivant la liste.
 
 \$ALL_FOOTERS
 \$ALL_FRONTERS
   Tous les "message_footers" et "message_fronters" de la liste,
-  respectivement (si ils existent), séparés par des lignes vides.
+  respectivement (si ils existent), sÃ©parÃ©s par des lignes vides.
 
 \$ARCURL      $ARCURL
-  (L'URL qui permet d'accéder à l'archive externe. Cette valeur est
-   déterminée par le paramètre de configuration archive_url. Référez
-   vous à "help configset_archive_url" pour plus d'informations.)
+  (L'URL qui permet d'accÃ©der Ã  l'archive externe. Cette valeur est
+   dÃ©terminÃ©e par le paramÃ¨tre de configuration archive_url. RÃ©fÃ©rez
+   vous Ã  "help configset_archive_url" pour plus d'informations.)
 
 \$CONFIRM_URL $CONFIRM_URL
   (L'URL de l'interface WWW de confirmation d'une inscription, message
-   posté, ou tout autre commande Majordomo.)
+   postÃ©, ou tout autre commande Majordomo.)
 
 \$DATE
-  La date à laquelle la requête a été envoyée. Dans certains cas, cela
-  peut être l'en-tête "Date" d'un message posté.
+  La date Ã  laquelle la requÃªte a Ã©tÃ© envoyÃ©e. Dans certains cas, cela
+  peut Ãªtre l'en-tÃªte "Date" d'un message postÃ©.
 
 \$DOMAIN      $DOMAIN
-  (Le nom du domaine courant, déterminé lors de l'installation.)
+  (Le nom du domaine courant, dÃ©terminÃ© lors de l'installation.)
 
 \$FOOTER
 \$FRONTER
   Le "message_footer" et le "message_fronter", respectivement. Si il y
-  a plusieurs fronters et footers, le premier de chaque sera utilisé.
+  a plusieurs fronters et footers, le premier de chaque sera utilisÃ©.
 
 \$LIST        $LIST
   (Le nom de la liste courante, ou GLOBAL.)
@@ -140,30 +140,30 @@ sont affichés ci dessous. Naturellement, certaines de ces variables
   (L'adresse email des administrateurs de la liste courante.)
 
 \$PWLENGTH    $PWLENGTH
-  (La taille minimum d'un mot de passe. Référez vous "help password"
-   et "help admin_passwords" pour plus de détails.)
+  (La taille minimum d'un mot de passe. RÃ©fÃ©rez vous "help password"
+   et "help admin_passwords" pour plus de dÃ©tails.)
 
 \$RANDOM_FOOTER
 \$RANDOM_FRONTER
-  Un "message_footer" et "message_fronter", respectivement, tiré au
+  Un "message_footer" et "message_fronter", respectivement, tirÃ© au
   hasard.
 
 \$REQUEST     $REQUEST
   (L'adresse "request" pour une liste.)
 
 \$SITE        $SITE
-  (La description de ce domaine, tirée du paramètre de configuration
+  (La description de ce domaine, tirÃ©e du paramÃ¨tre de configuration
    "site_name".)
 
 \$SUBLIST     $SUBLIST
-  (Une liste auxiliaire, si utilisée. Référez vous à "help
-   auxiliary_list" pour plus de détails.)
+  (Une liste auxiliaire, si utilisÃ©e. RÃ©fÃ©rez vous Ã  "help
+   auxiliary_list" pour plus de dÃ©tails.)
 
 \$UCLIST      $UCLIST
   (Le nom de la liste courante, en majuscules.)
 
 \$VERSION     $VERSION
-  (La version de Majordomo 2 utilisée sur ce site.)
+  (La version de Majordomo 2 utilisÃ©e sur ce site.)
 
 \$WHEREAMI    $WHEREAMI
   (Le nom du domaine courant.)
@@ -176,20 +176,20 @@ sont affichés ci dessous. Naturellement, certaines de ces variables
   (Adresse de l'interface WWW pour les administrateurs de listes)
 
 \$WWWUSR_URL  $WWWUSR_URL
-  (Adresse de l'interface WWW pour les abonnés)
+  (Adresse de l'interface WWW pour les abonnÃ©s)
 
 Autres variables
 ----------------
 
-En temps voulu, la liste complète des autres variables supportées par
-les fichiers error, format et reply seront présents ici.
+En temps voulu, la liste complÃ¨te des autres variables supportÃ©es par
+les fichiers error, format et reply seront prÃ©sents ici.
 
-Référez vous à "help error_files" pour une description des fichiers
+RÃ©fÃ©rez vous Ã  "help error_files" pour une description des fichiers
 d'erreur
-Référez vous à "help format_files" pour une description des fichiers
+RÃ©fÃ©rez vous Ã  "help format_files" pour une description des fichiers
 de format
-Référez vous à "help reply_files" pour une description des fichiers de
-réponses
+RÃ©fÃ©rez vous Ã  "help reply_files" pour une description des fichiers de
+rÃ©ponses
 
 \$ACKDENY_CHECKBOX
 \$ACKPOST_CHECKBOX
@@ -204,8 +204,8 @@ réponses
 \$REPLYTO_CHECKBOX
 \$REWRITEFROM_CHECKBOX
 \$SELFCOPY_CHECKBOX
-  Cases à cocher pour les formulaires HTML utilisés dans les
-  interfaces WWW pour afficher les réglages personnels d'un abonnement
+  Cases Ã  cocher pour les formulaires HTML utilisÃ©s dans les
+  interfaces WWW pour afficher les rÃ©glages personnels d'un abonnement
   particulier.
 
 \$ADDRESS
@@ -217,12 +217,12 @@ réponses
 
 \$APPROVALS
   Le nombre de personnes qui doivent utiliser la commande "accept" pour
-  approuver une requête en attente.
+  approuver une requÃªte en attente.
 
 \$ARCHIVE
-  Le nom d'archive d'un message posté, par exemple "200008". Ce n'est
-  pas la même chose que le numéro de séquence. Référez vous à "help
-  archive" pour plus de détails.
+  Le nom d'archive d'un message postÃ©, par exemple "200008". Ce n'est
+  pas la mÃªme chose que le numÃ©ro de sÃ©quence. RÃ©fÃ©rez vous Ã  "help
+  archive" pour plus de dÃ©tails.
 
 \$AUTHOR_NEXT
 \$AUTHOR_PREV
@@ -234,116 +234,116 @@ réponses
 \$SUBJECT_PREV
 \$THREAD_NEXT
 \$THREAD_PREV
-  Ces substitutions contiennent les numéros de messages des messages
-  suivants et précédents dans une archive de liste, en fonction de
-  l'ordre dans lequel les messages sont triés.
+  Ces substitutions contiennent les numÃ©ros de messages des messages
+  suivants et prÃ©cÃ©dents dans une archive de liste, en fonction de
+  l'ordre dans lequel les messages sont triÃ©s.
 
 \$CAN_READ
-  Ce booléen est vrai lorsqu'une personne effectuant la requête à la
+  Ce boolÃ©en est vrai lorsqu'une personne effectuant la requÃªte Ã  la
   permission d'utiliser la commande archive pour une liste.
 
 \$CATEGORY
-  Une catégorie de configuration.
+  Une catÃ©gorie de configuration.
 
 \$CGIDATA
   Un morceau d'URL du script CGI courant, pour utiliser dans
-  l'interface web lorsqu'une adresse est utilisée comme ancre
+  l'interface web lorsqu'une adresse est utilisÃ©e comme ancre
   ("<a href=...>").
 
 \$CGIURL
-  L'URL du script CGI courant, lorsqu'une interface web est utilisée.
+  L'URL du script CGI courant, lorsqu'une interface web est utilisÃ©e.
 
 \$CHANGED
-  Cette substitution est utilisée par la commande "password" pour
-  indiquer si le mot de passe a été modifié ou juste rapporté. Sa
-  valeur est " " si le mot de passe a été modifié, '' sinon.
+  Cette substitution est utilisÃ©e par la commande "password" pour
+  indiquer si le mot de passe a Ã©tÃ© modifiÃ© ou juste rapportÃ©. Sa
+  valeur est " " si le mot de passe a Ã©tÃ© modifiÃ©, '' sinon.
 
 \$CHARSET
-  Le jeu de caractères d'un message ou d'un volet de message.
+  Le jeu de caractÃ¨res d'un message ou d'un volet de message.
 
 \$CHUNKSIZE
-  Le nombre d'adresses affichées en même temps par la commande "who"
+  Le nombre d'adresses affichÃ©es en mÃªme temps par la commande "who"
   sur l'interface wwwadm.
 
 \$CMDLINE
-  La ligne de commande qui serai utilisé pour exécuter une commande
+  La ligne de commande qui serai utilisÃ© pour exÃ©cuter une commande
   via email ou le programme mj_shell.
 
 \$CMDPASS
-  Le mot de passe avec lequel la commande courante a été lancée.
+  Le mot de passe avec lequel la commande courante a Ã©tÃ© lancÃ©e.
 
 \$COMMENT
-  Une description d'une catégorie de configuration ou d'un paramètre.
+  Une description d'une catÃ©gorie de configuration ou d'un paramÃ¨tre.
 
 \$CONSULT
   " " si e type d'une commande en attente est "consult". '' sinon.
-  "consult" signifie que le modérateur doit confirmer la commande.
+  "consult" signifie que le modÃ©rateur doit confirmer la commande.
 
 \$CONTENT_TYPE
   Le type de contenu d'un message ou d'un volet de message.
 
 \$COUNT
-  Le nombre de paramètres dans une catégorie de configuration.
+  Le nombre de paramÃ¨tres dans une catÃ©gorie de configuration.
 
 \$DESCRIPTION
-  La description d'une liste, déterminée par les paramètres
+  La description d'une liste, dÃ©terminÃ©e par les paramÃ¨tres
   "description" et "description_long". Aussi la description d'une
-  compilation, déterminée par le paramètre "digests".
+  compilation, dÃ©terminÃ©e par le paramÃ¨tre "digests".
 
 \$DIGESTNAME
-  Le nom d'une compilation, déterminée par le paramètre "digests".
+  Le nom d'une compilation, dÃ©terminÃ©e par le paramÃ¨tre "digests".
 
 \$ELAPSED
-  Le temps, en seconde, requis pour l'exécution d'une commande.
+  Le temps, en seconde, requis pour l'exÃ©cution d'une commande.
 
 \$EXPIRE
-  Le nombre de jours avant qu'une requête en attente n'expire, ou dans
-  certains cas, la date à laquelle elle expirera. Cette valeur est
-  déterminée par le paramètre "token_lifetime". (référez vous à "help
-  configset_token_lifetime" pour plus de détails.)
+  Le nombre de jours avant qu'une requÃªte en attente n'expire, ou dans
+  certains cas, la date Ã  laquelle elle expirera. Cette valeur est
+  dÃ©terminÃ©e par le paramÃ¨tre "token_lifetime". (rÃ©fÃ©rez vous Ã  "help
+  configset_token_lifetime" pour plus de dÃ©tails.)
 
 \$EXTRA
-  Le contenu du paramètre "extra" des CGI, qui contient habituellement
+  Le contenu du paramÃ¨tre "extra" des CGI, qui contient habituellement
   les arguments d'une commande.
 
 \$ERROR
-  Le message d'erreur qui décris pourquoi la commande a échouée.
+  Le message d'erreur qui dÃ©cris pourquoi la commande a Ã©chouÃ©e.
 
 \$FAIL
-  " " si la commande invoquée par la commande "accept" a échouée, ''
-  sinon. Compte aussi le nombre de commandes qui ont échouées.
+  " " si la commande invoquÃ©e par la commande "accept" a Ã©chouÃ©e, ''
+  sinon. Compte aussi le nombre de commandes qui ont Ã©chouÃ©es.
 
 \$FINISH
-  La date du dernier groupe de messages ou de requêtes.
+  La date du dernier groupe de messages ou de requÃªtes.
 
 \$FULFILL
-  La date à laquelle une commande mise en attente sera complétée.
-  (référez vous à "help delay" pour plus d'informations.)
+  La date Ã  laquelle une commande mise en attente sera complÃ©tÃ©e.
+  (rÃ©fÃ©rez vous Ã  "help delay" pour plus d'informations.)
 
 \$HOST
-  L'hôte depuis lequel le message posté est distribué aux abonnés de
-  la liste. Sa valeur provient du paramètre de configuration
-  "resend_host". (Référez vous à "help configset_resend_host" pour
+  L'hÃ´te depuis lequel le message postÃ© est distribuÃ© aux abonnÃ©s de
+  la liste. Sa valeur provient du paramÃ¨tre de configuration
+  "resend_host". (RÃ©fÃ©rez vous Ã  "help configset_resend_host" pour
   plus d'informations.)
 
 \$INACTIVE
-  " " si le paramètre de configuration "active" d'une liste est
-  désactivé, '' sinon.
+  " " si le paramÃ¨tre de configuration "active" d'une liste est
+  dÃ©sactivÃ©, '' sinon.
 
 \$ISPOST
-  " " si le ticket se réfère à un message posté en attente, '' si le
-  ticket se réfère à une commande Majordomo.
+  " " si le ticket se rÃ©fÃ¨re Ã  un message postÃ© en attente, '' si le
+  ticket se rÃ©fÃ¨re Ã  une commande Majordomo.
 
 \$ISSUES
-  Le nombre de fois qu'une compilation a été envoyée.
+  Le nombre de fois qu'une compilation a Ã©tÃ© envoyÃ©e.
 
 \$LAST_RUN
 \$NEWEST_AGE
 \$NEXT_RUN
 \$OLDEST_AGE
-  Le statut d'une compilation : lorsqu'elle a été envoyée la dernière
-  fois, quand est ce que la prochaine peut être sera envoyée, et l'âge
-  des premier et dernier messages qui attendent d'être envoyés.
+  Le statut d'une compilation : lorsqu'elle a Ã©tÃ© envoyÃ©e la derniÃ¨re
+  fois, quand est ce que la prochaine peut Ãªtre sera envoyÃ©e, et l'Ã¢ge
+  des premier et dernier messages qui attendent d'Ãªtre envoyÃ©s.
  
 \$LOCATION
   Dans un message d'erreur pour une adresse email invalide, cette
@@ -355,222 +355,222 @@ réponses
 \$MIN_AGE
 \$MIN_MSGS
 \$MIN_SIZE
-  Contraintes sur la délivrance d'une compilation, comme déterminée
-  par le paramètre "digests".
+  Contraintes sur la dÃ©livrance d'une compilation, comme dÃ©terminÃ©e
+  par le paramÃ¨tre "digests".
 
 \$MAXLENGTH
-  La taille limite d'un message posté, déterminé par le paramètre
+  La taille limite d'un message postÃ©, dÃ©terminÃ© par le paramÃ¨tre
   "maxlength".
 
 \$MESSAGE_ID
-  Le message ID, de l'en-tête "Message-ID", d'un message posté.
+  Le message ID, de l'en-tÃªte "Message-ID", d'un message postÃ©.
 
 \$MSGNO
-  Le non de l'archive ainsi que le numéro du message posté, par
-  exemple "200008/12". Ce n'est pas le même numéro que le numéro de
-  séquence. Référez vous à "help archive" pour plus de détails.
+  Le non de l'archive ainsi que le numÃ©ro du message postÃ©, par
+  exemple "200008/12". Ce n'est pas le mÃªme numÃ©ro que le numÃ©ro de
+  sÃ©quence. RÃ©fÃ©rez vous Ã  "help archive" pour plus de dÃ©tails.
 
 \$NEEDCOPY
-  La liste des adresses qui ont besoin d'être en copie pour que tout le
-  monde reçoive une copie de la réponse. Cela inclue l'adresse de la
-  liste ainsi que les adresses des non abonnés à la liste dont les
-  adresses apparaissent dans les en-têtes "To:" et "CC:".
+  La liste des adresses qui ont besoin d'Ãªtre en copie pour que tout le
+  monde reÃ§oive une copie de la rÃ©ponse. Cela inclue l'adresse de la
+  liste ainsi que les adresses des non abonnÃ©s Ã  la liste dont les
+  adresses apparaissent dans les en-tÃªtes "To:" et "CC:".
 
 \$NEWLIST
-  Le nom le plus récent d'une liste qui a été créé, renommé, ou détruit
+  Le nom le plus rÃ©cent d'une liste qui a Ã©tÃ© crÃ©Ã©, renommÃ©, ou dÃ©truit
   avec la commande "createlist".
 
 \$NOARCHIVE
-  " " si l'archive d'une nouvelle liste n'a pas été créée
+  " " si l'archive d'une nouvelle liste n'a pas Ã©tÃ© crÃ©Ã©e
   automatiquement. '' sinon.
 
 \$NOTIFIED
-  " " si un message de confirmation a été envoyé à la victime de la
+  " " si un message de confirmation a Ã©tÃ© envoyÃ© Ã  la victime de la
   commande. '' sinon.
 
 \$OLDALIASES
-  Les alias originaux de la liste qui a été renommé avec la commande
+  Les alias originaux de la liste qui a Ã©tÃ© renommÃ© avec la commande
   "createlist".
 
 \$OLDLIST
-  Le nom originel de la liste qui a été renommé avec la commande
+  Le nom originel de la liste qui a Ã©tÃ© renommÃ© avec la commande
   "createlist".
 
 \$PART
-  Le numéro du volet d'un message posté.
+  Le numÃ©ro du volet d'un message postÃ©.
 
 \$PASSWORD
-  Le mot de passe personnel correspondant à une adresse email
-  spécifique, ou le mot de passe maître d'une liste nouvellement
-  créée.
+  Le mot de passe personnel correspondant Ã  une adresse email
+  spÃ©cifique, ou le mot de passe maÃ®tre d'une liste nouvellement
+  crÃ©Ã©e.
 
 \$QSADDR
-  Une adresse email, modifiée pour qu'elle puisse être inclue dans une
+  Une adresse email, modifiÃ©e pour qu'elle puisse Ãªtre inclue dans une
   URL sans risques.
 
 \$REMIND
-  Le nombre de jours avant qu'un rappel d'une requête requérant
-  confirmation, soit envoyé à la personne que la requête affecte.
-  Cette valeur est déterminée par le paramètre "token_remind".
-  (Référez vous à "help configset_token_remind" pour plus de détails.)
+  Le nombre de jours avant qu'un rappel d'une requÃªte requÃ©rant
+  confirmation, soit envoyÃ© Ã  la personne que la requÃªte affecte.
+  Cette valeur est dÃ©terminÃ©e par le paramÃ¨tre "token_remind".
+  (RÃ©fÃ©rez vous Ã  "help configset_token_remind" pour plus de dÃ©tails.)
 
 \$REASONS
-  La raison, fournie par les règles d'accès, pour qu'une requête soit
-  refusée ou mise en attente. (Référez vous à "help
-  configset_access_rules" pour plus de détails.)
+  La raison, fournie par les rÃ¨gles d'accÃ¨s, pour qu'une requÃªte soit
+  refusÃ©e ou mise en attente. (RÃ©fÃ©rez vous Ã  "help
+  configset_access_rules" pour plus de dÃ©tails.)
 
 \$REQUESTER
-  L'adresse email depuis laquelle la requête a été envoyée à
+  L'adresse email depuis laquelle la requÃªte a Ã©tÃ© envoyÃ©e Ã 
   Majordomo.
 
 \$SENDER
-  L'adresse depuis laquelle un message posté a été envoyé, ou
-  l'adresse de l'enveloppe utilisée par une liste pour délivrer les
-  messages aux abonnés.
+  L'adresse depuis laquelle un message postÃ© a Ã©tÃ© envoyÃ©, ou
+  l'adresse de l'enveloppe utilisÃ©e par une liste pour dÃ©livrer les
+  messages aux abonnÃ©s.
 
 \$SEQNO
-  Le numéro de séquence d'un message posté sur une liste. Cette valeur
-  provient du paramètre "sequence_number". (Référez vous à "help
-  configset_sequence_number" pour plus de détails.)
+  Le numÃ©ro de sÃ©quence d'un message postÃ© sur une liste. Cette valeur
+  provient du paramÃ¨tre "sequence_number". (RÃ©fÃ©rez vous Ã  "help
+  configset_sequence_number" pour plus de dÃ©tails.)
 
 \$SETTING
-  Le nom du paramètre de configuration, en lettre de capitales.
+  Le nom du paramÃ¨tre de configuration, en lettre de capitales.
 
 \$SETTINGS
-  Le nom des paramètres de configuration dans une catégorie
-  spécifique.
+  Le nom des paramÃ¨tres de configuration dans une catÃ©gorie
+  spÃ©cifique.
 
 \$STALL
-  " " si la commande invoquée par la commande "accept" requiert plus
+  " " si la commande invoquÃ©e par la commande "accept" requiert plus
   d'approbations. '' sinon. Compte aussi le nombre de commandes en
   attente.
 
 \$START
-  La date du plus ancien dans un groupe de messages ou requêtes.
+  La date du plus ancien dans un groupe de messages ou requÃªtes.
 
 \$STATUS
-  Le résultat d'une requête : "succeed", "stall" ou "fail".
+  Le rÃ©sultat d'une requÃªte : "succeed", "stall" ou "fail".
 
 \$STRIPADDR
 \$STRIPUSER
-  L'adresse épurée de tout commentaire, comme le nom complet de la
+  L'adresse Ã©purÃ©e de tout commentaire, comme le nom complet de la
   personne.
 
 \$SUBJECT
-  L'en-tête "Sujet" d'un message posté.
+  L'en-tÃªte "Sujet" d'un message postÃ©.
 
 \$SUBLIST
-  Le nom de la liste auxiliaire à laquelle la commande s'applique.
-  (Référez vous à "help auxiliary_list" pour plus de détails.)
+  Le nom de la liste auxiliaire Ã  laquelle la commande s'applique.
+  (RÃ©fÃ©rez vous Ã  "help auxiliary_list" pour plus de dÃ©tails.)
 
 \$SUBSCRIBED
-  Si le message n'a pas été posté par un abonné de la liste, la valeur
+  Si le message n'a pas Ã©tÃ© postÃ© par un abonnÃ© de la liste, la valeur
   est "not", sinon, elle est vide.
 
 \$SUCCEED
-  " " si la commande invoquée par la commande "accept" a réussie. ''
+  " " si la commande invoquÃ©e par la commande "accept" a rÃ©ussie. ''
   sinon. Compte aussi le nombre de commandes en attente.
 
 \$TIME
-  L'heure à laquelle la requête a été faite.
+  L'heure Ã  laquelle la requÃªte a Ã©tÃ© faite.
 
 \$TOKEN
-  L'identificateur de douze caractères qui est utilisé pour accepter
-  ou rejeter une commande en attente (Référez vous à "help tokeninfo"
-  pour plus de détails.)
+  L'identificateur de douze caractÃ¨res qui est utilisÃ© pour accepter
+  ou rejeter une commande en attente (RÃ©fÃ©rez vous Ã  "help tokeninfo"
+  pour plus de dÃ©tails.)
 
 \$TOPIC
-  Lorsque un fichier d'aide est affiché, cette valeur est remplacée
+  Lorsque un fichier d'aide est affichÃ©, cette valeur est remplacÃ©e
   par le nom du fichier d'aide.
 
 \$TYPE
   Le type d'une commande en attente, comme "confirm", si la personne
-  affectée par la requête doit confirmer la commande, ou "consult" si
-  les modérateurs doivent confirmer la commande.
+  affectÃ©e par la requÃªte doit confirmer la commande, ou "consult" si
+  les modÃ©rateurs doivent confirmer la commande.
 
 \$URL
-  Identique à \$CONFIRM_URL
+  Identique Ã  \$CONFIRM_URL
 
 \$USER
-  L'adresse email de laquelle une requête Majordomo provient. (Doit
-  être réconciliée avec \$REQUESTER.)
+  L'adresse email de laquelle une requÃªte Majordomo provient. (Doit
+  Ãªtre rÃ©conciliÃ©e avec \$REQUESTER.)
 
 \$VICTIM
-  L'adresse email de la personne affectée par la commande Majordomo.
+  L'adresse email de la personne affectÃ©e par la commande Majordomo.
 
 \$WELCOME
-  " " si le guide du propriétaire a été envoyé au propriétaire de la
+  " " si le guide du propriÃ©taire a Ã©tÃ© envoyÃ© au propriÃ©taire de la
   nouvelle liste. '' sinon.
 
 \$WILLACK
-  " " si un message de confirmation sera envoyé si le ticket est
-  accepté ou rejeté. '' sinon.
+  " " si un message de confirmation sera envoyÃ© si le ticket est
+  acceptÃ© ou rejetÃ©. '' sinon.
 
 
 Extensions pour les fichiers d'erreurs et de format
 ---------------------------------------------------
 
-En plus des fichiers de réponses standards, Majordomo est livré avec
-des fichiers d'erreur et de format, qui déterminent la présentation
-des diverses commandes Majordomo. Les fichiers d'erreurs sont utilisés
+En plus des fichiers de rÃ©ponses standards, Majordomo est livrÃ© avec
+des fichiers d'erreur et de format, qui dÃ©terminent la prÃ©sentation
+des diverses commandes Majordomo. Les fichiers d'erreurs sont utilisÃ©s
 pour afficher des explications lorsqu'une commande est incorrecte, non
 permise ou non disponible. Les fichiers de format affichent le
-résultat des commandes, et diffèrent suivant les interfaces. Pour
+rÃ©sultat des commandes, et diffÃ¨rent suivant les interfaces. Pour
 l'instant, les interfaces email et mj_shell utilisent l'interface
 "text" alors que les interfaces web utilisent "wwwadm", "wwwconfirm"
 et "wwwusr".
 
-Il y a trois extensions aux substitutions qui sont utilisées dans les
+Il y a trois extensions aux substitutions qui sont utilisÃ©es dans les
 fichiers d'erreur et de format.
 
-1. Un mot clé préfixé avec un point d'interrogation ("?") à la place
-d'un signe dollar fera en sorte que la ligne complète ne soit pas
-affichée si la valeur est vide.
+1. Un mot clÃ© prÃ©fixÃ© avec un point d'interrogation ("?") Ã  la place
+d'un signe dollar fera en sorte que la ligne complÃ¨te ne soit pas
+affichÃ©e si la valeur est vide.
 
 Exemple :
-  L'archive est disponible sur le web à ?ARCURL
+  L'archive est disponible sur le web Ã  ?ARCURL
 
 
 2. Si une variable est un tableau, la ligne s'affichera plusieurs
 fois, une fois pour chaque valeur du tableau. Les autres substitutions
-qui n'ont qu'une seule valeur, seront affichées sur la première ligne
+qui n'ont qu'une seule valeur, seront affichÃ©es sur la premiÃ¨re ligne
 uniquement.
 
 Exemple :
   \$LIST:-23 $DESCRIPTION
 
-(Cet exemple est utilisé par la commande "lists" pour afficher le nom
+(Cet exemple est utilisÃ© par la commande "lists" pour afficher le nom
 de la liste et une description sur plusieurs lignes de la liste. Bien
-que le nom de la liste n'apparaisse que sur la première ligne, une
-indentation de 23 espaces apparaît sur chaque ligne suivantes, ce qui
-permet de garder la description alignée.)
+que le nom de la liste n'apparaisse que sur la premiÃ¨re ligne, une
+indentation de 23 espaces apparaÃ®t sur chaque ligne suivantes, ce qui
+permet de garder la description alignÃ©e.)
 
-3. La substitution spéciale \$HELP, suivie de deux points (":") et du
+3. La substitution spÃ©ciale \$HELP, suivie de deux points (":") et du
 nom d'une page d'aide (en majuscules), formera un lien hypertexte vers
-cette page qui apparaîtra dans les interfaces WWW. Dans les interfaces
-en mode texte, la variable est simplement remplacée par le nom de la
+cette page qui apparaÃ®tra dans les interfaces WWW. Dans les interfaces
+en mode texte, la variable est simplement remplacÃ©e par le nom de la
 page, en minuscules.
 
 Exemple :
-  Vous pouvez modifier votre mode de réception en utilisant la
+  Vous pouvez modifier votre mode de rÃ©ception en utilisant la
   commande \$HELP:SET.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help access_variables
    help admin_documents
    help announce
    help configset_access_rules  (pour l'utilisation des interdictions)
    help configset_site_name
    help configset_welcome_files (pour les fichiers additionnels qui
-                                 peuvent être envoyés)
+                                 peuvent Ãªtre envoyÃ©s)
    help digest                  (pour les autres noms de fichiers et
                                  leurs utilisations)
    help error_files
    help format_files
    help get                     (pour obtenir les fichiers)
    help help
-   help put                     (créer ou mettre à jour des fichiers
+   help put                     (crÃ©er ou mettre Ã  jour des fichiers
                                  par email)
    help reply_files
 

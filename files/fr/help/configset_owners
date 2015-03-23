@@ -7,10 +7,10 @@ configset listname owners <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : [définie durant l'installation] ...
-                    (seul le premier est affiché)
-Type de donnée    : tableau d'adresses
-Catégorie         : moderate
+Valeur par dÃ©faut : [dÃ©finie durant l'installation] ...
+                    (seul le premier est affichÃ©)
+Type de donnÃ©e    : tableau d'adresses
+CatÃ©gorie         : moderate
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -22,28 +22,28 @@ ENDTAG
 
 $INCLUDE-config/owners
 
-Pour la pseudo liste GLOBAL, tous les messages envoyés à
+Pour la pseudo liste GLOBAL, tous les messages envoyÃ©s Ã 
   $MJOWNER
-seront envoyés aux adresses de ce paramètre.
+seront envoyÃ©s aux adresses de ce paramÃ¨tre.
 
-Pour les listes normales, les messages envoyés à l'adresse LISTE-owner
-seront envoyés aux adresses de ce paramètre.
+Pour les listes normales, les messages envoyÃ©s Ã  l'adresse LISTE-owner
+seront envoyÃ©s aux adresses de ce paramÃ¨tre.
 
-Les propriétaires peuvent recevoir d'autres messages :
+Les propriÃ©taires peuvent recevoir d'autres messages :
 
-* Un message d'information lorsque quelqu'un s'abonne ou se désabonne.
-  (Référez vous à "help configset_inform" pour plus de détails.)
+* Un message d'information lorsque quelqu'un s'abonne ou se dÃ©sabonne.
+  (RÃ©fÃ©rez vous Ã  "help configset_inform" pour plus de dÃ©tails.)
 
 * Les messages de confirmations pour les commandes qui requierent des
-  approbations. (Référez vous à "help configset_moderators" pour plus
-  de détails.)
+  approbations. (RÃ©fÃ©rez vous Ã  "help configset_moderators" pour plus
+  de dÃ©tails.)
 
-* Les rapports d'erreurs pour les messages postés.
-  (Référez vous à "help configset_bounce_rules" et "help
-   configset_bounce_recipients" pour plus de détails.)
+* Les rapports d'erreurs pour les messages postÃ©s.
+  (RÃ©fÃ©rez vous Ã  "help configset_bounce_rules" et "help
+   configset_bounce_recipients" pour plus de dÃ©tails.)
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin
    help admin_domain
    help configset_bounce_recipients

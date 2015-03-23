@@ -3,9 +3,9 @@ configset liste nonmember_flags <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : (ackdeny ackreject ackstall)
-Type de donnée    : énumérée (paramètres personnels)
-Catégorie         : reply
+Valeur par dÃ©faut : (ackdeny ackreject ackstall)
+Type de donnÃ©e    : Ã©numÃ©rÃ©e (paramÃ¨tres personnels)
+CatÃ©gorie         : reply
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -17,11 +17,11 @@ MNO
 
 $INCLUDE-config/nonmember_flags
 
-Référez vous aussi à :
-   help configset_allowed_flags (pour les paramètres que les abonnés
+RÃ©fÃ©rez vous aussi Ã  :
+   help configset_allowed_flags (pour les paramÃ¨tres que les abonnÃ©s
 				 peuvent modifier)
-   help configset_default_flags (pour les paramètres par défaut des
-				 nouveaux abonnés)
-   help set                     (pour les paramètres d'abonnés)
+   help configset_default_flags (pour les paramÃ¨tres par dÃ©faut des
+				 nouveaux abonnÃ©s)
+   help set                     (pour les paramÃ¨tres d'abonnÃ©s)
 
 $INCLUDE-help/foot

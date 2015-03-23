@@ -1,11 +1,11 @@
-Le paramètre "relocated_lists" permet de définir un message
-personnalisé a envoyer lorsque quelqu'un envoie un message a une liste
-qui a été renommée, supprimée ou déplacée.
+Le paramÃ¨tre "relocated_lists" permet de dÃ©finir un message
+personnalisÃ© a envoyer lorsque quelqu'un envoie un message a une liste
+qui a Ã©tÃ© renommÃ©e, supprimÃ©e ou dÃ©placÃ©e.
 
-Chaque ligne doit contenir trois champs, séparés par des ':' ou des
+Chaque ligne doit contenir trois champs, sÃ©parÃ©s par des ':' ou des
 '|' :
   ancien_nom | nouveau_nom | fichier
 Le premier champ contient le nom de la liste qui n'est plus valide. Le
-second, optionnel, contient le nouveau nom de la liste. Le troisième,
+second, optionnel, contient le nouveau nom de la liste. Le troisiÃ¨me,
 optionnel, contient le chemin d'un fichier qui contient des
 informations sur la liste.

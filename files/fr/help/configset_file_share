@@ -3,10 +3,10 @@ configset liste file_share <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : aucune
-Type de donnée    : tableau de listes
-Catégorie         : reply
-Mot de passe      : Visible avec un mot de passe. Modifié avec un mot
+Valeur par dÃ©faut : aucune
+Type de donnÃ©e    : tableau de listes
+CatÃ©gorie         : reply
+Mot de passe      : Visible avec un mot de passe. ModifiÃ© avec un mot
 		    de passe global.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -19,11 +19,11 @@ ENDTAG
 
 $INCLUDE-config/file_share
 
-Pour chaque liste mentionnée dans ce réglage, le paramètre
-"file_search" devra être modifié pour inclure cette liste.
+Pour chaque liste mentionnÃ©e dans ce rÃ©glage, le paramÃ¨tre
+"file_search" devra Ãªtre modifiÃ© pour inclure cette liste.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_documents
    help configset_file_search
    help get

@@ -1,16 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 access
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-utilisé dans "configset access_rules" pour la pseudo liste GLOBAL
+utilisÃ© dans "configset access_rules" pour la pseudo liste GLOBAL
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-La commande "access" est uniquement utilisée dans la configuration des
+La commande "access" est uniquement utilisÃ©e dans la configuration des
 "access_rules", et uniquement pour la pseudo liste GLOBAL.
 
 La commande "access" permet aux gestionnaires du domaine de
-restreindre l'accès à toutes les fonctionnalités de Majordomo pour
+restreindre l'accÃ¨s Ã  toutes les fonctionnalitÃ©s de Majordomo pour
 certaines adresses email. Par exemple, un administrateur du domaine
-peut créer une liste auxiliaire, mechants, et utiliser cette
+peut crÃ©er une liste auxiliaire, mechants, et utiliser cette
 "access_rules" :
 
 configset GLOBAL access_rules << ENDTAG
@@ -19,8 +19,8 @@ deny, reply="Votre adresse est sur la liste noire."
 @mechants
 ENDTAG
 
-Vous pouvez aussi spécifier les utilisateurs bannis dans la règle elle
-même :
+Vous pouvez aussi spÃ©cifier les utilisateurs bannis dans la rÃ¨gle elle
+mÃªme :
 
 configset GLOBAL access_rules << ENDTAG
 access
@@ -28,52 +28,52 @@ deny, reply="Votre adresse est sur la liste noire."
 /joe\@example.com/i OR /jane\@example.com/i
 ENDTAG
 
-Par conséquent, ceux qui violent régulièrement les règles établies par
-les gestionnaires du domaine peuvent être bannis totalement. Lorsque
-l'accès est interdit de cette manière, toutes les fonctionnalités de
-Majordomo sont restreintes, les messages envoyés aux modérateurs, ceux
-postés sur les listes, ou les commandes envoyées au serveur.
+Par consÃ©quent, ceux qui violent rÃ©guliÃ¨rement les rÃ¨gles Ã©tablies par
+les gestionnaires du domaine peuvent Ãªtre bannis totalement. Lorsque
+l'accÃ¨s est interdit de cette maniÃ¨re, toutes les fonctionnalitÃ©s de
+Majordomo sont restreintes, les messages envoyÃ©s aux modÃ©rateurs, ceux
+postÃ©s sur les listes, ou les commandes envoyÃ©es au serveur.
 
-Les actions suivantes sont supportées pour la commande "access" dans
-le paramètre "access_rules" : "allow", "deny", "mailfile", "reason",
+Les actions suivantes sont supportÃ©es pour la commande "access" dans
+le paramÃ¨tre "access_rules" : "allow", "deny", "mailfile", "reason",
 "reply", et "replyfile".
 
-Lorsque l'accès est refusé, aucun message de réponse n'est en général
-renvoyé a la personne dont l'accès a été refusé. À la place, une
-explication donnée par les actions "reason", "reply" ou "replyfile" de
-la règle seront ajoutées au message "inform" qui sera envoyé aux
+Lorsque l'accÃ¨s est refusÃ©, aucun message de rÃ©ponse n'est en gÃ©nÃ©ral
+renvoyÃ© a la personne dont l'accÃ¨s a Ã©tÃ© refusÃ©. Ã€ la place, une
+explication donnÃ©e par les actions "reason", "reply" ou "replyfile" de
+la rÃ¨gle seront ajoutÃ©es au message "inform" qui sera envoyÃ© aux
 administrateurs de la liste.
 
-L'action "mailfile" peut être utilisée pour pour renvoyer un message à
-l'adresse a qui l'accès a été refusé. Par exemple, la règle suivante
-peut être utiliser pour envoyer le fichier "/acces_refuse" a n'importe
-qui dont l'accès a été refusé par le paramètre de configuration
+L'action "mailfile" peut Ãªtre utilisÃ©e pour pour renvoyer un message Ã 
+l'adresse a qui l'accÃ¨s a Ã©tÃ© refusÃ©. Par exemple, la rÃ¨gle suivante
+peut Ãªtre utiliser pour envoyer le fichier "/acces_refuse" a n'importe
+qui dont l'accÃ¨s a Ã©tÃ© refusÃ© par le paramÃ¨tre de configuration
 "block_headers" :
 
 access
 mailfile=/acces_refuse
 $block
 
-Par défaut, l'accès sera permis a moins que le message ne corresponde
-a l'un des motifs du paramètre "block_headers". Référez vous à "help
-configset_block_headers" pour plus de détails.
+Par dÃ©faut, l'accÃ¨s sera permis a moins que le message ne corresponde
+a l'un des motifs du paramÃ¨tre "block_headers". RÃ©fÃ©rez vous Ã  "help
+configset_block_headers" pour plus de dÃ©tails.
 
-Deux case doivent être pris en compte lorsque l'accès GLOBAL est
+Deux case doivent Ãªtre pris en compte lorsque l'accÃ¨s GLOBAL est
 restreint. Le programme mj_trigger, qui envoie les compilations et qui
-supprime les données expirées est lancé avec une adresse anonyme,
+supprime les donnÃ©es expirÃ©es est lancÃ© avec une adresse anonyme,
 "unknown@anonymous". L'interface WWW utilise l'adresse IP du client et
 le domaine "example.com", par exemple, "127.0.0.1@example.com". Si
-ces adresses n'ont pas le droit d'accéder, les interfaces en questions
+ces adresses n'ont pas le droit d'accÃ©der, les interfaces en questions
 ne fonctionneront pas.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help access_variables
    help admin_domain
    help admin_moderate
    help auxiliary_list
-   help configset_access_rules   (pour restreindre l'accès aux commandes)
-   help configset_block_headers  (refus base sur les en-têtes)
+   help configset_access_rules   (pour restreindre l'accÃ¨s aux commandes)
+   help configset_block_headers  (refus base sur les en-tÃªtes)
    help configset_inform
    help mj_trigger
    help trigger

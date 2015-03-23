@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste message_footer_frequency = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : 100
-Type de donnée    : entier
-Catégorie         : deliver
+Valeur par dÃ©faut : 100
+Type de donnÃ©e    : entier
+CatÃ©gorie         : deliver
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,14 +13,14 @@ configset liste message_footer_frequency = 100
 
 $INCLUDE-config/message_footer_frequency
 
-Ce paramètre est intéressant à partir du moment ou un ou plusieurs
-pieds d'emails ont été définis par le paramètre "message_footer".
-Cette valeur contrôle la probabilité qu'aura un pied d'email d'être
-ajouté. Le fait d'ajouter ou non un pied d'email est déterminé
-aléatoirement pour chaque message.
+Ce paramÃ¨tre est intÃ©ressant Ã  partir du moment ou un ou plusieurs
+pieds d'emails ont Ã©tÃ© dÃ©finis par le paramÃ¨tre "message_footer".
+Cette valeur contrÃ´le la probabilitÃ© qu'aura un pied d'email d'Ãªtre
+ajoutÃ©. Le fait d'ajouter ou non un pied d'email est dÃ©terminÃ©
+alÃ©atoirement pour chaque message.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
    help configset_message_footer
    help configset_message_fronter

@@ -1,6 +1,6 @@
-Le paramètre "bounce_rules" détermine comment les messages d'erreur du
-a des problèmes de réception seront traités. Chaque règle est
-constituée d'au moins 2 lignes. Sur la première sont une ou plusieurs
-actions, séparées par des virgules. Sur les lignes suivantes, sont les
+Le paramÃ¨tre "bounce_rules" dÃ©termine comment les messages d'erreur du
+a des problÃ¨mes de rÃ©ception seront traitÃ©s. Chaque rÃ¨gle est
+constituÃ©e d'au moins 2 lignes. Sur la premiÃ¨re sont une ou plusieurs
+actions, sÃ©parÃ©es par des virgules. Sur les lignes suivantes, sont les
 conditions pour lesquelles ces action arrivent. Les lignes vides sont
-utilisées comme réparateurs.
+utilisÃ©es comme rÃ©parateurs.

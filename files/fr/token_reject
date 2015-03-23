@@ -1,27 +1,27 @@
 Le gestionnaire de liste de $SITE
-a reçu comme instructions de rejeter la commande :
+a reÃ§u comme instructions de rejeter la commande :
 
   "$CMDLINE"
 
-Certaines commandes peuvent être des contrefaçons ou des attaques. Ce
-message est envoyé pour vous donner toutes les informations
-disponibles sur le message qui a été rejeté, et pour vous aider a
-déterminer qui est a l'origine de la commande. Cette information est
-aussi envoyée aux administrateurs de $DOMAIN.
+Certaines commandes peuvent Ãªtre des contrefaÃ§ons ou des attaques. Ce
+message est envoyÃ© pour vous donner toutes les informations
+disponibles sur le message qui a Ã©tÃ© rejetÃ©, et pour vous aider a
+dÃ©terminer qui est a l'origine de la commande. Cette information est
+aussi envoyÃ©e aux administrateurs de $DOMAIN.
 
-Si vous avez envoyé la commande, ne tenez pas compte de ce message.
+Si vous avez envoyÃ© la commande, ne tenez pas compte de ce message.
 
-Si vous avez besoin d'aide, écrivez aux administrateurs de la liste à
+Si vous avez besoin d'aide, Ã©crivez aux administrateurs de la liste Ã 
 $OWNER.
 
-La commande a été envoyée le :
+La commande a Ã©tÃ© envoyÃ©e le :
   $DATE 
 par
   $REQUESTER
 
-Si une raison a été donnée lors du rejet de la commande, elle apparaît
+Si une raison a Ã©tÃ© donnÃ©e lors du rejet de la commande, elle apparaÃ®t
 ici :
 $MESSAGE
 
-Tout ce qui est en relation à propos de la session $SESSIONID
-sera inclus en fichier attaché.
+Tout ce qui est en relation Ã  propos de la session $SESSIONID
+sera inclus en fichier attachÃ©.

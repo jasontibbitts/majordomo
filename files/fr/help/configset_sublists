@@ -3,36 +3,36 @@ configset liste sublists <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : aucune
-Type de donnée    : tableau de sous listes
-Catégorie         : lists
+Valeur par dÃ©faut : aucune
+Type de donnÃ©e    : tableau de sous listes
+CatÃ©gorie         : lists
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXEMPLE :
 configset nouritures sublists <<ENDTAG
-champs : produits issus des pâturages
-légumes : si vous en voulez
+champs : produits issus des pÃ¢turages
+lÃ©gumes : si vous en voulez
 fruit : il en faut bien
 chocolat : 5 portions par jour
-bière : pour faire partir le goût des légumes
+biÃ¨re : pour faire partir le goÃ»t des lÃ©gumes
 ENDTAG
 
 
 $INCLUDE-config/sublists
 
-Les sous-listes sont aussi appelées listes auxiliaires. Référez vous à
+Les sous-listes sont aussi appelÃ©es listes auxiliaires. RÃ©fÃ©rez vous Ã 
 "help auxiliary_list" pour une introduction.
 
-Si l'alias "auxiliary" est listé dans le paramètre de configuration
-"aliases", les listes mentionnées ici auront leurs alias mail. Dans ce
-cas, si la valeur de la sous liste est modifiée, la commande
-"createlist-regen" devra être exécutée pour régénérer les alias.
-Référez vous à "help configset_aliases" pour plus d'informations sur
+Si l'alias "auxiliary" est listÃ© dans le paramÃ¨tre de configuration
+"aliases", les listes mentionnÃ©es ici auront leurs alias mail. Dans ce
+cas, si la valeur de la sous liste est modifiÃ©e, la commande
+"createlist-regen" devra Ãªtre exÃ©cutÃ©e pour rÃ©gÃ©nÃ©rer les alias.
+RÃ©fÃ©rez vous Ã  "help configset_aliases" pour plus d'informations sur
 les alias de mail.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_monitor
    help auxiliary_list
    help configset_aliases

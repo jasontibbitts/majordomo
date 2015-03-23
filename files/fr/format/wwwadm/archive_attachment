@@ -3,21 +3,21 @@
 [Volet $PART $CONTENT_TYPE ($SIZE kilo octets)]<br>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-get-part" target="_part">
-    (Voir dans une fenêtre séparée ou
-    télécharger)
+    (Voir dans une fenÃªtre sÃ©parÃ©e ou
+    tÃ©lÃ©charger)
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-edit-part">
-    (Éditer)
+    (Ã‰diter)
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-get-part-clean" target="_part">
-    (Voir les en-têtes dans une fenêtre
-    séparée)
+    (Voir les en-tÃªtes dans une fenÃªtre
+    sÃ©parÃ©e)
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-part-edit">
-    (Éditer les en-têtes)
+    (Ã‰diter les en-tÃªtes)
   </a>
 
 ?SUBPART  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-part-delete">

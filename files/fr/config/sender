@@ -1,4 +1,4 @@
-Le paramètre "sender" contient l'adresse email qui est utilisée en
+Le paramÃ¨tre "sender" contient l'adresse email qui est utilisÃ©e en
 interne par Majordomo lorsque des documents d'informations, des
-instructions de confirmation et d'autres messages de réponses a des
-commandes Majordomo, ou un message posté.
+instructions de confirmation et d'autres messages de rÃ©ponses a des
+commandes Majordomo, ou un message postÃ©.

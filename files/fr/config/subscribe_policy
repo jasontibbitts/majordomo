@@ -1,4 +1,4 @@
-Le paramètre "subscribe_policy" est utilisé pour restreindre l'accès à
+Le paramÃ¨tre "subscribe_policy" est utilisÃ© pour restreindre l'accÃ¨s Ã 
 la commande "subscribe".
 
 Les valeurs suivantes sont reconnues :
@@ -8,8 +8,8 @@ auto           - Tout le monde peut utiliser la commande "subscribe"
 
 auto+confirm   - Tout le monde peut utiliser la commande "subscribe"
                  pour n'importe quelle adresse, mais la commande doit
-                 être confirmée par la personne dont l'adresse est
-                 modifiée.
+                 Ãªtre confirmÃ©e par la personne dont l'adresse est
+                 modifiÃ©e.
 
 auto+password  - Tout le monde peut utiliser la commande "subscribe"
                  pour n'importe quelle adresse, mais la personne doit
@@ -18,30 +18,30 @@ auto+password  - Tout le monde peut utiliser la commande "subscribe"
 open           - Tout le monde peut utiliser la commande "subscribe"
                  pour sa propre adresse. Si quelqu'un essaye
                  d'utiliser la commande "subscribe" pour une autre
-                 adresse, l'approbation des modérateurs de la liste
+                 adresse, l'approbation des modÃ©rateurs de la liste
                  est requise.
 
 open+confirm   - Tout le monde peut utiliser la commande "subscribe"
                  pour sa propre adresse. Si quelqu'un essaye
                  d'utiliser la commande "subscribe" pour une autre
-                 adresse, l'approbation des modérateurs de la liste
-                 est requise. La commande doit aussi être confirmée
-                 par la personne dont l'adresse est modifiée.
+                 adresse, l'approbation des modÃ©rateurs de la liste
+                 est requise. La commande doit aussi Ãªtre confirmÃ©e
+                 par la personne dont l'adresse est modifiÃ©e.
 
 open+password  - Tout le monde peut utiliser la commande "subscribe"
                  pour sa propre adresse. Si quelqu'un essaye
                  d'utiliser la commande "subscribe" pour une autre
-                 adresse, l'approbation des modérateurs de la liste
+                 adresse, l'approbation des modÃ©rateurs de la liste
                  est requise. La personne qui envoie la commande doit
                  aussi fournir le mot de passe personnel de cette
                  adresse.
 
 closed         - Tout le monde peut utiliser la commande "subscribe"
                  pour n'importe quelle adresse, mais l'approbation des
-                 modérateurs de la liste est requise.
+                 modÃ©rateurs de la liste est requise.
 
 closed+confirm - Tout le monde peut utiliser la commande "subscribe"
                  pour n'importe quelle adresse, mais l'approbation des
-                 modérateurs de la liste est requise, ainsi que celle
-                 de la personne dont l'adresse est modifiée.
+                 modÃ©rateurs de la liste est requise, ainsi que celle
+                 de la personne dont l'adresse est modifiÃ©e.
 

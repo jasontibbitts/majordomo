@@ -1,13 +1,13 @@
-Le paramètre addr_xforms contient une liste de transformations. Ces
-transformations sont appliquées a toutes les adresses avant de les
+Le paramÃ¨tre addr_xforms contient une liste de transformations. Ces
+transformations sont appliquÃ©es a toutes les adresses avant de les
 comparer ou de les stocker dans le registre. Les transformations
-peuvent être utilisées pour supprimer les extensions d'adresse,
+peuvent Ãªtre utilisÃ©es pour supprimer les extensions d'adresse,
 supprimer des parties de domaines, ou convertir des majuscules en
 minuscules, par exemple.
 
-Chaque transformation doit apparaître sur une ligne séparée et doit
-être de la forme /motif/remplacement/ a moins qu'une chaîne spéciale
-soit utilisée.
+Chaque transformation doit apparaÃ®tre sur une ligne sÃ©parÃ©e et doit
+Ãªtre de la forme /motif/remplacement/ a moins qu'une chaÃ®ne spÃ©ciale
+soit utilisÃ©e.
 
-Chaque transformation doit continuer a garder le même résultat
-appliquée plusieurs fois de suite a la même adresse.
+Chaque transformation doit continuer a garder le mÃªme rÃ©sultat
+appliquÃ©e plusieurs fois de suite a la mÃªme adresse.

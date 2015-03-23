@@ -7,32 +7,32 @@ liste, requis, la liste en question
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 La commande "newfaq" remplacera le contenu du fichier "/faq" qui est
-affiché par la commande "faq".
+affichÃ© par la commande "faq".
 
-Le nouveau contenu du fichier faq doit être inclu dans un document
-"ici" (référez vous à "help here_document" pour plus de détails). Par
+Le nouveau contenu du fichier faq doit Ãªtre inclu dans un document
+"ici" (rÃ©fÃ©rez vous Ã  "help here_document" pour plus de dÃ©tails). Par
 exemple, la commande suivante remplacera le contenu du fichier faq
-avec la phrase "Salut, abonné !" :
+avec la phrase "Salut, abonnÃ© !" :
 
 newfaq LISTE <<ABCD
-Salut, abonné !
+Salut, abonnÃ© !
 ABCD
 
 La commande "newfaq" est un raccourci pour la commande "put". Par
-exemple, la commande "put" suivante est identique à la commande
-"newfaq" de l'exemple précédent :
+exemple, la commande "put" suivante est identique Ã  la commande
+"newfaq" de l'exemple prÃ©cÃ©dent :
 
 put LISTE /faq Frequently Asked Questions <<ABCD
-Salut, abonné !
+Salut, abonnÃ© !
 ABCD
 
-Par défaut, un mot de passe administratif est requis pour utiliser la
-commande "newfaq". Les restrictions d'accès de la commande "put"
-(déterminées par le paramètre "access_rules) s'appliquent à la
+Par dÃ©faut, un mot de passe administratif est requis pour utiliser la
+commande "newfaq". Les restrictions d'accÃ¨s de la commande "put"
+(dÃ©terminÃ©es par le paramÃ¨tre "access_rules) s'appliquent Ã  la
 commande "newfaq".
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_documents
    help configset_access_rules
    help here_document

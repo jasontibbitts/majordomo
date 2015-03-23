@@ -1,29 +1,29 @@
 <!-- Majordomo welcome_showtokens format file -->
 <pre>?ERROR</pre>
 
-<h4 align="center">Introduction à la modération de Liste</h4>
+<h4 align="center">Introduction Ã  la modÃ©ration de Liste</h4>
 
 <p>
 
-Lorsque quelqu'un poste un message sur une liste, écrit au
+Lorsque quelqu'un poste un message sur une liste, Ã©crit au
 gestionnaire de la liste pour de l'aide, ou envoie une commande (comme
 <b>subscribe</b> ou <b>who</b>) au serveur, on dit qu'une
-<b>requête</b> a été effectuée. Un message
-posté est appelé une requête <b>post</b>, un
-message envoyé au gestionnaire de la liste est appelé
-une requête <b>owner</b>.
+<b>requÃªte</b> a Ã©tÃ© effectuÃ©e. Un message
+postÃ© est appelÃ© une requÃªte <b>post</b>, un
+message envoyÃ© au gestionnaire de la liste est appelÃ©
+une requÃªte <b>owner</b>.
 
 </p>
 
 <p>
 
-Certaines requêtes sont effectuées immédiatement,
-mais d'autres sont placées dans une file d'attente pour
+Certaines requÃªtes sont effectuÃ©es immÃ©diatement,
+mais d'autres sont placÃ©es dans une file d'attente pour
 quelques heures, d'autres encore requirent l'approbation de quelqu'un.
 Lorsque cela arrive, Majordomo choisit un identificateur unique de 12
-caractères alphanumériques, appelé un
-<b>ticket</b> (token), pour cette requête. Chaque ticket a un
-<b>type</b> spécifique, suivant de qui l'approbation est
+caractÃ¨res alphanumÃ©riques, appelÃ© un
+<b>ticket</b> (token), pour cette requÃªte. Chaque ticket a un
+<b>type</b> spÃ©cifique, suivant de qui l'approbation est
 requise.
 
 <table border>
@@ -34,109 +34,109 @@ requise.
 
 <tr>
   <td>confirm</td>
-  <td>L'abonné (D'habitude c'est la personne qui a fait la requête).
+  <td>L'abonnÃ© (D'habitude c'est la personne qui a fait la requÃªte).
     Si vous acceptez (<b>accept</b>) ou rejetez (<b>reject</b>) un
-    ticket <b>confirm</b>, cela peut dérouter un abonné qui essayerais
+    ticket <b>confirm</b>, cela peut dÃ©router un abonnÃ© qui essayerais
     de suivre les instructions d'un message de confirmation, et qui
-    découvrirais que le ticket qui n'existe plus.
+    dÃ©couvrirais que le ticket qui n'existe plus.
   </td>
 </tr>
 
 <tr>
   <td>consult</td>
-  <td>Les administrateurs (D'habitude déterminé
-    grâce au paramètre de configuration $HELP:MODERATOR.)
+  <td>Les administrateurs (D'habitude dÃ©terminÃ©
+    grÃ¢ce au paramÃ¨tre de configuration $HELP:MODERATOR.)
   </td>
 </tr>
 
 <tr>
   <td>delay</td>
-  <td>Personne (La requête se terminera automatiquement.)
+  <td>Personne (La requÃªte se terminera automatiquement.)
   </td>
 </tr>
 
 <tr>
   <td>probe</td>
-  <td>Personne (La requête se terminera automatiquement.)
+  <td>Personne (La requÃªte se terminera automatiquement.)
   </td>
 </tr>
 </table>
 
-Référez vous a la page d'aide $HELP:SHOWTOKENS pour plus
+RÃ©fÃ©rez vous a la page d'aide $HELP:SHOWTOKENS pour plus
 d'information a propos des types de ticket
 
 </p>
 
 <p>
 
-Trois commandes sont disponibles pour gérer les tickets et les
-requêtes qu'ils représentent&nbsp;:
+Trois commandes sont disponibles pour gÃ©rer les tickets et les
+requÃªtes qu'ils reprÃ©sentent&nbsp;:
 
 <dl>
   <dt>accept</dt>
-  <dd>La commande accept approuve une requête. A moins qu'une
-  autre approbation soit requise, la requête sera
-  effectuée immédiatement.  La commande accept a deux
+  <dd>La commande accept approuve une requÃªte. A moins qu'une
+  autre approbation soit requise, la requÃªte sera
+  effectuÃ©e immÃ©diatement.  La commande accept a deux
   variations importantes&nbsp;:
     <ul>
-      <li>La commande <b>accept-hide</b> qui évitera que le
+      <li>La commande <b>accept-hide</b> qui Ã©vitera que le
       message apparaisse dans l'archive publique de votre liste.
 
       <li>La commande <b>accept-archive</b> qui stockera le message
       dans l'archive de la liste, mais le message ne sera pas
-      distribué aux abonnés.
+      distribuÃ© aux abonnÃ©s.
     </ul>
-    Référez vous a la page d'aide 
+    RÃ©fÃ©rez vous a la page d'aide 
     $HELP:ACCEPT
     pour de plus amples informations.
   </dd>
 
   <dt>reject</dt>
-  <dd>La commande "reject" fait en sorte que la requête soit
-  rejetée. La commande "reject" à une variation
+  <dd>La commande "reject" fait en sorte que la requÃªte soit
+  rejetÃ©e. La commande "reject" Ã  une variation
   importante&nbsp;:
     <ul>
       <li>La commande <b>reject-quiet</b> fera en sorte qu'aucun
-      message ne soit envoyé a l'abonné l'informant du
+      message ne soit envoyÃ© a l'abonnÃ© l'informant du
       rejet.
     </ul>
-    Référez vous a la page d'aide 
+    RÃ©fÃ©rez vous a la page d'aide 
     $HELP:REJECT
     pour de plus amples informations.
   </dd>
 
   <dt>tokeninfo</dt>
-  <dd>La commande tokeninfo demande plus d'informations à
-  propos de la requête (date d'expiration, nombre d'approbations
+  <dd>La commande tokeninfo demande plus d'informations Ã 
+  propos de la requÃªte (date d'expiration, nombre d'approbations
   requises, contenu du message, etc).  La commande tokeninfo a une
   variation importante&nbsp;:
     <ul>
       <li>La commande <b>tokeninfo-remind</b> sert a renvoyer un
-      message de rappel a l'adresse email spécifiée.
-      Cette fonctionnalité est utile pour réenvoyer les
-      instructions de confirmation aux abonnés ou aux
-      modérateurs qui suppriment les instructions originelles.
+      message de rappel a l'adresse email spÃ©cifiÃ©e.
+      Cette fonctionnalitÃ© est utile pour rÃ©envoyer les
+      instructions de confirmation aux abonnÃ©s ou aux
+      modÃ©rateurs qui suppriment les instructions originelles.
     </ul>
-    Référez vous a la page d'aide 
+    RÃ©fÃ©rez vous a la page d'aide 
     $HELP:TOKENINFO
     pour de plus amples informations.
 
   </dd>
 </dl>
 
-Chaque commande est représentée par un bouton en haut ou
+Chaque commande est reprÃ©sentÃ©e par un bouton en haut ou
 en bas de la liste des tickets.
 </p>
 
 <p>
-Une fois qu'un ticket a été accepté ou
-rejeté et que la requête a été
-effectuée, le ticket deviendra invalide, car il n'est plus
+Une fois qu'un ticket a Ã©tÃ© acceptÃ© ou
+rejetÃ© et que la requÃªte a Ã©tÃ©
+effectuÃ©e, le ticket deviendra invalide, car il n'est plus
 utile.
 </p>
 
 <p>
 Vous pouvez voir tous les tickets en attente pour vos listes en
-cliquant sur le lien <b>Modération</b> en haut ou en bas de
+cliquant sur le lien <b>ModÃ©ration</b> en haut ou en bas de
 chaque page.
 </p>

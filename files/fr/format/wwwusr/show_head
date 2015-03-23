@@ -6,25 +6,25 @@
 
 <p>
 Le tableau suivant liste tous les abonnements de $STRIPADDR sur $SITE.
-Pour vous désabonner, cochez la case correspondante a la liste
-que vous désirez quitter, et cliquez sur le bouton
+Pour vous dÃ©sabonner, cochez la case correspondante a la liste
+que vous dÃ©sirez quitter, et cliquez sur le bouton
 <b>$HELP:UNSUBSCRIBE</b>.
 </p>
 
 <p>
-Pour modifier les réglages de vos abonnements, cochez la case
+Pour modifier les rÃ©glages de vos abonnements, cochez la case
 correspondante a la liste dont vous souhaitez modifier les
-paramètres, modifier ce que vous voulez, et cliquez sur le
+paramÃ¨tres, modifier ce que vous voulez, et cliquez sur le
 bouton <b>$HELP:SET</b>. Pour avoir une explication
-détaillée de chaque réglage, cliquez sur le nom
-de la liste. Les réglages que vous ne pouvez modifier sont
-marqués par un <b>X</b> pour "on" et un <b>O</b> pour "off".
+dÃ©taillÃ©e de chaque rÃ©glage, cliquez sur le nom
+de la liste. Les rÃ©glages que vous ne pouvez modifier sont
+marquÃ©s par un <b>X</b> pour "on" et un <b>O</b> pour "off".
 </p>
 
 <p>
 Pour avoir plus d'informations a propos d'une liste, comme le nombre
-d'abonnés ou les archives, cliquez sur le lien <b>info</b> a
-côté du nom de la liste.
+d'abonnÃ©s ou les archives, cliquez sur le lien <b>info</b> a
+cÃ´tÃ© du nom de la liste.
 </p>
 
 <p>
@@ -35,5 +35,5 @@ côté du nom de la liste.
 <table border>
 <tr>
   <td colspan="4">Liste</td>
-  <td colspan="9">Mode de réception</td>
+  <td colspan="9">Mode de rÃ©ception</td>
 </tr>

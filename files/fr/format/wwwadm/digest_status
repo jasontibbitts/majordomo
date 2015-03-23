@@ -2,7 +2,7 @@
 <table>
 <tr> 
   <td>
-    Numéro de message
+    NumÃ©ro de message
   </td> 
   <td>
      <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-part&amp;extra=?MSGNO">

@@ -1,5 +1,5 @@
-Le paramètre "quote_pattern" contient un motif qui est utilisé pour
-tester les lignes des messages postés. Les lignes auxquelles
-correspond ce motif seront considérées comme "quotés", cela signifie
+Le paramÃ¨tre "quote_pattern" contient un motif qui est utilisÃ© pour
+tester les lignes des messages postÃ©s. Les lignes auxquelles
+correspond ce motif seront considÃ©rÃ©es comme "quotÃ©s", cela signifie
 que ces lignes proviennent de messages auquel le message courant
-réponds.
+rÃ©ponds.

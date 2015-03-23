@@ -1,7 +1,7 @@
-Le paramètre "archive_dir" contient le chemin complet du répertoire ou
-les messages d'archive sont stockés.
+Le paramÃ¨tre "archive_dir" contient le chemin complet du rÃ©pertoire ou
+les messages d'archive sont stockÃ©s.
 
-Si ce paramètre est vide, Majordomo stockera les messages dans le
-répertoire "/public/archive" dans l'espace disque de la liste, si ce
-répertoire existe. Si ce répertoire n'existe pas, les messages ne
-seront pas archivés, et les compilations ne seront pas envoyées.
+Si ce paramÃ¨tre est vide, Majordomo stockera les messages dans le
+rÃ©pertoire "/public/archive" dans l'espace disque de la liste, si ce
+rÃ©pertoire existe. Si ce rÃ©pertoire n'existe pas, les messages ne
+seront pas archivÃ©s, et les compilations ne seront pas envoyÃ©es.

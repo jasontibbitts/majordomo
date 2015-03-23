@@ -1,10 +1,10 @@
 <!-- Majordomo who_registry_foot format file -->
-<tr><td colspan="3">Adresses trouvées&nbsp;: $COUNT.</td></tr>
+<tr><td colspan="3">Adresses trouvÃ©es&nbsp;: $COUNT.</td></tr>
 </table>
 <input type="submit" name="func" value="$REMOVE">
 </form>
 <p>
-<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;mode=$MODE&amp;extra=$PATTERN&amp;start=?PREVIOUS&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses Précédentes</a><br>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;mode=$MODE&amp;extra=$PATTERN&amp;start=?PREVIOUS&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses PrÃ©cÃ©dentes</a><br>
 <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;mode=$MODE&amp;extra=$PATTERN&amp;start=?NEXT&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses Suivantes</a>
 </p>
 <h4 align=center>Rechercher le registre</h4>
@@ -31,8 +31,8 @@ Nombre d'adresses&nbsp;:
 <h4 align=center>Ajouter ou supprimer des adresses du registre</h4>
 
 <ol>
-  <li>Choisissez l'une des trois méthodes en cochant le bouton
-  approprié.</li>
+  <li>Choisissez l'une des trois mÃ©thodes en cochant le bouton
+  appropriÃ©.</li>
   <li>Entrez les adresses email dans le champ, une par ligne.</li>
   <li>Cliquez sur le bouton <b>ajouter ou supprimer des
     adresses</b>.</li>

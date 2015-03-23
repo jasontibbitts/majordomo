@@ -1,6 +1,6 @@
-Ce paramètre contient une liste de paramètres que les non inscrits a
-la liste ont. Seuls paramètres d'informations, hidepost et postblock
-ont un sens ici. Ces paramètres sont :
+Ce paramÃ¨tre contient une liste de paramÃ¨tres que les non inscrits a
+la liste ont. Seuls paramÃ¨tres d'informations, hidepost et postblock
+ont un sens ici. Ces paramÃ¨tres sont :
 
   ackdeny
   ackpost
@@ -9,5 +9,5 @@ ont un sens ici. Ces paramètres sont :
   hidepost
   postblock
 
-Utilisez la commande "help set" pour avoir une description détaillée
-de ces paramètres.
+Utilisez la commande "help set" pour avoir une description dÃ©taillÃ©e
+de ces paramÃ¨tres.

@@ -1,15 +1,15 @@
 <!-- Majordomo tokeninfo_head format file -->
 <p>
-La commande suivante a été envoyée à $SITE&nbsp;:
+La commande suivante a Ã©tÃ© envoyÃ©e Ã  $SITE&nbsp;:
 <blockquote>
 $CMDLINE
 </blockquote>
-Plus de détails ci dessous.
+Plus de dÃ©tails ci dessous.
 </p>
 
 <table>
   <tr><td>Ticket&nbsp;:</td><td>$TOKEN</td></tr>
-  <tr><td>Crée&nbsp;:</td><td>$DATE</td></tr>
+  <tr><td>CrÃ©e&nbsp;:</td><td>$DATE</td></tr>
   <tr><td>Par&nbsp;:</td><td>$REQUESTER</td></tr>
   <tr><td>Type&nbsp;:</td><td>$TYPE</td></tr>
   <tr><td>Expire&nbsp;:</td><td>$EXPIRE</td></tr>
@@ -17,7 +17,7 @@ Plus de détails ci dessous.
 </table>
 
 <form method="POST" action="$CGIURL">
-?CONSULT?WILLACK Si vous désirez expliquer vos raisons
+?CONSULT?WILLACK Si vous dÃ©sirez expliquer vos raisons
 ?CONSULT?WILLACK d'$HELP:ACCEPTer ou de $HELP:REJECTer la commande,
 ?CONSULT?WILLACK entrez la ici&nbsp;:
 ?CONSULT?WILLACK <textarea rows="4" cols="70" name="xplanation">
@@ -39,8 +39,8 @@ Plus de détails ci dessous.
 ?ISPOST    </td>
 ?ISPOST    <td>
 ?ISPOST      Cliquez sur le bouton <b>accept-archive</b> pour
-?ISPOST      approuver la requête. Le message sera stocké dans les
-?ISPOST      archives mais ne sera pas distribué aux abonnés.
+?ISPOST      approuver la requÃªte. Le message sera stockÃ© dans les
+?ISPOST      archives mais ne sera pas distribuÃ© aux abonnÃ©s.
 ?ISPOST    </td>
 ?ISPOST  </tr>
 ?ISPOST  <tr>
@@ -49,7 +49,7 @@ Plus de détails ci dessous.
 ?ISPOST    </td>
 ?ISPOST    <td>
 ?ISPOST      Cliquez sur le bouton <b>accept-hide</b> pour approuver
-?ISPOST      la requête. Le message ne sera pas affiché dans les
+?ISPOST      la requÃªte. Le message ne sera pas affichÃ© dans les
 ?ISPOST      archives publiques.
 ?ISPOST    </td>
 ?ISPOST  </tr>
@@ -58,8 +58,8 @@ Plus de détails ci dessous.
       <input type="submit" name="a" value="reject">
     </td>
     <td>
-      Cliquez sur le bouton <b>reject</b> pour rejeter la requête.
-?CONSULT?WILLACK      Une explication sera envoyée a $VICTIM.
+      Cliquez sur le bouton <b>reject</b> pour rejeter la requÃªte.
+?CONSULT?WILLACK      Une explication sera envoyÃ©e a $VICTIM.
 ?CONSULT?WILLACK    </td>
 ?CONSULT?WILLACK  </tr>
 ?CONSULT?WILLACK  <tr>
@@ -68,8 +68,8 @@ Plus de détails ci dessous.
 ?CONSULT?WILLACK    </td>
 ?CONSULT?WILLACK    <td>
 ?CONSULT?WILLACK      Cliquez sur le bouton <b>reject-quiet</b> pour
-?CONSULT?WILLACK      rejeter la requête. Aucune explication ne sera
-?CONSULT?WILLACK      envoyée a $VICTIM.
+?CONSULT?WILLACK      rejeter la requÃªte. Aucune explication ne sera
+?CONSULT?WILLACK      envoyÃ©e a $VICTIM.
     </td>
   </tr>
 </table>
@@ -79,18 +79,18 @@ Plus de détails ci dessous.
 </form>
 
 <p>
-Un seul clic est nécessaire pour activer un bouton. <b>Ne
+Un seul clic est nÃ©cessaire pour activer un bouton. <b>Ne
   double cliquez pas.</b>
 </p>
 
 <p>
 Pour obtenir des instructions, cliquez sur le lien <b>Introduction</b>
 en haut ou en bas de la page.<br> Pour confirmer une autre
-requête, cliquez sur le lien <b>Confirmez une nouvelle
-  requête</b>.<br> Pour revenir a ce document, cliquez sur
-<b>Afficher tous les détails</b>.
+requÃªte, cliquez sur le lien <b>Confirmez une nouvelle
+  requÃªte</b>.<br> Pour revenir a ce document, cliquez sur
+<b>Afficher tous les dÃ©tails</b>.
 </p>
 <p>
-Plus d'informations sur la requête ci dessous&nbsp;:
+Plus d'informations sur la requÃªte ci dessous&nbsp;:
 </p>
 <pre>

@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname sequence_number = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : 1
-Type de donnée    : entier
-Catégorie         : deliver
+Valeur par dÃ©faut : 1
+Type de donnÃ©e    : entier
+CatÃ©gorie         : deliver
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,25 +13,25 @@ configset listname sequence_number = 101
 
 $INCLUDE-config/sequence_number
 
-Le numéro de séquence est disponible a certains endroits avec la
+Le numÃ©ro de sÃ©quence est disponible a certains endroits avec la
 variable de substitution \$SEQNO. Cette variable est disponible dans
-les paramètres de configuration "message_footer", "message_fronter",
+les paramÃ¨tres de configuration "message_footer", "message_fronter",
 "message_headers", "reply_to" et "subject_prefix". Il est aussi
-disponible dans les fichiers de réponses "ack_archive" et
-"ack_success". Référez vous à "help variables" pour une introduction
+disponible dans les fichiers de rÃ©ponses "ack_archive" et
+"ack_success". RÃ©fÃ©rez vous Ã  "help variables" pour une introduction
 aux substitutions.
 
-Une en-tête "X-Sequence-Number" est ajoutée a chaque message qui est
-stocké dans l'archive de la liste.
+Une en-tÃªte "X-Sequence-Number" est ajoutÃ©e a chaque message qui est
+stockÃ© dans l'archive de la liste.
 
 Lorsque la commande "who-bounce" ou la commande "show" affichent un
-numéro de message en erreur, il rapporte le numéro de séquence du
-message qui n'a pu être délivré.
+numÃ©ro de message en erreur, il rapporte le numÃ©ro de sÃ©quence du
+message qui n'a pu Ãªtre dÃ©livrÃ©.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
-   help archive (récupérer des anciens messages)
+   help archive (rÃ©cupÃ©rer des anciens messages)
    help configset_bounce_rules
    help configset_message_footer
    help configset_message_fronter

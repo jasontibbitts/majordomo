@@ -1,9 +1,9 @@
 <!-- Majordomo digest_incvol format file -->
 <p>
-Le numéro de volume de la compilation a été incrémentée de un. Le
-paramêtre de configuration "<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=configshow&amp;extra=digest_issues">
+Le numÃ©ro de volume de la compilation a Ã©tÃ© incrÃ©mentÃ©e de un. Le
+paramÃªtre de configuration "<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=configshow&amp;extra=digest_issues">
 digest_issues</a>" contient la liste des compilations ainsi que leur
-numéros.
+numÃ©ros.
 </p>
 
 

@@ -1,10 +1,10 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste subject_re_pattern = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : 
+Valeur par dÃ©faut : 
        /(?: (?: re | sv |aw |antwort | re\^\d+ | re\[\d+\] ):\s*)+/ix
-Type de donnée    : motif
-Catégorie         : moderate
+Type de donnÃ©e    : motif
+CatÃ©gorie         : moderate
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
  
@@ -12,29 +12,29 @@ EXEMPLE :
 configset liste subject_re_pattern = \
     /(?: (?: re | sv |aw |antwort | re\^\d+ | re\[\d+\] ):\s*)+/ix
 
-Un motif utilisé pour trouver les préfixes de réponse ("Re:") et
+Un motif utilisÃ© pour trouver les prÃ©fixes de rÃ©ponse ("Re:") et
 autres que les logiciels de courrier ajoutent au sujet pour indiquer
-une réponse.
+une rÃ©ponse.
 
 Majordomo l'utilise pour trois choses :
 
-1) Pour placer le "subject_prefix" après l'indicateur de réponse.
+1) Pour placer le "subject_prefix" aprÃ¨s l'indicateur de rÃ©ponse.
 
-2) En conjonction avec le paramètre "subject_re_strip", pour
-   supprimer, le nombre d'indicateurs de réponses accumulés.
+2) En conjonction avec le paramÃ¨tre "subject_re_strip", pour
+   supprimer, le nombre d'indicateurs de rÃ©ponses accumulÃ©s.
 
    Certains logiciels de courrier utiliseront autre chose que "Re:",
-   comme "SV:", "AW:", "Re^2:", etc. comme indicateurs de réponse.
+   comme "SV:", "AW:", "Re^2:", etc. comme indicateurs de rÃ©ponse.
    Lorsque plusieurs logiciels de courrier insistent sur le fait que
-   leur indicateur de réponse est le meilleur, un sujet peut en
-   accumuler un bon nombre. Ils devraient correspondre à une
-   combinaison d'indicateurs de réponse.
+   leur indicateur de rÃ©ponse est le meilleur, un sujet peut en
+   accumuler un bon nombre. Ils devraient correspondre Ã  une
+   combinaison d'indicateurs de rÃ©ponse.
 
 3) pour trier les messages par sujet ou discussion dans la commande
    archive.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
    help archive
    help configset_subject_prefix

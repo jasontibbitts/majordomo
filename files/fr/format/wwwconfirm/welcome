@@ -1,73 +1,73 @@
 
 <pre>?ERROR</pre>
 
-<h4 align="center">Introduction à l'interface de
+<h4 align="center">Introduction Ã  l'interface de
   confirmation</h4>
 <p>
-Lorsque des gens envoient des requêtes au serveur de listes de
-diffusions Majordomo de $SITE, certaines requêtes doivent
-être confirmées avant d'être
-complétées. Une confirmation peut être requise
-pour différentes raisons. Les deux plus communes sont&nbsp;:
+Lorsque des gens envoient des requÃªtes au serveur de listes de
+diffusions Majordomo de $SITE, certaines requÃªtes doivent
+Ãªtre confirmÃ©es avant d'Ãªtre
+complÃ©tÃ©es. Une confirmation peut Ãªtre requise
+pour diffÃ©rentes raisons. Les deux plus communes sont&nbsp;:
 </p>
 <ul>
-  <li>Quelqu'un désire s'abonner a une liste. Une confirmation
-  est requise pour vérifier que ce n'est pas une
-  contrefaçon.</li>
-  <li>Un message a été posté a une liste par
-  quelqu'un qui n'est pas abonné. La confirmation d'un des
-  modérateur de la liste est requise pour s'assurer que le
-  contenu du message est approprié.</li>
+  <li>Quelqu'un dÃ©sire s'abonner a une liste. Une confirmation
+  est requise pour vÃ©rifier que ce n'est pas une
+  contrefaÃ§on.</li>
+  <li>Un message a Ã©tÃ© postÃ© a une liste par
+  quelqu'un qui n'est pas abonnÃ©. La confirmation d'un des
+  modÃ©rateur de la liste est requise pour s'assurer que le
+  contenu du message est appropriÃ©.</li>
 </ul>
 
 <p>
-Majordomo assigne un identificateur unique nommé <b>ticket</b>
-(token) à chaque requête qui requière une
-approbation. Un ticket est composé de 12 caractères
-alphanumériques séparés par des tirets, par
+Majordomo assigne un identificateur unique nommÃ© <b>ticket</b>
+(token) Ã  chaque requÃªte qui requiÃ¨re une
+approbation. Un ticket est composÃ© de 12 caractÃ¨res
+alphanumÃ©riques sÃ©parÃ©s par des tirets, par
 exemple&nbsp;:</p>
 <pre>
 87E4-995C-BF31
 </pre>
 <p>
-Si vous avez reçu des instructions de confirmation par email,
-l'identificateur du ticket devrais apparaître dans le sujet et
+Si vous avez reÃ§u des instructions de confirmation par email,
+l'identificateur du ticket devrais apparaÃ®tre dans le sujet et
 le corps de ce message.
 </p>
 
 <p>
-Il y a trois commandes de bases disponibles pour gérer les
+Il y a trois commandes de bases disponibles pour gÃ©rer les
 tickets&nbsp;:
 </p>
 <ol>
-  <li>La commande <b>accept</b> confirmera la requête et fera en
-  sorte qu'elle soit exécutée.</li>
-  <li>La commande <b>reject</b> rejette la requête et
-  l'empêche d'être exécutée.</li>
+  <li>La commande <b>accept</b> confirmera la requÃªte et fera en
+  sorte qu'elle soit exÃ©cutÃ©e.</li>
+  <li>La commande <b>reject</b> rejette la requÃªte et
+  l'empÃªche d'Ãªtre exÃ©cutÃ©e.</li>
   <li>La commande <b>tokeninfo</b> affichera plus d'informations a
-  propos de la requête.</li>
+  propos de la requÃªte.</li>
 </ol>
 <p>
-Si vous désirez que la requête ne soit pas
-exécutée, vous pouvez juste l'ignorer. Si vous ignorez
-la requête, Majordomo vous enverra peut être un rappel
-dans quelques jours. La requête expirera lorsque la limite de
-temps sera écoulée.
+Si vous dÃ©sirez que la requÃªte ne soit pas
+exÃ©cutÃ©e, vous pouvez juste l'ignorer. Si vous ignorez
+la requÃªte, Majordomo vous enverra peut Ãªtre un rappel
+dans quelques jours. La requÃªte expirera lorsque la limite de
+temps sera Ã©coulÃ©e.
 </p>
 
 <p>
-Si vous désirez accepter ou rejeter une commande Majordomo ou
-un message posté, cliquez sur <b>Confirmez une nouvelle
-  requête</b> et suivez les instructions pour donner le ticket
-d'identification pour la requête.
+Si vous dÃ©sirez accepter ou rejeter une commande Majordomo ou
+un message postÃ©, cliquez sur <b>Confirmez une nouvelle
+  requÃªte</b> et suivez les instructions pour donner le ticket
+d'identification pour la requÃªte.
 </p>
 
 <p>
-Une fois que vous avez <b>accept</b>é ou <b>reject</b>é
-le ticket, son numéro est supprimé de la base de
-données et devient invalide.  Ne cliquez sur <b>accept</b> ou
+Une fois que vous avez <b>accept</b>Ã© ou <b>reject</b>Ã©
+le ticket, son numÃ©ro est supprimÃ© de la base de
+donnÃ©es et devient invalide.  Ne cliquez sur <b>accept</b> ou
 <b>reject</b> qu'une seule fois&nbsp;: la seconde fois
-générerais un message d'erreur.
+gÃ©nÃ©rerais un message d'erreur.
 </p>
 
 <p>

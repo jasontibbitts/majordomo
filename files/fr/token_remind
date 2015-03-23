@@ -1,36 +1,36 @@
 __ 
-Il y a quelques temps, un ticket de confirmation vous a été envoyé
+Il y a quelques temps, un ticket de confirmation vous a Ã©tÃ© envoyÃ©
 pour la raison suivante :
 
   "$CMDLINE"
 
-Il a été envoyé pour les raisons suivantes :
+Il a Ã©tÃ© envoyÃ© pour les raisons suivantes :
 
   $REASONS
 
-Cette requête n'a été ni accepté ni rejetée. Si vous voulez que
+Cette requÃªte n'a Ã©tÃ© ni acceptÃ© ni rejetÃ©e. Si vous voulez que
 quelque chose se fasse, faites l'une des actions ci dessous :
 
-1. Si vous avez la possibilité de naviguer le web, visitez
+1. Si vous avez la possibilitÃ© de naviguer le web, visitez
    <$URL>
    et suivez les instructions.
 
-2. Répondez à $MJ 
+2. RÃ©pondez Ã  $MJ 
    avec l'une de ces commandes dans le corps du message :
 
     accept
     reject
 
-   (Le numéro $TOKEN doit être dans le sujet du message)
+   (Le numÃ©ro $TOKEN doit Ãªtre dans le sujet du message)
 
-3. Répondez à $MJ 
+3. RÃ©pondez Ã  $MJ 
    avec l'une de ces commandes dans le corps du message :
    
     accept $TOKEN
     reject $TOKEN
 
-Si vous ne répondez pas dans les $EXPIRE jours, ce ticket expirera, et
-la requête ne sera pas complétée
+Si vous ne rÃ©pondez pas dans les $EXPIRE jours, ce ticket expirera, et
+la requÃªte ne sera pas complÃ©tÃ©e
 
-Si vous désirez communiquer avec une personne, envoyez un email à
+Si vous dÃ©sirez communiquer avec une personne, envoyez un email Ã 
 $OWNER.

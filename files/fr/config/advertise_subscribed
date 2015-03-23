@@ -1,5 +1,5 @@
-Le paramètre "advertise_subscribed" modifie la visibilité des listes
-lorsque la commande "lists" est utilisée. Si il est actif, une liste
-sera toujours visible pour ses abonnés. Si ce paramètre est désactivé,
-une liste sera visible pour ses abonnés en fonction des autres
-paramètres.
+Le paramÃ¨tre "advertise_subscribed" modifie la visibilitÃ© des listes
+lorsque la commande "lists" est utilisÃ©e. Si il est actif, une liste
+sera toujours visible pour ses abonnÃ©s. Si ce paramÃ¨tre est dÃ©sactivÃ©,
+une liste sera visible pour ses abonnÃ©s en fonction des autres
+paramÃ¨tres.

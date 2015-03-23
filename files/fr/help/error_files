@@ -2,132 +2,132 @@
 
 Pour pouvoir avoir des messages d'erreurs qui sont faciles a
 comprendre et a localiser, les messages d'erreurs sont graduellement
-déplacé hors du code source dans des fichiers séparés. Les fichiers
+dÃ©placÃ© hors du code source dans des fichiers sÃ©parÃ©s. Les fichiers
 d'erreurs sont des patrons qui supportent des substitutions de
-variables. Ces fichiers sont spécifiques a chaque site, mais peuvent
-être modifier domaines par domaine en utilisant la commande get. Par
+variables. Ces fichiers sont spÃ©cifiques a chaque site, mais peuvent
+Ãªtre modifier domaines par domaine en utilisant la commande get. Par
 exemple, pour modifier le fichier "password_length", utilisez la
 commande :
  get-edit GLOBAL /error/password_length
 
-Les fichiers d'erreurs ne sont jamais retournées directement. Leur
-texte est incorporé dans le fichier de format approprié pour la
-commande qui a généré l'erreur. (Référez vous à "help format_files"
-pour plus de détails.)
+Les fichiers d'erreurs ne sont jamais retournÃ©es directement. Leur
+texte est incorporÃ© dans le fichier de format appropriÃ© pour la
+commande qui a gÃ©nÃ©rÃ© l'erreur. (RÃ©fÃ©rez vous Ã  "help format_files"
+pour plus de dÃ©tails.)
 
-Les variables de substitutions supportées par chaque fichier est
-donnée entre parenthèses.
+Les variables de substitutions supportÃ©es par chaque fichier est
+donnÃ©e entre parenthÃ¨ses.
 
 access_closed
 -------------
-Ce message est affiché lorsque la commande est refusée parce que l'un
-des paramètres "*_access" est réglé à "closed".
+Ce message est affichÃ© lorsque la commande est refusÃ©e parce que l'un
+des paramÃ¨tres "*_access" est rÃ©glÃ© Ã  "closed".
 
 (Standard plus COMMAND, SETTING)
 
 access_confcons
 ---------------
-Ce message est affiché lorsque la commande requiers une confirmation
-parce que l'un des paramètres "*_policy" est réglé à "closed+confirm".
+Ce message est affichÃ© lorsque la commande requiers une confirmation
+parce que l'un des paramÃ¨tres "*_policy" est rÃ©glÃ© Ã  "closed+confirm".
 
 (Standard plus COMMAND, SETTING)
 
 access_confirm
 --------------
-Ce message est affiché lorsque la commande requiers une confirmation
-par défaut ou parce que l'un des paramètres "*_policy" contient le mot
+Ce message est affichÃ© lorsque la commande requiers une confirmation
+par dÃ©faut ou parce que l'un des paramÃ¨tres "*_policy" contient le mot
 "confirm".
 
 (Standard plus COMMAND, SETTING)
 
 access_confirm2
 ---------------
-Ce message est affiché lorsque la commande requiers une confirmation
-de l'utilisateur et de la victime par défaut.
+Ce message est affichÃ© lorsque la commande requiers une confirmation
+de l'utilisateur et de la victime par dÃ©faut.
 
 (Standard plus COMMAND)
 
 access_consult
 --------------
-Ce message est affiché lorsque la commande est modérée parce que l'un
-des paramètres "*_policy" est réglé a "closed".
+Ce message est affichÃ© lorsque la commande est modÃ©rÃ©e parce que l'un
+des paramÃ¨tres "*_policy" est rÃ©glÃ© a "closed".
 
 (Standard plus COMMAND, SETTING)
 
 access_mismatch
 ---------------
-Ce message est affiché lorsque l'utilisateur et la victime d'une
-commande sont différents.
+Ce message est affichÃ© lorsque l'utilisateur et la victime d'une
+commande sont diffÃ©rents.
 
 (Standard plus COMMAND, USER, VICTIM)
 
 access_password
 ---------------
-Ce message est affiché lorsque l'un des paramètres "*_access" ou
-"*_policy" contient le mot "password" et que la commande est utilisée
+Ce message est affichÃ© lorsque l'un des paramÃ¨tres "*_access" ou
+"*_policy" contient le mot "password" et que la commande est utilisÃ©e
 sans mot de passe.
 
 (Standard plus COMMAND)
 
 access_posing
 -------------
-Ce message est affiché si l'utilisateur de la session et l'utilisateur
-d'une commande diffèrent.
+Ce message est affichÃ© si l'utilisateur de la session et l'utilisateur
+d'une commande diffÃ¨rent.
 
 (Standard plus COMMAND, SESSIONUSER, USER)
 
 access_sublist
 --------------
-Ce message est affiché lorsque la commande qui affecte une sous liste
-est envoyée sans mot de passe administratif.
+Ce message est affichÃ© lorsque la commande qui affecte une sous liste
+est envoyÃ©e sans mot de passe administratif.
 
 (Standard plus COMMAND)
 
 add_headers
 -----------
-Ce message est affiché si l'ajout d'une en-tête a un message par la
-commande post-addhdr a échoué.
+Ce message est affichÃ© si l'ajout d'une en-tÃªte a un message par la
+commande post-addhdr a Ã©chouÃ©.
 
 (Substitutions standard uniquement)
 
 already_subscribed
 ------------------
-Ce message est affiché lors d'une tentative d'abonnement d'une adresse
-déjà abonnée.
+Ce message est affichÃ© lors d'une tentative d'abonnement d'une adresse
+dÃ©jÃ  abonnÃ©e.
 
 (Standard plus FULLADDR, VICTIM)
 
 after_route
 -----------
-Ce message est affiché lorsqu'il y a des commentaires dans une adresse
-email après la "route" (l'adresse en elle même).
+Ce message est affichÃ© lorsqu'il y a des commentaires dans une adresse
+email aprÃ¨s la "route" (l'adresse en elle mÃªme).
 
 (Substitutions standard uniquement)
 
 approve_no_command
 ------------------
-Ce message est affiché lorsque la commande "approve" n'est pas suivie
-d'une autre commande Majordomo sur la même ligne.
+Ce message est affichÃ© lorsque la commande "approve" n'est pas suivie
+d'une autre commande Majordomo sur la mÃªme ligne.
 
 (Substitutions standard uniquement)
 
 approve_no_password
 -------------------
-Ce message est affiché lorsque la commande "approve n'est pas suivie
+Ce message est affichÃ© lorsque la commande "approve n'est pas suivie
 d'un mot de passe.
 
 (Substitutions standard uniquement)
 
 at_symbol
 ---------
-Ce message est affiché lorsque plus d'un symbole '@' apparaît dans une
+Ce message est affichÃ© lorsque plus d'un symbole '@' apparaÃ®t dans une
 adresse email.
 
 (Substitutions standard uniquement)
 
 bounce_error
 ------------
-Ce message est affiché lorsque un problème technique est apparu
+Ce message est affichÃ© lorsque un problÃ¨me technique est apparu
 lorsque la lecture des informations contenues dans un message revenu en
 erreur.
 
@@ -135,14 +135,14 @@ erreur.
 
 bounce_rule
 -----------
-Ce message fournis une explication par défaut pour une action prise
-par une règle du paramètre "bounce_rules".
+Ce message fournis une explication par dÃ©faut pour une action prise
+par une rÃ¨gle du paramÃ¨tre "bounce_rules".
 
 (Standard plus COMMAND)
 
 bounce_unsub
 ------------
-Ce message explique qu'une adresse a été désabonnée à cause d'un
+Ce message explique qu'une adresse a Ã©tÃ© dÃ©sabonnÃ©e Ã  cause d'un
 message revenu en erreur.
 
 (Standard plus VICTIM)
@@ -150,726 +150,726 @@ message revenu en erreur.
 bounce_user
 -----------
 Ce message affiche un diagnostique et des statistiques pour une
-adresse pour laquelle un message posté n'a pu être délivré.
+adresse pour laquelle un message postÃ© n'a pu Ãªtre dÃ©livrÃ©.
 
 (Standard plus BOUNCE_PERCENT, BOUNCES_DAY, BOUNCES_MONTH, BOUNCES_WEEK,
  CONSECUTIVE, DIAGNOSTIC, NONMEMBER, REASONS, STATUS, VICTIM)
 
 bracketed_addresses
 -------------------
-Ce message est affiché lorsque plus d'une adresse email est incluse
+Ce message est affichÃ© lorsque plus d'une adresse email est incluse
 dans une seule pair de '<' et '>'.
 
 (Substitutions standard uniquement)
 
 commands_processed
 ------------------
-Ce message résume les résultats d'un groupe de commandes qui ont été
-traitées par le parser de commandes.
+Ce message rÃ©sume les rÃ©sultats d'un groupe de commandes qui ont Ã©tÃ©
+traitÃ©es par le parser de commandes.
 
 (Standard plus COUNT, FAIL, STALL, SUCCEED)
 
 command_results
 ---------------
-Ce message est affiché dans le Sujet du message contenant les
-résultats d'une commande Majordomo.
+Ce message est affichÃ© dans le Sujet du message contenant les
+rÃ©sultats d'une commande Majordomo.
 
 (Standard plus COMMAND)
 
 default_reset
 -------------
-Ce message est affiché lorsque la commande "default" remet un
-paramètre à sa valeur par défaut et que cette dernière est vide.
+Ce message est affichÃ© lorsque la commande "default" remet un
+paramÃ¨tre Ã  sa valeur par dÃ©faut et que cette derniÃ¨re est vide.
 
 (Standard plus SETTING)
 
 default_set
 -----------
-Ce message est affiché lorsque la commande "default" change un
-paramètre par défaut ("delay", "list", "password" ou "user").
+Ce message est affichÃ© lorsque la commande "default" change un
+paramÃ¨tre par dÃ©faut ("delay", "list", "password" ou "user").
 
 (Standard plus SETTING, VALUE)
 
 denied_post
 -----------
-Ce message est affiché dans l'en-tête Sujet d'un accusé de réception
-lorsqu'un message posté est refusé par les tests "access" et que le
-message résultant n'a pas de description. C'est en général causé par
-l'action "reply" d'une règle d'accès. (Référez vous à "help
-configset_access_rules" pour plus de détails.)
+Ce message est affichÃ© dans l'en-tÃªte Sujet d'un accusÃ© de rÃ©ception
+lorsqu'un message postÃ© est refusÃ© par les tests "access" et que le
+message rÃ©sultant n'a pas de description. C'est en gÃ©nÃ©ral causÃ© par
+l'action "reply" d'une rÃ¨gle d'accÃ¨s. (RÃ©fÃ©rez vous Ã  "help
+configset_access_rules" pour plus de dÃ©tails.)
 
 (Substitutions standard uniquement)
 
 digest_mode
 -----------
-Ce message est affiché si la commande "digest" est envoyée sans l'un
+Ce message est affichÃ© si la commande "digest" est envoyÃ©e sans l'un
 des modes de commande requis.
 
 (Standard plus DIGEST_DESCRIPTIONS, DIGESTS, MODES)
 
 empty_command
 -------------
-Ce message est affiché lorsque le parser de commandes ne trouve aucune
+Ce message est affichÃ© lorsque le parser de commandes ne trouve aucune
 commande.
 
 (Substitutions standard uniquement)
 
 end_command
 -----------
-Ce message est affiché lorsque le parser de commandes reconnait la
+Ce message est affichÃ© lorsque le parser de commandes reconnait la
 commande "end" et arrete de traiter les commandes.
 
 (Substitutions standard uniquement)
 
 ending_at
 ---------
-Ce message est affiché lorsqu'une adresse email se termine par un '@'.
+Ce message est affichÃ© lorsqu'une adresse email se termine par un '@'.
 
 (Substitutions standard uniquement)
 
 found_tag
 ---------
-Ce message est affiché lorsque le parser de commandes trouve un tag
+Ce message est affichÃ© lorsque le parser de commandes trouve un tag
 qui termine une "here document" multi ligne.
 
 (Standard plus TAG)
 
 host_length
 -----------
-Ce message est affiché lorsque le nom d'hôte dans une adresse email
-est supérieur a 64 caractères.
+Ce message est affichÃ© lorsque le nom d'hÃ´te dans une adresse email
+est supÃ©rieur a 64 caractÃ¨res.
 
 (Substitutions standard uniquement)
 
 ignored_part
 ------------
-Ce message est affiché lorsque le parser de commandes ignore une
+Ce message est affichÃ© lorsque le parser de commandes ignore une
 partie de message qui n'est pas du texte pur ou du HTML.
 
 (Standard plus CONTENT_TYPE)
 
 inactive_list
 -------------
-Ce message d'erreur est affiché si l'accès a une liste a été refusé
-parce que le paramètre de configuration "active" est désactivé.
+Ce message d'erreur est affichÃ© si l'accÃ¨s a une liste a Ã©tÃ© refusÃ©
+parce que le paramÃ¨tre de configuration "active" est dÃ©sactivÃ©.
 
 (Substitutions standard uniquement)
 
 incompatible_mode
 -----------------
-Ce message est affiché lorsqu'une commande est envoyée avec deux ou
+Ce message est affichÃ© lorsqu'une commande est envoyÃ©e avec deux ou
 plus modes incompatibles.
 
 (Standard plus MODE, MODES)
 
 incomplete_host
 ---------------
-Ce message est affiché lorsque le nom d'hôte ne contient qu'un seul
+Ce message est affichÃ© lorsque le nom d'hÃ´te ne contient qu'un seul
 domaine.
 
 (Substitutions standard uniquement)
 
 invalid_address
 ---------------
-Ce message est affiché si une adresse email est invalide.
+Ce message est affichÃ© si une adresse email est invalide.
 
 (Standard plus ADDRESS, ERROR, LOCATION)
 
 invalid_approval
 ----------------
-Ce message est affiché si la ligne "Approved" d'un message posté
-contient un mot de passe invalide. (Référez vous à "help
-admin_moderate" pour plus de détails sur la fonctionnalité "Approved".)
+Ce message est affichÃ© si la ligne "Approved" d'un message postÃ©
+contient un mot de passe invalide. (RÃ©fÃ©rez vous Ã  "help
+admin_moderate" pour plus de dÃ©tails sur la fonctionnalitÃ© "Approved".)
 
 (Substitutions standard uniquement)
 
 invalid_arguments
 -----------------
-Ce message est affiché lorsque le parser de commandes ignore les
-arguments d'une commande qui n'est pas sensée accepter des arguments.
+Ce message est affichÃ© lorsque le parser de commandes ignore les
+arguments d'une commande qui n'est pas sensÃ©e accepter des arguments.
 
 (Standard plus COMMAND)
 
 invalid_attachment
 ------------------
-Ce message est affiché lorsque le parser de commandes traite un
-numéro fichier attaché qui est plus grand que le nombre de fichier
-attachés au message.
+Ce message est affichÃ© lorsque le parser de commandes traite un
+numÃ©ro fichier attachÃ© qui est plus grand que le nombre de fichier
+attachÃ©s au message.
 
 (Standard plus COUNT)
 
 invalid_char
 ------------
-Ce message est affiché lorsqu'une adresse email contient des
-caractères invalides.
+Ce message est affichÃ© lorsqu'une adresse email contient des
+caractÃ¨res invalides.
 
 (Substitutions standard uniquement)
 
 invalid_command
 ---------------
-Ce message d'erreur est affiché si une commande envoyée n'est pas
-supportée par Majordomo.
+Ce message d'erreur est affichÃ© si une commande envoyÃ©e n'est pas
+supportÃ©e par Majordomo.
 
 (Standard plus COMMAND)
 
 invalid_comment
 ---------------
-Ce message est affiché lorsque la partie commentaire d'une adresse
+Ce message est affichÃ© lorsque la partie commentaire d'une adresse
 email est invalide.
 
 (Standard plus COMMENT, ERROR, LOCATION)
 
 invalid_component
 -----------------
-Ce message est affiché lorsqu'un morceau d'une adresse email n'est
+Ce message est affichÃ© lorsqu'un morceau d'une adresse email n'est
 reconnu ni en tant que commentaire ni en tant que "route".
 
 (Substitutions standard uniquement)
 
 invalid_default
 ---------------
-Ce message est affiché lorsque la commande "default" est utilisée avec
-un paramètre invalide.
+Ce message est affichÃ© lorsque la commande "default" est utilisÃ©e avec
+un paramÃ¨tre invalide.
 
 (Standard plus SETTING)
 
 invalid_entity
 --------------
-Ce message est affiché lorsque l'analyseur de messages est incapable
-de comprendre la structure d'un message posté.
+Ce message est affichÃ© lorsque l'analyseur de messages est incapable
+de comprendre la structure d'un message postÃ©.
 
 (Substitutions standard uniquement)
 
 invalid_hereargs
 ----------------
-Ce message est affiché lorsque le parser de commandes trouve une
+Ce message est affichÃ© lorsque le parser de commandes trouve une
 commande pour laquelle un "here document" est fourni alors qu'elle
-n'accepte pas ce genre d'entrée.
+n'accepte pas ce genre d'entrÃ©e.
 
 (Standard plus COMMAND)
 
 invalid_list
 ------------
-Ce message d'erreur est affiché si le nom d'une liste contient des
-caractères illégaux. Les caractères légaux incluent les lettres, les
-chiffres, et les caractères souligné, point et tiret.
+Ce message d'erreur est affichÃ© si le nom d'une liste contient des
+caractÃ¨res illÃ©gaux. Les caractÃ¨res lÃ©gaux incluent les lettres, les
+chiffres, et les caractÃ¨res soulignÃ©, point et tiret.
 
 (Substitutions standard uniquement)
 
 invalid_mode
 ------------
-Ce message d'erreur est affiché si le mode de commande requis n'est
-pas supporté par Majordomo pour une commande particulière.
+Ce message d'erreur est affichÃ© si le mode de commande requis n'est
+pas supportÃ© par Majordomo pour une commande particuliÃ¨re.
 
 (Standard plus MODE, MODES)
 
 invalid_password
 ----------------
-Ce message d'erreur est affiché lorsqu'un mot de passe administratif
+Ce message d'erreur est affichÃ© lorsqu'un mot de passe administratif
 ou personnel invalide, ou lorsqu'un mot de passe temporaire ayant
-expiré, est utilisé.
+expirÃ©, est utilisÃ©.
 
 (Standard plus VICTIM)
 
 invalid_sublist
 ---------------
-Ce message est affiché lorsqu'un message est posté vers une liste
+Ce message est affichÃ© lorsqu'un message est postÃ© vers une liste
 auxiliaire qui n'existe pas.
 
 (Substitutions standard uniquement)
 
 invalid_token
 -------------
-Ce message d'erreur est affiché lorsque l'une des commandes "accept",
-"reject" ou "tokeninfo" est utilisée avec un ticket qui n'a pas un
+Ce message d'erreur est affichÃ© lorsque l'une des commandes "accept",
+"reject" ou "tokeninfo" est utilisÃ©e avec un ticket qui n'a pas un
 format valide.
 
 (Standard plus TOKEN)
 ip_address
 ----------
-Ce message est affiché lorsqu'une adresse IP apparaît dans la partie
-droite d'une adresse email sans être entourée de crochets.
+Ce message est affichÃ© lorsqu'une adresse IP apparaÃ®t dans la partie
+droite d'une adresse email sans Ãªtre entourÃ©e de crochets.
 
 (Substitutions standard uniquement)
 
 left_brackets
 -------------
-Ce message est affiché lorsqu'une adresse email à un a un '<' de trop.
+Ce message est affichÃ© lorsqu'une adresse email Ã  un a un '<' de trop.
 
 (Substitutions standard uniquement)
 
 lhs_domain_literal
 ------------------
-Ce message est affiché lorsqu'un domaine littéral (une adresse IP
-entre crochets) apparaît dans la partie locale d'une adresse email.
+Ce message est affichÃ© lorsqu'un domaine littÃ©ral (une adresse IP
+entre crochets) apparaÃ®t dans la partie locale d'une adresse email.
 
 (Substitutions standard uniquement)
 
 local_part_length
 -----------------
-Ce message est affiché lorsque la partie locale (la partie gauche
-d'une adresse email) contient plus de 64 caractères.
+Ce message est affichÃ© lorsque la partie locale (la partie gauche
+d'une adresse email) contient plus de 64 caractÃ¨res.
 
 (Substitutions standard uniquement)
 
 make_list
 ---------
-Ce message d'erreur est affiché lorsque Majordomo est incapable
+Ce message d'erreur est affichÃ© lorsque Majordomo est incapable
 d'initialiser une liste existante.
 
 (Substitutions standard uniquement)
 
 message_number
 --------------
-Ce message d'erreur est affiché lorsque les commandes "archive-part",
-"archive-edit" ou "archive-replace" sont utilisée pour accéder a plus
+Ce message d'erreur est affichÃ© lorsque les commandes "archive-part",
+"archive-edit" ou "archive-replace" sont utilisÃ©e pour accÃ©der a plus
 d'un message. Par exemple, la commande "archive-part-edit" est
-normalement utilisée pour altérer un seul message. Si a la place d'un
-seul numéro de message, un groupe de message est requis, la commande
-échouera.
+normalement utilisÃ©e pour altÃ©rer un seul message. Si a la place d'un
+seul numÃ©ro de message, un groupe de message est requis, la commande
+Ã©chouera.
 
 (Standard plus MSGNO)
 
 mime_header_length
 ------------------
-Ce message est affiché lorsqu'un volet d'un message posté contient une
-en-tête MIME dont la longueur excède le paramètre "max_mime_header_length".
+Ce message est affichÃ© lorsqu'un volet d'un message postÃ© contient une
+en-tÃªte MIME dont la longueur excÃ¨de le paramÃ¨tre "max_mime_header_length".
 
 (Standard plus LIMIT, SIZE)
 
 missing_mode
 ------------
-Ce message est affiché si une commande est envoyée avec un mode de
-commande qui a un pré requis manquant. Par exemple, la commande
-"archive-immediate" est invalide car le mode "get" doit être utilisé
+Ce message est affichÃ© si une commande est envoyÃ©e avec un mode de
+commande qui a un prÃ© requis manquant. Par exemple, la commande
+"archive-immediate" est invalide car le mode "get" doit Ãªtre utilisÃ©
 avec le mode de "immediate".
 
 (Standard plus MODE, MODES)
 
 missing_tag
 -----------
-Ce message est affiché lorsque le parser de commandes atteint la fin
-d'un message sans avoir trouvé le tag "here document" qu'il cherchais.
+Ce message est affichÃ© lorsque le parser de commandes atteint la fin
+d'un message sans avoir trouvÃ© le tag "here document" qu'il cherchais.
 
 (standard plus TAG)
 
 moderate
 --------
-Ce message est affiché lorsqu'un message est modéré parce que le
-paramètre "moderate" est activé.
+Ce message est affichÃ© lorsqu'un message est modÃ©rÃ© parce que le
+paramÃ¨tre "moderate" est activÃ©.
 
 (Substitutions standard uniquement)
 
 multiple_addresses
 ------------------
-Ce message est affiché lorsqu'une seule adresse email étais attendue,
-mais que plusieurs ont été spécifiées.
+Ce message est affichÃ© lorsqu'une seule adresse email Ã©tais attendue,
+mais que plusieurs ont Ã©tÃ© spÃ©cifiÃ©es.
 
 (Substitutions standard uniquement)
 
 nested_brackets
 ---------------
-Ce message est affiché si la "route" d'une adresse email est entourée
+Ce message est affichÃ© si la "route" d'une adresse email est entourÃ©e
 de plus d'une paire de '<' et '>'.
 
 (Substitutions standard uniquement)
 
 no_address
 ----------
-Ce message d'erreur est affiché si l'une des commandes "register",
-"set", "subscribe" ou "unsubscribe" a été exécutée avec l'interface
-wwwadm, mais qu'aucune adresse email n'a été spécifiée.
+Ce message d'erreur est affichÃ© si l'une des commandes "register",
+"set", "subscribe" ou "unsubscribe" a Ã©tÃ© exÃ©cutÃ©e avec l'interface
+wwwadm, mais qu'aucune adresse email n'a Ã©tÃ© spÃ©cifiÃ©e.
 
 (Substitutions standard uniquement)
 
 no_domain
 ---------
-Ce message est affiché lorsqu'une adresse email ne contient pas de nom
-d'hôte.
+Ce message est affichÃ© lorsqu'une adresse email ne contient pas de nom
+d'hÃ´te.
 
 (Substitutions standard uniquement)
 
 no_entity
 ---------
-Ce message est affiché lorsqu'une entité MIME n'a pu être créée.
+Ce message est affichÃ© lorsqu'une entitÃ© MIME n'a pu Ãªtre crÃ©Ã©e.
 
 (Substitutions standard uniquement)
 
 no_file
 -------
-Ce message est affiché lorsqu'un fichier n'a pu être lu ou créé.
+Ce message est affichÃ© lorsqu'un fichier n'a pu Ãªtre lu ou crÃ©Ã©.
 
 (Standard plus FILE)
 
 no_headers
 ----------
-Ce message est affiché lorsqu'un message ne contient aucune en-têtes.
+Ce message est affichÃ© lorsqu'un message ne contient aucune en-tÃªtes.
 
 (Substitutions standard uniquement)
 
 no_list
 -------
-Ce message est affiché lorsqu'une commande requérant un nom de liste a
-été utilisée, mais qu'aucun nom de liste n'a été spécifié.
+Ce message est affichÃ© lorsqu'une commande requÃ©rant un nom de liste a
+Ã©tÃ© utilisÃ©e, mais qu'aucun nom de liste n'a Ã©tÃ© spÃ©cifiÃ©.
 
 (Substitutions standard uniquement)
 
 no_local_part
 -------------
-Ce message est affiché lorsqu'une adresse email semble avoir une
-"route" qui ne contient qu'un nom d'hôte, mais pas de partie locale.
+Ce message est affichÃ© lorsqu'une adresse email semble avoir une
+"route" qui ne contient qu'un nom d'hÃ´te, mais pas de partie locale.
 
 (Substitutions standard uniquement)
 
 no_password
 -----------
-Ce message d'erreur est affiché lorsqu'une commande de Majordomo qui
-requiert un mot de passe est utilisée sans.
+Ce message d'erreur est affichÃ© lorsqu'une commande de Majordomo qui
+requiert un mot de passe est utilisÃ©e sans.
 
 (Standard plus COMMAND)
 
 no_route
 --------
-Ce message est affiché lorsqu'une adresse email semble ne contenir que
+Ce message est affichÃ© lorsqu'une adresse email semble ne contenir que
 des commentaires.
 
 (Substitutions standard uniquement)
 
 no_stall
 --------
-Ce message est affiché lorsqu'une commande ne peut pas rester en
-attente parce que la variable d'accès "nostall" est activée.
+Ce message est affichÃ© lorsqu'une commande ne peut pas rester en
+attente parce que la variable d'accÃ¨s "nostall" est activÃ©e.
 
 (Substitutions standard uniquement)
 
 no_token
 --------
-Ce message d'erreur est affiché lorsque l'une des commandes "accept",
-"reject" ou "tokeninfo" est utilisée, mais qu'aucun numéro de ticket
-n'est spécifié.
+Ce message d'erreur est affichÃ© lorsque l'une des commandes "accept",
+"reject" ou "tokeninfo" est utilisÃ©e, mais qu'aucun numÃ©ro de ticket
+n'est spÃ©cifiÃ©.
 
 (Substitutions standard uniquement)
 
 no_visible
 ----------
-Ce message d'erreur est affiché lorsque la commande "configshow"
-n'affiche aucun paramètre.
+Ce message d'erreur est affichÃ© lorsque la commande "configshow"
+n'affiche aucun paramÃ¨tre.
 
 (Standard plus SETTING)
 
 not_extracted
 -------------
-Ce message d'erreur est affiché lorsque la commande "configset-extract"
-a essayé de supprimer un fragment de configuration qui occupe plus de
-lignes que la valeur actuelle du paramètre.
+Ce message d'erreur est affichÃ© lorsque la commande "configset-extract"
+a essayÃ© de supprimer un fragment de configuration qui occupe plus de
+lignes que la valeur actuelle du paramÃ¨tre.
 
 (Standard plus EXPECTED, SETTING, VALUE)
 
 not_subscribed
 --------------
-Ce message est affiché si on tente de modifier un abonnement qui
+Ce message est affichÃ© si on tente de modifier un abonnement qui
 n'existe pas.
 
 (Standard plus VICTIM)
 
 obsolete_command
 ----------------
-Ce message est affiché lorsque le parser de commandes trouve une
-commande Majordomo qui est obsolète.
+Ce message est affichÃ© lorsque le parser de commandes trouve une
+commande Majordomo qui est obsolÃ¨te.
 
 (Standard plus COMMAND, NEWCOMMAND)
 
 over_message_limit
 ------------------
-Ce message est affiché lorsqu'une limite soft ou hard du paramètre
-"post_limits" est dépassée.
+Ce message est affichÃ© lorsqu'une limite soft ou hard du paramÃ¨tre
+"post_limits" est dÃ©passÃ©e.
 
 (Standard plus COUNT, TOTAL)
 
 over_time_limit
 ------------------
-Ce message est affiché lorsqu'une limite soft ou hard temporaire du
-paramètre "post_limits" est dépassée.
+Ce message est affichÃ© lorsqu'une limite soft ou hard temporaire du
+paramÃ¨tre "post_limits" est dÃ©passÃ©e.
 
 (Standard plus COUNT, TIME)
 
 password_length
 ---------------
-Ce message d'erreur est affiché si la commande mot de passe est
-utilisée pour créer un mot de passe personnel qui est trop court.
-(Référez vous à "help password" et "help configset_password_min_length"
-pour plus de détails.)
+Ce message d'erreur est affichÃ© si la commande mot de passe est
+utilisÃ©e pour crÃ©er un mot de passe personnel qui est trop court.
+(RÃ©fÃ©rez vous Ã  "help password" et "help configset_password_min_length"
+pour plus de dÃ©tails.)
 
 (Substitutions standard uniquement)
 
 password_level
 --------------
-Ce message d'erreur est affiché lorsqu'un administrateur de liste
-utilise un mot de passe valide qui n'a pas suffisamment de privilèges.
+Ce message d'erreur est affichÃ© lorsqu'un administrateur de liste
+utilise un mot de passe valide qui n'a pas suffisamment de privilÃ¨ges.
 Il s'applique uniquement pour les commandes "configdef" et "configset",
-qui requièrent différents niveaux de privilèges suivant le paramètre
-qui est modifié. Le paramètre "config_access" peut être utilisé pour
-modifier ces pré requis.
+qui requiÃ¨rent diffÃ©rents niveaux de privilÃ¨ges suivant le paramÃ¨tre
+qui est modifiÃ©. Le paramÃ¨tre "config_access" peut Ãªtre utilisÃ© pour
+modifier ces prÃ© requis.
 
 (Standard plus LEVEL, MODE, NEEDED, SETTING, USER)
 
 pattern_mode
 ------------
-Ce message est affiché lorsque le mode "pattern" ou "regex" est
-utilisé avec l'une des commandes "set", "unregister", ou "unsubscribe"
+Ce message est affichÃ© lorsque le mode "pattern" ou "regex" est
+utilisÃ© avec l'une des commandes "set", "unregister", ou "unsubscribe"
 sans mot de passe administratif.
 
 (Substitutions standard uniquement)
 
 pending_delivery
 ----------------
-Ce message d'erreur est affiché si la commande "archive-delete" est
-utilisée pour essayer de supprimer un message qui devrait être inclus
+Ce message d'erreur est affichÃ© si la commande "archive-delete" est
+utilisÃ©e pour essayer de supprimer un message qui devrait Ãªtre inclus
 dans une ou plusieurs compilations.
 
 (Standard plus MSGNO)
 
 post_block
 ----------
-Ce message est affiché dans les messages de confirmation lorsque le
-paramètre "postblock" est activé pour l'auteur d'un message posté.
+Ce message est affichÃ© dans les messages de confirmation lorsque le
+paramÃ¨tre "postblock" est activÃ© pour l'auteur d'un message postÃ©.
 
 (Standard plus USER)
 
 probe_bounce
 ------------
-Ce message est affiché lorsqu'un message sonde n'a pu être délivré a
+Ce message est affichÃ© lorsqu'un message sonde n'a pu Ãªtre dÃ©livrÃ© a
 l'adresse qu'il sondait.
 
 (Substitutions standard uniquement)
 
 relocated_list
 --------------
-Ce message d'erreur est affiché lorsqu'une liste du paramètre de
-configuration GLOBAL "relocated_lists" est utilisé dans l'une des
+Ce message d'erreur est affichÃ© lorsqu'une liste du paramÃ¨tre de
+configuration GLOBAL "relocated_lists" est utilisÃ© dans l'une des
 commandes de Majordomo.
 
 (Standard plus NEWLIST)
 
 restrict_post
 -------------
-Ce message est affiché lorsque le message est modéré parce que
-l'auteur du message n'est membre d'aucun des groupes listés dans le
-paramètre "restrict_post".
+Ce message est affichÃ© lorsque le message est modÃ©rÃ© parce que
+l'auteur du message n'est membre d'aucun des groupes listÃ©s dans le
+paramÃ¨tre "restrict_post".
 
 (Standard plus USER, VICTIM)
 
 results_mailed
 --------------
-Ce message est affiché lorsque la commande "default user" fait que les
-résultats d'une commande Majordomo sont envoyé a une personne
-différente.
+Ce message est affichÃ© lorsque la commande "default user" fait que les
+rÃ©sultats d'une commande Majordomo sont envoyÃ© a une personne
+diffÃ©rente.
 
 (Standard plus FAIL, STALL, SUCCEED, USER)
 
 rhs_domain_literal
 ------------------
-Ce message est affiché lorsqu'un domaine littéral (une adresse IP
-entourée de crochets) apparaît dans la partie droite d'une adresse
-après un autre caractère que '.' ou '@'.
+Ce message est affichÃ© lorsqu'un domaine littÃ©ral (une adresse IP
+entourÃ©e de crochets) apparaÃ®t dans la partie droite d'une adresse
+aprÃ¨s un autre caractÃ¨re que '.' ou '@'.
 
 (Substitutions standard uniquement)
 
 right_brackets
 --------------
-Ce message est affiché lorsqu'une adresse email a un '>' de trop.
+Ce message est affichÃ© lorsqu'une adresse email a un '>' de trop.
 
 (Substitutions standard uniquement)
 
 signature_separator
 -------------------
-Ce message est affiché lorsque le parser de commandes trouve un
-séparateur de signature et arrete de traîter les commandes.
+Ce message est affichÃ© lorsque le parser de commandes trouve un
+sÃ©parateur de signature et arrete de traÃ®ter les commandes.
 
 (Standard plus SEPARATOR)
 
 single_header_length
 --------------------
-Ce message est affiché lorsqu'une ou plusieurs en-tête d'un message
-posté est plus longue que le paramètre "max_header_line_length".
+Ce message est affichÃ© lorsqu'une ou plusieurs en-tÃªte d'un message
+postÃ© est plus longue que le paramÃ¨tre "max_header_line_length".
 
 (Standard plus LIMIT, SIZE)
 
 skipped_lines
 -------------
-Ce message est affiché lorsque le parser de commandes passe des lignes
+Ce message est affichÃ© lorsque le parser de commandes passe des lignes
 qui ne semblent pas faire part d'une commande.
 
 (Standard plus LINES)
 
 source_route
 ------------
-Ce message est affiché si une adresse email contient une source de
-route. (une série de noms d'hôtes séparés par des virgules qui
-indiquent comment le message doit être envoyé a destination.)
+Ce message est affichÃ© si une adresse email contient une source de
+route. (une sÃ©rie de noms d'hÃ´tes sÃ©parÃ©s par des virgules qui
+indiquent comment le message doit Ãªtre envoyÃ© a destination.)
 
 (Substitutions standard uniquement)
 
 spool_file
 ----------
-Ce message est affiché lorsque le fichier contenant un message posté
-qui est sur le point d'être envoyé est manquant.
+Ce message est affichÃ© lorsque le fichier contenant un message postÃ©
+qui est sur le point d'Ãªtre envoyÃ© est manquant.
 
 (Substitutions standard uniquement)
 
 stalled_post
 ------------
-Ce message est affiché dans l'en-tête Sujet d'un accusé de réception
-lorsqu'un message posté est mis en attente ou requiert une
-confirmation et que le le message de réponse n'a pas de description.
-C'est en général causé par l'action "reply" d'une règle d'accès.
-(Référez vous à "help configset_access_rules" pour plus de détails.)
+Ce message est affichÃ© dans l'en-tÃªte Sujet d'un accusÃ© de rÃ©ception
+lorsqu'un message postÃ© est mis en attente ou requiert une
+confirmation et que le le message de rÃ©ponse n'a pas de description.
+C'est en gÃ©nÃ©ral causÃ© par l'action "reply" d'une rÃ¨gle d'accÃ¨s.
+(RÃ©fÃ©rez vous Ã  "help configset_access_rules" pour plus de dÃ©tails.)
 
 (Substitutions standard uniquement)
 
 sublist_post
 ------------
-Ce message est affiché lorsqu'un message est posté sur une liste
-auxiliaire qui n'est pas considérée comme publique. (Référez vous à
-"help auxiliary_list" pour plus de détails sur les listes auxiliaires
+Ce message est affichÃ© lorsqu'un message est postÃ© sur une liste
+auxiliaire qui n'est pas considÃ©rÃ©e comme publique. (RÃ©fÃ©rez vous Ã 
+"help auxiliary_list" pour plus de dÃ©tails sur les listes auxiliaires
 publiques.)
 
 (Substitutions standard uniquement)
 
 taboo_body
 ----------
-Ce message est affiché lorsque l'un des motifs du paramètre
-"taboo_body" ou un paramètre similaire correspond au corps d'un
+Ce message est affichÃ© lorsque l'un des motifs du paramÃ¨tre
+"taboo_body" ou un paramÃ¨tre similaire correspond au corps d'un
 message.
 
 (Standard plus LINE, LOCATION, PATTERN, TYPE)
 
 taboo_header
 ------------
-Ce message est affiché lorsque l'un des motifs du paramètre
-"taboo_headers" ou un paramètre similaire correspond aux en-têtes d'un
+Ce message est affichÃ© lorsque l'un des motifs du paramÃ¨tre
+"taboo_headers" ou un paramÃ¨tre similaire correspond aux en-tÃªtes d'un
 message.
 
 (Standard plus LOCATION, PATTERN, TYPE)
 
 taboo_inverted
 --------------
-Ce message est affiché lorsque l'un des motifs du paramètre
-"taboo_body" ou "taboo_headers" ou un paramètre similaire ne
-correspond pas au corps ou aux en-têtes d'un message. Les paramètres
+Ce message est affichÃ© lorsque l'un des motifs du paramÃ¨tre
+"taboo_body" ou "taboo_headers" ou un paramÃ¨tre similaire ne
+correspond pas au corps ou aux en-tÃªtes d'un message. Les paramÃ¨tres
 inverses commencent avec un "!".
 
 (Standard plus PATTERN, TYPE)
 
 token_deleted
 -------------
-Ce message est affiché lorsque un message de confirmation ne peut être
-délivré, engendrant la suppression du jeton de confirmation.
+Ce message est affichÃ© lorsque un message de confirmation ne peut Ãªtre
+dÃ©livrÃ©, engendrant la suppression du jeton de confirmation.
 
 (Standard plus TOKEN)
 
 top_level_domain
 ----------------
-Ce message est affiché si le domaine de plus haut niveau (ex. com, net
-ou fr) ne semble pas être dans la liste des domaines valides.
+Ce message est affichÃ© si le domaine de plus haut niveau (ex. com, net
+ou fr) ne semble pas Ãªtre dans la liste des domaines valides.
 
 (Substitutions standard uniquement)
 
 total_header_length
 -------------------
-Ce message est affiché lorsque la taille totale des en-têtes d'un
-message posté est plus grand que la limite du paramètre
+Ce message est affichÃ© lorsque la taille totale des en-tÃªtes d'un
+message postÃ© est plus grand que la limite du paramÃ¨tre
 "max_total_header_length".
 
 (Standard plus LIMIT, SIZE)
 
 undefined_address
 -----------------
-Ce message d'erreur est affiché si une adresse email est vide.
+Ce message d'erreur est affichÃ© si une adresse email est vide.
 
 (Standard plus ADDRESS, ERROR)
 
 under_message_limit
 -------------------
-Ce message est affiché lorsqu'une limite proportionnelle basse du
-paramètre "post_limits" n'est pas atteinte.
+Ce message est affichÃ© lorsqu'une limite proportionnelle basse du
+paramÃ¨tre "post_limits" n'est pas atteinte.
 
 (Standard plus COUNT, TOTAL)
 
 under_time_limit
 ----------------
-Ce message est affiché lorsqu'une limite temporaire basse du paramètre
+Ce message est affichÃ© lorsqu'une limite temporaire basse du paramÃ¨tre
 "post_limits" n'est pas atteinte.
 
 (Standard plus COUNT, TIME)
 
 unknown_bounce
 --------------
-Ce message est affiché lorsque le type de problème de messagerie
-(échec ou avertissement) ne peut être déterminé par le message en
+Ce message est affichÃ© lorsque le type de problÃ¨me de messagerie
+(Ã©chec ou avertissement) ne peut Ãªtre dÃ©terminÃ© par le message en
 erreur.
 
 (Substitutions standard uniquement)
 
 unknown_list
 ------------
-Ce message d'erreur est affiché lorsqu'une liste ayant un nom légal,
-mais qui n'existe pas sur ce domaine est utilisée dans une commande
+Ce message d'erreur est affichÃ© lorsqu'une liste ayant un nom lÃ©gal,
+mais qui n'existe pas sur ce domaine est utilisÃ©e dans une commande
 Majordomo.
 
 (Substitutions standard uniquement)
 
 unknown_setting
 ------------
-Ce message d'erreur est affiché si la commande "configdef" ou
-"configset" est utilisée pour modifier un paramètre de configuration
-qui n'est pas supporté par Majordomo pour la liste en question. Ça
-peut être du a une faute de frappe, ou du au fait que certains
-paramètres ne sont valides que pour la pseudo liste GLOBAL ou que pour
+Ce message d'erreur est affichÃ© si la commande "configdef" ou
+"configset" est utilisÃ©e pour modifier un paramÃ¨tre de configuration
+qui n'est pas supportÃ© par Majordomo pour la liste en question. Ã‡a
+peut Ãªtre du a une faute de frappe, ou du au fait que certains
+paramÃ¨tres ne sont valides que pour la pseudo liste GLOBAL ou que pour
 les listes ordinaires.
 
 (Standard plus SETTING)
 
 unknown_token
 -------------
-Ce message d'erreur est affiché si l'une des commandes "accept",
-"reject" ou "tokeninfo" est utilisée en conjonction a un ticket qui a
+Ce message d'erreur est affichÃ© si l'une des commandes "accept",
+"reject" ou "tokeninfo" est utilisÃ©e en conjonction a un ticket qui a
 un format correct, mais qui est introuvable dans la base des tickets.
 
 (Standard plus TOKEN)
 
 unmatched_paren
 ---------------
-Ce message est affiché lorsqu'il manque dans une adresse une ou
-plusieurs parenthèses fermantes.
+Ce message est affichÃ© lorsqu'il manque dans une adresse une ou
+plusieurs parenthÃ¨ses fermantes.
 
 (Substitutions standard uniquement)
 
 unparsed_entity
 ---------------
-Ce message est affiché lorsque le parser de commande ne peut trouver
-une entité MIME valide dans le message.
+Ce message est affichÃ© lorsque le parser de commande ne peut trouver
+une entitÃ© MIME valide dans le message.
 
 (Substitutions standard uniquement)
 
 unregistered
 ------------
-Ce message d'erreur est affiché si la commande "password" est utilisée
+Ce message d'erreur est affichÃ© si la commande "password" est utilisÃ©e
 pour changer le mot de passe d'une adresse qui n'est pas encore
-enregistrée sur ce domaine. (Référez vous à "help register" pour plus
-de détails sur l'enregistrement.)
+enregistrÃ©e sur ce domaine. (RÃ©fÃ©rez vous Ã  "help register" pour plus
+de dÃ©tails sur l'enregistrement.)
 
 (Standard plus VICTIM)
 
 word_separator
 --------------
-Ce message est affiché lorsque les mots d'une adresse email sont
-séparés par autre chose que '.' ou '@'.
+Ce message est affichÃ© lorsque les mots d'une adresse email sont
+sÃ©parÃ©s par autre chose que '.' ou '@'.
 
 (Substitutions standard uniquement)
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
 
    help admin_domain
    help format_files

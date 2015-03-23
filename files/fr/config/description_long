@@ -1,4 +1,4 @@
-Le paramètre "description_long" devrais contenir une ou plusieurs
-phrases qui décrivent le but de la liste. Cette description est
-affichée par la commande "lists-long". Chaque ligne de la description
-ne devrait pas excéder 50 caractères.
+Le paramÃ¨tre "description_long" devrais contenir une ou plusieurs
+phrases qui dÃ©crivent le but de la liste. Cette description est
+affichÃ©e par la commande "lists-long". Chaque ligne de la description
+ne devrait pas excÃ©der 50 caractÃ¨res.

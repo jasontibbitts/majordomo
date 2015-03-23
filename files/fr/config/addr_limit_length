@@ -1,4 +1,4 @@
-Si actif, Majordomo vérifiera que les adresses contiennent un nom
-d'utilisateur faisant au maximum 64 caractères, et un nom de domaine
-qui soit au maximum de 64 caractères. Pour autoriser l'utilisation de
-ces noms extrêmement long, désactivez ce paramètre.
+Si actif, Majordomo vÃ©rifiera que les adresses contiennent un nom
+d'utilisateur faisant au maximum 64 caractÃ¨res, et un nom de domaine
+qui soit au maximum de 64 caractÃ¨res. Pour autoriser l'utilisation de
+ces noms extrÃªmement long, dÃ©sactivez ce paramÃ¨tre.

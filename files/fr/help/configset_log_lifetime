@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  log_lifetime = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : 31
-Type de donnée    : entier
-Catégorie         : miscellany
+Valeur par dÃ©faut : 31
+Type de donnÃ©e    : entier
+CatÃ©gorie         : miscellany
 Mot de passe      : Visible avec un mot de passe. Modifiable avec le
                     mot de passe global
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -15,19 +15,19 @@ configset GLOBAL log_lifetime = 14
 $INCLUDE-config/log_lifetime
 
 Les informations dans les logs sont disponibles via la commande
-"report". Référez vous à "help report" pour plus de détails.
+"report". RÃ©fÃ©rez vous Ã  "help report" pour plus de dÃ©tails.
 
-Les anciennes entrées dans les logs sont supprimés périodiquement,
-comme indiqué par le trigger "log" dans le paramètre de configuration
+Les anciennes entrÃ©es dans les logs sont supprimÃ©s pÃ©riodiquement,
+comme indiquÃ© par le trigger "log" dans le paramÃ¨tre de configuration
 "trigger" de la pseudo liste GLOBAL.
 
-Les logs sont gardés dans le fichier "_log", dans le répertoire de la
+Les logs sont gardÃ©s dans le fichier "_log", dans le rÃ©pertoire de la
 pseudo liste GLOBAL. Utiliser une large valeur de "log_lifetime" peut
-entraîner un fort grossissement de ce fichier. La commande "report"
-prendre aussi plus de temps a s'exécuter.
+entraÃ®ner un fort grossissement de ce fichier. La commande "report"
+prendre aussi plus de temps a s'exÃ©cuter.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_monitor
    help configset_dup_lifetime
    help configset_inactive_lifetime

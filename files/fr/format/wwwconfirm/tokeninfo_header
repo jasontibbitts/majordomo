@@ -1,6 +1,6 @@
 <table>
   <tr><td>De</td><td>?HEADER_FROM</td></tr>
-  <tr><td>à</td><td>?HEADER_TO</td></tr>
+  <tr><td>Ã </td><td>?HEADER_TO</td></tr>
   <tr><td>Cc</td><td>?HEADER_CC</td></tr>
   <tr><td>Sujet</td><td>?HEADER_SUBJECT</td></tr>
   <tr><td>Date</td><td>?HEADER_DATE</td></tr>

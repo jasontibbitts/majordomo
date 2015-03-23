@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  addr_allow_at_in_phrase = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : no
-Type de donnée    : booléen, entre : 0 n no, 1 y yes
-Catégorie         : address
+Valeur par dÃ©faut : no
+Type de donnÃ©e    : boolÃ©en, entre : 0 n no, 1 y yes
+CatÃ©gorie         : address
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,17 +13,17 @@ configset GLOBAL addr_allow_at_in_phrase = no
 
 $INCLUDE-config/addr_allow_at_in_phrase
 
-Normalement, le symbole '@' n'est autorisé que pour séparer la partie
+Normalement, le symbole '@' n'est autorisÃ© que pour sÃ©parer la partie
 locale et le domaine d'une adresse. Une adresse avec un symbole '@'
 dans la partie commentaire de l'adresse est invalide. Par exemple,
 l'adresse suivante sera invalide :
 
   "J. Dupont @ taf" <dupont@taf.com>
 
-Activer ce paramètre rendra l'adresse précédente valide.
+Activer ce paramÃ¨tre rendra l'adresse prÃ©cÃ©dente valide.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_domain
    help admin_subscribers
    help configset_addr_allow_bang_paths

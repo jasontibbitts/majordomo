@@ -1,7 +1,7 @@
-Si ce paramètre est actif, Majordomo autorisera les adresses avec un
-commentaire après la partie encadrée "<>" de l'adresse. Par exemple,
+Si ce paramÃ¨tre est actif, Majordomo autorisera les adresses avec un
+commentaire aprÃ¨s la partie encadrÃ©e "<>" de l'adresse. Par exemple,
 l'adresse :
 
   <jane@example.com> (Jane Smith)
 
-Sera considérée comme valide.
+Sera considÃ©rÃ©e comme valide.

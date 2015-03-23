@@ -19,21 +19,21 @@
   <td align="center" bgcolor="#706060">
   <a href="$CGIURL?$CGIDATA&amp;a=login&amp;t=$TOKEN">
   <font color="#f0f0f0">
-    Confirmez une nouvelle requête
+    Confirmez une nouvelle requÃªte
   </font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
   <a href="$CGIURL?$CGIDATA&amp;a=tokeninfo-nosession&amp;t=$TOKEN">
   <font color="#f0f0f0">
-    Afficher les détails
+    Afficher les dÃ©tails
   </font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
   <a href="$CGIURL?$CGIDATA&amp;a=tokeninfo&amp;t=$TOKEN">
   <font color="#f0f0f0">
-    Afficher <b>tous</b> les détails
+    Afficher <b>tous</b> les dÃ©tails
   </font></a>
   </td>
 
@@ -42,5 +42,5 @@
 
 <p align="center">
     <font size=+1>$SITE</font><br>
-    Confirmation de requête
+    Confirmation de requÃªte
 </p>

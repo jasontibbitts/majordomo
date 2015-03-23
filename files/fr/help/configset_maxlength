@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste maxlength = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : 40000
-Type de donnée    : entier
-Catégorie         : moderate
+Valeur par dÃ©faut : 40000
+Type de donnÃ©e    : entier
+CatÃ©gorie         : moderate
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,16 +13,16 @@ configset liste maxlength = 100000
 
 $INCLUDE-config/maxlength
 
-Une valeur de zéro désactive la vérification de la taille du corps du message.
+Une valeur de zÃ©ro dÃ©sactive la vÃ©rification de la taille du corps du message.
 
-La longueur du corps d'un message est stocké dans la variable
-"body_length". Si cette limite est dépassée, la variable
-"body_length_exceeded" est mise à 1. Référez vous à "help
+La longueur du corps d'un message est stockÃ© dans la variable
+"body_length". Si cette limite est dÃ©passÃ©e, la variable
+"body_length_exceeded" est mise Ã  1. RÃ©fÃ©rez vous Ã  "help
 configset_access_rules" et "help access_variables" pour plus
 d'informations sur les variables.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help access_variables 
    help admin_moderate
    help configset_access_rules

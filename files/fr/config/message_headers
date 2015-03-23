@@ -1,12 +1,12 @@
-Ces en-têtes seront ajoutées aux en-têtes des messages envoyés
-lorsqu'une liste est spécifiée, ou aux en-têtes des réponses du
+Ces en-tÃªtes seront ajoutÃ©es aux en-tÃªtes des messages envoyÃ©s
+lorsqu'une liste est spÃ©cifiÃ©e, ou aux en-tÃªtes des rÃ©ponses du
 serveur (comme une confirmation de ticket) lorsque la pseudo liste
-GLOBAL est spécifiée.
+GLOBAL est spÃ©cifiÃ©e.
 
-ATTENTION : Une en-tête "Reply-To" est REQUISE pour que la pseudo
+ATTENTION : Une en-tÃªte "Reply-To" est REQUISE pour que la pseudo
 liste GLOBAL fonctionne proprement. Assurez vous de ne pas l'avoir
-supprimé si vous modifiez la valeur par défaut ! Ce sera à cette
-adresse que les confirmation des ticket seront envoyées (pour les
+supprimÃ© si vous modifiez la valeur par dÃ©faut ! Ce sera Ã  cette
+adresse que les confirmation des ticket seront envoyÃ©es (pour les
 commande comme "subscribe" et "set"), et sans, les confirmations
 pourraient aller au gestionnaire de la liste, suivant les valeurs de
 "configset sender" et "configset whoami".

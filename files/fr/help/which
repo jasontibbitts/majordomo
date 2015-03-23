@@ -1,36 +1,36 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 which [motif]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-motif, si spécifié, sera testé avec les adresse email
+motif, si spÃ©cifiÃ©, sera testÃ© avec les adresse email
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-La commande "which" cherchera dans la liste des abonnés à toutes les
+La commande "which" cherchera dans la liste des abonnÃ©s Ã  toutes les
 liste les adresses qui correspondent au motif de la ligne de commande.
-Si aucun motif n'est spécifié, la recherche retournera la liste des
-listes à laquelle la personne faisant la requête est abonnée.
+Si aucun motif n'est spÃ©cifiÃ©, la recherche retournera la liste des
+listes Ã  laquelle la personne faisant la requÃªte est abonnÃ©e.
 
-Si un motif est spécifié, il doit être conforme aux règles de motifs
-décrites dans le document "help patterns". Par défaut, une recherche
-ne tenant pas compte de la casse est effectuée. La recherche ne prends
-en compte que l'adresse email en elle même. Les commentaires, tels le
-nom complet de l'abonné, ne seront pas cherchées.
+Si un motif est spÃ©cifiÃ©, il doit Ãªtre conforme aux rÃ¨gles de motifs
+dÃ©crites dans le document "help patterns". Par dÃ©faut, une recherche
+ne tenant pas compte de la casse est effectuÃ©e. La recherche ne prends
+en compte que l'adresse email en elle mÃªme. Les commentaires, tels le
+nom complet de l'abonnÃ©, ne seront pas cherchÃ©es.
 
-Par défaut, quelqu'un qui utilise la commande "which" sans un mot de
-passe administratif du domaine ou du site sera limité à un résultat
+Par dÃ©faut, quelqu'un qui utilise la commande "which" sans un mot de
+passe administratif du domaine ou du site sera limitÃ© Ã  un rÃ©sultat
 par liste. Cette limitation implique que vous devrez utiliser un motif
-aussi spécifique que possible.
+aussi spÃ©cifique que possible.
 
 La commande "which" est une commande globale, si vous tentez de
-l'utiliser avec un mot de passe spécifique à une liste, vous recevrez
-à un message d'erreur vous indiquant un mauvais mot de passe.
+l'utiliser avec un mot de passe spÃ©cifique Ã  une liste, vous recevrez
+Ã  un message d'erreur vous indiquant un mauvais mot de passe.
 
-Les administrateurs d'une liste peuvent augmenter le nombre par défaut
-de correspondances permise grâce au paramètre de configuration
-"access_rules". Référez vous à "help configset_access_rules" pour plus
-de détails.
+Les administrateurs d'une liste peuvent augmenter le nombre par dÃ©faut
+de correspondances permise grÃ¢ce au paramÃ¨tre de configuration
+"access_rules". RÃ©fÃ©rez vous Ã  "help configset_access_rules" pour plus
+de dÃ©tails.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_passwords
    help admin_subscribers
    help configset_access_rules (pour restreindre l'utilisation de
@@ -39,7 +39,7 @@ Référez vous aussi à :
                                 cette commande)
    help patterns
    help set
-   help show     (pour des informations sur un abonné particulier)
-   help who      (pour rechercher les abonnés d'une liste)
+   help show     (pour des informations sur un abonnÃ© particulier)
+   help who      (pour rechercher les abonnÃ©s d'une liste)
 
 $INCLUDE-help/foot

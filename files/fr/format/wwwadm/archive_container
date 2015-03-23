@@ -3,12 +3,12 @@
 [Volet $PART $CONTENT_TYPE]<br>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-get-part" target="_part">
-    (Voir les en-têtes dans une fenêtre
-    séparée)
+    (Voir les en-tÃªtes dans une fenÃªtre
+    sÃ©parÃ©e)
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-part-edit">
-    (Éditer les en-têtes)
+    (Ã‰diter les en-tÃªtes)
   </a>
 
 ?SUBPART  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-part-delete">

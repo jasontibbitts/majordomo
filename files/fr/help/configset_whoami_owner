@@ -3,9 +3,9 @@ configset  GLOBAL  whoami_owner = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset liste whoami_owner = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : [définie durant l'installation]
-Type de donnée    : adresse
-Catégorie         : miscellany
+Valeur par dÃ©faut : [dÃ©finie durant l'installation]
+Type de donnÃ©e    : adresse
+CatÃ©gorie         : miscellany
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -15,25 +15,25 @@ configset GLOBAL whoami_owner = admin@exemple.fr
 $INCLUDE-config/whoami_owner
 
 Par exemple, pour contacter les administrateurs d'une liste ayant
-comme adresse "pomme@exemple.fr", il faut écrire à
-"pomme-owner@exemple.fr". Par défaut, les paramètres de configuration
-"whoami_owner" et "sender" ont la même valeur, toutefois,
+comme adresse "pomme@exemple.fr", il faut Ã©crire Ã 
+"pomme-owner@exemple.fr". Par dÃ©faut, les paramÃ¨tres de configuration
+"whoami_owner" et "sender" ont la mÃªme valeur, toutefois,
 "whoami_owner" est public, alors que l'adresse "sender" est uniquement
-utilisée en interne. Cette adresse apparaît fréquemment dans les
-en-tête "From:" des emails de notifications qui sont envoyés par le
-serveur Majordomo en réponse à des commandes ou des messages postés.
+utilisÃ©e en interne. Cette adresse apparaÃ®t frÃ©quemment dans les
+en-tÃªte "From:" des emails de notifications qui sont envoyÃ©s par le
+serveur Majordomo en rÃ©ponse Ã  des commandes ou des messages postÃ©s.
 
-Si il n'y a pas de domaine donné pour l'adresse, par exemple :
+Si il n'y a pas de domaine donnÃ© pour l'adresse, par exemple :
   configset maliste whoami_owner = webmaster
-le domaine du paramètre de configuration "whereami" de la pseudo liste
-GLOBAL sera utilisé. Si le domaine est "exemple.fr", l'adresse
+le domaine du paramÃ¨tre de configuration "whereami" de la pseudo liste
+GLOBAL sera utilisÃ©. Si le domaine est "exemple.fr", l'adresse
 deviendra "webmaster@exemple.fr".
 
-Ce paramètre ne doit pas etre utilisé pour modifier l'adresse de la
+Ce paramÃ¨tre ne doit pas etre utilisÃ© pour modifier l'adresse de la
 liste, des boucles d'emails pourrait survenir.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help configset_bounce_recipients
    help configset_owners
    help configset_reply_to

@@ -2,12 +2,12 @@
 [Volet $PART $CONTENT_TYPE]<br>
 
   <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PARTh&amp;a=tokeninfo-part" target="_part">
-    (Afficher les en-têtes dans une fenêtre
-    séparée)
+    (Afficher les en-tÃªtes dans une fenÃªtre
+    sÃ©parÃ©e)
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PARTh&amp;a=tokeninfo-part-edit">
-    (Éditer les en-têtes)
+    (Ã‰diter les en-tÃªtes)
   </a>
 
 ?SUBPART  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PART&amp;a=tokeninfo-part-delete">

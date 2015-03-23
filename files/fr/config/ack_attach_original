@@ -1,16 +1,16 @@
-Le paramètre "ack_attach_original" détermine si un message de
-confirmation inclura (en tant que fichier attaché MIME) le message
-original. Des messages de confirmation sont envoyés pour donner aux
-auteurs des messages des indications sur les progrès de leurs envois.
-Le fait qu'un message soit envoyé ou pas dépends des réglages
+Le paramÃ¨tre "ack_attach_original" dÃ©termine si un message de
+confirmation inclura (en tant que fichier attachÃ© MIME) le message
+original. Des messages de confirmation sont envoyÃ©s pour donner aux
+auteurs des messages des indications sur les progrÃ¨s de leurs envois.
+Le fait qu'un message soit envoyÃ© ou pas dÃ©pends des rÃ©glages
 "ackdeny", "ackpost", "ackreject" et "ackstall" de la personne qui a
-posté le message. (référez vous aux pages d'aide "help set" et "help
-configset_nonmember_flags" pour plus de détails.)
+postÃ© le message. (rÃ©fÃ©rez vous aux pages d'aide "help set" et "help
+configset_nonmember_flags" pour plus de dÃ©tails.)
 
-Il y à cinq valeurs qui peuvent être utilisées pour déterminer quels
+Il y Ã  cinq valeurs qui peuvent Ãªtre utilisÃ©es pour dÃ©terminer quels
 messages de confirmations incluront une copie du message :
   all         tous
-  fail        messages rejetés par une règle d'acces
-  reject      messages rejetés par un modérateur
-  stall       messages en attente de modération
-  succeed     messages délivrés
+  fail        messages rejetÃ©s par une rÃ¨gle d'acces
+  reject      messages rejetÃ©s par un modÃ©rateur
+  stall       messages en attente de modÃ©ration
+  succeed     messages dÃ©livrÃ©s

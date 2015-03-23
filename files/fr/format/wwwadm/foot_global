@@ -14,13 +14,13 @@
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=logout">
      <font size="-1" color="#f0f0f0">
-     Déconnexion</font></a>
+     DÃ©connexion</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&amp;list=ALL&amp;func=showtokens">
      <font size="-1" color="#f0f0f0">
-     Modération</font></a>
+     ModÃ©ration</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
@@ -38,13 +38,13 @@
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&amp;list=DEFAULT&amp;func=configshow-categories">
      <font size="-1" color="#f0f0f0">
-     Défauts</font></a>
+     DÃ©fauts</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=newlist">
      <font size="-1" color="#f0f0f0">
-     Création de Listes</font></a>
+     CrÃ©ation de Listes</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">

@@ -7,9 +7,9 @@ configset liste advertise <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : aucune
-Type de donnée    : tableau d'expressions rationnelles
-Catégorie         : lists
+Valeur par dÃ©faut : aucune
+Type de donnÃ©e    : tableau d'expressions rationnelles
+CatÃ©gorie         : lists
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -20,11 +20,11 @@ ENDTAG
 
 $INCLUDE-config/advertise
 
-Référez vous à "help configset noadvertise" pour plus de détails,
+RÃ©fÃ©rez vous Ã  "help configset noadvertise" pour plus de dÃ©tails,
 incluant comment utiliser "access_rules" pour remplacer "advertise" et
 "noadvertise".
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help lists
 
 $INCLUDE-help/foot

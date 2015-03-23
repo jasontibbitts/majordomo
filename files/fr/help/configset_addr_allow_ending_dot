@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  addr_allow_ending_dot = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : no
-Type de donnée    : booléen, entre : 0 n no, 1 y yes
-Catégorie         : address
+Valeur par dÃ©faut : no
+Type de donnÃ©e    : boolÃ©en, entre : 0 n no, 1 y yes
+CatÃ©gorie         : address
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,7 +13,7 @@ configset GLOBAL addr_allow_ending_dot = y
 
 $INCLUDE-config/addr_allow_ending_dot
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_domain
    help admin_subscribers
    help configset_addr_allow_at_in_phrase

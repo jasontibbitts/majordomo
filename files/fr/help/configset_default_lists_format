@@ -1,11 +1,11 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  default_lists_format = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : short
-Type de donnée    : énumérée, choisissez entre : tiny compact short
+Valeur par dÃ©faut : short
+Type de donnÃ©e    : Ã©numÃ©rÃ©e, choisissez entre : tiny compact short
 		    long enhanced
-Catégorie         : lists
-Mot de passe      : Visible avec un mot de passe. Modifiée avec le mot
+CatÃ©gorie         : lists
+Mot de passe      : Visible avec un mot de passe. ModifiÃ©e avec le mot
 		    de passe global.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -15,11 +15,11 @@ configset GLOBAL default_lists_format = enhanced
 
 $INCLUDE-config/default_lists_format
 
-Référez vous à "help lists" pour une description détaillée des modes
+RÃ©fÃ©rez vous Ã  "help lists" pour une description dÃ©taillÃ©e des modes
 de commandes.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_domain
    help configset_advertise
    help configset_advertise_subscribed

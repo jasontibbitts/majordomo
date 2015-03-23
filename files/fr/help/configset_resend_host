@@ -3,9 +3,9 @@ configset GLOBAL resend_host = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset liste resend_host = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : $WHEREAMI
-Type de donnée    : mot
-Catégorie         : deliver
+Valeur par dÃ©faut : $WHEREAMI
+Type de donnÃ©e    : mot
+CatÃ©gorie         : deliver
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -14,7 +14,7 @@ configset liste resend_host = exemple.org
 
 $INCLUDE-config/resend_host
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
    help configset_delivery_rules
    help configset_whereami

@@ -1,29 +1,29 @@
-                          Les hameçons shell
+                          Les hameÃ§ons shell
 
 Dans certaines situations, Majordomo appellera un script externe ou un
-programme qui effectuera des taches spécifiques. La technique qui
-rends ça possible est appelée un "hameçon shell". Pour utiliser ces
-hameçons, placez un script ou un programme avec le nom de l'hameçon
+programme qui effectuera des taches spÃ©cifiques. La technique qui
+rends Ã§a possible est appelÃ©e un "hameÃ§on shell". Pour utiliser ces
+hameÃ§ons, placez un script ou un programme avec le nom de l'hameÃ§on
 dans le dossier scripts de l'installation de Majordomo.
 
 bouncehandler-unsubscribe
 -------------------------
-L'hameçon "bouncehandler-unsubscribe" est invoqué lorsque le paramètre
-"bounce_rules" requiert qu'une adresse soit supprimée de la liste sans
-envoyer de message sonde ni consulter les modérateurs de a liste. Le
-script reçoit trois paramètres : le nom de domaine, le nom de la
-liste, et l'adresse email qui a été supprimée de la liste. Majordomo
+L'hameÃ§on "bouncehandler-unsubscribe" est invoquÃ© lorsque le paramÃ¨tre
+"bounce_rules" requiert qu'une adresse soit supprimÃ©e de la liste sans
+envoyer de message sonde ni consulter les modÃ©rateurs de a liste. Le
+script reÃ§oit trois paramÃ¨tres : le nom de domaine, le nom de la
+liste, et l'adresse email qui a Ã©tÃ© supprimÃ©e de la liste. Majordomo
 ne s'occupera pas de ce que renvoi ce script.
 
 createlist-regen
 ----------------
-L'hameçon "createlist-regen" est appelé lorsque la commande
-"createlist" termine avec succès. Le script reçoit un paramètre : le
+L'hameÃ§on "createlist-regen" est appelÃ© lorsque la commande
+"createlist" termine avec succÃ¨s. Le script reÃ§oit un paramÃ¨tre : le
 nom de domaine. Majordomo ne s'occupera pas de ce que renvoi ce
 script.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_domain
    help admin_subscribers
    help configset_bounce_rules

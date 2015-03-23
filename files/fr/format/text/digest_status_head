@@ -1,11 +1,11 @@
 Nom de la compilation             ?DIGESTNAME
 Description                       ?DESCRIPTION
 Dernier envoi                     ?LAST_RUN
-Prochain envoi le ou après        ?NEXT_RUN
-Âge du plus vieux message         ?OLDEST_AGE
-Âge maximal permis                ?MAX_AGE
-Âge of newest message             ?NEWEST_AGE
-Âge minimum requis                ?MIN_AGE
+Prochain envoi le ou aprÃ¨s        ?NEXT_RUN
+Ã‚ge du plus vieux message         ?OLDEST_AGE
+Ã‚ge maximal permis                ?MAX_AGE
+Ã‚ge of newest message             ?NEWEST_AGE
+Ã‚ge minimum requis                ?MIN_AGE
 Nombre minimal de messages        ?MIN_MSGS
 Nombre maximal de messages        ?MAX_MSGS
 Taille minimale de la compilation ?MIN_SIZE

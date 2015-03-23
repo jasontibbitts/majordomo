@@ -1,4 +1,4 @@
-Le paramètre "restrict_post" contient une liste de listes et sous
+Le paramÃ¨tre "restrict_post" contient une liste de listes et sous
 listes. Si cette liste n'est pas vide, et que l'auteur d'un message
-posté n'est pas abonné a au moins une de ces listes et sous listes, le
-message sera envoyé aux modérateurs pour approbation.
+postÃ© n'est pas abonnÃ© a au moins une de ces listes et sous listes, le
+message sera envoyÃ© aux modÃ©rateurs pour approbation.

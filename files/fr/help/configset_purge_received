@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste purge_received = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : no
-Type de donnée    : booléen, entre : 0 n no, 1 y yes
-Catégorie         : address
+Valeur par dÃ©faut : no
+Type de donnÃ©e    : boolÃ©en, entre : 0 n no, 1 y yes
+CatÃ©gorie         : address
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,11 +13,11 @@ configset liste purge_received = yes
 
 $INCLUDE-config/purge_received
 
-Une manière plus générale de supprimer des en-têtes des messages
-postés est d'utiliser le paramètre de configuration "delete_headers".
+Une maniÃ¨re plus gÃ©nÃ©rale de supprimer des en-tÃªtes des messages
+postÃ©s est d'utiliser le paramÃ¨tre de configuration "delete_headers".
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
    help configset_delete_headers
    help configset_message_headers

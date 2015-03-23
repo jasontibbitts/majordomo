@@ -1,6 +1,6 @@
 <!-- Majordomo accept format file -->
 <p>
-Un ticket a été accepté pour la requête&nbsp;:
+Un ticket a Ã©tÃ© acceptÃ© pour la requÃªte&nbsp;:
 </p>
 <table>
 <tr>
@@ -24,10 +24,10 @@ Un ticket a été accepté pour la requête&nbsp;:
 </table>
 
 <p>
-?SUCCEED La commande a réussi.
-?STALL La commande est en attente, et peut nécessiter une approbation.
-?FAIL  La commande a échouée.
-?NOTIFIED <br>Les résultats ont été envoyés a $VICTIM.
+?SUCCEED La commande a rÃ©ussi.
+?STALL La commande est en attente, et peut nÃ©cessiter une approbation.
+?FAIL  La commande a Ã©chouÃ©e.
+?NOTIFIED <br>Les rÃ©sultats ont Ã©tÃ© envoyÃ©s a $VICTIM.
 </p>
 
 <pre>?ERROR</pre>

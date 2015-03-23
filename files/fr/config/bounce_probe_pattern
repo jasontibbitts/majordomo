@@ -1,5 +1,5 @@
-Si une adresse correspond a ce motif (référez vous à "help patterns"),
-elle sera testée a chaque fois qu'un message passe sur la liste. Après
-un message, vous pouvez modifier le motif parce que le système
+Si une adresse correspond a ce motif (rÃ©fÃ©rez vous Ã  "help patterns"),
+elle sera testÃ©e a chaque fois qu'un message passe sur la liste. AprÃ¨s
+un message, vous pouvez modifier le motif parce que le systÃ¨me
 automatique continuera a tester les adresses qui ont eu des messages
 en erreur.

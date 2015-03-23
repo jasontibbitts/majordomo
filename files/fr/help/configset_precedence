@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste precedence = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : bulk
-Type de donnée    : mot
-Catégorie         : deliver
+Valeur par dÃ©faut : bulk
+Type de donnÃ©e    : mot
+CatÃ©gorie         : deliver
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,22 +13,22 @@ configset liste precedence = bulk
 
 $INCLUDE-config/precedence
 
-l'en-tête "Precedence" est important car il réduit les chances de
+l'en-tÃªte "Precedence" est important car il rÃ©duit les chances de
 recevoir des notices d'absences sur votre liste, ce qui peut
-entraîner des bouclages d'emails.
+entraÃ®ner des bouclages d'emails.
 
-Une manière plus générale de remplacer des en-têtes d'un message
-envoyé est d'utiliser le paramètre de configuration "delete_headers"
-pour supprimer les en-têtes existantes, et pour ajouter les en-têtes,
-utiliser le paramètre "message_headers". Si vous utilisez ces
-paramètres pour régler l'en-tête "Precedence", ce paramètre doit être
-modifié pour avoir une valeur vide. Autrement, L'en-tête serai
-doublée et pourrait apparaître dans le corps du message. Référez vous
-à "help admin_delivery" pour un exemple d'utilisation des paramètres
+Une maniÃ¨re plus gÃ©nÃ©rale de remplacer des en-tÃªtes d'un message
+envoyÃ© est d'utiliser le paramÃ¨tre de configuration "delete_headers"
+pour supprimer les en-tÃªtes existantes, et pour ajouter les en-tÃªtes,
+utiliser le paramÃ¨tre "message_headers". Si vous utilisez ces
+paramÃ¨tres pour rÃ©gler l'en-tÃªte "Precedence", ce paramÃ¨tre doit Ãªtre
+modifiÃ© pour avoir une valeur vide. Autrement, L'en-tÃªte serai
+doublÃ©e et pourrait apparaÃ®tre dans le corps du message. RÃ©fÃ©rez vous
+Ã  "help admin_delivery" pour un exemple d'utilisation des paramÃ¨tres
 "delete_headers" et "message_headers" ensembles.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
    help configset_delete_headers
    help configset_message_headers

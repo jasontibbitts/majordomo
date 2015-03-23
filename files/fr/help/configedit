@@ -1,49 +1,49 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configedit[-append][-declared][-extract][-nocomments] liste [paramètres]
-configedit[-nocomments][-noforce] liste [paramètres]
-configedit-merge[-append][-extract][-nocomments] liste liste [paramètres]
+configedit[-append][-declared][-extract][-nocomments] liste [paramÃ¨tres]
+configedit[-nocomments][-noforce] liste [paramÃ¨tres]
+configedit-merge[-append][-extract][-nocomments] liste liste [paramÃ¨tres]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 liste,       requis, l'adresse d'une liste sur ce site
-paramètres,  si spécifié, contient un ou plusieurs paramètres de
-             configuration, séparés par des virgules
--append,     si spécifié, fait apparaître la commande "configset-append"
--declared,   si spécifié, affiche les paramètres qui ont été modifiés
+paramÃ¨tres,  si spÃ©cifiÃ©, contient un ou plusieurs paramÃ¨tres de
+             configuration, sÃ©parÃ©s par des virgules
+-append,     si spÃ©cifiÃ©, fait apparaÃ®tre la commande "configset-append"
+-declared,   si spÃ©cifiÃ©, affiche les paramÃ¨tres qui ont Ã©tÃ© modifiÃ©s
              par les administrateurs
--extract,    si spécifié, fait apparaître la commande "configset-extract"
--merge,      si spécifié, affiche la commande "configset" pour la
+-extract,    si spÃ©cifiÃ©, fait apparaÃ®tre la commande "configset-extract"
+-merge,      si spÃ©cifiÃ©, affiche la commande "configset" pour la
              seconde liste
--nocomments, si spécifié, cache les commentaires à propos de chaque
-             paramètre
--noforce,    si spécifié, fait apparaître la commande "configset-noforce"
+-nocomments, si spÃ©cifiÃ©, cache les commentaires Ã  propos de chaque
+             paramÃ¨tre
+-noforce,    si spÃ©cifiÃ©, fait apparaÃ®tre la commande "configset-noforce"
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-La commande "configedit" est utilisée pour afficher et modifier un ou
-plusieurs paramètres de configuration pour une liste. Cette commande
-est uniquement supportée par le programme "mj_shell" (référez vous à
-"help mj_shell" pour plus de détails).
+La commande "configedit" est utilisÃ©e pour afficher et modifier un ou
+plusieurs paramÃ¨tres de configuration pour une liste. Cette commande
+est uniquement supportÃ©e par le programme "mj_shell" (rÃ©fÃ©rez vous Ã 
+"help mj_shell" pour plus de dÃ©tails).
 
-Lorsque la commande "configedit" est lancée, un programme d'édition
-séparé est utilisé pour afficher les paramètres de configuration. En
-éditant les paramètres et sauvant vos modifications, Majordomo lancera
-la commande "configset" pour modifier les paramètres. Le programme
-d'édition est choisi dans la variable d'environnement EDITOR ou
-VISUAL. Si aucune de ces variable n'est définie, le programme "vi" est
-utilisé.
+Lorsque la commande "configedit" est lancÃ©e, un programme d'Ã©dition
+sÃ©parÃ© est utilisÃ© pour afficher les paramÃ¨tres de configuration. En
+Ã©ditant les paramÃ¨tres et sauvant vos modifications, Majordomo lancera
+la commande "configset" pour modifier les paramÃ¨tres. Le programme
+d'Ã©dition est choisi dans la variable d'environnement EDITOR ou
+VISUAL. Si aucune de ces variable n'est dÃ©finie, le programme "vi" est
+utilisÃ©.
 
-Si on met de coté l'utilisation d'un éditeur externe, la commande
-"configedit" est identique en tous points à la commande "configshow".
-Référez vous à "help configshow" pour plus d'informations.
+Si on met de cotÃ© l'utilisation d'un Ã©diteur externe, la commande
+"configedit" est identique en tous points Ã  la commande "configshow".
+RÃ©fÃ©rez vous Ã  "help configshow" pour plus d'informations.
 
-Une liste complète des paramètres de configuration est inclue dans
+Une liste complÃ¨te des paramÃ¨tres de configuration est inclue dans
 "help topics".
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_config
-   help admin_domain  (explication sur les valeurs par défaut)
-   help configdefault (remettre à défaut les valeurs)
-   help configset     (syntaxe complète des paramètres de
+   help admin_domain  (explication sur les valeurs par dÃ©faut)
+   help configdefault (remettre Ã  dÃ©faut les valeurs)
+   help configset     (syntaxe complÃ¨te des paramÃ¨tres de
                        configuration)
-   help configshow    (afficher la valeurs courante des paramètres)
+   help configshow    (afficher la valeurs courante des paramÃ¨tres)
    help mj_shell
 
 $INCLUDE-help/foot

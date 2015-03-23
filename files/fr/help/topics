@@ -1,32 +1,32 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 help [sujet]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-tous les sujets possibles sont listés dans ce fichier, "help topics"
+tous les sujets possibles sont listÃ©s dans ce fichier, "help topics"
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 La commande "help" retourne un fichier d'aide du serveur, si l'aide
-est disponible pour le sujet demandé. Si le sujet demandé n'est pas
-disponible, un fichier d'erreur est renvoyé.
+est disponible pour le sujet demandÃ©. Si le sujet demandÃ© n'est pas
+disponible, un fichier d'erreur est renvoyÃ©.
 
-Ci dessous la liste de tous les sujets disponibles ! pour en récupérer
+Ci dessous la liste de tous les sujets disponibles ! pour en rÃ©cupÃ©rer
 l'aide, envoyez une ou plusieurs des lignes ci dessous au serveur
 $MJ comme dans :
    help help
-pour récupérer l'aide basique.
+pour rÃ©cupÃ©rer l'aide basique.
 
 Toutes les commandes ont des fichiers d'aide, mais vous voudrez peut
-être commencer par
+Ãªtre commencer par
    help overview
-si vous êtes un abonné, ou
+si vous Ãªtes un abonnÃ©, ou
    help admin
-si vous gérez une liste, pour avoir une idée des commandes que vous
+si vous gÃ©rez une liste, pour avoir une idÃ©e des commandes que vous
 pourrez utiliser.
 
 Si vous cherchez la bonne commande a utiliser, et que vous connaissez
-déjà Majordomo, essayez l'une de ces lignes :
+dÃ©jÃ  Majordomo, essayez l'une de ces lignes :
    help commands
    help admin_commands
-pour avoir une idée de des commandes que vous voudrez utiliser sans
+pour avoir une idÃ©e de des commandes que vous voudrez utiliser sans
 avoir a parcourir la liste des commandes ci dessous. Il y a une ligne
 de description pour chaque commande, plus un petit texte
 d'introduction, dans chaque fichier.
@@ -47,7 +47,7 @@ Ces fichiers d'aides sont des introductions :
    help overview
    help topics
 
-Ces fichiers concernent les programmes individuels, qui sont utilisés
+Ces fichiers concernent les programmes individuels, qui sont utilisÃ©s
 pour fournir les interfaces Majordomo en ligne de commande, par le web
 ou via emails :
 
@@ -61,7 +61,7 @@ ou via emails :
    help mj_wwwadm
    help mj_wwwusr
 
-Ces fichiers d'aide parlent de sujets avancés en détails :
+Ces fichiers d'aide parlent de sujets avancÃ©s en dÃ©tails :
 
    help access
    help access_variables
@@ -77,7 +77,7 @@ Ces fichiers d'aide parlent de sujets avancés en détails :
    help times
    help variables
 
-Ces fichiers d'aide décrivent les commandes Majordomo :
+Ces fichiers d'aide dÃ©crivent les commandes Majordomo :
 
    help accept
    help alias
@@ -121,7 +121,7 @@ Ces fichiers d'aide décrivent les commandes Majordomo :
    help which
    help who
 
-Ces fichiers décrivent des commandes qui sont des alias d'autres
+Ces fichiers dÃ©crivent des commandes qui sont des alias d'autres
 commandes :
 
    help aliasadd
@@ -144,7 +144,7 @@ commandes :
    help sub
    help unsub
 
-Ces fichiers d'aide décrivent les paramètres de configuration :
+Ces fichiers d'aide dÃ©crivent les paramÃ¨tres de configuration :
 
                        Pour toutes les listes
 

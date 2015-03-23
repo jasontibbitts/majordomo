@@ -18,19 +18,19 @@
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&amp;func=logout">
      <font size="-1" color="#f0f0f0">
-     Déconnexion</font></a>
+     DÃ©connexion</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&amp;func=lists-long">
      <font size="-1" color="#f0f0f0">
-     S'abonner à une liste</font></a>
+     S'abonner Ã  une liste</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&amp;func=show">
      <font size="-1" color="#f0f0f0">
-     Se désabonner ou modifier ses paramètres</font></a>
+     Se dÃ©sabonner ou modifier ses paramÃ¨tres</font></a>
   </td>
 
   <td align="center" bgcolor="#706060">

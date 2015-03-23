@@ -1,10 +1,10 @@
-Le paramètre "inactive_lifetime" spécifie un nombre de jours. Les
+Le paramÃ¨tre "inactive_lifetime" spÃ©cifie un nombre de jours. Les
 abonnements et enregistrements inactifs plus vieux que ce nombre de
-jours seront supprimés.
+jours seront supprimÃ©s.
 
-Un abonnement est considéré comme inactif lorsqu'il a est dans le mode
-de réception "nomail" et qu'aucune date de reprise de l'envoi des
-messages n'a été réglée.
+Un abonnement est considÃ©rÃ© comme inactif lorsqu'il a est dans le mode
+de rÃ©ception "nomail" et qu'aucune date de reprise de l'envoi des
+messages n'a Ã©tÃ© rÃ©glÃ©e.
 
-Une adresse enregistrée est considérée inactive lorsque l'adresse n'a
+Une adresse enregistrÃ©e est considÃ©rÃ©e inactive lorsque l'adresse n'a
 plus d'abonnements.

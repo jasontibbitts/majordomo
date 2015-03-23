@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  latchkey_lifetime = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : 60
-Type de donnée    : entier
-Catégorie         : access
+Valeur par dÃ©faut : 60
+Type de donnÃ©e    : entier
+CatÃ©gorie         : access
 Mot de passe      : Visible avec un mot de passe. Modifiable avec le
 		    mot de passe global.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -14,24 +14,24 @@ configset GLOBAL latchkey_lifetime = 30
 
 $INCLUDE-config/latchkey_lifetime
 
-Les vieux "latchkeys" sont supprimées de la base de données par le
-trigger "token" du paramètre de configuration "triggers" de la pseudo
-liste GLOBAL. Par défaut, cela se produit tous les jours.
+Les vieux "latchkeys" sont supprimÃ©es de la base de donnÃ©es par le
+trigger "token" du paramÃ¨tre de configuration "triggers" de la pseudo
+liste GLOBAL. Par dÃ©faut, cela se produit tous les jours.
 
-La base de données est dans le fichier "_latchkeys.D" ou
+La base de donnÃ©es est dans le fichier "_latchkeys.D" ou
 "_latchkeys.T" dans le dossier de la pseudo liste GLOBAL.
 
-Un "latchkey", tout comme un ticket de confirmation est composé de 12
-caractères hexadécimaux, séparés en trois groupes par des tirets, par
+Un "latchkey", tout comme un ticket de confirmation est composÃ© de 12
+caractÃ¨res hexadÃ©cimaux, sÃ©parÃ©s en trois groupes par des tirets, par
 exemple :
 
   B34F-78A1-9023
 
-Référez vous à "help admin_moderate" pour plus d'informations à propos
+RÃ©fÃ©rez vous Ã  "help admin_moderate" pour plus d'informations Ã  propos
 des tickets.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_domain
    help configset_bounce_max_age
    help configset_dup_lifetime

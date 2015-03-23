@@ -1,9 +1,9 @@
-Votre message sur la liste $LIST a été mis en attente, et nécessite
-l'approbation des modérateurs pour les raisons suivantes :
+Votre message sur la liste $LIST a Ã©tÃ© mis en attente, et nÃ©cessite
+l'approbation des modÃ©rateurs pour les raisons suivantes :
 
 $REASONS
 
-Si vous ne désirez pas que votre message soit posté, ou que vous avez
-d'autres questions à ce propos, envoyez un message aux propriétaires
-de la liste à l'adresse suivante :
+Si vous ne dÃ©sirez pas que votre message soit postÃ©, ou que vous avez
+d'autres questions Ã  ce propos, envoyez un message aux propriÃ©taires
+de la liste Ã  l'adresse suivante :
   $OWNER

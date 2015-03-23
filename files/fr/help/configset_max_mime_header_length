@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste max_mime_header_length = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : 128
-Type de donnée    : entier
-Catégorie         : moderate
+Valeur par dÃ©faut : 128
+Type de donnÃ©e    : entier
+CatÃ©gorie         : moderate
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -12,30 +12,30 @@ configset liste max_mime_header_length = 128
 
 $INCLUDE-config/max_mime_header_length
 
-Certains logiciels de courrier sont sujet à des plantages et à des
-trous de sécurité lorsqu'il leur est passé des en-têtes MIME qui
-excèdent une certaine taille. Bien que ces logiciels soient
-définitivement à mettre à la poubelle et que leurs utilisateurs
-devraient contacter les éditeurs pour avoir des mises à jour, cette
+Certains logiciels de courrier sont sujet Ã  des plantages et Ã  des
+trous de sÃ©curitÃ© lorsqu'il leur est passÃ© des en-tÃªtes MIME qui
+excÃ¨dent une certaine taille. Bien que ces logiciels soient
+dÃ©finitivement Ã  mettre Ã  la poubelle et que leurs utilisateurs
+devraient contacter les Ã©diteurs pour avoir des mises Ã  jour, cette
 variable est la pour filtrer ces types de messages.
 
-Notez que ce paramètre n'implémente aucun filtrage pour les trous de
-sécurité qui peuvent apparaître dans le contenu de diverses parties du
-corps du message. Ce doit être fait séparément avec les paramètres
+Notez que ce paramÃ¨tre n'implÃ©mente aucun filtrage pour les trous de
+sÃ©curitÃ© qui peuvent apparaÃ®tre dans le contenu de diverses parties du
+corps du message. Ce doit Ãªtre fait sÃ©parÃ©ment avec les paramÃ¨tres
 "taboo_body", "attachment_rules", et "attachment_filters".
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help access_variables  (pour savoir quoi tester dans les access_rules)
    help admin_moderate
-   help configset_access_rules  (comment récupérer les violations de
+   help configset_access_rules  (comment rÃ©cupÃ©rer les violations de
                                  cette limite)
    help configset_admin_body
    help configset_admin_headers
    help configset_attachment_filters
    help configset_attachment_rules
    help configset_max_header_line_length  (pour limiter la taille
-                                           d'une ligne d'en-tête)
+                                           d'une ligne d'en-tÃªte)
    help configset_max_total_header_length
    help configset_maxlength
    help configset_taboo_body

@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste moderate = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : no
-Type de donnée    : booléen, entre : 0 n no, 1 y yes
-Catégorie         : moderate
+Valeur par dÃ©faut : no
+Type de donnÃ©e    : boolÃ©en, entre : 0 n no, 1 y yes
+CatÃ©gorie         : moderate
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,15 +13,15 @@ configset liste moderate = yes
 
 $INCLUDE-config/moderate
 
-Ce paramètre peut être surpassé par une règle pour la commande "post"
-dans le paramètre "access_rules".
+Ce paramÃ¨tre peut Ãªtre surpassÃ© par une rÃ¨gle pour la commande "post"
+dans le paramÃ¨tre "access_rules".
 
-Si ce paramètre est désactivé, certains message seront peut être aussi
-modérés à cause de limites de taille, contenu suspect ou pour d'autres
-raisons. Référez vous à "help admin_moderate" pour plus de détails.
+Si ce paramÃ¨tre est dÃ©sactivÃ©, certains message seront peut Ãªtre aussi
+modÃ©rÃ©s Ã  cause de limites de taille, contenu suspect ou pour d'autres
+raisons. RÃ©fÃ©rez vous Ã  "help admin_moderate" pour plus de dÃ©tails.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_moderate
    help configset_access_rules
    help configset_administrivia

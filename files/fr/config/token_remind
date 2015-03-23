@@ -1,4 +1,4 @@
-Le paramètre "token_remind" contient le nombre de jours après la
-création d'un ticket avant qu'un message de rappel soit envoyé. Le
+Le paramÃ¨tre "token_remind" contient le nombre de jours aprÃ¨s la
+crÃ©ation d'un ticket avant qu'un message de rappel soit envoyÃ©. Le
 message de rappel contient les instructions pour accepter ou refuser
 le ticket.

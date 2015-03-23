@@ -10,7 +10,7 @@
   <td>
     <p>Entrez l'identificateur du ticket dans champ ci dessous. Un
     identificateur de ticket  est une combinaison de 12
-    caractères alphanumériques séparés par
+    caractÃ¨res alphanumÃ©riques sÃ©parÃ©s par
     des tirets, par exemple&nbsp;:</p>
     <pre>3DF8-644A-B923</pre>
     <p>Cliquez ensuite sur l'un des trois boutons.</p>
@@ -23,7 +23,7 @@
   </td>
   <td>
     Cliquez sur le bouton <b>tokeninfo</b> pour avoir tous les
-    détails a propos de la commande ou du message qui attends
+    dÃ©tails a propos de la commande ou du message qui attends
     votre approbation.
   </td>
 </tr>
@@ -55,8 +55,8 @@
 
 <p>
 Une fois que le bouton <b>accept</b> ou <b>reject</b> a
-été cliqué, le ticket devient
-immédiatement invalide, ne cliquez pas sur <b>accept</b> ou
+Ã©tÃ© cliquÃ©, le ticket devient
+immÃ©diatement invalide, ne cliquez pas sur <b>accept</b> ou
 <b>reject</b> plus d'une fois.
 </p>
 

@@ -3,9 +3,9 @@ configset liste allowed_flags <<TAG
 [VALEURS]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : ackdeny...
-Type de donnée    : tableau énuméré
-Catégorie         : reply deliver
+Valeur par dÃ©faut : ackdeny...
+Type de donnÃ©e    : tableau Ã©numÃ©rÃ©
+CatÃ©gorie         : reply deliver
 Mot de passe      : aucun
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -20,29 +20,29 @@ AMN
 
 $INCLUDE-config/allowed_flags
 
-Normalement, les abonnés peuvent modifier leurs réglages personnels
+Normalement, les abonnÃ©s peuvent modifier leurs rÃ©glages personnels
 avec la commande "set". Dans certaines situations, les gestionnaires
-de listes veulent empêcher certains paramètres d'être modifiés. Par
+de listes veulent empÃªcher certains paramÃ¨tres d'Ãªtre modifiÃ©s. Par
 exemple, si les gestionnaires d'une liste d'annonce veulent que les
-réponses n'aillent pas vers la liste, ils peuvent enlever le réglage
-"replyto" des réglages permis.
+rÃ©ponses n'aillent pas vers la liste, ils peuvent enlever le rÃ©glage
+"replyto" des rÃ©glages permis.
 
-Le réglage "postblock" ne devrais jamais être inclus dans la liste des
-réglages permis. Ce réglage est utilisé pour des raisons
-administratives, pour empêcher un utilisateur particulier de poster
-des messages sur une liste sans l'approbation des modérateurs.
+Le rÃ©glage "postblock" ne devrais jamais Ãªtre inclus dans la liste des
+rÃ©glages permis. Ce rÃ©glage est utilisÃ© pour des raisons
+administratives, pour empÃªcher un utilisateur particulier de poster
+des messages sur une liste sans l'approbation des modÃ©rateurs.
 
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_delivery
    help admin_documents
    help configset_allowed_classes (pour restreindre les modes de
-                                   réceptions)
-   help configset_default_class   (les modes de réceptions des
-                                   nouveaux abonnés)
-   help configset_default_flags   (réglages donnés aux nouveaux abonnés)
-   help configset_nonmember_flags (réglages donnés aux non abonnés)
+                                   rÃ©ceptions)
+   help configset_default_class   (les modes de rÃ©ceptions des
+                                   nouveaux abonnÃ©s)
+   help configset_default_flags   (rÃ©glages donnÃ©s aux nouveaux abonnÃ©s)
+   help configset_nonmember_flags (rÃ©glages donnÃ©s aux non abonnÃ©s)
    help here_document
-   help set    (afficher ou modifier les réglages d'un abonné)
+   help set    (afficher ou modifier les rÃ©glages d'un abonnÃ©)
 
 $INCLUDE-help/foot

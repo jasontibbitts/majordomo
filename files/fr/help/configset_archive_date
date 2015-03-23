@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset liste archive_date = [VALEUR]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Valeur par défaut : delivery
-Type de donnée    : énumérée, choisissez entre arrival et delivery
-Catégorie         : archive
+Valeur par dÃ©faut : delivery
+Type de donnÃ©e    : Ã©numÃ©rÃ©e, choisissez entre arrival et delivery
+CatÃ©gorie         : archive
 Mot de passe      : Visible avec un mot de passe.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -12,7 +12,7 @@ configset liste archive_date = arrival
 
 $INCLUDE-config/archive_date
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin
    help admin_delivery
    help archive

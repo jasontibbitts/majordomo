@@ -1,50 +1,50 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-index-recursive-long liste [répertoire]
+index-recursive-long liste [rÃ©pertoire]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 liste,      requis, le nom de la liste (ou GLOBAL)
--recursive, si spécifié, liste tous les fichiers dans tous les sous
-            répertoires
--long,      si spécifié, donne plus de détails à propos des fichiers
-répertoire, si spécifié, est le répertoire dont on veux l'index
+-recursive, si spÃ©cifiÃ©, liste tous les fichiers dans tous les sous
+            rÃ©pertoires
+-long,      si spÃ©cifiÃ©, donne plus de dÃ©tails Ã  propos des fichiers
+rÃ©pertoire, si spÃ©cifiÃ©, est le rÃ©pertoire dont on veux l'index
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-Cette commande affiche les fichiers et les répertoires qui sont
-disponibles pour la liste, que le propriétaire de la liste aura au
-préalable stocké ici. Si il n'y a aucun fichier ou répertoires, ou si
-vous n'êtes pas autorisé a avoir l'index, la commande "index" retourne
+Cette commande affiche les fichiers et les rÃ©pertoires qui sont
+disponibles pour la liste, que le propriÃ©taire de la liste aura au
+prÃ©alable stockÃ© ici. Si il n'y a aucun fichier ou rÃ©pertoires, ou si
+vous n'Ãªtes pas autorisÃ© a avoir l'index, la commande "index" retourne
 un message d'erreur.
 
-Normalement, les messages archivés sont affichés avec la commande
-"archive-index" et récupérés avec "archive-get". Les commandes "index"
-et "get" ne permettront pas l'accès aux archive si le répertoire
-"archive_dir" est réglé hors de l'espace de fichiers de la liste, et
-ne sont pas aussi pratique a utiliser même si ils fonctionnent.
+Normalement, les messages archivÃ©s sont affichÃ©s avec la commande
+"archive-index" et rÃ©cupÃ©rÃ©s avec "archive-get". Les commandes "index"
+et "get" ne permettront pas l'accÃ¨s aux archive si le rÃ©pertoire
+"archive_dir" est rÃ©glÃ© hors de l'espace de fichiers de la liste, et
+ne sont pas aussi pratique a utiliser mÃªme si ils fonctionnent.
 
-Notez que "répertoire" peut inclure un ou plusieurs niveaux de
-répertoires (aussi nommés dossiers). Par exemple, si la liste
-"MALISTE" contient un répertoire appelé "HAUT" et dans ce répertoire
-un autre appelé "BAS", les commandes suivantes sont valides :
+Notez que "rÃ©pertoire" peut inclure un ou plusieurs niveaux de
+rÃ©pertoires (aussi nommÃ©s dossiers). Par exemple, si la liste
+"MALISTE" contient un rÃ©pertoire appelÃ© "HAUT" et dans ce rÃ©pertoire
+un autre appelÃ© "BAS", les commandes suivantes sont valides :
   index MALISTE
   index MALISTE /
   index MALISTE /HAUT/BAS
   index-recursive MALISTE
-où le slash "/" sépare les noms de dossiers, et un slash tout seul est
-équivalent à ne rien mettre du tout.
+oÃ¹ le slash "/" sÃ©pare les noms de dossiers, et un slash tout seul est
+Ã©quivalent Ã  ne rien mettre du tout.
 
-Référez vous aussi à :
+RÃ©fÃ©rez vous aussi Ã  :
    help admin_documents          (pour en savoir plus sur l'espace de
                                   stockage d'une liste)
    help archive                  (pour obtenir un index de l'archive
-                                  des messages postés)
-   help configset_access_rules   (pour restreindre l'accès à cette
+                                  des messages postÃ©s)
+   help configset_access_rules   (pour restreindre l'accÃ¨s Ã  cette
                                   commande)
-   help configset_archive_access (pour restreindre l'accès aux fichier
-                                  spéciaux)
-   help configset_index_access   (détermine qui peut utiliser la
+   help configset_archive_access (pour restreindre l'accÃ¨s aux fichier
+                                  spÃ©ciaux)
+   help configset_index_access   (dÃ©termine qui peut utiliser la
                                   commande "index" pour une liste)
-   help get                      (pour récupérer les fichiers de
+   help get                      (pour rÃ©cupÃ©rer les fichiers de
                                   l'espace de la liste)
-   help put                      (pour créer des fichiers ou des
-                                  répertoires dans l'espace de la liste)
+   help put                      (pour crÃ©er des fichiers ou des
+                                  rÃ©pertoires dans l'espace de la liste)
 
 $INCLUDE-help/foot

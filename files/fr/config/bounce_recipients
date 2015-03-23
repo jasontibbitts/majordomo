@@ -1,4 +1,4 @@
-Le paramètre "bounce_recipients" contient une liste d'adresses email.
-Les notification à propos des erreurs de réception seront envoyées a
-ces adresses. Si aucune adresse n'est listée, les notifications
-d'erreurs seront envoyées aux gestionnaires de la liste.
+Le paramÃ¨tre "bounce_recipients" contient une liste d'adresses email.
+Les notification Ã  propos des erreurs de rÃ©ception seront envoyÃ©es a
+ces adresses. Si aucune adresse n'est listÃ©e, les notifications
+d'erreurs seront envoyÃ©es aux gestionnaires de la liste.

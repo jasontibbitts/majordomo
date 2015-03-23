@@ -16,7 +16,7 @@
 </tr>
 
 <tr>
-  <td>AbonnÈs</td>
+  <td>Abonn√©s</td>
   <td>$SUBS</td>
 </tr>
 <tr>
@@ -29,18 +29,18 @@
   <td><a href="mailto:$WHOAMI">$WHOAMI</a></td>
 </tr>
 <tr>
-  <td>PropriÈtaires de la liste</td>
+  <td>Propri√©taires de la liste</td>
   <td><a href="mailto:$OWNER">$OWNER</a></td>
 </tr>
 
 <tr>
   <td valign="top">Documentation</td>
   <td><a href="$CGIURL?$CGIDATA&amp;func=faq&amp;list=$LIST">
-      Questions frÈquemment posÈes</a> 
+      Questions fr√©quemment pos√©es</a> 
     <br>
 
     <a href="$CGIURL?$CGIDATA&amp;func=intro&amp;list=$LIST">
-      Introduction ‡ la liste</a> 
+      Introduction √† la liste</a> 
 
     <br>
 
@@ -57,7 +57,7 @@
 <tr>
   <td valign=top>Abonnements</td>
   <td>Pour s'abonner, entrez votre adresse email dans le champ
-    <b>Adresse</b> a moins qu'il y soit dÈj‡. Vous
+    <b>Adresse</b> a moins qu'il y soit d√©j√†. Vous
     pouvez aussi entrer votre nom dans le champ <b>Nom</b>. Cliquez
     ensuite sur le bouton <b>S'abonner</b> une seule fois.
 

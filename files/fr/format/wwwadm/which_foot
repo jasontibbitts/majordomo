@@ -2,20 +2,20 @@
 </table>
 
 <p>
-Abonnements trouvés : $COUNT
+Abonnements trouvÃ©s : $COUNT
 </p>
 
 <h4 align=center>Search the Registry</h4>
 
 <ol>
   <li>Choisissez l'une des deux methodes de recherches ci dessous en
-      pressant le bouton approprié.</li>
+      pressant le bouton appropriÃ©.</li>
   <li>Entrez un motif de recherche dans le champ <b>Motif de
-      recherche</b>. (Référez vous au document d'aide
+      recherche</b>. (RÃ©fÃ©rez vous au document d'aide
       $HELP:PATTERNS
-      pour apprendre a écrire des motifs de recherche.)</li>
+      pour apprendre a Ã©crire des motifs de recherche.)</li>
   </li>
-  <li>Entrez le nombre d'adresses que vous désirez afficher à chaque
+  <li>Entrez le nombre d'adresses que vous dÃ©sirez afficher Ã  chaque
       fois dans le champ <b>nombre d'adresses</b>. (C'est une limite
       propre a chaque liste si vous utilisez la commande <b>which</b>
       pour rechercher.)
@@ -48,8 +48,8 @@ Abonnements trouvés : $COUNT
 <h4 align=center>Enregistrez ou supprimez des adresses du registre</h4>
 
 <ol>
-  <li>Choisissez l'une des trois méthodes d'ajout ou de suppression en
-      cochant le bouton approprié.</li>
+  <li>Choisissez l'une des trois mÃ©thodes d'ajout ou de suppression en
+      cochant le bouton appropriÃ©.</li>
   <li>Entrez les adresses email dans le champ, une adresse par ligne.</li>
   <li>Appuyez sur le bouton <b>Valider</b>.</li>
 </ol>

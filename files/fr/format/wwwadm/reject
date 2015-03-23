@@ -1,6 +1,6 @@
 <!-- Majordomo reject format file -->
 <p>
-Le ticket $TOKEN a été rejeté pour la requête suivante :
+Le ticket $TOKEN a Ã©tÃ© rejetÃ© pour la requÃªte suivante :
 </p>
 <table>
 <tr>
@@ -23,6 +23,6 @@ Le ticket $TOKEN a été rejeté pour la requête suivante :
 </tr>
 </table>
 
-<p>?NOTIFIED Un message a été envoyé à $VICTIM. </p>
+<p>?NOTIFIED Un message a Ã©tÃ© envoyÃ© Ã  $VICTIM. </p>
 
 <pre>?ERROR</pre>

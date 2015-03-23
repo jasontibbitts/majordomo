@@ -12,7 +12,7 @@
   </td>
   <td>
     Entrez le nom de votre liste dans le champ <b>Liste</b> a moins
-    qu'il soit dÈj‡ prÈsent.
+    qu'il soit d√©j√† pr√©sent.
   </td>
 </tr>
 <tr>
@@ -21,9 +21,9 @@
   </td>
   <td valign="top">
     Entrez le mot de passe administratif de la liste dans le champ
-    <b>Mot de passe</b>. Si vous voyez 14 astÈrisques dans ce
-    champ, il se peut qu'il soit dÈj‡ prÈsent
-    (ces 14 Ètoiles sont un mot de passe temporaire qui ne
+    <b>Mot de passe</b>. Si vous voyez 14 ast√©risques dans ce
+    champ, il se peut qu'il soit d√©j√† pr√©sent
+    (ces 14 √©toiles sont un mot de passe temporaire qui ne
     s'applique qu'a cette cession.)
   </td>
 </tr>
@@ -45,7 +45,7 @@
     Pour vous connecter, cliquez sur le bouton <b>Go</b>
     </p>
     <p>
-    Pour remettre a zÈro les valeurs de ce formulaire, cliquez
+    Pour remettre a z√©ro les valeurs de ce formulaire, cliquez
     sur le bouton <b>Effacer</b>.
     </p>
   </td>
