@@ -1,1 +1,8 @@
-.mj_config
+.mj_config*
+.L*
+bin/.*
+blib/
+wrappers/
+pm_to_blib
+Makefile
+MYMETA.*

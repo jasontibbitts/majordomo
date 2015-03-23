@@ -157,14 +157,14 @@ sub process_rule {
   my $log = new Log::In 70;
 
   my @permitted_ops = qw(
-     anonlist  aelem    and    const     enter     eq        ge       
-     gt        helem    le     leaveeval lineseq   list      
+     anonlist  aelem    and    const     enter     eq        ge
+     gt        helem    le     leaveeval lineseq   list
      lt        match    ne     negate    not       null      or
-     padany    pushmark refgen return    rv2av     rv2sv     
+     padany    pushmark refgen return    rv2av     rv2sv     rv2gv
      seq       sne      stringify        subst
     );
 
-  my (@final_actions, @replies, $actions, $arg, $cpt, $func, $i, 
+  my (@final_actions, @replies, $actions, $arg, $cpt, $func, $i,
       $ok, $saw_terminal, $value);
   local (%args, %memberof, $current, $skip);
 
@@ -610,8 +610,8 @@ sub re_match {
   unless (ref $safe eq 'Safe') {
     eval ("use Safe");
     $safe = new Safe;
-    $safe->permit_only(qw(const leaveeval lineseq list match not null padany 
-                          pushmark return rv2sv stub subst));
+    $safe->permit_only(qw(const leaveeval lineseq list match not null padany
+                          pushmark return rv2gv rv2sv stub subst));
   }
 
   # Hack; untaint things.  That's why we're running inside a safe

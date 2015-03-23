@@ -340,8 +340,8 @@ sub check_headers {
 
   # Set up the Safe compartment
   $safe = new Safe;
-  $safe->permit_only(qw(aassign and const leaveeval lineseq list match not 
-                        null padany push pushmark return rv2sv stub));
+  $safe->permit_only(qw(aassign and const leaveeval lineseq list match not
+                        null padany push pushmark return rv2gv rv2sv stub));
   $safe->share('$text');
 
   # Iterate over each tag present in the header.

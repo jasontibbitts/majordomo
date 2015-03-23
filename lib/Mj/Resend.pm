@@ -1278,8 +1278,8 @@ sub _check_header {
 
   # Set up the Safe compartment
   $safe = new Safe;
-  $safe->permit_only(qw(aassign and const leaveeval lineseq list match not 
-                        null padany push pushmark return rv2sv stub subst));
+  $safe->permit_only(qw(aassign and const leaveeval lineseq list match not
+                        null padany push pushmark return rv2gv rv2sv stub subst));
 
   $avars->{total_header_length} = 0;
   $avars->{max_header_length}   = 0;
@@ -1288,7 +1288,7 @@ sub _check_header {
 
   # Recursively check message headers for taboo, admin, and
   # noarchive matches.
-  $self->_r_ck_header($list, $ent, $reasons, $avars, $safe, 
+  $self->_r_ck_header($list, $ent, $reasons, $avars, $safe,
                       $code, $invars, 'toplevel');
 
   # Untaint
@@ -1503,8 +1503,8 @@ sub _check_body {
 
   # Create a Safe compartment
   $safe = new Safe;
-  $safe->permit_only(qw(aassign and const le leaveeval lineseq list match 
-                        not null padany push pushmark return rv2sv stub 
+  $safe->permit_only(qw(aassign and const le leaveeval lineseq list match
+                        not null padany push pushmark return rv2gv rv2sv stub
                         subst));
 
   # Recursively check the body
@@ -1663,14 +1663,14 @@ sub _r_strip_body {
   my $code     = shift;
   local $level = shift;
   my $log = new Log::In 50, $level;
-  my (@changes, @newparts, @parts, $char, $enc, $i, $mt, $nent, $tmpdir, 
+  my (@changes, @newparts, @parts, $char, $enc, $i, $mt, $nent, $tmpdir,
       $txtfile, $verdict, $xform);
 
   # Create a Safe compartment
   my ($safe) = new Safe;
-  $safe->permit_only(qw(aassign and const gt le leaveeval lineseq list 
-                        match not null padany push pushmark return 
-                        rv2sv stub subst undef));
+  $safe->permit_only(qw(aassign and const gt le leaveeval lineseq list
+                        match not null padany push pushmark return
+                        rv2gv rv2sv stub subst undef));
   $safe->share(qw($level));
   local ($_);
   @newparts = ();
@@ -1689,7 +1689,7 @@ sub _r_strip_body {
     for $i (@parts) {
       $_ = $mt = $i->effective_type;
       $enc = $i->head->mime_encoding;
-      $char = $i->head->mime_attr('content-type.charset') 
+      $char = $i->head->mime_attr('content-type.charset')
                 || 'iso-8859-1';
       ($verdict, $xform) = $safe->reval($code);
       warn "Error filtering type $mt:  $@" if $@;
@@ -1703,8 +1703,8 @@ sub _r_strip_body {
         if ($txtfile) {
           # Create an entity from the cleaned file.
           $nent = build MIME::Entity('Path' => $txtfile);
-         
-          if ($nent) { 
+
+          if ($nent) {
             $nent->head($i->head->dup);
             push @newparts, $nent;
             push @changes, [$mt, 'clean'];
