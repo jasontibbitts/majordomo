@@ -1594,10 +1594,10 @@ sub _r_ck_body {
     }
 
     # Update checksum counters.  The partial checksum only applies
-    # to the first ten lines of the body.
+    # to the first thirty lines of the body.
     if ($first and $sum1 and $sum2) {
       $sum1->add($text);
-      $sum2->add($text) if $line <= 10;
+      $sum2->add($text) if $line <= 30;
     }
 
     # Calculate a few message metrics
