@@ -159,7 +159,7 @@ sub process_rule {
   my @permitted_ops = qw(
      anonlist  aelem    and    const     enter     eq        ge
      gt        helem    le     leaveeval lineseq   list
-     lt        match    ne     negate    not       null      or
+     lt        match    multideref       ne     negate    not       null      or
      padany    pushmark refgen return    rv2av     rv2sv     rv2gv
      seq       sne      stringify        subst
     );

@@ -613,7 +613,7 @@ sub _xform {
 
   # Set up the Safe compartment
   eval { require Safe; $cpt = new Safe; };
-  $cpt->permit_only(qw(concat const lc leaveeval lineseq list padany
+  $cpt->permit_only(qw(concat const lc leaveeval lineseq list multideref padany
                        pushmark rv2sv subst uc rv2gv));
   $cpt->share('$addr');
 

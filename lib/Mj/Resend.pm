@@ -1278,8 +1278,8 @@ sub _check_header {
 
   # Set up the Safe compartment
   $safe = new Safe;
-  $safe->permit_only(qw(aassign and const leaveeval lineseq list match not
-                        null padany push pushmark return rv2gv rv2sv stub subst));
+  $safe->permit_only(qw(aassign and const leaveeval lineseq list match
+      multideref not null padany push pushmark return rv2gv rv2sv stub subst));
 
   $avars->{total_header_length} = 0;
   $avars->{max_header_length}   = 0;
